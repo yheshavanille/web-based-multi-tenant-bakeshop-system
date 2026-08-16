@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shop extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'shop_name',
         'shop_image',
@@ -13,6 +16,8 @@ class Shop extends Model
         'address',
         'user_id',
     ];
+
+    protected $dates = ['deleted_at'];
 
     public function user()
     {

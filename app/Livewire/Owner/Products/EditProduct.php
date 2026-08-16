@@ -18,7 +18,8 @@ class EditProduct extends Component
     public $name;
     public $price;
     public $category_id;
-    public $branch_id;
+    public $selectedBranches = [];
+    public $stock_per_branch = 10;
     public $image_url;
     public $image;
     public $description;
@@ -37,7 +38,7 @@ class EditProduct extends Component
 
     public function mount($productId)
     {
-        $product = Product::findOrFail($productId);
+        $product = Product::with('branches')->findOrFail($productId);
         $user = Auth::user();
 
         if (!$user || !$user->shop || $product->shop_id !== $user->shop->id) {
@@ -48,9 +49,16 @@ class EditProduct extends Component
         $this->name = $product->name;
         $this->price = $product->price;
         $this->category_id = $product->category_id;
-        $this->branch_id = $product->branch_id;
         $this->image_url = $product->image_url;
         $this->description = $product->description;
+
+        // Get selected branch IDs
+        $this->selectedBranches = $product->branches->pluck('id')->toArray();
+
+        // Get stock from first branch (if any)
+        if ($product->branches->isNotEmpty()) {
+            $this->stock_per_branch = $product->branches->first()->pivot->stock ?? 10;
+        }
 
         $shop = $user->shop;
 
@@ -61,6 +69,33 @@ class EditProduct extends Component
         $this->branches = Branch::where('shop_id', $shop->id)
             ->orderBy('name')
             ->get();
+    }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Product name is required.',
+            'price.required' => 'Price is required.',
+            'category_id.required' => 'Category is required.',
+            'selectedBranches.required' => 'Please select at least one branch.',
+            'stock_per_branch.required' => 'Stock quantity is required.',
+            'stock_per_branch.min' => 'Stock quantity must be 0 or more.',
+        ];
+    }
+
+    public function rules()
+    {
+        return [
+            'name' => 'required|string|min:3',
+            'price' => 'required|numeric|min:1',
+            'category_id' => 'required|exists:categories,id',
+            'selectedBranches' => 'required|array|min:1',
+            'selectedBranches.*' => 'exists:branches,id',
+            'stock_per_branch' => 'required|integer|min:0',
+            'image_url' => 'nullable',
+            'image' => 'nullable|image|max:2048',
+            'description' => 'nullable|string',
+        ];
     }
 
     public function save()
@@ -90,29 +125,21 @@ class EditProduct extends Component
             'name' => $this->name,
             'price' => $this->price,
             'category_id' => $this->category_id,
-            'branch_id' => $this->branch_id,
             'image_url' => $imagePath,
             'description' => $this->description,
         ]);
 
-        session()->flash('message', 'Product updated successfully.');
+        // Sync branches with stock
+        $syncData = [];
+        foreach ($this->selectedBranches as $branchId) {
+            $syncData[$branchId] = ['stock' => $this->stock_per_branch];
+        }
+        $product->branches()->sync($syncData);
+
+        session()->flash('message', '✅ Product updated successfully.');
 
         return redirect()->route('livewire.owner.products.view-product');
     }
-
-    public function rules()
-    {
-        return [
-            'name' => 'required|string|min:3',
-            'price' => 'required|numeric|min:1',
-            'category_id' => 'required|exists:categories,id',
-            'branch_id' => 'required|exists:branches,id',
-            'image_url' => 'nullable',
-            'image' => 'nullable|image|max:2048',
-            'description' => 'nullable|string',
-        ];
-    }
-
 
     public function render()
     {

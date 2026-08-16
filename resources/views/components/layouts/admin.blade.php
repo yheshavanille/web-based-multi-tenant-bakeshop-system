@@ -3,30 +3,49 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>{{ $title ?? config('app.name') }}</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Admin Dashboard')</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     @livewireStyles
 </head>
 
-<body
-    class="hs-overlay-body-open overflow-hidden bg-background-2 bg-white text-black dark:bg-neutral-900 dark:text-white">
-    @include('components.navbar.admin')
-    @include('components.header.admin')
-    <main class="lg:hs-overlay-layout-open:ps-60 transition-all duration-300 lg:fixed lg:inset-0 pt-13.5 px-3 pb-3">
-        <div
-            class="h-[calc(100dvh-62px)] lg:h-full overflow-hidden flex flex-col bg-white border border-gray-200 shadow-xs rounded-lg dark:bg-neutral-800 dark:border-neutral-700">
-            <!-- Body -->
-            <div class="flex-1 flex flex-col overflow-y-auto [&::-webkit-scrollbar]:w-0">
-                {{ $slot }}
-            </div>
+<body>
+    <!-- Navbar -->
+    <x-navbar.admin />
+
+    <!-- Main Content -->
+    <div class="min-h-screen bg-gray-50 pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {{ $slot }}
         </div>
-    </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div x-data="{
+        show: false,
+        message: '',
+        init() {
+            Livewire.on('show-toast', (data) => {
+                this.message = data.message;
+                this.show = true;
+                setTimeout(() => { this.show = false; }, 3000);
+            });
+        }
+    }" x-show="show" x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200 transform"
+        x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-4"
+        @click.away="show = false"
+        class="fixed bottom-6 right-6 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg max-w-sm flex items-center gap-3">
+        <span class="text-2xl">✅</span>
+        <span class="font-medium" x-text="message"></span>
+    </div>
 
     @livewireScripts
+    @stack('scripts')
 </body>
 
 </html>

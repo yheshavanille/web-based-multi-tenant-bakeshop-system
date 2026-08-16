@@ -9,6 +9,7 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'product_id',
+        'branch_id',  // ← ADD THIS
         'quantity',
     ];
 
@@ -20,5 +21,10 @@ class Cart extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

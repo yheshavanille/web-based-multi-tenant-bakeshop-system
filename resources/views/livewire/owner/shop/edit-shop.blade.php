@@ -2,7 +2,6 @@
     <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
         <div class="mt-12 max-w-full mx-auto">
 
-
             <!-- ONE CARD -->
             <div class="flex flex-col border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 space-y-6">
                 <!-- HEADER -->
@@ -26,8 +25,6 @@
                     No Image Preview
                 </div>
                 @endif
-
-
 
                 <!-- SUCCESS MESSAGE -->
                 @if(session()->has('message'))
@@ -90,7 +87,6 @@
                             </div>
                         </div>
 
-
                         <!-- ADDRESS -->
                         <div>
                             <label class="block mb-2 text-sm text-gray-700 font-medium">
@@ -132,6 +128,29 @@
                     </div>
 
                 </form>
+
+                <!-- DANGER ZONE - Delete Shop -->
+                <div class="mt-8 pt-6 border-t-2 border-red-200">
+                    <div class="bg-red-50 rounded-xl p-4 border border-red-200">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-sm font-semibold text-red-800 flex items-center gap-2">
+                                    ⚠️ Danger Zone
+                                </h3>
+                                <p class="text-xs text-red-600">
+                                    Once you delete your shop, all data will be hidden. You can contact support to
+                                    restore it.
+                                </p>
+                            </div>
+                            <button wire:click="deleteShop"
+                                onclick="confirm('Are you sure you want to delete your shop? This action can be reversed by contacting support.') || event.stopImmediatePropagation()"
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium whitespace-nowrap">
+                                Delete Shop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>

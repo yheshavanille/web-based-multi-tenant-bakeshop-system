@@ -5,6 +5,16 @@
 
                 <div class="flex flex-col border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 overflow-visible">
 
+                    <!-- FLASH MESSAGE -->
+                    @if (session()->has('message'))
+                    <div
+                        class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between">
+                        <span>{{ session('message') }}</span>
+                        <button onclick="this.parentElement.remove()"
+                            class="text-green-700 hover:text-green-900">✕</button>
+                    </div>
+                    @endif
+
                     <div class="flex flex-col mb-8">
                         <div class="flex justify-between items-center">
                             <h2 class="text-xl font-semibold text-gray-800">Edit Product</h2>
@@ -43,18 +53,18 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 <div>
-                                    <label class="block mb-2 text-sm text-gray-700 font-medium">Product Name</label>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Product Name</label>
                                     <input type="text" wire:model="name"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg">
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                     @error('name')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block mb-2 text-sm text-gray-700 font-medium">Price</label>
-                                    <input type="number" wire:model="price"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg">
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Price (₱)</label>
+                                    <input type="number" step="0.01" wire:model="price"
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                     @error('price')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                     @enderror
@@ -63,25 +73,9 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 <div>
-                                    <label class="block mb-2 text-sm text-gray-700 font-medium">Branch</label>
-                                    <select wire:model="branch_id"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white">
-                                        <option value="">Select branch</option>
-                                        @foreach($branches as $branch)
-                                        <option value="{{ $branch->id }}">
-                                            {{ $branch->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    @error('branch_id')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div>
-                                    <label class="block mb-2 text-sm text-gray-700 font-medium">Category</label>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Category</label>
                                     <select wire:model="category_id"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg">
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
                                         <option value="">Select category</option>
                                         @foreach($categories as $category)
                                         <option value="{{ $category->id }}">
@@ -93,22 +87,68 @@
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                     @enderror
                                 </div>
+
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Stock per Branch</label>
+                                    <input type="number" wire:model="stock_per_branch" min="0"
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                    <p class="text-xs text-gray-500 mt-1">Stock quantity for selected branches</p>
+                                    @error('stock_per_branch')
+                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <!-- BRANCH CHECKBOXES -->
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Available Branches</label>
+                                <p class="text-sm text-gray-500 mb-3">Select which branches this product is available
+                                    at.</p>
+
+                                @if($branches->count() > 0)
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    @foreach($branches as $branch)
+                                    <label
+                                        class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-amber-50 cursor-pointer transition">
+                                        <input type="checkbox" wire:model="selectedBranches" value="{{ $branch->id }}"
+                                            class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-800">{{ $branch->name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $branch->address }}</p>
+                                            <p class="text-xs text-gray-400">Status: {{ $branch->is_active ? 'Active' :
+                                                'Inactive' }}</p>
+                                        </div>
+                                    </label>
+                                    @endforeach
+                                </div>
+                                @error('selectedBranches')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                @enderror
+                                @else
+                                <div
+                                    class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                                    <p>⚠️ No branches found. Please <a
+                                            href="{{ route('livewire.owner.branches.manage-branches') }}"
+                                            class="text-amber-600 hover:underline">create a branch</a> first.</p>
+                                </div>
+                                @endif
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm text-gray-700 font-medium">Description</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Description</label>
                                 <textarea wire:model="description"
-                                    class="py-2.5 px-4 w-full border border-gray-200 rounded-lg min-h-[120px]"></textarea>
+                                    class="py-2.5 px-4 w-full border border-gray-200 rounded-lg min-h-[120px] focus:ring-amber-500 focus:border-amber-500"></textarea>
                                 @error('description')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm text-gray-700 font-medium">Image URL</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Image URL</label>
                                 <div class="flex items-center gap-2">
                                     <input type="text" wire:model.live="image_url" @disabled($image)
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white relative z-20 disabled:bg-gray-100 disabled:cursor-not-allowed">
+                                        placeholder="https://example.com/image.jpg"
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white relative z-20 disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
                                     @if($image_url)
                                     <button type="button" wire:click="$set('image_url', '')"
                                         class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
@@ -116,13 +156,16 @@
                                     </button>
                                     @endif
                                 </div>
+                                @error('image_url')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm text-gray-700 font-medium">Upload Image</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700">Upload Image</label>
                                 <div class="flex items-center gap-2">
                                     <input type="file" wire:model="image" @disabled($image_url)
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed">
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
                                     @if($image)
                                     <button type="button" wire:click="$set('image', null)"
                                         class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
@@ -137,7 +180,8 @@
                         </div>
 
                         <div class="mt-6">
-                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <button type="submit"
+                                class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
                                 Save Changes
                             </button>
                         </div>

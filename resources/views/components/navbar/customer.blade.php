@@ -5,7 +5,7 @@
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.customer.dashboard') }}" class="flex items-center gap-2">
                     <span class="text-2xl">🍞</span>
-                    <span class="text-xl font-bold text-gray-900">BakeshopHub</span>
+                    <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                 </a>
 
                 <!-- Cart Icon with Count -->
@@ -17,7 +17,7 @@
                         </path>
                     </svg>
                     @php
-                    $cartCount = App\Models\Cart::where('user_id', auth()->id())->sum('quantity');
+                    $cartCount = App\Models\Cart::where('user_id', auth()->id())->count();
                     @endphp
                     @if($cartCount > 0)
                     <span
@@ -43,7 +43,7 @@
                         </svg>
                     </button>
 
-                    <!-- Dropdown Menu - Made Wider -->
+                    <!-- Dropdown Menu -->
                     <div x-show="open" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                         class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
@@ -66,7 +66,7 @@
                             <span class="text-lg">🏪</span>
                             Browse Shops
                         </a>
-                        <a href="#"
+                        <a href="{{ route('livewire.customer.orders') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <span class="text-lg">📋</span>
                             My Orders

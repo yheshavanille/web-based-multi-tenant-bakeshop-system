@@ -137,9 +137,9 @@ class ManageBranches extends Component
         $this->loadBranches();
     }
 
-
     public function render()
     {
-        return view('livewire.owner.branches.manage-branches');
+        return view('livewire.owner.branches.manage-branches')
+            ->layout('components.layouts.owner');
     }
 }

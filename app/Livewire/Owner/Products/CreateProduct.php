@@ -18,7 +18,8 @@ class CreateProduct extends Component
     public string $name = '';
     public float $price = 0;
     public string $category_id = '';
-    public string $branch_id = '';
+    public array $selectedBranches = [];
+    public int $stock_per_branch = 10;
     public Collection $categories;
     public $branches;
 
@@ -73,7 +74,9 @@ class CreateProduct extends Component
             'name.required' => 'Product name is required.',
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
-            'branch_id.required' => 'Branch is required.',
+            'selectedBranches.required' => 'Please select at least one branch.',
+            'stock_per_branch.required' => 'Stock quantity is required.',
+            'stock_per_branch.min' => 'Stock quantity must be 0 or more.',
             'image_url.url' => 'Image URL must be valid.',
         ];
     }
@@ -84,7 +87,9 @@ class CreateProduct extends Component
             'name' => 'required|string|min:3',
             'price' => 'required|numeric|min:1',
             'category_id' => 'required|exists:categories,id',
-            'branch_id' => 'required|exists:branches,id',
+            'selectedBranches' => 'required|array|min:1',
+            'selectedBranches.*' => 'exists:branches,id',
+            'stock_per_branch' => 'required|integer|min:0',
             'image_url' => 'nullable|url',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
@@ -110,21 +115,24 @@ class CreateProduct extends Component
             $imagePath = $this->image_url;
         }
 
-        Product::create([
+        $product = Product::create([
             'name' => $this->name,
             'price' => $this->price,
             'category_id' => $this->category_id,
-            'branch_id' => $this->branch_id,
             'image_url' => $imagePath,
             'description' => $this->description,
             'shop_id' => $shop->id,
         ]);
 
-        session()->flash('message', 'Product created successfully.');
+        // Attach branches with stock
+        foreach ($this->selectedBranches as $branchId) {
+            $product->branches()->attach($branchId, ['stock' => $this->stock_per_branch]);
+        }
+
+        session()->flash('message', '✅ Product created successfully!');
 
         return redirect()->route('livewire.owner.products.view-product');
     }
-
 
     public function render()
     {

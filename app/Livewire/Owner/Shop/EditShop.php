@@ -17,7 +17,6 @@ class EditShop extends Component
     public $address;
     public $description;
 
-
     public function updatedImage()
     {
         if ($this->image) {
@@ -84,6 +83,17 @@ class EditShop extends Component
 
         return redirect()->route('livewire.owner.dashboard');
     }
+
+    public function deleteShop()
+    {
+        $shop = Auth::user()->shop;
+        $shopName = $shop->shop_name;
+        $shop->delete();
+
+        session()->flash('message', 'Shop "' . $shopName . '" has been deleted.');
+        return redirect()->route('livewire.customer.dashboard');
+    }
+
     public function render()
     {
         return view('livewire.owner.shop.edit-shop');
