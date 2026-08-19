@@ -25,6 +25,7 @@
                     <option value="ready_for_pickup">✅ Ready</option>
                     <option value="completed">📦 Completed</option>
                     <option value="no_show">🚫 No Show</option>
+                    <option value="cancelled">🚫 Cancelled</option>
                 </select>
             </div>
         </div>
@@ -132,7 +133,7 @@
                                             <div class="min-w-0">
 
                                                 <p class="text-sm font-medium text-gray-800">
-                                                    {{ $item->product->name }}
+                                                    {{ $item->product?->name ?? 'Product Unavailable' }}
                                                 </p>
 
                                                 <p class="text-xs text-gray-500">
@@ -159,7 +160,8 @@
                                                     {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                                                     {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                                                     {{ $item->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                                                    {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
+                                                    {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}
+                                                    {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
@@ -192,6 +194,12 @@
                                                     <option value="no_show" {{ $item->status === 'no_show' ? 'selected'
                                                         : '' }}>
                                                         No Show
+                                                    </option>
+
+                                                    <option value="cancelled" {{ $item->status === 'cancelled' ?
+                                                        'selected'
+                                                        : '' }}>
+                                                        Cancelled
                                                     </option>
 
                                                 </select>

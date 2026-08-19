@@ -123,8 +123,12 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 py-3">
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ $employee->user->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $employee->user->email }}</p>
+                                    <p
+                                        class="font-medium text-gray-800 {{ $employee->user && $employee->user->trashed() ? 'line-through text-gray-400' : '' }}">
+                                        {{ $employee->user?->name ?? 'Deleted user' }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{ $employee->user?->email ?? 'No email available'
+                                        }}</p>
                                 </div>
                             </td>
                             <td class="px-4 py-3">
@@ -138,12 +142,25 @@
                                 📍 {{ $employee->branch->name ?? 'N/A' }}
                             </td>
                             <td class="px-4 py-3">
+                                @if($employee->user && $employee->user->trashed())
                                 <span
-                                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full {{ $employee->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ $employee->is_active ? '✅ Active' : '❌ Inactive' }}
+                                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                    🔴 Inactive (Deleted)
                                 </span>
+                                @elseif($employee->is_active)
+                                <span
+                                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                    🟢 Active
+                                </span>
+                                @else
+                                <span
+                                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                    🔴 Inactive
+                                </span>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-right space-x-1">
+                                @if(!$employee->user || !$employee->user->trashed())
                                 <button wire:click="edit({{ $employee->id }})"
                                     class="px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition">
                                     Edit
@@ -157,6 +174,9 @@
                                     class="px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition">
                                     Delete
                                 </button>
+                                @else
+                                <span class="text-xs text-gray-400">User deleted</span>
+                                @endif
                             </td>
                         </tr>
                         @empty

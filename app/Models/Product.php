@@ -48,4 +48,14 @@ class Product extends Model
             'user_id'
         );
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function editHistories()
+    {
+        return $this->hasMany(ProductEditHistory::class);
+    }
 }

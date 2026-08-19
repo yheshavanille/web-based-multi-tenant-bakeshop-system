@@ -5,9 +5,11 @@ namespace App\Livewire\Customer;
 use App\Models\Branch;
 use App\Models\Cart;
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class ViewProducts extends Component
@@ -19,6 +21,7 @@ class ViewProducts extends Component
     public $branches = [];
     public $products = [];
     public $categories = [];
+    public $bestSellers = [];
 
     public function mount($shopId, $branch = null)
     {
@@ -41,12 +44,14 @@ class ViewProducts extends Component
 
         $this->loadCategories();
         $this->loadProducts();
+        $this->loadBestSellers();
     }
 
     public function selectBranch($branchId)
     {
         $this->selectedBranchId = $branchId;
         $this->loadProducts();
+        $this->loadBestSellers();
     }
 
     public function loadCategories()
@@ -75,6 +80,32 @@ class ViewProducts extends Component
             ->when($this->selectedCategory !== 'all', function ($query) {
                 $query->where('products.category_id', $this->selectedCategory);
             })
+            ->get();
+    }
+
+    // ✅ Best Sellers - Load top 3 products for the selected branch
+    public function loadBestSellers()
+    {
+        $branchId = $this->selectedBranchId;
+
+        if (!$branchId) {
+            $this->bestSellers = collect();
+            return;
+        }
+
+        $this->bestSellers = OrderItem::whereHas('order', function ($query) use ($branchId) {
+            $query->where('branch_id', $branchId)
+                ->where('status', 'completed');
+        })
+            ->select(
+                'product_id',
+                DB::raw('SUM(quantity) as total_sold'),
+                DB::raw('SUM(quantity * price) as total_revenue')
+            )
+            ->with('product')
+            ->groupBy('product_id')
+            ->orderBy('total_sold', 'desc')
+            ->limit(3)
             ->get();
     }
 

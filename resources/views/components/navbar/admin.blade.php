@@ -59,6 +59,13 @@
                             @endif
                         </a>
 
+                        <a href="{{ route('livewire.admin.pages.users.manage-users') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">👥</span> Manage Users
+                        </a>
+
+                        <div class="border-t border-gray-100 my-1"></div>
+
                         <form method="POST" action="{{ route('logout.post') }}" class="block">
                             @csrf
                             <button type="submit"

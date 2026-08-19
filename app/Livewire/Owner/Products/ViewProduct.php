@@ -3,10 +3,12 @@
 namespace App\Livewire\Owner\Products;
 
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ViewProduct extends Component
 {
@@ -14,6 +16,11 @@ class ViewProduct extends Component
     public $selectedBranchId = null;
     public $showDeleted = false;
     public Collection $categories;
+
+    // Modal properties
+    public $showProductModal = false;
+    public $selectedProduct = null;
+    public $productAnalytics = [];
 
     public function mount($branch = null)
     {
@@ -47,6 +54,37 @@ class ViewProduct extends Component
         session()->flash('message', '✅ Product restored successfully.');
     }
 
+    public function viewProductDetails($productId)
+    {
+        $this->selectedProduct = Product::with('branches', 'category')
+            ->findOrFail($productId);
+
+        // Calculate analytics
+        $orderItems = OrderItem::where('product_id', $productId)
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'completed');
+            })
+            ->get();
+
+        $this->productAnalytics = [
+            'total_sold' => $orderItems->sum('quantity'),
+            'total_orders' => $orderItems->groupBy('order_id')->count(),
+            'total_revenue' => $orderItems->sum(function ($item) {
+                return $item->quantity * $item->price;
+            }),
+        ];
+
+        $this->showProductModal = true;
+    }
+
+    public function closeProductModal()
+    {
+        $this->showProductModal = false;
+        $this->selectedProduct = null;
+        $this->productAnalytics = [];
+        $this->dispatch('product-modal-closed');
+    }
+
     public function render()
     {
         $shop = Auth::user()->shop;
@@ -70,6 +108,6 @@ class ViewProduct extends Component
         return view('livewire.owner.products.view-product', [
             'products' => $query->get(),
             'categories' => $this->categories,
-        ]);
+        ])->layout('components.layouts.owner');
     }
 }

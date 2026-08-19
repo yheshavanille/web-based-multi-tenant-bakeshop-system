@@ -27,6 +27,47 @@
             </div>
         </div>
 
+        <!-- ✅ Best Sellers Section -->
+        @if($bestSellers->count() > 0 && $selectedBranchId)
+        <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl shadow-sm border border-amber-200 p-5 mb-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">🏆</span>
+                <h2 class="text-lg font-semibold text-gray-800">Best Sellers</h2>
+                <span class="text-xs text-gray-500 ml-auto">
+                    {{ $branches->firstWhere('id', $selectedBranchId)?->name ?? '' }}
+                </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                @foreach($bestSellers as $item)
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition group">
+                    <!-- Image -->
+                    <div class="w-full h-32 bg-gray-100 overflow-hidden">
+                        @if($item->product->image_url)
+                        <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product->name }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        @else
+                        <div
+                            class="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-amber-50 to-orange-50">
+                            🍰
+                        </div>
+                        @endif
+                    </div>
+                    <!-- Content -->
+                    <div class="p-3">
+                        <p class="font-semibold text-gray-800 text-sm truncate">{{ $item->product->name }}</p>
+                        <div class="flex items-center justify-between mt-1">
+                            <span class="text-xs text-gray-500">{{ $item->total_sold }} sold</span>
+                            <span class="text-xs font-bold text-amber-600">₱{{ number_format($item->total_revenue, 2)
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <!-- Branch Cards -->
         <div class="mb-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">📍 Select Branch</h2>

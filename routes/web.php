@@ -6,11 +6,10 @@ use App\Livewire\Admin\Pages\Role\EditRole;
 use App\Livewire\Admin\Pages\Role\ViewRole;
 use App\Livewire\Admin\Pages\Shops\ShopDetails;
 use App\Livewire\Admin\Pages\Shops\ViewShops;
+use App\Livewire\Admin\Pages\Users\ManageUsers;
 use App\Livewire\Admin\Pages\Users\CreateUser;
 use App\Livewire\Admin\Pages\Users\EditUser;
 use App\Livewire\Admin\Pages\Users\ViewUser;
-use App\Livewire\Admin\PublicPages\AdminAboutUs;
-use App\Livewire\Admin\PublicPages\AdminTeams;
 use App\Livewire\Admin\PublicPages\Teams;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Logout;
@@ -21,6 +20,7 @@ use App\Livewire\Customer\PublicPages\AboutUs;
 use App\Livewire\Customer\PublicPages\CustomerAboutUs;
 use App\Livewire\Customer\PublicPages\CustomerTeams;
 use App\Livewire\Customer\ViewProducts;
+use App\Livewire\Owner\Branches\BranchOrders;
 use App\Livewire\Owner\Branches\ManageBranches;
 use App\Livewire\Owner\Branches\ManageBranchCards;
 use App\Livewire\Owner\Category\CreateCategory;
@@ -33,6 +33,7 @@ use App\Livewire\Owner\Products\EditProduct;
 use App\Livewire\Owner\Products\ViewProduct;
 use App\Livewire\Owner\PublicPages\OwnerAboutUs;
 use App\Livewire\Owner\PublicPages\OwnerTeams;
+use App\Livewire\Owner\ReviewsHistory;
 use App\Livewire\Owner\Shop\EditShop;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -62,9 +63,8 @@ Route::prefix('admin')
         Route::get('/shops', ViewShops::class)->name('livewire.admin.pages.shops.view-shops');
         Route::get('/shops/shopdetails/{shopId}', ShopDetails::class)->name('livewire.admin.pages.shops.shop-details');
 
-        // public pages
-        Route::get('/admin-about-us', AdminAboutUs::class)->name('livewire.admin.public-pages.admin-about-us');
-        Route::get('/admin-teams', AdminTeams::class)->name('livewire.admin.public-pages.admin-teams');
+        // users
+        Route::get('/users', ManageUsers::class)->name('livewire.admin.pages.users.manage-users');
 
         // pending sellers
         Route::get('/pending-sellers', \App\Livewire\Admin\PendingSellers::class)->name('livewire.admin.pending-sellers');
@@ -87,6 +87,7 @@ Route::prefix('owner')
         // branches
         Route::get('/branches', ManageBranches::class)->name('livewire.owner.branches.manage-branches');
         Route::get('/branches/cards', ManageBranchCards::class)->name('livewire.owner.branches.manage-cards');
+        Route::get('/branch-orders/{branchId}', BranchOrders::class)->name('livewire.owner.branches.branch-orders');
 
         // category
         Route::get('/categories', ViewCategory::class)->name('livewire.owner.category.view-category');
@@ -95,6 +96,9 @@ Route::prefix('owner')
 
         // employees - with branch filter support
         Route::get('/employees/{branch?}', ManageEmployees::class)->name('livewire.owner.employees.manage');
+
+        // ✅ Reviews History
+        Route::get('/reviews-history', ReviewsHistory::class)->name('livewire.owner.reviews-history');
 
         // public pages
         Route::get('/owner-about-us', OwnerAboutUs::class)->name('livewire.owner.public-pages.owner-about-us');
@@ -129,4 +133,5 @@ Route::prefix('employee')
         Route::get('/dashboard', \App\Livewire\Employee\Dashboard::class)->name('livewire.employee.dashboard');
         Route::get('/products', \App\Livewire\Employee\Products::class)->name('livewire.employee.products');
         Route::get('/orders', \App\Livewire\Employee\Orders::class)->name('livewire.employee.orders');
+        Route::get('/inventory', \App\Livewire\Employee\ManageStock::class)->name('livewire.employee.inventory');
     });

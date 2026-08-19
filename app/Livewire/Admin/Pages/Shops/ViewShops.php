@@ -52,6 +52,6 @@ class ViewShops extends Component
         return view('livewire.admin.pages.shops.view-shops', [
             'shops' => $shops,
             'deletedCount' => $deletedCount,
-        ]);
+        ])->layout('components.layouts.admin');
     }
 }
