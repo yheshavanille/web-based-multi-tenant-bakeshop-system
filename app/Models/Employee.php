@@ -25,7 +25,7 @@ class Employee extends Model
 
     public function shop()
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Shop::class)->withTrashed(); // ✅ Added withTrashed()
     }
 
     public function branch()

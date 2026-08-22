@@ -93,9 +93,11 @@
         @if($step == 2)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">📄 Business Information</h2>
-            <p class="text-sm text-gray-500 mb-6">Upload your Business Permit from the LGU.</p>
+            <p class="text-sm text-gray-500 mb-6">Upload your Business Permit from the LGU and a Valid Government ID.
+            </p>
 
             <div class="space-y-4">
+                <!-- Business Permit -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Business Permit</label>
                     <input type="file" wire:model="business_permit"
@@ -104,9 +106,43 @@
                     @error('business_permit')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
+
                     @if($business_permit)
-                    <p class="mt-2 text-sm text-green-600">✅ {{ $business_permit->getClientOriginalName() }} uploaded
-                    </p>
+                    <div class="mt-2">
+                        @if(in_array($business_permit->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']))
+                        <img src="{{ $business_permit->temporaryUrl() }}"
+                            class="w-32 h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition"
+                            onclick="window.open('{{ $business_permit->temporaryUrl() }}', '_blank')">
+                        <p class="text-xs text-gray-400 mt-1">Click image to enlarge</p>
+                        @else
+                        <p class="text-sm text-green-600">✅ {{ $business_permit->getClientOriginalName() }} uploaded
+                            (PDF)</p>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Valid Government ID -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Valid Government ID</label>
+                    <input type="file" wire:model="valid_id"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+                    <p class="text-xs text-gray-400 mt-1">Accepted: PDF, JPG, PNG (Max 5MB)</p>
+                    @error('valid_id')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+
+                    @if($valid_id)
+                    <div class="mt-2">
+                        @if(in_array($valid_id->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']))
+                        <img src="{{ $valid_id->temporaryUrl() }}"
+                            class="w-32 h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition"
+                            onclick="window.open('{{ $valid_id->temporaryUrl() }}', '_blank')">
+                        <p class="text-xs text-gray-400 mt-1">Click image to enlarge</p>
+                        @else
+                        <p class="text-sm text-green-600">✅ {{ $valid_id->getClientOriginalName() }} uploaded (PDF)</p>
+                        @endif
+                    </div>
                     @endif
                 </div>
 

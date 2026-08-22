@@ -51,6 +51,7 @@ class EditCategory extends Component
     }
     public function render()
     {
-        return view('livewire.owner.category.edit-category');
+        return view('livewire.owner.category.edit-category')
+            ->layout('components.layouts.owner');
     }
 }

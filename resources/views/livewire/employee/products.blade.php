@@ -171,7 +171,20 @@
                                     <span class="font-medium text-gray-800">{{ $product->name }}</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">₱{{ number_format($product->price, 2) }}</td>
+                            <td class="px-4 py-3">
+                                @if($product->isDiscounted())
+                                <div>
+                                    <span class="text-xs text-gray-400 line-through">₱{{ number_format($product->price,
+                                        2) }}</span>
+                                    <span class="text-sm font-bold text-green-600 ml-1">₱{{
+                                        number_format($product->getDiscountedPrice(), 2) }}</span>
+                                    <span class="text-xs bg-red-100 text-red-800 px-1.5 py-0.5 rounded-full ml-1">{{
+                                        $product->getDiscountLabel() }}</span>
+                                </div>
+                                @else
+                                <span class="text-gray-600">₱{{ number_format($product->price, 2) }}</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">
                                 @php
                                 $stock = $product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0;

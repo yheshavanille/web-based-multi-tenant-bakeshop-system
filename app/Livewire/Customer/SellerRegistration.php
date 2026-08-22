@@ -16,6 +16,7 @@ class SellerRegistration extends Component
     public $contact_number = '';
     public $shop_description = '';
     public $business_permit;
+    public $valid_id;
     public $step = 1;
 
     protected $rules = [
@@ -24,11 +25,11 @@ class SellerRegistration extends Component
         'contact_number' => 'required|string|max:20',
         'shop_description' => 'nullable|string|max:500',
         'business_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'valid_id' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ];
 
     public function mount()
     {
-        // Check if user already has a pending application
         $pending = SellerRegistrationModel::where('user_id', Auth::id())
             ->where('status', 'pending')
             ->exists();
@@ -38,7 +39,6 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.customer.dashboard');
         }
 
-        // Check if user is already a seller
         if (auth()->user()->hasRole('owner')) {
             session()->flash('error', 'You are already a registered seller.');
             return redirect()->route('livewire.owner.dashboard');
@@ -64,7 +64,6 @@ class SellerRegistration extends Component
 
     public function submit()
     {
-        // Double-check for existing application
         $existing = SellerRegistrationModel::where('user_id', Auth::id())
             ->where('status', 'pending')
             ->exists();
@@ -86,6 +85,11 @@ class SellerRegistration extends Component
             $permitPath = $this->business_permit->store('business_permits', 'public');
         }
 
+        $validIdPath = null;
+        if ($this->valid_id) {
+            $validIdPath = $this->valid_id->store('valid_ids', 'public');
+        }
+
         SellerRegistrationModel::create([
             'user_id' => Auth::id(),
             'shop_name' => $this->shop_name,
@@ -93,6 +97,7 @@ class SellerRegistration extends Component
             'contact_number' => $this->contact_number,
             'shop_description' => $this->shop_description,
             'business_permit' => $permitPath,
+            'valid_id_path' => $validIdPath,
             'status' => 'pending',
             'submitted_at' => now(),
         ]);

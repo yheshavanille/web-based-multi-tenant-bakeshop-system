@@ -31,6 +31,8 @@ class ShopDetails extends Component
     public $showAllOrdersModal = false;
     public $allOrders = [];
     public $orderSearch = '';
+    public $showOrderDetailsModal = false;
+    public $selectedOrder = null;
 
     public function mount($shopId)
     {
@@ -89,7 +91,7 @@ class ShopDetails extends Component
         $shopId = $this->shop->id;
         $branchId = $this->selectedBranch;
 
-        $query = Order::with(['customer', 'branch'])
+        $query = Order::with(['customer', 'branch', 'items'])
             ->where('shop_id', $shopId)
             ->where('status', 'completed')
             ->orderBy('created_at', 'desc');
@@ -98,7 +100,41 @@ class ShopDetails extends Component
             $query->where('branch_id', $branchId);
         }
 
-        $this->recentOrders = $query->limit(5)->get();
+        $this->recentOrders = $query->limit(5)->get()->map(function ($order) {
+            return $this->enrichOrder($order);
+        });
+    }
+
+    private function enrichOrder($order)
+    {
+        $itemCount = $order->items->count();
+        $cancelledCount = $order->items->where('status', 'cancelled')->count();
+        $completedCount = $order->items->where('status', 'completed')->count();
+        $pendingCount = $order->items->where('status', 'pending')->count();
+        $preparingCount = $order->items->where('status', 'preparing')->count();
+        $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
+
+        $statusParts = [];
+        if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
+        if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
+        if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
+        if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
+        if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+
+        $order->status_summary = implode(', ', $statusParts);
+        $order->item_count = $itemCount;
+        $order->cancelled_count = $cancelledCount;
+        $order->completed_count = $completedCount;
+        $order->pending_count = $pendingCount;
+
+        // ✅ Calculate adjusted total (exclude cancelled items)
+        $order->adjusted_total = $order->items
+            ->where('status', '!=', 'cancelled')
+            ->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+
+        return $order;
     }
 
     public function updatedSelectedBranch()
@@ -112,7 +148,7 @@ class ShopDetails extends Component
         $shopId = $this->shop->id;
         $branchId = $this->selectedBranch;
 
-        $query = Order::with(['customer', 'branch'])
+        $query = Order::with(['customer', 'branch', 'items'])
             ->where('shop_id', $shopId)
             ->where('status', 'completed')
             ->orderBy('created_at', 'desc');
@@ -121,7 +157,9 @@ class ShopDetails extends Component
             $query->where('branch_id', $branchId);
         }
 
-        $this->allOrders = $query->get();
+        $this->allOrders = $query->get()->map(function ($order) {
+            return $this->enrichOrder($order);
+        });
         $this->showAllOrdersModal = true;
     }
 
@@ -131,6 +169,27 @@ class ShopDetails extends Component
         $this->allOrders = [];
         $this->orderSearch = '';
         $this->dispatch('all-orders-modal-closed');
+    }
+
+    public function viewOrderDetails($orderId)
+    {
+        $this->selectedOrder = Order::with(['customer', 'branch', 'items.product', 'shop'])
+            ->findOrFail($orderId);
+
+        // ✅ Calculate adjusted total
+        $this->selectedOrder->adjusted_total = $this->selectedOrder->items
+            ->where('status', '!=', 'cancelled')
+            ->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+
+        $this->showOrderDetailsModal = true;
+    }
+
+    public function closeOrderDetailsModal()
+    {
+        $this->showOrderDetailsModal = false;
+        $this->selectedOrder = null;
     }
 
     public function render()

@@ -25,7 +25,15 @@ class Dashboard extends Component
     public function mount()
     {
         $this->employee = Auth::user()->employee;
-        $this->shop = $this->employee->shop; // ✅ FIXED
+
+        // ✅ CHECK IF SHOP EXISTS
+        if (!$this->employee || !$this->employee->shop || $this->employee->shop->trashed()) {
+            Auth::logout();
+            session()->flash('error', 'Your shop is no longer active.');
+            return redirect()->route('livewire.auth.login');
+        }
+
+        $this->shop = $this->employee->shop;
         $this->branch = $this->employee->branch;
         $this->role = $this->employee->role;
 

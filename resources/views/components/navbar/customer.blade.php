@@ -77,7 +77,9 @@
                             My Profile
                         </a>
 
-                        @if(auth()->user()->hasRole('owner'))
+                        <!-- ✅ FIX: Only show if shop exists AND is NOT soft-deleted -->
+                        @if(auth()->user()->hasRole('owner') && auth()->user()->shop &&
+                        !auth()->user()->shop->trashed())
                         <a href="{{ route('livewire.owner.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <span class="text-lg">🏪</span>

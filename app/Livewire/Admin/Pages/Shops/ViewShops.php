@@ -17,17 +17,19 @@ class ViewShops extends Component
     public function delete(int $shopId)
     {
         $shop = Shop::findOrFail($shopId);
+        $shopName = $shop->shop_name;
         $shop->delete();
 
-        session()->flash('message', 'Shop deleted successfully.');
+        session()->flash('message', 'Shop "' . $shopName . '" deleted successfully.');
     }
 
     public function restore(int $shopId)
     {
         $shop = Shop::withTrashed()->findOrFail($shopId);
+        $shopName = $shop->shop_name;
         $shop->restore();
 
-        session()->flash('message', 'Shop restored successfully.');
+        session()->flash('message', 'Shop "' . $shopName . '" restored successfully.');
     }
 
     public function forceDelete(int $shopId)

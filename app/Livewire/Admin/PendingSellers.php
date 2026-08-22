@@ -30,7 +30,8 @@ class PendingSellers extends Component
 
     public function viewDetails($id)
     {
-        $this->selectedApplication = SellerRegistration::with('user')->findOrFail($id);
+        $this->selectedApplication = SellerRegistration::with('user')
+            ->findOrFail($id);
         $this->showDetails = true;
         $this->rejecting = false;
         $this->rejection_reason = '';
@@ -52,19 +53,14 @@ class PendingSellers extends Component
     {
         $application = SellerRegistration::findOrFail($id);
 
-        // Update application status
         $application->update([
             'status' => 'approved',
             'reviewed_at' => now(),
         ]);
 
-        // Get the user
         $user = User::find($application->user_id);
-
-        // Assign owner role
         $user->assignRole('owner');
 
-        // Create shop
         Shop::create([
             'shop_name' => $application->shop_name,
             'address' => $application->shop_address,

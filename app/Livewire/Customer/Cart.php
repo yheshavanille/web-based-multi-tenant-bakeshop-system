@@ -15,7 +15,6 @@ class Cart extends Component
     public $selectedItems = [];
     public $selectAll = false;
 
-    // Listen for cart updates
     protected $listeners = ['cartUpdated' => 'loadCart'];
 
     public function mount()
@@ -25,11 +24,10 @@ class Cart extends Component
 
     public function loadCart()
     {
-        $this->cartItems = CartModel::with('product.branches')
+        $this->cartItems = CartModel::with(['product.branches', 'branch'])
             ->where('user_id', Auth::id())
             ->get();
 
-        // Auto-select all items if cart has items
         if ($this->cartItems->count() > 0 && empty($this->selectedItems)) {
             $this->selectedItems = $this->cartItems->pluck('id')->toArray();
             $this->selectAll = true;
@@ -41,7 +39,7 @@ class Cart extends Component
     public function calculateTotal()
     {
         $this->total = $this->cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return $item->product ? $item->product->price * $item->quantity : 0;
         });
     }
 
@@ -50,7 +48,7 @@ class Cart extends Component
         $total = 0;
         foreach ($this->cartItems as $item) {
             if (in_array($item->id, $this->selectedItems)) {
-                $total += $item->product->price * $item->quantity;
+                $total += $item->product ? $item->product->price * $item->quantity : 0;
             }
         }
         return $total;
@@ -77,7 +75,9 @@ class Cart extends Component
 
     public function updatedSelectedItems()
     {
-        // Check if all items are selected
+        if (!is_array($this->selectedItems)) {
+            $this->selectedItems = [];
+        }
         $this->selectAll = count($this->selectedItems) === $this->cartItems->count();
     }
 
@@ -117,7 +117,6 @@ class Cart extends Component
             return;
         }
 
-        // Check stock availability
         $branch = Branch::find($cart->branch_id);
         if ($branch) {
             $pivot = $branch->products()->where('product_id', $cart->product_id)->first();
@@ -141,8 +140,10 @@ class Cart extends Component
             ->where('id', $cartId)
             ->delete();
 
-        // Remove from selected items if present
-        $this->selectedItems = array_diff($this->selectedItems, [$cartId]);
+        if (!is_array($this->selectedItems)) {
+            $this->selectedItems = [];
+        }
+        $this->selectedItems = array_values(array_diff($this->selectedItems, [$cartId]));
 
         session()->flash('message', 'Item removed from cart.');
         $this->loadCart();
@@ -165,7 +166,6 @@ class Cart extends Component
             return;
         }
 
-        // Store selected cart IDs in session for checkout
         session()->put('checkout_items', $this->selectedItems);
 
         return redirect()->route('livewire.customer.checkout');

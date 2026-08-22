@@ -32,6 +32,7 @@ class CreateCategory extends Component
     }
     public function render()
     {
-        return view('livewire.owner.category.create-category');
+        return view('livewire.owner.category.create-category')
+            ->layout('components.layouts.owner');
     }
 }

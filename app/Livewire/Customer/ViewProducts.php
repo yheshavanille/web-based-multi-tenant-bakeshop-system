@@ -7,6 +7,8 @@ use App\Models\Cart;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductReview;
+use App\Models\ServiceReview;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,17 +25,21 @@ class ViewProducts extends Component
     public $categories = [];
     public $bestSellers = [];
 
+    // Review properties
+    public $showReviewModal = false;
+    public $selectedProduct = null;
+    public $productReviews = [];
+    public $averageRating = 0;
+
     public function mount($shopId, $branch = null)
     {
         $this->shopId = $shopId;
         $this->shop = Shop::with('user')->findOrFail($shopId);
 
-        // Get all active branches for this shop
         $this->branches = Branch::where('shop_id', $shopId)
             ->where('is_active', true)
             ->get();
 
-        // Set selected branch
         if ($branch) {
             $this->selectedBranchId = (int) $branch;
         } else {
@@ -74,16 +80,19 @@ class ViewProducts extends Component
             return;
         }
 
-        $this->products = $branch->products()
-            ->with('category')
-            ->wherePivot('stock', '>', 0)
+        $this->products = Product::where('shop_id', $this->shopId)
+            ->whereHas('branches', function ($query) use ($branch) {
+                $query->where('branch_id', $branch->id)
+                    ->where('stock', '>', 0);
+            })
+            ->with(['category', 'branches'])
+            ->withAvg('productReviews', 'rating')
             ->when($this->selectedCategory !== 'all', function ($query) {
-                $query->where('products.category_id', $this->selectedCategory);
+                $query->where('category_id', $this->selectedCategory);
             })
             ->get();
     }
 
-    // ✅ Best Sellers - Load top 3 products for the selected branch
     public function loadBestSellers()
     {
         $branchId = $this->selectedBranchId;
@@ -97,6 +106,11 @@ class ViewProducts extends Component
             $query->where('branch_id', $branchId)
                 ->where('status', 'completed');
         })
+            ->whereHas('product', function ($query) use ($branchId) {
+                $query->whereHas('branches', function ($q) use ($branchId) {
+                    $q->where('branch_id', $branchId);
+                });
+            })
             ->select(
                 'product_id',
                 DB::raw('SUM(quantity) as total_sold'),
@@ -142,7 +156,6 @@ class ViewProducts extends Component
 
         $availableStock = $pivot->pivot->stock;
 
-        // Check if product already in cart for this branch
         $cart = Cart::where('user_id', Auth::id())
             ->where('product_id', $productId)
             ->where('branch_id', $this->selectedBranchId)
@@ -170,11 +183,52 @@ class ViewProducts extends Component
 
         $this->dispatch('cartUpdated');
         $this->dispatch('show-toast', message: $message);
+
+        $this->loadProducts();
+    }
+
+    // ==================== REVIEW MODAL METHODS ====================
+
+    public function openReviewModal($productId)
+    {
+        $this->selectedProduct = Product::with(['productReviews' => function ($query) {
+            $query->with('customer')->latest();
+        }])->findOrFail($productId);
+
+        $this->productReviews = $this->selectedProduct->productReviews;
+        $this->averageRating = $this->selectedProduct->productReviews->avg('rating') ?? 0;
+        $this->showReviewModal = true;
+    }
+
+    public function closeReviewModal()
+    {
+        $this->showReviewModal = false;
+        $this->selectedProduct = null;
+        $this->productReviews = [];
+        $this->averageRating = 0;
+
+        $this->loadProducts();
+    }
+
+    public function getShopRating()
+    {
+        return ServiceReview::where('shop_id', $this->shopId)
+            ->avg('rating') ?? 0;
+    }
+
+    public function getShopRatingCount()
+    {
+        return ServiceReview::where('shop_id', $this->shopId)->count();
     }
 
     public function render()
     {
-        return view('livewire.customer.view-products')
-            ->layout('components.layouts.customer');
+        $shopRating = $this->getShopRating();
+        $shopRatingCount = $this->getShopRatingCount();
+
+        return view('livewire.customer.view-products', [
+            'shopRating' => $shopRating,
+            'shopRatingCount' => $shopRatingCount,
+        ])->layout('components.layouts.customer');
     }
 }

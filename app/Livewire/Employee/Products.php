@@ -5,7 +5,9 @@ namespace App\Livewire\Employee;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductEditHistory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -20,24 +22,23 @@ class Products extends Component
     public $shop;
     public $showDeleted = false;
 
-    // Form fields
     public $name = '';
     public $price = '';
     public $category_id = '';
     public $description = '';
-    public $stock = '';
     public $image;
     public $image_url = '';
     public $editing = false;
     public $showForm = false;
     public $productId;
 
+    public $originalValues = [];
+
     protected $rules = [
         'name' => 'required|string|min:3|max:255',
         'price' => 'required|numeric|min:0',
         'category_id' => 'required|exists:categories,id',
         'description' => 'nullable|string',
-        'stock' => 'required|integer|min:0',
         'image' => 'nullable|image|max:2048',
     ];
 
@@ -50,16 +51,21 @@ class Products extends Component
             abort(403, 'Employee record not found.');
         }
 
+        if (!in_array($employee->role, ['order_manager', 'inventory_manager'])) {
+            return redirect()->route('livewire.employee.dashboard')
+                ->with('error', 'You do not have permission to manage products.');
+        }
+
         $this->branch = Branch::find($employee->branch_id);
 
         if (!$this->branch) {
-            abort(403, 'Branch not found. Please contact your administrator.');
+            abort(403, 'Branch not found.');
         }
 
         $this->shop = $this->branch->shop;
 
         if (!$this->shop) {
-            abort(403, 'Shop not found. Please contact your administrator.');
+            abort(403, 'Shop not found.');
         }
 
         $this->categories = Category::whereNull('shop_id')
@@ -92,9 +98,10 @@ class Products extends Component
 
     public function createNew()
     {
-        $this->reset(['name', 'price', 'category_id', 'description', 'stock', 'image', 'image_url', 'productId']);
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'originalValues']);
         $this->editing = false;
         $this->showForm = true;
+        $this->originalValues = [];
     }
 
     public function edit($productId)
@@ -106,15 +113,20 @@ class Products extends Component
             return;
         }
 
+        $this->originalValues = [
+            'name' => $product->name,
+            'price' => (string)$product->price,
+            'category_id' => (string)$product->category_id,
+            'description' => (string)$product->description,
+            'image_url' => (string)$product->image_url,
+        ];
+
         $this->productId = $product->id;
         $this->name = $product->name;
-        $this->price = $product->price;
-        $this->category_id = $product->category_id;
-        $this->description = $product->description;
-        $this->image_url = $product->image_url;
-
-        $pivot = $product->branches()->where('branch_id', $this->branch->id)->first();
-        $this->stock = $pivot ? $pivot->pivot->stock : 0;
+        $this->price = (string)$product->price;
+        $this->category_id = (string)$product->category_id;
+        $this->description = (string)$product->description;
+        $this->image_url = (string)$product->image_url;
 
         $this->editing = true;
         $this->showForm = true;
@@ -124,7 +136,8 @@ class Products extends Component
     {
         $this->showForm = false;
         $this->editing = false;
-        $this->reset(['name', 'price', 'category_id', 'description', 'stock', 'image', 'image_url', 'productId']);
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'originalValues']);
+        $this->originalValues = [];
     }
 
     public function save()
@@ -141,16 +154,29 @@ class Products extends Component
         if ($this->editing) {
             $product = Product::findOrFail($this->productId);
 
+            $fields = ['name', 'price', 'category_id', 'description', 'image_url'];
+
+            foreach ($fields as $field) {
+                $oldValue = $this->originalValues[$field] ?? null;
+                $newValue = (string)($this->$field ?? '');
+
+                if ($oldValue !== null && $oldValue !== $newValue) {
+                    ProductEditHistory::create([
+                        'product_id' => $product->id,
+                        'user_id' => Auth::id(),
+                        'field' => $field,
+                        'old_value' => $oldValue,
+                        'new_value' => $newValue,
+                    ]);
+                }
+            }
+
             $product->update([
                 'name' => $this->name,
                 'price' => $this->price,
                 'category_id' => $this->category_id,
                 'description' => $this->description,
-                'image_url' => $imagePath,
-            ]);
-
-            $product->branches()->syncWithoutDetaching([
-                $this->branch->id => ['stock' => $this->stock]
+                'image_url' => $imagePath ?? $product->image_url,
             ]);
 
             session()->flash('message', 'Product updated successfully!');
@@ -164,14 +190,30 @@ class Products extends Component
                 'shop_id' => $this->shop->id,
             ]);
 
-            $product->branches()->attach($this->branch->id, ['stock' => $this->stock]);
+            // ✅ LOG PRODUCT CREATION
+            ProductEditHistory::create([
+                'product_id' => $product->id,
+                'user_id' => Auth::id(),
+                'field' => 'created',
+                'old_value' => null,
+                'new_value' => 'Product created',
+            ]);
+
+            DB::table('branch_product')->insert([
+                'branch_id' => $this->branch->id,
+                'product_id' => $product->id,
+                'stock' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
             session()->flash('message', 'Product created successfully!');
         }
 
         $this->showForm = false;
         $this->editing = false;
-        $this->reset(['name', 'price', 'category_id', 'description', 'stock', 'image', 'image_url', 'productId']);
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'originalValues']);
+        $this->originalValues = [];
         $this->loadProducts();
     }
 
@@ -184,9 +226,10 @@ class Products extends Component
             return;
         }
 
-        $product->delete(); // Soft delete
+        $product->branches()->detach($this->branch->id);
+
         $this->loadProducts();
-        session()->flash('message', 'Product moved to deleted records.');
+        session()->flash('message', 'Product removed from this branch.');
     }
 
     public function restore($productId)

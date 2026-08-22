@@ -13,6 +13,7 @@ class SellerRegistration extends Model
         'contact_number',
         'shop_description',
         'business_permit',
+        'valid_id_path',
         'status',
         'rejection_reason',
         'submitted_at',

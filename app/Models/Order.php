@@ -17,6 +17,7 @@ class Order extends Model
         'payment_status',
         'pickup_time',
         'notes',
+        'service_review',
     ];
 
     public function customer()
@@ -37,5 +38,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function serviceReview()
+    {
+        return $this->hasOne(ServiceReview::class);
     }
 }

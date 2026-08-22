@@ -1,180 +1,109 @@
 <div>
-    <!-- Contact / Login Section -->
-    <div id="login" class="bg-background">
-        <div class="max-w-5xl px-4 xl:px-0 py-10 lg:py-20 mx-auto">
+    <div class="relative overflow-hidden min-h-screen bg-white">
+        <div class="max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-            <!-- Title -->
-            <div class="max-w-3xl mb-10 lg:mb-14">
-                <h2 class="text-foreground font-semibold text-2xl md:text-4xl md:leading-tight">
-                    Welcome Back
-                </h2>
+                <!-- LEFT: Login Form -->
+                <div>
+                    <h1 class="text-3xl text-gray-900 font-bold md:text-4xl">
+                        Welcome to Web-based Multi-tenant Bakeshop with Service Quality Reviews, Ratings, Sales
+                        Analytics, and E-payment Services
+                    </h1>
+                    <p class="mt-2 text-gray-600 text-sm leading-relaxed max-w-md">
+                        A complete platform for bakeshops to manage orders, inventory, customer reviews, and sales
+                        analytics in one place.
+                    </p>
 
-                <p class="mt-1 text-muted-foreground-1">
-                    Login to manage your shop or browse products from your favorite bakeshops.
-                </p>
-            </div>
-            <!-- End Title -->
-
-            <!-- Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 lg:gap-x-16">
-
-                <!-- LOGIN FORM -->
-                <div class="md:order-2 pb-10 mb-10 md:pb-0 md:mb-0">
-
-                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
-
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm mt-6">
                         <form wire:submit.prevent="login">
-
-                            <div class="space-y-4">
-
-                                <!-- EMAIL -->
-                                <div class="relative">
-                                    <input type="email" id="email" wire:model="email" placeholder="Email" class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg sm:text-sm text-foreground placeholder:text-transparent focus:outline-hidden focus:ring-0 focus:border-primary
-                        focus:pt-6 focus:pb-2 not-placeholder-shown:pt-6 not-placeholder-shown:pb-2" required>
-
-                                    <label for="email" class="absolute top-0 start-0 p-3 sm:p-4 h-full text-muted-foreground-1 text-sm truncate pointer-events-none transition ease-in-out duration-100
-                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
-                                        Email Address
-                                    </label>
-                                </div>
-
+                            <div class="mb-4">
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                    Address</label>
+                                <input type="email" id="email" wire:model="email"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
+                                    placeholder="you@example.com">
                                 @error('email')
                                 <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                 @enderror
+                            </div>
 
-
-                                <!-- PASSWORD -->
-                                <div class="relative">
-                                    <input type="password" id="password" wire:model="password" placeholder="Password"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg sm:text-sm text-foreground placeholder:text-transparent focus:outline-hidden focus:ring-0 focus:border-primary
-                        focus:pt-6 focus:pb-2 not-placeholder-shown:pt-6 not-placeholder-shown:pb-2" required>
-
-                                    <label for="password" class="absolute top-0 start-0 p-3 sm:p-4 h-full text-muted-foreground-1 text-sm truncate pointer-events-none transition ease-in-out duration-100
-                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
-                                        Password
-                                    </label>
-                                </div>
-
+                            <div class="mb-4">
+                                <label for="password"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input type="password" id="password" wire:model="password"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('password') border-red-500 @enderror"
+                                    placeholder="Enter your password">
                                 @error('password')
                                 <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                 @enderror
-
-
-                                <!-- REMEMBER -->
-                                <div class="flex items-center">
-                                    <input id="remember" type="checkbox" wire:model="remember"
-                                        class="shrink-0 size-4 border-gray-300 rounded text-primary focus:ring-primary">
-
-                                    <label for="remember" class="ms-2 text-sm text-muted-foreground-1">
-                                        Remember me
-                                    </label>
-                                </div>
-
                             </div>
 
-                            <!-- REGISTER LINK -->
-                            <div class="mt-4 text-sm text-muted-foreground-1">
-                                Don't have an account yet?
-                                <a href="{{ route('livewire.auth.register') }}"
-                                    class="text-primary font-medium hover:underline">
-                                    Register here
-                                </a>
+                            <div class="flex items-center justify-between text-sm mb-4">
+                                <label class="flex items-center gap-2 text-gray-600 cursor-pointer">
+                                    <input type="checkbox" wire:model="remember"
+                                        class="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500">
+                                    Remember me
+                                </label>
+                                <a href="#" class="text-amber-600 hover:text-amber-700 hover:underline">Forgot
+                                    password?</a>
                             </div>
 
-                            <!-- BUTTON -->
-                            <div class="mt-6">
-                                <button type="submit"
-                                    class="group inline-flex w-full justify-center items-center gap-x-2 py-3 px-4 bg-primary border border-primary-line text-primary-foreground font-medium text-sm rounded-lg hover:bg-primary-hover transition">
-                                    Sign In
-                                </button>
-                            </div>
-
+                            <button type="submit"
+                                class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-amber-500 hover:bg-amber-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                                Sign In
+                            </button>
                         </form>
-
-                    </div>
-                </div>
-                <!-- End Login Form -->
-
-
-                <!-- RIGHT SIDE CONTENT -->
-                <div class="space-y-14">
-
-                    <!-- ITEM -->
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" width="24"
-                            height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-
-                        <div class="grow">
-                            <h4 class="text-foreground font-semibold">
-                                Multi-Tenant Bakeshop Platform
-                            </h4>
-
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Manage products, monitor sales, and connect with customers all in one platform.
-                            </p>
-                        </div>
                     </div>
 
-                    <!-- ITEM -->
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" width="24"
-                            height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15V6" />
-                            <path d="M18.5 18.5 12 22l-6.5-3.5" />
-                            <path d="M12 22V12" />
-                            <path d="m2 6 10 6 10-6" />
-                            <path d="M2 6 12 2l10 4" />
-                        </svg>
+                    <p class="mt-4 text-center text-sm text-gray-500">
+                        Don't have an account?
+                        <a href="{{ route('livewire.auth.register') }}"
+                            class="text-amber-600 hover:text-amber-700 font-medium hover:underline">
+                            Register here
+                        </a>
+                    </p>
 
-                        <div class="grow">
-                            <h4 class="text-foreground font-semibold">
-                                Easy Product Management
-                            </h4>
-
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Add categories, upload product images, and manage your bakery inventory with ease.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- ITEM -->
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" width="24"
-                            height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v20" />
-                            <path d="m17 5-5-3-5 3" />
-                            <path d="m17 19-5 3-5-3" />
-                        </svg>
-
-                        <div class="grow">
-                            <h4 class="text-foreground font-semibold">
-                                Want to be a tenant? Contact us now!
-                            </h4>
-
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Contact No.:090912312313
-                            </p>
-
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Email: shesh@gmail.com
-                            </p>
-                        </div>
-                    </div>
 
                 </div>
-                <!-- End Right Side -->
+
+                <!-- RIGHT: System Introduction -->
+                <div class="hidden lg:block">
+                    <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl p-10 text-white">
+                        <div class="text-center">
+                            <h2 class="text-3xl font-bold mb-2">Professional Plan</h2>
+                            <p class="text-amber-100 text-lg">Complete Bakeshop Management Platform</p>
+                            <div class="mt-4 max-w-sm mx-auto">
+                                <p class="text-amber-50/90 text-sm leading-relaxed">
+                                    <span class="font-semibold text-white">Order Management</span> ·
+                                    <span class="font-semibold text-white">Inventory Tracking</span> ·
+                                    <span class="font-semibold text-white">Customer Reviews</span> ·
+                                    <span class="font-semibold text-white">Sales Analytics</span>
+                                </p>
+                            </div>
+
+                            <div class="mt-8 grid grid-cols-2 gap-4 text-left">
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Order Management</p>
+                                    <p class="text-xs text-amber-100/70">Track and fulfill customer orders</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Inventory Tracking</p>
+                                    <p class="text-xs text-amber-100/70">Real-time stock monitoring</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Customer Reviews</p>
+                                    <p class="text-xs text-amber-100/70">Manage feedback and ratings</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Sales Analytics</p>
+                                    <p class="text-xs text-amber-100/70">Data-driven business insights</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
-            <!-- End Grid -->
-
         </div>
     </div>
 </div>

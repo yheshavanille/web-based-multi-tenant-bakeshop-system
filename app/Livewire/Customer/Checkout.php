@@ -171,15 +171,7 @@ class Checkout extends Component
                 'status' => 'pending',
             ]);
 
-            // Reduce stock for the selected branch
-            $branch = Branch::find($selectedBranchId);
-            $pivot = $branch->products()->where('product_id', $item->product_id)->first();
-            if ($pivot) {
-                $currentStock = $pivot->pivot->stock;
-                $pivot->pivot->update([
-                    'stock' => $currentStock - $item->quantity
-                ]);
-            }
+            // ✅ STOCK REDUCTION REMOVED - stock only reduces when order is marked as "Completed" by Order Manager
         }
 
         // Clear cart - ONLY delete items that were ordered

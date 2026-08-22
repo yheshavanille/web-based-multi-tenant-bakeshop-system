@@ -50,6 +50,7 @@
             <h2 class="text-lg font-semibold text-gray-800 mb-4">📋 Requirements</h2>
             <ul class="space-y-2 text-gray-600">
                 <li class="flex items-center gap-2">✅ Must be at least 18 years old</li>
+                <li class="flex items-center gap-2">✅ Valid Government ID</li>
                 <li class="flex items-center gap-2">✅ Valid Business Permit from LGU</li>
                 <li class="flex items-center gap-2">✅ Valid contact number and address</li>
                 <li class="flex items-center gap-2">✅ Bakeshop located in Victorias City</li>

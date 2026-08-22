@@ -24,6 +24,13 @@ class EmployeeMiddleware
             return redirect()->route('livewire.auth.login')->with('error', 'Your account is inactive.');
         }
 
+        // ✅ CHECK IF SHOP EXISTS OR IS SOFT-DELETED
+        $shop = $employee->shop;
+        if (!$shop || $shop->trashed()) {
+            Auth::logout();
+            return redirect()->route('livewire.auth.login')->with('error', 'Your shop is no longer active.');
+        }
+
         return $next($request);
     }
 }

@@ -38,4 +38,10 @@ class Shop extends Model
     {
         return $this->hasMany(Branch::class);
     }
+
+    // ✅ ADD THIS RELATIONSHIP
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

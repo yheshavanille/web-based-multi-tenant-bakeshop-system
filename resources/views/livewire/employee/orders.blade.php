@@ -165,44 +165,28 @@
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
-
-                                                <!-- Status Dropdown -->
+                                                <!-- ✅ Status Dropdown - HIDE for cancelled items -->
+                                                @if($item->status !== 'cancelled' && $item->order->status !==
+                                                'cancelled')
                                                 <select
                                                     wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
                                                     class="px-2 py-1 text-xs border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-
                                                     <option value="pending" {{ $item->status === 'pending' ? 'selected'
-                                                        : '' }}>
-                                                        Pending
-                                                    </option>
-
+                                                        : '' }}>Pending</option>
                                                     <option value="preparing" {{ $item->status === 'preparing' ?
-                                                        'selected' : '' }}>
-                                                        Preparing
-                                                    </option>
-
+                                                        'selected' : '' }}>Preparing</option>
                                                     <option value="ready_for_pickup" {{ $item->status ===
-                                                        'ready_for_pickup' ? 'selected' : '' }}>
-                                                        Ready
-                                                    </option>
-
+                                                        'ready_for_pickup' ? 'selected' : '' }}>Ready</option>
                                                     <option value="completed" {{ $item->status === 'completed' ?
-                                                        'selected' : '' }}>
-                                                        Completed
-                                                    </option>
-
+                                                        'selected' : '' }}>Completed</option>
                                                     <option value="no_show" {{ $item->status === 'no_show' ? 'selected'
-                                                        : '' }}>
-                                                        No Show
-                                                    </option>
-
+                                                        : '' }}>No Show</option>
                                                     <option value="cancelled" {{ $item->status === 'cancelled' ?
-                                                        'selected'
-                                                        : '' }}>
-                                                        Cancelled
-                                                    </option>
-
+                                                        'selected' : '' }}>Cancelled</option>
                                                 </select>
+                                                @else
+                                                <span class="text-xs text-gray-400 font-medium">—</span>
+                                                @endif
 
                                             </div>
 

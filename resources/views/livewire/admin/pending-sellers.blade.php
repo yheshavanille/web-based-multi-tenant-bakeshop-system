@@ -117,12 +117,25 @@
                 @endif
 
                 <!-- Business Permit -->
-                <div class="bg-gray-50 rounded-lg p-3 mb-4 shadow-sm border border-gray-100">
+                <div class="bg-gray-50 rounded-lg p-3 mb-3 shadow-sm border border-gray-100">
                     <p class="text-xs text-gray-500 uppercase tracking-wider">Business Permit</p>
                     @if($selectedApplication->business_permit)
                     <a href="{{ asset('storage/' . $selectedApplication->business_permit) }}" target="_blank"
                         class="text-amber-600 hover:text-amber-700 font-medium text-sm inline-flex items-center gap-1">
                         📄 View Business Permit
+                    </a>
+                    @else
+                    <p class="text-sm text-gray-400">No file uploaded</p>
+                    @endif
+                </div>
+
+                <!-- ✅ Valid Government ID -->
+                <div class="bg-gray-50 rounded-lg p-3 mb-4 shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider">Valid Government ID</p>
+                    @if($selectedApplication->valid_id_path)
+                    <a href="{{ asset('storage/' . $selectedApplication->valid_id_path) }}" target="_blank"
+                        class="text-amber-600 hover:text-amber-700 font-medium text-sm inline-flex items-center gap-1">
+                        🪪 View Valid ID
                     </a>
                     @else
                     <p class="text-sm text-gray-400">No file uploaded</p>

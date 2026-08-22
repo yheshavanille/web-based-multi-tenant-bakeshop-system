@@ -4,6 +4,7 @@ namespace App\Livewire\Employee;
 
 use App\Models\Product;
 use App\Models\StockHistory;
+use App\Models\ProductEditHistory;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -63,10 +64,12 @@ class ManageStock extends Component
 
         $oldStock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
 
+        // ✅ Update stock
         $product->branches()->syncWithoutDetaching([
             $this->branch->id => ['stock' => $newStock]
         ]);
 
+        // ✅ Log to StockHistory
         StockHistory::create([
             'product_id' => $product->id,
             'user_id' => Auth::id(),
@@ -74,6 +77,15 @@ class ManageStock extends Component
             'old_stock' => $oldStock,
             'new_stock' => $newStock,
             'notes' => $note,
+        ]);
+
+        // ✅ LOG TO PRODUCT EDIT HISTORY (for Recent Product Updates)
+        ProductEditHistory::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id(),
+            'field' => 'stock',
+            'old_value' => (string)$oldStock,
+            'new_value' => (string)$newStock,
         ]);
 
         $this->notes[$productId] = '';

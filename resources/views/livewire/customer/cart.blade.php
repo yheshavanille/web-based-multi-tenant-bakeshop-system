@@ -16,7 +16,6 @@
 
         @if($cartItems->count() > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <!-- Header with Select All -->
             <div class="flex items-center gap-4 p-4 bg-gray-50 border-b border-gray-200">
                 <label class="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" wire:model.live="selectAll"
@@ -28,19 +27,16 @@
                 </span>
             </div>
 
-            <!-- Cart Items -->
             <div class="divide-y divide-gray-200">
                 @foreach($cartItems as $item)
                 <div class="flex items-center gap-4 p-4 hover:bg-gray-50 transition"
                     wire:key="cart-item-{{ $item->id }}">
-                    <!-- Checkbox -->
                     <input type="checkbox" wire:model.live="selectedItems" value="{{ $item->id }}"
                         class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
 
-                    <!-- Product Image -->
                     <div
                         class="w-20 h-20 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                        @if($item->product->image_url)
+                        @if($item->product && $item->product->image_url)
                         <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product->name }}"
                             class="w-full h-full object-cover">
                         @else
@@ -48,11 +44,11 @@
                         @endif
                     </div>
 
-                    <!-- Product Info -->
                     <div class="flex-1">
-                        <h3 class="font-semibold text-gray-800">{{ $item->product->name }}</h3>
-                        <p class="text-sm text-gray-500">₱{{ number_format($item->product->price, 2) }}</p>
-                        @if($item->product->branches->count() > 0)
+                        <h3 class="font-semibold text-gray-800">{{ $item->product?->name ?? 'Product Unavailable' }}
+                        </h3>
+                        <p class="text-sm text-gray-500">₱{{ number_format($item->product?->price ?? 0, 2) }}</p>
+                        @if($item->product && $item->product->branches->count() > 0)
                         <div class="flex flex-wrap gap-1 mt-1">
                             @foreach($item->product->branches as $branch)
                             <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full">
@@ -63,7 +59,6 @@
                         @endif
                     </div>
 
-                    <!-- Quantity -->
                     <div class="flex items-center gap-2">
                         <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
                             wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, *)"
@@ -78,10 +73,9 @@
                         </button>
                     </div>
 
-                    <!-- Subtotal & Remove -->
                     <div class="text-right min-w-[80px]">
                         <p class="font-semibold text-amber-600">
-                            ₱{{ number_format($item->product->price * $item->quantity, 2) }}
+                            ₱{{ number_format(($item->product?->price ?? 0) * $item->quantity, 2) }}
                         </p>
                         <button wire:click="removeFromCart({{ $item->id }})"
                             class="text-xs text-red-500 hover:text-red-700 transition">
@@ -92,7 +86,6 @@
                 @endforeach
             </div>
 
-            <!-- Cart Total -->
             <div class="bg-gray-50 p-4 border-t border-gray-200">
                 <div class="flex justify-between items-center">
                     <div>

@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductEditHistory;
 use App\Models\ServiceReview;
 use App\Models\StockHistory;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,7 @@ class Dashboard extends Component
     public $totalProducts = 0;
     public $employeesCount = 0;
     public $stockHistories = [];
+    public $productEditHistories = [];
     public $lowStockItems = [];
     public $totalSales = 0;
     public $totalOrders = 0;
@@ -27,6 +29,23 @@ class Dashboard extends Component
     public $shopRating = 0;
     public $shopRatingCount = 0;
     public $recentReviews = [];
+    public $recentOrders = [];
+
+    // Order Details Modal
+    public $showOrderModal = false;
+    public $selectedOrder = null;
+
+    // Product Edit Details Modal
+    public $showProductEditModal = false;
+    public $selectedProductEdit = null;
+
+    // ✅ Stock History Modal
+    public $showStockHistoryModal = false;
+    public $allStockHistories = [];
+
+    // ✅ Product Edit History Modal
+    public $showProductHistoryModal = false;
+    public $allProductHistories = [];
 
     // Employee Modal properties
     public $showAllEmployeesModal = false;
@@ -96,10 +115,20 @@ class Dashboard extends Component
             ->limit(5)
             ->get();
 
+        // Stock histories
         $this->stockHistories = StockHistory::whereHas('product', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id);
         })
             ->with(['product', 'user', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Product Edit Histories
+        $this->productEditHistories = ProductEditHistory::whereHas('product', function ($query) use ($shop) {
+            $query->where('shop_id', $shop->id);
+        })
+            ->with(['product', 'user'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
@@ -111,6 +140,114 @@ class Dashboard extends Component
             })
             ->with('branches')
             ->get();
+
+        $this->loadRecentOrders();
+    }
+
+    public function loadRecentOrders()
+    {
+        $shop = Auth::user()->shop;
+
+        $this->recentOrders = Order::where('shop_id', $shop->id)
+            ->with(['customer', 'branch', 'items'])
+            ->orderBy('updated_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($order) {
+                $itemCount = $order->items->count();
+                $cancelledCount = $order->items->where('status', 'cancelled')->count();
+                $completedCount = $order->items->where('status', 'completed')->count();
+                $pendingCount = $order->items->where('status', 'pending')->count();
+                $preparingCount = $order->items->where('status', 'preparing')->count();
+                $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
+
+                $statusParts = [];
+                if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
+                if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
+                if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
+                if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
+                if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+
+                $order->status_summary = implode(', ', $statusParts);
+                $order->item_count = $itemCount;
+                $order->cancelled_count = $cancelledCount;
+                $order->completed_count = $completedCount;
+                $order->pending_count = $pendingCount;
+
+                return $order;
+            });
+    }
+
+    public function viewOrderDetails($orderId)
+    {
+        $this->selectedOrder = Order::with(['customer', 'branch', 'items.product', 'shop'])
+            ->findOrFail($orderId);
+
+        $this->selectedOrder->adjusted_total = $this->selectedOrder->items
+            ->where('status', '!=', 'cancelled')
+            ->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+
+        $this->showOrderModal = true;
+    }
+
+    public function closeOrderModal()
+    {
+        $this->showOrderModal = false;
+        $this->selectedOrder = null;
+    }
+
+    // ✅ Product Edit Details Methods
+    public function viewProductEditDetails($historyId)
+    {
+        $this->selectedProductEdit = ProductEditHistory::with(['product', 'user'])
+            ->findOrFail($historyId);
+        $this->showProductEditModal = true;
+    }
+
+    public function closeProductEditModal()
+    {
+        $this->showProductEditModal = false;
+        $this->selectedProductEdit = null;
+    }
+
+    // ✅ View All Stock History
+    public function viewAllStockHistory()
+    {
+        $shop = Auth::user()->shop;
+        $this->allStockHistories = StockHistory::whereHas('product', function ($query) use ($shop) {
+            $query->where('shop_id', $shop->id);
+        })
+            ->with(['product', 'user', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $this->showStockHistoryModal = true;
+    }
+
+    public function closeStockHistoryModal()
+    {
+        $this->showStockHistoryModal = false;
+        $this->allStockHistories = [];
+    }
+
+    // ✅ View All Product History
+    public function viewAllProductHistory()
+    {
+        $shop = Auth::user()->shop;
+        $this->allProductHistories = ProductEditHistory::whereHas('product', function ($query) use ($shop) {
+            $query->where('shop_id', $shop->id);
+        })
+            ->with(['product', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $this->showProductHistoryModal = true;
+    }
+
+    public function closeProductHistoryModal()
+    {
+        $this->showProductHistoryModal = false;
+        $this->allProductHistories = [];
     }
 
     // Employee Modal methods

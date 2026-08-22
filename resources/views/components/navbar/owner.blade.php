@@ -6,6 +6,11 @@
                 <a href="{{ route('livewire.owner.dashboard') }}" class="flex items-center gap-2">
                     <span class="text-2xl">🍞</span>
                     <span class="text-xl font-bold text-gray-900">BakeshopHub</span>
+                    <!-- ✅ SELLER BADGE -->
+                    <span
+                        class="ml-2 text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                        👑 Shop Owner
+                    </span>
                 </a>
             </div>
 
@@ -45,8 +50,12 @@
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <span class="text-lg">📦</span> Products
                         </a>
+                        <a href="{{ route('livewire.owner.category.view-category') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">🏷️</span> Categories
+                        </a>
 
-                        <!-- BRANCHES - Two items -->
+                        <!-- BRANCHES -->
                         <a href="{{ route('livewire.owner.branches.manage-cards') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <span class="text-lg">🏪</span> Manage Branches

@@ -1,133 +1,80 @@
 <div>
-    <!-- Table Section -->
-    <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
-        <div class="flex flex-col">
-            <div class="overflow-x-auto">
-                <div class="min-w-full inline-block align-middle">
-
-                    <div class="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden">
-
-                        <!-- SUCCESS MESSAGE -->
-                        @if (session()->has('message'))
-                        <div class="mb-4 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
-                            {{ session('message') }}
-                        </div>
-                        @endif
-
-                        <!-- HEADER -->
-                        <div class="px-6 py-4 flex justify-between items-center border-b border-gray-200">
-
-                            <div>
-                                <h2 class="text-xl font-semibold text-gray-800">
-                                    Categories
-                                </h2>
-                                <p class="text-sm text-gray-600">
-                                    Manage your shop categories
-                                </p>
-                            </div>
-
-                            <div class="flex gap-2">
-
-                                <!-- BACK -->
-                                <a href="{{ route('livewire.owner.dashboard') }}"
-                                    class="py-2 px-3 text-sm font-medium rounded-lg bg-gray-600 text-white hover:bg-gray-700">
-                                    Back
-                                </a>
-
-                                <!-- ADD CATEGORY -->
-                                <a href="{{ route('livewire.owner.category.create-category') }}"
-                                    class="py-2 px-3 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-                                    Add Category
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                        <!-- TABLE -->
-                        <table class="min-w-full divide-y divide-gray-200">
-
-                            <!-- HEAD -->
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-start text-xs font-semibold uppercase">
-                                        Category Name
-                                    </th>
-
-                                    <th class="px-6 py-3 text-start text-xs font-semibold uppercase">
-                                        Type
-                                    </th>
-
-                                    <th class="px-6 py-3 text-start text-xs font-semibold uppercase">
-                                        Created
-                                    </th>
-
-                                    <th class="px-6 py-3 text-end text-xs font-semibold uppercase">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <!-- BODY -->
-                            <tbody class="divide-y divide-gray-200">
-
-                                @foreach($categories as $category)
-                                <tr>
-
-                                    <!-- NAME -->
-                                    <td class="px-6 py-3">
-                                        <span class="text-sm font-semibold text-gray-800">
-                                            {{ $category->name }}
-                                        </span>
-                                    </td>
-
-                                    <!-- TYPE -->
-                                    <td class="px-6 py-3">
-                                        <span class="text-sm text-gray-500">
-                                            {{ $category->shop_id ? 'Custom' : 'Default' }}
-                                        </span>
-                                    </td>
-
-                                    <!-- CREATED -->
-                                    <td class="px-6 py-3">
-                                        <span class="text-sm text-gray-500">
-                                            {{ $category->created_at->diffForHumans() }}
-                                        </span>
-                                    </td>
-
-                                    <!-- ACTIONS -->
-                                    <td class="px-6 py-3 text-end">
-
-                                        @if($category->shop_id)
-                                        <a href="{{ route('livewire.owner.category.edit-category', $category->id) }}"
-                                            class="text-sm font-medium text-blue-600 hover:underline">
-                                            Edit
-                                        </a>
-
-                                        <button wire:click="delete({{ $category->id }})"
-                                            class="text-sm font-medium text-red-600 hover:underline ml-3">
-                                            Delete
-                                        </button>
-                                        @else
-                                        <span class="text-xs text-gray-400">
-                                            System Category
-                                        </span>
-                                        @endif
-
-                                    </td>
-
-                                </tr>
-                                @endforeach
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-                </div>
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">🏷️ Categories</h1>
+                <p class="text-sm text-gray-500">Manage your shop categories</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ route('livewire.owner.dashboard') }}"
+                    class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                    ← Dashboard
+                </a>
+                <a href="{{ route('livewire.owner.category.create-category') }}"
+                    class="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                    + Add Category
+                </a>
             </div>
         </div>
+
+        <!-- Flash Message -->
+        @if (session()->has('message'))
+        <div
+            class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center justify-between">
+            <span>✅ {{ session('message') }}</span>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">✕</button>
+        </div>
+        @endif
+
+        <!-- Categories Grid -->
+        @if($categories->count() > 0)
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($categories as $category)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-800 text-lg">{{ $category->name }}</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs px-2 py-0.5 rounded-full
+                                {{ $category->shop_id ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600' }}">
+                                {{ $category->shop_id ? 'Custom' : 'Default' }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ $category->created_at->diffForHumans() }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">{{ $category->products->count() }} products</p>
+                    </div>
+                    @if($category->shop_id)
+                    <div class="flex gap-2 flex-shrink-0">
+                        <a href="{{ route('livewire.owner.category.edit-category', $category->id) }}"
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium transition">
+                            Edit
+                        </a>
+                        <button wire:click="delete({{ $category->id }})"
+                            onclick="confirm('Delete this category? Products will be uncategorized.') || event.stopImmediatePropagation()"
+                            class="text-red-600 hover:text-red-800 text-sm font-medium transition">
+                            Delete
+                        </button>
+                    </div>
+                    @else
+                    <span class="text-xs text-gray-400 flex-shrink-0">System</span>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @else
+        <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
+            <span class="text-6xl block mb-4">📭</span>
+            <p class="text-gray-500 text-lg">No categories yet</p>
+            <p class="text-sm text-gray-400">Create your first category to organize your products.</p>
+            <a href="{{ route('livewire.owner.category.create-category') }}"
+                class="inline-block mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                + Add Category
+            </a>
+        </div>
+        @endif
 
     </div>
 </div>

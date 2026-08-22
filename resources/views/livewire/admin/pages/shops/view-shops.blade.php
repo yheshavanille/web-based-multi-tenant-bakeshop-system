@@ -100,10 +100,17 @@
                             🗑️ Delete forever
                         </button>
                         @else
-                        <a href="{{ route('livewire.admin.pages.shops.shop-details', ['shopId' => $shop->id]) }}"
-                            class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-blue-700">
-                            🏪 View Shop Details
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="{{ route('livewire.admin.pages.shops.shop-details', ['shopId' => $shop->id]) }}"
+                                class="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-blue-700">
+                                🏪 View Shop Details
+                            </a>
+                            <button wire:click="delete({{ $shop->id }})"
+                                onclick="confirm('Delete this shop? The owner and employees will lose access.') || event.stopImmediatePropagation()"
+                                class="rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-100">
+                                🗑️
+                            </button>
+                        </div>
                         @endif
                     </div>
                 </div>

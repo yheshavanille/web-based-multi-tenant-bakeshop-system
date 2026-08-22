@@ -1,164 +1,114 @@
 <div>
-    <!-- REGISTER PAGE -->
-    <div id="register" class="bg-background">
-        <div class="max-w-5xl px-4 xl:px-0 py-10 lg:py-20 mx-auto">
+    <div class="relative overflow-hidden min-h-screen bg-white">
+        <div class="max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-            <!-- TITLE -->
-            <div class="max-w-3xl mb-10 lg:mb-14">
-                <h2 class="text-foreground font-semibold text-2xl md:text-4xl md:leading-tight">
-                    Create Your Account
-                </h2>
+                <!-- LEFT: Register Form -->
+                <div>
+                    <h1 class="text-3xl text-gray-900 font-bold md:text-4xl">
+                        Create your account
+                    </h1>
+                    <p class="mt-2 text-gray-600 text-sm leading-relaxed max-w-md">
+                        A complete platform for bakeshops to manage orders, inventory, customer reviews, and sales
+                        analytics in one place.
+                    </p>
 
-                <p class="mt-1 text-muted-foreground-1">
-                    Register to start managing your bakeshop.
-                </p>
-            </div>
-
-            <!-- GRID -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 lg:gap-x-16">
-
-                <!-- LEFT: FORM -->
-                <div class="md:order-2">
-
-                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
-
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm mt-6">
                         <form wire:submit.prevent="register">
+                            <div class="mb-4">
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input type="text" id="name" wire:model="name"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('name') border-red-500 @enderror"
+                                    placeholder="Juan Dela Cruz">
+                                @error('name')
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                            <div class="space-y-6">
-
-                                <!-- EMAIL -->
-                                <div class="relative">
-                                    <input type="email" wire:model="email" placeholder="Email"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg text-foreground placeholder:text-transparent focus:outline-none focus:border-primary focus:pt-6 focus:pb-2"
-                                        required>
-
-                                    <label
-                                        class="absolute top-0 start-0 p-3 sm:p-4 text-sm text-muted-foreground-1 pointer-events-none transition
-                                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
-                                        Email Address
-                                    </label>
-                                </div>
-
+                            <div class="mb-4">
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                    Address</label>
+                                <input type="email" id="email" wire:model="email"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
+                                    placeholder="you@example.com">
                                 @error('email')
-                                <p class="text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                 @enderror
+                            </div>
 
-                                <!-- PASSWORD -->
-                                <div class="relative">
-                                    <input type="password" wire:model="password" placeholder="Password"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg text-foreground placeholder:text-transparent focus:outline-none focus:border-primary focus:pt-6 focus:pb-2"
-                                        required>
-
-                                    <label
-                                        class="absolute top-0 start-0 p-3 sm:p-4 text-sm text-muted-foreground-1 pointer-events-none transition
-                                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
-                                        Password
-                                    </label>
-                                </div>
-
+                            <div class="mb-4">
+                                <label for="password"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input type="password" id="password" wire:model="password"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('password') border-red-500 @enderror"
+                                    placeholder="Enter your password">
                                 @error('password')
-                                <p class="text-xs text-red-500">{{ $message }}</p>
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                 @enderror
-
-                                <!-- CONFIRM PASSWORD -->
-                                <div class="relative">
-                                    <input type="password" wire:model="password_confirmation"
-                                        placeholder="Confirm Password"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg text-foreground placeholder:text-transparent focus:outline-none focus:border-primary focus:pt-6 focus:pb-2"
-                                        required>
-
-                                    <label
-                                        class="absolute top-0 start-0 p-3 sm:p-4 text-sm text-muted-foreground-1 pointer-events-none transition
-                                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
-                                        Confirm Password
-                                    </label>
-                                </div>
-
-                                @error('password_confirmation')
-                                <p class="text-xs text-red-500">{{ $message }}</p>
-                                @enderror
-
                             </div>
 
-                            <!-- LOGIN LINK -->
-                            <div class="mt-4 text-sm text-muted-foreground-1">
-                                Already have an account?
-                                <a href="{{ route('livewire.auth.login') }}"
-                                    class="text-primary font-medium hover:underline">
-                                    Back to Login
-                                </a>
+                            <div class="mb-4">
+                                <label for="password_confirmation"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                <input type="password" id="password_confirmation" wire:model="password_confirmation"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500"
+                                    placeholder="Confirm your password">
                             </div>
 
-                            <!-- BUTTON -->
-                            <div class="mt-6">
-                                <button type="submit"
-                                    class="group inline-flex w-full justify-center items-center gap-x-2 py-3 px-4 bg-primary border border-primary-line text-primary-foreground font-medium text-sm rounded-lg hover:bg-primary-hover transition">
-                                    Sign In
-                                </button>
-                            </div>
-
+                            <button type="submit"
+                                class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-amber-500 hover:bg-amber-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                                Create Account
+                            </button>
                         </form>
-
                     </div>
+
+                    <p class="mt-4 text-center text-sm text-gray-500">
+                        Already have an account?
+                        <a href="{{ route('livewire.auth.login') }}"
+                            class="text-amber-600 hover:text-amber-700 font-medium hover:underline">
+                            Sign in here
+                        </a>
+                    </p>
                 </div>
 
-                <!-- RIGHT: INFO PANEL (NO DUPLICATES) -->
-                <div class="space-y-14">
+                <!-- RIGHT: System Introduction -->
+                <div class="hidden lg:block">
+                    <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl p-10 text-white">
+                        <div class="text-center">
+                            <h2 class="text-3xl font-bold mb-2">Professional Plan</h2>
+                            <p class="text-amber-100 text-lg">Complete Bakeshop Management Platform</p>
+                            <div class="mt-4 max-w-sm mx-auto">
+                                <p class="text-amber-50/90 text-sm leading-relaxed">
+                                    <span class="font-semibold text-white">Order Management</span> ·
+                                    <span class="font-semibold text-white">Inventory Tracking</span> ·
+                                    <span class="font-semibold text-white">Customer Reviews</span> ·
+                                    <span class="font-semibold text-white">Sales Analytics</span>
+                                </p>
+                            </div>
 
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-
-                        <div>
-                            <h4 class="text-foreground font-semibold">Multi-Tenant Bakeshop Platform</h4>
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Manage products, monitor sales, and connect with customers all in one platform.
-                            </p>
+                            <div class="mt-8 grid grid-cols-2 gap-4 text-left">
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Order Management</p>
+                                    <p class="text-xs text-amber-100/70">Track and fulfill customer orders</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Inventory Tracking</p>
+                                    <p class="text-xs text-amber-100/70">Real-time stock monitoring</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Customer Reviews</p>
+                                    <p class="text-xs text-amber-100/70">Manage feedback and ratings</p>
+                                </div>
+                                <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <p class="text-sm font-medium">Sales Analytics</p>
+                                    <p class="text-xs text-amber-100/70">Data-driven business insights</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21 15V6" />
-                            <path d="M18.5 18.5 12 22l-6.5-3.5" />
-                            <path d="M12 22V12" />
-                            <path d="m2 6 10 6 10-6" />
-                        </svg>
-
-                        <div>
-                            <h4 class="text-foreground font-semibold">Easy Product Management</h4>
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Add categories, upload product images, and manage your bakery inventory with ease.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 2v20" />
-                            <path d="m17 5-5-3-5 3" />
-                        </svg>
-
-                        <div>
-                            <h4 class="text-foreground font-semibold">Built for Modern Bakeshops</h4>
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Designed to simplify operations for bakery owners and improve customer experience.
-                            </p>
-                        </div>
-                    </div>
-
                 </div>
 
             </div>
-
         </div>
     </div>
 </div>

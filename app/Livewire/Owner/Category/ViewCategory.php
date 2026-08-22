@@ -34,6 +34,6 @@ class ViewCategory extends Component
 
         return view('livewire.owner.category.view-category', [
             'categories' => $categories,
-        ]);
+        ])->layout('components.layouts.owner');
     }
 }
