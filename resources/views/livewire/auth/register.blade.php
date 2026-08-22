@@ -1,164 +1,137 @@
 <div>
-    <!-- REGISTER PAGE -->
-    <div id="register" class="bg-background">
-        <div class="max-w-5xl px-4 xl:px-0 py-10 lg:py-20 mx-auto">
+    <div id="register" class="relative min-h-screen overflow-hidden bg-background">
+        <div class="pointer-events-none absolute inset-0">
+            <div class="absolute -top-20 right-0 h-72 w-72 rounded-full bg-primary/15 blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-12 h-80 w-80 rounded-full bg-primary/10 blur-3xl"></div>
+        </div>
 
-            <!-- TITLE -->
-            <div class="max-w-3xl mb-10 lg:mb-14">
-                <h2 class="text-foreground font-semibold text-2xl md:text-4xl md:leading-tight">
-                    Create Your Account
-                </h2>
+        <div class="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+            <div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12">
+                <div class="order-1">
+                    <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-line-1 bg-layer px-3 py-1.5 text-xs font-medium text-muted-foreground-1 transition hover:border-primary/40 hover:text-foreground">
+                        <span class="text-base">🍰</span>
+                        Join BakeshopHub Today
+                    </div>
 
-                <p class="mt-1 text-muted-foreground-1">
-                    Register to start managing your bakeshop.
-                </p>
-            </div>
+                    <h1 class="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                        Create your bakeshop account
+                    </h1>
+                    <p class="mt-3 max-w-xl text-sm text-muted-foreground-1 sm:text-base">
+                        Register once, then launch your bakery storefront, manage branches, and start accepting orders in minutes.
+                    </p>
 
-            <!-- GRID -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 lg:gap-x-16">
-
-                <!-- LEFT: FORM -->
-                <div class="md:order-2">
-
-                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
-
-                        <form wire:submit.prevent="register">
-
-                            <div class="space-y-6">
-
-                                <!-- EMAIL -->
+                    <div class="mt-8 rounded-2xl border border-line-1 bg-surface/90 p-5 shadow-sm backdrop-blur-sm transition duration-300 hover:shadow-md sm:p-7">
+                        <form wire:submit.prevent="register" class="space-y-5">
+                            <div>
                                 <div class="relative">
-                                    <input type="email" wire:model="email" placeholder="Email"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg text-foreground placeholder:text-transparent focus:outline-none focus:border-primary focus:pt-6 focus:pb-2"
-                                        required>
+                                    <input type="text" id="name" wire:model="name" placeholder=" "
+                                        class="peer block w-full rounded-xl border border-line-1 bg-background px-4 pb-2.5 pt-6 text-sm text-foreground transition duration-300 placeholder:text-transparent focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 @error('name') border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror">
+                                    <label for="name"
+                                        class="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 bg-transparent px-1 text-sm text-muted-foreground-1 transition-all duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs peer-focus:font-medium peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:font-medium @error('name') text-red-500 peer-focus:text-red-500 @enderror">
+                                        Full Name (optional)
+                                    </label>
+                                </div>
+                                @error('name')
+                                    <p class="mt-1.5 text-xs font-medium text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                                    <label
-                                        class="absolute top-0 start-0 p-3 sm:p-4 text-sm text-muted-foreground-1 pointer-events-none transition
-                                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
+                            <div>
+                                <div class="relative">
+                                    <input type="email" id="email" wire:model="email" placeholder=" "
+                                        class="peer block w-full rounded-xl border border-line-1 bg-background px-4 pb-2.5 pt-6 text-sm text-foreground transition duration-300 placeholder:text-transparent focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 @error('email') border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror"
+                                        required>
+                                    <label for="email"
+                                        class="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 bg-transparent px-1 text-sm text-muted-foreground-1 transition-all duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs peer-focus:font-medium peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:font-medium @error('email') text-red-500 peer-focus:text-red-500 @enderror">
                                         Email Address
                                     </label>
                                 </div>
-
                                 @error('email')
-                                <p class="text-xs text-red-500">{{ $message }}</p>
+                                    <p class="mt-1.5 text-xs font-medium text-red-500">{{ $message }}</p>
                                 @enderror
+                            </div>
 
-                                <!-- PASSWORD -->
+                            <div>
                                 <div class="relative">
-                                    <input type="password" wire:model="password" placeholder="Password"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg text-foreground placeholder:text-transparent focus:outline-none focus:border-primary focus:pt-6 focus:pb-2"
+                                    <input type="password" id="password" wire:model="password" placeholder=" "
+                                        class="peer block w-full rounded-xl border border-line-1 bg-background px-4 pb-2.5 pt-6 text-sm text-foreground transition duration-300 placeholder:text-transparent focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 @error('password') border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror"
                                         required>
-
-                                    <label
-                                        class="absolute top-0 start-0 p-3 sm:p-4 text-sm text-muted-foreground-1 pointer-events-none transition
-                                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
+                                    <label for="password"
+                                        class="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 bg-transparent px-1 text-sm text-muted-foreground-1 transition-all duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs peer-focus:font-medium peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:font-medium @error('password') text-red-500 peer-focus:text-red-500 @enderror">
                                         Password
                                     </label>
                                 </div>
-
                                 @error('password')
-                                <p class="text-xs text-red-500">{{ $message }}</p>
+                                    <p class="mt-1.5 text-xs font-medium text-red-500">{{ $message }}</p>
                                 @enderror
+                            </div>
 
-                                <!-- CONFIRM PASSWORD -->
+                            <div>
                                 <div class="relative">
-                                    <input type="password" wire:model="password_confirmation"
-                                        placeholder="Confirm Password"
-                                        class="peer p-3 sm:p-4 block w-full bg-surface border border-line-1 rounded-lg text-foreground placeholder:text-transparent focus:outline-none focus:border-primary focus:pt-6 focus:pb-2"
+                                    <input type="password" id="password_confirmation" wire:model="password_confirmation" placeholder=" "
+                                        class="peer block w-full rounded-xl border border-line-1 bg-background px-4 pb-2.5 pt-6 text-sm text-foreground transition duration-300 placeholder:text-transparent focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 @error('password_confirmation') border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror"
                                         required>
-
-                                    <label
-                                        class="absolute top-0 start-0 p-3 sm:p-4 text-sm text-muted-foreground-1 pointer-events-none transition
-                                        peer-focus:text-xs peer-focus:-translate-y-1.5
-                                        peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:-translate-y-1.5">
+                                    <label for="password_confirmation"
+                                        class="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 bg-transparent px-1 text-sm text-muted-foreground-1 transition-all duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs peer-focus:font-medium peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:font-medium @error('password_confirmation') text-red-500 peer-focus:text-red-500 @enderror">
                                         Confirm Password
                                     </label>
                                 </div>
-
                                 @error('password_confirmation')
-                                <p class="text-xs text-red-500">{{ $message }}</p>
+                                    <p class="mt-1.5 text-xs font-medium text-red-500">{{ $message }}</p>
                                 @enderror
-
                             </div>
 
-                            <!-- LOGIN LINK -->
-                            <div class="mt-4 text-sm text-muted-foreground-1">
-                                Already have an account?
-                                <a href="{{ route('livewire.auth.login') }}"
-                                    class="text-primary font-medium hover:underline">
-                                    Back to Login
-                                </a>
-                            </div>
-
-                            <!-- BUTTON -->
-                            <div class="mt-6">
-                                <button type="submit"
-                                    class="group inline-flex w-full justify-center items-center gap-x-2 py-3 px-4 bg-primary border border-primary-line text-primary-foreground font-medium text-sm rounded-lg hover:bg-primary-hover transition">
-                                    Sign In
-                                </button>
-                            </div>
-
+                            <button type="submit" wire:loading.attr="disabled" wire:target="register"
+                                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary-line bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition duration-300 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-70">
+                                <span wire:loading.remove wire:target="register">Create Account</span>
+                                <span wire:loading wire:target="register" class="inline-flex items-center gap-2">
+                                    <span class="size-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground"></span>
+                                    Creating account...
+                                </span>
+                            </button>
                         </form>
-
                     </div>
+
+                    <p class="mt-5 text-sm text-muted-foreground-1">
+                        Already have an account?
+                        <a href="{{ route('livewire.auth.login') }}"
+                            class="font-medium text-primary transition hover:text-primary-hover hover:underline">
+                            Back to Login
+                        </a>
+                    </p>
                 </div>
 
-                <!-- RIGHT: INFO PANEL (NO DUPLICATES) -->
-                <div class="space-y-14">
+                <div class="order-2 rounded-3xl bg-gradient-to-br from-primary/95 via-primary to-primary-hover p-6 text-primary-foreground shadow-xl shadow-primary/20 transition duration-500 hover:-translate-y-1 sm:p-8 lg:p-10">
+                    <span class="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-medium tracking-wide">
+                        Turn your passion into sales
+                    </span>
 
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
+                    <h2 class="mt-5 text-2xl font-semibold leading-tight sm:text-3xl">
+                        Build your bakery brand online with confidence
+                    </h2>
+                    <p class="mt-3 text-sm text-primary-foreground/85 sm:text-base">
+                        From your first product listing to repeat orders, every tool is crafted to help your bakeshop grow.
+                    </p>
 
-                        <div>
-                            <h4 class="text-foreground font-semibold">Multi-Tenant Bakeshop Platform</h4>
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Manage products, monitor sales, and connect with customers all in one platform.
-                            </p>
+                    <div class="mt-7 space-y-3">
+                        <div class="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm transition duration-300 hover:bg-white/15">
+                            <p class="text-base">🏪</p>
+                            <p class="mt-1 text-sm font-medium">Launch your storefront</p>
+                            <p class="mt-1 text-xs text-primary-foreground/80">Set up your shop profile and branch details fast.</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm transition duration-300 hover:bg-white/15">
+                            <p class="text-base">🧾</p>
+                            <p class="mt-1 text-sm font-medium">Simplify daily operations</p>
+                            <p class="mt-1 text-xs text-primary-foreground/80">Manage inventory, pricing, and order status in one place.</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-sm transition duration-300 hover:bg-white/15">
+                            <p class="text-base">💬</p>
+                            <p class="mt-1 text-sm font-medium">Delight your customers</p>
+                            <p class="mt-1 text-xs text-primary-foreground/80">Collect reviews and keep communication warm and timely.</p>
                         </div>
                     </div>
-
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21 15V6" />
-                            <path d="M18.5 18.5 12 22l-6.5-3.5" />
-                            <path d="M12 22V12" />
-                            <path d="m2 6 10 6 10-6" />
-                        </svg>
-
-                        <div>
-                            <h4 class="text-foreground font-semibold">Easy Product Management</h4>
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Add categories, upload product images, and manage your bakery inventory with ease.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-x-5">
-                        <svg class="shrink-0 size-6 text-muted-foreground" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 2v20" />
-                            <path d="m17 5-5-3-5 3" />
-                        </svg>
-
-                        <div>
-                            <h4 class="text-foreground font-semibold">Built for Modern Bakeshops</h4>
-                            <p class="mt-1 text-muted-foreground-1 text-sm">
-                                Designed to simplify operations for bakery owners and improve customer experience.
-                            </p>
-                        </div>
-                    </div>
-
                 </div>
-
             </div>
-
         </div>
     </div>
 </div>
