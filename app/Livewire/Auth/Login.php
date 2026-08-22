@@ -13,6 +13,25 @@ class Login extends Component
 
     protected $layout = 'components.layouts.app';
 
+    public function getShowDemoCredentialsProperty(): bool
+    {
+        return config('app.show_demo_credentials', false)
+            && app()->environment(['local', 'staging', 'testing'])
+            && ($this->demoLoginEmail || $this->hasDemoLoginPassword);
+    }
+
+    public function getDemoLoginEmailProperty(): ?string
+    {
+        $email = config('app.demo_login_email');
+
+        return filled($email) ? (string) $email : null;
+    }
+
+    public function getHasDemoLoginPasswordProperty(): bool
+    {
+        return filled(config('app.demo_login_password'));
+    }
+
     public function login()
     {
         $this->validate([
