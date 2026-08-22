@@ -72,11 +72,17 @@
                             </button>
                         </form>
 
-                        <div class="mt-5 rounded-xl border border-dashed border-primary/35 bg-primary/8 p-4 text-sm transition duration-300 hover:border-primary/50">
-                            <p class="font-medium text-foreground">Demo Credentials</p>
-                            <p class="mt-1 text-xs text-muted-foreground-1">Email: <span class="font-medium text-foreground">customer@example.com</span></p>
-                            <p class="text-xs text-muted-foreground-1">Password: <span class="font-medium text-foreground">password</span></p>
-                        </div>
+                        @if ($this->showDemoCredentials)
+                            <div class="mt-5 rounded-xl border border-dashed border-primary/35 bg-primary/8 p-4 text-sm transition duration-300 hover:border-primary/50">
+                                <p class="font-medium text-foreground">Demo Credentials</p>
+                                @if ($this->demoLoginEmail)
+                                    <p class="mt-1 text-xs text-muted-foreground-1">Email: <span class="font-medium text-foreground">{{ $this->demoLoginEmail }}</span></p>
+                                @endif
+                                @if ($this->hasDemoLoginPassword)
+                                    <p class="text-xs text-muted-foreground-1">Password: <span class="font-medium text-foreground">Configured in APP_DEMO_LOGIN_PASSWORD</span></p>
+                                @endif
+                            </div>
+                        @endif
                     </div>
 
                     <p class="mt-5 text-sm text-muted-foreground-1">

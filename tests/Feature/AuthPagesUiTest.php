@@ -12,7 +12,6 @@ class AuthPagesUiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSeeText('Welcome back to your bakery dashboard');
-        $response->assertSeeText('Demo Credentials');
         $response->assertSeeText('Grow your bakeshop with one simple platform');
     }
 
