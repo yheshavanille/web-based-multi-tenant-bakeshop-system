@@ -104,6 +104,17 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($users as $user)
+                        @php
+                        $employee = $user->employee;
+                        $employeeStatus = null;
+                        if ($employee) {
+                        if ($employee->trashed()) {
+                        $employeeStatus = '🗑️ Deleted by Employer';
+                        } elseif (!$employee->is_active) {
+                        $employeeStatus = '🟡 Disabled by Employer';
+                        }
+                        }
+                        @endphp
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
@@ -148,6 +159,12 @@
                                 @if($user->trashed())
                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">
                                     Deleted
+                                </span>
+                                @elseif($employeeStatus)
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full
+                                    {{ strpos($employeeStatus, 'Deleted') !== false ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                    {{ $employeeStatus }}
                                 </span>
                                 @elseif(isset($user->is_active) && $user->is_active)
                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">

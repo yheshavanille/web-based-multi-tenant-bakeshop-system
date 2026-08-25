@@ -23,13 +23,22 @@
         </div>
     </div>
 
-    <!-- SIMPLE TOAST -->
-    <div x-data="{ show: false, message: '' }"
-        @show-toast.window="show = true; message = $event.detail.message; setTimeout(() => { show = false }, 3000)"
-        x-show="show" x-transition:enter="transition ease-out duration-300 transform"
+    <!-- Toast Notification -->
+    <div x-data="{
+        show: false,
+        message: '',
+        init() {
+            Livewire.on('show-toast', (data) => {
+                this.message = data.message;
+                this.show = true;
+                setTimeout(() => { this.show = false; }, 3000);
+            });
+        }
+    }" x-show="show" x-transition:enter="transition ease-out duration-300 transform"
         x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
         x-transition:leave="transition ease-in duration-200 transform"
         x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-4"
+        @click.away="show = false"
         class="fixed bottom-6 right-6 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg max-w-sm flex items-center gap-3">
         <span class="text-2xl">✅</span>
         <span class="font-medium" x-text="message"></span>

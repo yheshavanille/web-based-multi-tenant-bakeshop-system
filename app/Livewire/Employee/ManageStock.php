@@ -15,6 +15,7 @@ class ManageStock extends Component
     public $notes = [];
     public $branch;
     public $shop;
+    public $search = '';
 
     public function mount()
     {
@@ -33,12 +34,22 @@ class ManageStock extends Component
 
     public function loadProducts()
     {
-        $this->products = Product::where('shop_id', $this->shop->id)
+        $query = Product::where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id);
             })
-            ->with('category')
-            ->get();
+            ->with('category');
+
+        // Apply search filter
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            });
+        }
+
+        $this->products = $query->get();
 
         foreach ($this->products as $product) {
             $stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
@@ -48,6 +59,17 @@ class ManageStock extends Component
                 $this->notes[$product->id] = '';
             }
         }
+    }
+
+    public function updatedSearch()
+    {
+        $this->loadProducts();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->loadProducts();
     }
 
     public function updateStock($productId)

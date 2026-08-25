@@ -5,19 +5,56 @@
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">📦 Manage Products</h1>
                 <p class="text-sm text-gray-500">
-                    Manage products for <span class="font-medium text-blue-600">{{ $branch->name }}</span>
+                    Manage products for <span class="font-medium text-amber-600">{{ $branch->name }}</span>
                 </p>
             </div>
             <div class="flex gap-3">
                 <button wire:click="createNew"
-                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                    class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium shadow-sm hover:shadow-md">
                     + Add Product
                 </button>
                 <button wire:click="toggleDeleted"
                     class="px-4 py-2 {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} rounded-lg hover:bg-amber-700 transition text-sm font-medium">
                     {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
                 </button>
+                <a href="{{ route('livewire.employee.dashboard') }}"
+                    class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Dashboard
+                </a>
             </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
+                    class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                @if(!empty($search))
+                <button wire:click="clearSearch"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+                @endif
+            </div>
+            @if(!empty($search))
+            <p class="mt-1 text-xs text-gray-500">
+                Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
+                <span class="text-gray-400">({{ $products->count() }} found)</span>
+            </p>
+            @endif
         </div>
 
         @if (session()->has('message'))
@@ -41,27 +78,30 @@
 
             <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Name <span
+                            class="text-red-500">*</span></label>
                     <input type="text" wire:model="name"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('name') border-red-500 @enderror">
                     @error('name')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price <span
+                            class="text-red-500">*</span></label>
                     <input type="number" step="0.01" wire:model="price"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('price') border-red-500 @enderror">
                     @error('price')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category <span
+                            class="text-red-500">*</span></label>
                     <select wire:model="category_id"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('category_id') border-red-500 @enderror">
                         <option value="">Select category</option>
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -72,12 +112,10 @@
                     @enderror
                 </div>
 
-                <!-- ✅ Stock field removed for Order Manager -->
-
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                     <textarea wire:model="description" rows="3"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('description') border-red-500 @enderror"></textarea>
                     @error('description')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
@@ -87,40 +125,36 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
                     <input type="file" wire:model.live="image"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
                     @error('image')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <!-- Image Preview -->
-                <div class="md:col-span-2">
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Image Preview</label>
-                    <div class="flex justify-center">
-                        <div
-                            class="w-48 h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 shadow-sm">
-                            @if($image)
-                            <img src="{{ $image->temporaryUrl() }}" class="w-full h-full object-cover">
-                            @elseif($image_url)
-                            <img src="{{ $image_url }}" class="w-full h-full object-cover">
-                            @else
-                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
-                                <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                <p class="text-sm font-medium text-gray-500">No image selected</p>
-                                <p class="text-xs text-gray-400">Upload an image above</p>
-                            </div>
-                            @endif
+                    <div class="w-32 h-32 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 shadow-sm">
+                        @if($image)
+                        <img src="{{ $image->temporaryUrl() }}" class="w-full h-full object-cover">
+                        @elseif($image_url)
+                        <img src="{{ $image_url }}" class="w-full h-full object-cover">
+                        @else
+                        <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                            <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <p class="text-xs text-gray-500">No image</p>
                         </div>
+                        @endif
                     </div>
                 </div>
 
                 <div class="md:col-span-2 flex gap-3 pt-2">
                     <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+                        class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium shadow-sm hover:shadow-md">
                         {{ $editing ? 'Update Product' : 'Save Product' }}
                     </button>
                     <button type="button" wire:click="cancel"
@@ -217,6 +251,9 @@
                                     <span class="text-4xl">📭</span>
                                     <p>{{ $showDeleted ? 'No deleted products found.' : 'No products for this branch
                                         yet.' }}</p>
+                                    @if(!empty($search) && !$showDeleted)
+                                    <p class="text-xs text-gray-400">Try adjusting your search.</p>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

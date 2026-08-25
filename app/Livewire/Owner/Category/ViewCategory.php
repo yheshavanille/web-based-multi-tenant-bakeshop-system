@@ -8,8 +8,17 @@ use Livewire\Component;
 
 class ViewCategory extends Component
 {
+    public $search = '';
 
+    public function updatedSearch()
+    {
+        // This triggers the render to update
+    }
 
+    public function clearSearch()
+    {
+        $this->search = '';
+    }
 
     public function delete($id)
     {
@@ -24,13 +33,20 @@ class ViewCategory extends Component
 
         session()->flash('message', 'Category deleted successfully.');
     }
+
     public function render()
     {
-        $categories = Auth::user()
+        $query = Auth::user()
             ->shop
-            ->categories()
-            ->latest()
-            ->get();
+            ->categories();
+
+        // Apply search filter
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where('name', 'like', $searchTerm);
+        }
+
+        $categories = $query->latest()->get();
 
         return view('livewire.owner.category.view-category', [
             'categories' => $categories,

@@ -7,7 +7,12 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shop;
+use App\Models\Employee;
+use App\Services\PayMongoService;
+use App\Notifications\OrderPlacedNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class Checkout extends Component
@@ -21,6 +26,7 @@ class Checkout extends Component
     public $pickupTimes = [];
     public $payment_method = 'pickup_payment';
     public $notes = '';
+    public $isProcessing = false;
 
     public function mount()
     {
@@ -108,9 +114,8 @@ class Checkout extends Component
 
     public function placeOrder()
     {
-        // Validate
         $this->validate([
-            'payment_method' => 'required|in:gcash,paymaya,pickup_payment',
+            'payment_method' => 'required|in:paymongo,pickup_payment',
         ]);
 
         // Check if all items have branch selections
@@ -136,6 +141,8 @@ class Checkout extends Component
                 }
             }
         }
+
+        $this->isProcessing = true;
 
         // Generate order number
         $orderNumber = 'ORD-' . strtoupper(uniqid());
@@ -170,19 +177,86 @@ class Checkout extends Component
                 'pickup_time' => $pickupTime,
                 'status' => 'pending',
             ]);
-
-            // ✅ STOCK REDUCTION REMOVED - stock only reduces when order is marked as "Completed" by Order Manager
         }
 
         // Clear cart - ONLY delete items that were ordered
         $cartIds = $this->cartItems->pluck('id')->toArray();
         Cart::where('user_id', Auth::id())->whereIn('id', $cartIds)->delete();
 
-        // Dispatch event to update cart badge
         $this->dispatch('cartUpdated');
 
-        session()->flash('order_success', 'Order placed successfully!');
-        return redirect()->route('livewire.customer.order-confirmation', ['order' => $order->id]);
+        // Handle payment based on method
+        if ($this->payment_method === 'pickup_payment') {
+            // ✅ Cash on Pickup - Send notification and redirect
+            $this->notifyOrderManagers($order);
+            $this->isProcessing = false;
+            session()->flash('order_success', 'Order placed successfully!');
+            return redirect()->route('livewire.customer.order-confirmation', ['order' => $order->id]);
+        } else {
+            // ✅ E-Payment - Process with PayMongo
+            return $this->processEPayment($order);
+        }
+    }
+
+    private function processEPayment($order)
+    {
+        try {
+            // ✅ Check if PayMongo is configured
+            $payMongoService = new PayMongoService();
+            if (!$payMongoService->isConfigured()) {
+                throw new \Exception('PayMongo is not configured. Please add your API keys to .env');
+            }
+
+            Log::info('Creating PayMongo source for order', [
+                'order_id' => $order->id,
+                'payment_method' => $order->payment_method,
+                'amount' => $order->total_amount,
+            ]);
+
+            $result = $payMongoService->createPaymentIntent($order);
+
+            // ✅ Validate response
+            if (!isset($result['data']['attributes']['next_action']['redirect']['url'])) {
+                Log::error('PayMongo response missing redirect URL', ['response' => $result]);
+                throw new \Exception('Payment redirect URL not found.');
+            }
+
+            $redirectUrl = $result['data']['attributes']['next_action']['redirect']['url'];
+
+            Log::info('Redirecting to PayMongo', ['url' => $redirectUrl]);
+
+            $this->isProcessing = false;
+
+            return redirect()->away($redirectUrl);
+        } catch (\Exception $e) {
+            $this->isProcessing = false;
+            Log::error('Payment processing error', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            session()->flash('error', 'Payment processing failed: ' . $e->getMessage());
+            return redirect()->route('livewire.customer.cart');
+        }
+    }
+
+    private function notifyOrderManagers($order)
+    {
+        $orderManagers = Employee::where('shop_id', $this->shopId)
+            ->where('role', 'order_manager')
+            ->where('is_active', true)
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        if ($orderManagers->count() > 0) {
+            Notification::send($orderManagers, new OrderPlacedNotification($order));
+        }
+
+        $owner = $order->shop->user;
+        if ($owner) {
+            Notification::send($owner, new OrderPlacedNotification($order));
+        }
     }
 
     public function render()

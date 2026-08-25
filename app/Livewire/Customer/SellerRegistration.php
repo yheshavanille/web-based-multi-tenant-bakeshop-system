@@ -3,6 +3,7 @@
 namespace App\Livewire\Customer;
 
 use App\Models\SellerRegistration as SellerRegistrationModel;
+use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -22,10 +23,16 @@ class SellerRegistration extends Component
     protected $rules = [
         'shop_name' => 'required|string|min:3|max:255',
         'shop_address' => 'required|string|min:5',
-        'contact_number' => 'required|string|max:20',
+        'contact_number' => 'required|string|regex:/^09\d{9}$/|size:11',
         'shop_description' => 'nullable|string|max:500',
         'business_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'valid_id' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+    ];
+
+    protected $messages = [
+        'contact_number.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789).',
+        'contact_number.size' => 'Phone number must be exactly 11 digits.',
+        'contact_number.required' => 'Contact number is required.',
     ];
 
     public function mount()
@@ -39,9 +46,19 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.customer.dashboard');
         }
 
-        if (auth()->user()->hasRole('owner')) {
-            session()->flash('error', 'You are already a registered seller.');
+        // ✅ Check if user has an ACTIVE shop (not soft-deleted)
+        $hasActiveShop = Shop::where('user_id', Auth::id())
+            ->whereNull('deleted_at')
+            ->exists();
+
+        if ($hasActiveShop) {
+            session()->flash('error', 'You are already a registered seller with an active shop.');
             return redirect()->route('livewire.owner.dashboard');
+        }
+
+        // If user has owner role but no active shop, remove the role so they can reapply
+        if (auth()->user()->hasRole('owner') && !$hasActiveShop) {
+            auth()->user()->removeRole('owner');
         }
     }
 
@@ -50,7 +67,7 @@ class SellerRegistration extends Component
         $this->validate([
             'shop_name' => 'required|string|min:3|max:255',
             'shop_address' => 'required|string|min:5',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|string|regex:/^09\d{9}$/|size:11',
             'shop_description' => 'nullable|string|max:500',
         ]);
 
@@ -73,9 +90,19 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.customer.dashboard');
         }
 
-        if (auth()->user()->hasRole('owner')) {
-            session()->flash('error', 'You are already a registered seller.');
+        // ✅ Check if user has an ACTIVE shop (not soft-deleted)
+        $hasActiveShop = Shop::where('user_id', Auth::id())
+            ->whereNull('deleted_at')
+            ->exists();
+
+        if ($hasActiveShop) {
+            session()->flash('error', 'You are already a registered seller with an active shop.');
             return redirect()->route('livewire.owner.dashboard');
+        }
+
+        // If user has owner role but no active shop, remove the role
+        if (auth()->user()->hasRole('owner') && !$hasActiveShop) {
+            auth()->user()->removeRole('owner');
         }
 
         $this->validate();

@@ -10,6 +10,7 @@ use Livewire\WithFileUploads;
 class EditShop extends Component
 {
     use WithFileUploads;
+
     public $shop;
     public $shop_name;
     public $shop_image;
@@ -21,13 +22,6 @@ class EditShop extends Component
     {
         if ($this->image) {
             $this->shop_image = null;
-        }
-    }
-
-    public function updatedShopImage()
-    {
-        if ($this->shop_image) {
-            $this->image = null;
         }
     }
 
@@ -58,16 +52,21 @@ class EditShop extends Component
     public function save()
     {
         $this->validate([
-            'shop_name' => 'required|string|min:3',
-            'shop_image' => 'nullable|string',
+            'shop_name' => 'required|string|min:3|max:255',
             'image' => 'nullable|image|max:2048',
-            'address' => 'nullable|string',
+            'address' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
         $imagePath = $this->shop_image;
 
         if ($this->image) {
+            // Delete old image if exists
+            if ($this->shop->shop_image) {
+                $oldPath = str_replace('/storage/', '', $this->shop->shop_image);
+                \Storage::disk('public')->delete($oldPath);
+            }
+
             $path = $this->image->store('shops', 'public');
             $imagePath = '/storage/' . $path;
         }
@@ -79,7 +78,7 @@ class EditShop extends Component
             'description' => $this->description,
         ]);
 
-        session()->flash('message', 'Shop updated successfully.');
+        session()->flash('message', 'Shop updated successfully!');
 
         return redirect()->route('livewire.owner.dashboard');
     }
@@ -96,6 +95,7 @@ class EditShop extends Component
 
     public function render()
     {
-        return view('livewire.owner.shop.edit-shop');
+        return view('livewire.owner.shop.edit-shop')
+            ->layout('components.layouts.owner');
     }
 }

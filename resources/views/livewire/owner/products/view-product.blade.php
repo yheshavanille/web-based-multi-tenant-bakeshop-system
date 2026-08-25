@@ -39,10 +39,39 @@
                     {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
                 </button>
                 <a href="{{ route('livewire.owner.dashboard') }}"
-                    class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                    class="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
                     ← Dashboard
                 </a>
             </div>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="mb-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
+                    class="w-full pl-10 pr-10 h-10 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                @if(!empty($search))
+                <button wire:click="clearSearch"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+                @endif
+            </div>
+            @if(!empty($search))
+            <p class="mt-1 text-xs text-gray-500">
+                Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
+                <span class="text-gray-400">({{ $products->count() }} found)</span>
+            </p>
+            @endif
         </div>
 
         <!-- PRODUCT FORM -->
@@ -84,7 +113,6 @@
                     @enderror
                 </div>
 
-                <!-- ✅ BRANCH SELECTION -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
                     <select wire:model="form_branch_id"
@@ -127,7 +155,6 @@
                     @enderror
                 </div>
 
-                <!-- ✅ Image Preview - SQUARE SHAPE -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Image Preview</label>
                     <div
@@ -145,51 +172,6 @@
                     </div>
                 </div>
 
-                <!-- Discount Fields -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
-                    <select wire:model.live="form_discount_type"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="none">No Discount</option>
-                        <option value="percentage">Percentage (%)</option>
-                        <option value="fixed">Fixed Amount (₱)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
-                    <input type="number" step="0.01" min="0" wire:model.live="form_discount_value" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500
-                        {{ $form_discount_type === 'none' ? 'bg-gray-100 cursor-not-allowed' : '' }}"
-                        placeholder="0.00" {{ $form_discount_type==='none' ? 'disabled' : '' }}>
-                    @error('form_discount_value')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- ✅ DISCOUNTED PRICE PREVIEW -->
-                @if($form_discount_type !== 'none' && $form_discount_value > 0 && $price > 0)
-                <div class="md:col-span-2 mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p class="text-sm text-gray-700">
-                        💰 <span class="font-medium">Discounted Price:</span>
-                        <span class="text-lg font-bold text-green-600">
-                            ₱{{ number_format(
-                            $form_discount_type === 'percentage'
-                            ? $price * (1 - $form_discount_value / 100)
-                            : max(0, $price - $form_discount_value),
-                            2
-                            ) }}
-                        </span>
-                        <span class="text-xs text-gray-500 line-through ml-2">
-                            ₱{{ number_format($price, 2) }}
-                        </span>
-                        <span class="text-xs text-green-600 ml-2">
-                            {{ $form_discount_type === 'percentage' ? $form_discount_value . '% OFF' : '₱' .
-                            number_format($form_discount_value, 2) . ' OFF' }}
-                        </span>
-                    </p>
-                </div>
-                @endif
-
                 <div class="md:col-span-2 flex gap-3 pt-2">
                     <button type="submit"
                         class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
@@ -206,9 +188,7 @@
 
         <!-- PRODUCTS GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-
             @forelse($products as $product)
-
             @php
             $orderItems = \App\Models\OrderItem::where('product_id', $product->id)
             ->whereHas('order', function ($q) {
@@ -219,6 +199,7 @@
             $totalRevenue = $orderItems->sum(function($item) {
             return $item->quantity * $item->price;
             });
+            $stock = $product->current_stock ?? 0;
             @endphp
 
             <div
@@ -249,18 +230,17 @@
 
                     <p class="text-sm text-gray-500 mt-0.5">{{ $product->category->name ?? 'No Category' }}</p>
 
-                    <!-- ✅ DISPLAY DISCOUNTED PRICE -->
-                    @if($product->isDiscounted())
-                    <div class="mt-1">
-                        <span class="text-sm text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
-                        <span class="text-lg font-bold text-green-600 ml-2">₱{{
-                            number_format($product->getDiscountedPrice(), 2) }}</span>
-                        <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full ml-2">{{
-                            $product->getDiscountLabel() }}</span>
-                    </div>
-                    @else
                     <p class="text-lg font-bold text-amber-600 mt-1">₱{{ number_format($product->price, 2) }}</p>
-                    @endif
+
+                    <!-- Stock Display -->
+                    <div class="mt-1">
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full
+                            {{ $stock > 10 ? 'bg-green-100 text-green-800' : '' }}
+                            {{ $stock <= 10 && $stock > 0 ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $stock <= 0 ? 'bg-red-100 text-red-800' : '' }}">
+                            📦 {{ $stock }} in stock
+                        </span>
+                    </div>
 
                     <!-- Sales Summary -->
                     <div class="mt-2 flex items-center gap-3 flex-wrap">
@@ -323,27 +303,35 @@
                 </div>
 
             </div>
-
             @empty
             <div class="col-span-full text-center py-16">
                 <span class="text-6xl block mb-4">📭</span>
-                <p class="text-gray-500 text-lg">No products found</p>
-                <p class="text-sm text-gray-400">Try adjusting your filters or check back later.</p>
+                <p class="text-gray-500 text-lg">
+                    @if(!empty($search))
+                    No products found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"
+                    @else
+                    No products found
+                    @endif
+                </p>
+                <p class="text-sm text-gray-400">
+                    @if(!empty($search))
+                    Try adjusting your search or filters.
+                    @else
+                    Try adjusting your filters or check back later.
+                    @endif
+                </p>
             </div>
             @endforelse
-
         </div>
 
     </div>
 
     <!-- Product Details Modal -->
     @if($showProductModal && $selectedProduct)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" x-data
-        x-init="document.body.classList.add('overflow-hidden')">
-        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" wire:click="closeProductModal">
-        </div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="overscroll-behavior: contain;">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" wire:click="closeProductModal"></div>
 
-        <div class="relative w-full max-w-3xl overflow-hidden text-left transition-all transform bg-white rounded-2xl shadow-2xl flex flex-col"
+        <div class="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 90vh;">
 
             <!-- Modal Header -->
@@ -352,12 +340,11 @@
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">🍰</span>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800">{{ $selectedProduct->name }}</h3>
-                            <p class="text-sm text-gray-500">{{ $selectedProduct->category->name ?? 'Uncategorized' }}
-                            </p>
+                            <h3 class="text-xl font-bold text-gray-800">📦 Product Details</h3>
+                            <p class="text-sm text-gray-500">{{ $selectedProduct->name }}</p>
                         </div>
                     </div>
-                    <button wire:click="closeProductModal" class="text-gray-400 hover:text-gray-600">
+                    <button wire:click="closeProductModal" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -367,7 +354,7 @@
             </div>
 
             <!-- Modal Body -->
-            <div class="px-6 py-4 overflow-y-auto flex-1" style="max-height: 60vh;">
+            <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
                 <!-- Product Image & Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -383,24 +370,25 @@
                         @endif
                     </div>
                     <div class="space-y-2">
+                        <h2 class="text-xl font-bold text-gray-800">{{ $selectedProduct->name }}</h2>
+                        <p class="text-sm text-gray-500">📂 {{ $selectedProduct->category->name ?? 'Uncategorized' }}
+                        </p>
                         <p class="text-2xl font-bold text-amber-600">₱{{ number_format($selectedProduct->price, 2) }}
                         </p>
-                        @if($selectedProduct->isDiscounted())
-                        <p class="text-sm text-red-600">
-                            ✅ Discount active: <span class="font-bold">{{ $selectedProduct->getDiscountLabel() }}</span>
-                        </p>
-                        <p class="text-lg font-bold text-green-600">
-                            Final Price: ₱{{ number_format($selectedProduct->getDiscountedPrice(), 2) }}
-                        </p>
+                        @php
+                        $totalStock = $selectedProduct->branches->sum('pivot.stock');
+                        @endphp
+                        <p class="text-sm text-gray-600">📦 Stock: <span class="font-medium">{{ $totalStock }}</span>
+                            units available</p>
+                        @if($selectedProduct->description)
+                        <p class="text-sm text-gray-600 mt-2 border-t border-gray-100 pt-2">{{
+                            $selectedProduct->description }}</p>
                         @endif
-                        <p class="text-sm text-gray-600">{{ $selectedProduct->description ?? 'No description available.'
-                            }}
-                        </p>
                     </div>
                 </div>
 
                 <!-- Analytics Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center">
                         <p class="text-xs text-gray-500 uppercase tracking-wider">Total Sold</p>
                         <p class="text-2xl font-bold text-blue-600">{{ $productAnalytics['total_sold'] ?? 0 }}</p>
@@ -416,90 +404,6 @@
                     </div>
                 </div>
 
-                <!-- DISCOUNT SECTION -->
-                <div class="border-t border-gray-200 pt-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-semibold text-gray-800">🏷️ Discount</h4>
-                        @if(!$editMode)
-                        <button wire:click="enableEditMode"
-                            class="text-sm text-blue-600 hover:text-blue-800 font-medium transition">
-                            ✏️ Edit Discount
-                        </button>
-                        @endif
-                    </div>
-
-                    @if($editMode)
-                    <div class="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Discount Type</label>
-                                <select wire:model="discount_type"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                                    <option value="none">No Discount</option>
-                                    <option value="percentage">Percentage (%)</option>
-                                    <option value="fixed">Fixed Amount (₱)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Discount Value</label>
-                                <input type="number" step="0.01" min="0" wire:model="discount_value"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm"
-                                    placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
-                                <input type="datetime-local" wire:model="discount_start"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-700 mb-1">End Date</label>
-                                <input type="datetime-local" wire:model="discount_end"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                            </div>
-                        </div>
-                        <div class="flex gap-3 pt-2">
-                            <button wire:click="saveDiscount"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
-                                💾 Save Discount
-                            </button>
-                            <button wire:click="$set('editMode', false)"
-                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                    @else
-                    @if($selectedProduct->isDiscounted())
-                    <div class="bg-green-50 rounded-lg p-3 border border-green-200">
-                        <p class="text-sm text-green-800">
-                            ✅ Discount active: <span class="font-bold">{{ $selectedProduct->getDiscountLabel() }}</span>
-                        </p>
-                        <p class="text-sm text-green-700 mt-1">
-                            Original Price: ₱{{ number_format($selectedProduct->price, 2) }}
-                            → Final Price: <span class="font-bold">₱{{
-                                number_format($selectedProduct->getDiscountedPrice(), 2) }}</span>
-                        </p>
-                        @if($selectedProduct->discount_start || $selectedProduct->discount_end)
-                        <p class="text-xs text-green-600 mt-1">
-                            @if($selectedProduct->discount_start)
-                            Starts: {{ \Carbon\Carbon::parse($selectedProduct->discount_start)->format('M d, Y h:i A')
-                            }}
-                            @endif
-                            @if($selectedProduct->discount_start && $selectedProduct->discount_end) • @endif
-                            @if($selectedProduct->discount_end)
-                            Ends: {{ \Carbon\Carbon::parse($selectedProduct->discount_end)->format('M d, Y h:i A') }}
-                            @endif
-                        </p>
-                        @endif
-                    </div>
-                    @else
-                    <p class="text-sm text-gray-500">No discount set for this product.</p>
-                    @endif
-                    @endif
-                </div>
-
                 <!-- Stock by Branch -->
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-800 mb-3">📍 Stock by Branch</h4>
@@ -513,31 +417,58 @@
                             </span>
                         </div>
                         @empty
-                        <p class="text-sm text-gray-500">No branches assigned.</p>
+                        <p class="text-sm text-gray-500 col-span-2">No branches assigned.</p>
                         @endforelse
                     </div>
                 </div>
+
+                <!-- Reviews Section -->
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-semibold text-gray-700">⭐ Customer Reviews</h4>
+                        <span class="text-xs text-gray-500">{{ $selectedProduct->productReviews->count() }}
+                            reviews</span>
+                    </div>
+
+                    @if($selectedProduct->productReviews->count() > 0)
+                    <div class="space-y-4 max-h-60 overflow-y-auto pr-2">
+                        @foreach($selectedProduct->productReviews as $review)
+                        <div class="border-b border-gray-100 pb-3 last:border-0">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm">{{ $review->customer->name ??
+                                        'Anonymous' }}</p>
+                                    <div class="flex items-center gap-1 text-amber-500 text-sm">
+                                        {{ str_repeat('⭐', $review->rating) }}
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
+                            </div>
+                            @if($review->review)
+                            <p class="text-sm text-gray-600 mt-1">{{ $review->review }}</p>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="text-center py-4 text-gray-500">
+                        <p class="text-sm">No reviews yet for this product.</p>
+                        <p class="text-xs">Be the first to leave a review!</p>
+                    </div>
+                    @endif
+                </div>
+
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
                 <button wire:click="closeProductModal"
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                     Close
                 </button>
             </div>
+
         </div>
     </div>
     @endif
-
-    <!-- Unlock scroll when modal closes -->
-    @push('scripts')
-    <script>
-        document.addEventListener('livewire:init', function() {
-            Livewire.on('product-modal-closed', function() {
-                document.body.classList.remove('overflow-hidden');
-            });
-        });
-    </script>
-    @endpush
 </div>

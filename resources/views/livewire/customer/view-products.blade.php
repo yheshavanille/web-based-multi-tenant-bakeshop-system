@@ -1,18 +1,52 @@
 <div>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
-        <!-- Back Button -->
+        <!-- Back Button with Background -->
         <div class="mb-4">
             <a href="{{ route('livewire.customer.browse-shops') }}"
-                class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-                ← Back to Shops
+                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Shops
             </a>
         </div>
 
-        <!-- Shop Info with Rating -->
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
+                    class="w-full pl-10 pr-10 h-10 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                @if(!empty($search))
+                <button wire:click="clearSearch"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+                @endif
+            </div>
+            @if(!empty($search))
+            <p class="mt-1 text-xs text-gray-500">
+                Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
+                <span class="text-gray-400">({{ $products->count() }} found)</span>
+            </p>
+            @endif
+        </div>
+
+        <!-- Shop Info with Rating - SQUARED IMAGE -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex items-center gap-4">
-                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center overflow-hidden">
+                <div
+                    class="w-20 h-20 bg-amber-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200">
                     @if($shop->shop_image)
                     <img src="{{ asset($shop->shop_image) }}" class="w-full h-full object-cover">
                     @else
@@ -127,7 +161,7 @@
                 </div>
                 <div>
                     <select wire:model.live="selectedCategory"
-                        class="w-full sm:w-48 px-3 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                        class="w-full sm:w-48 px-3 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat pr-10">
                         <option value="all">All Categories</option>
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}">
@@ -151,7 +185,6 @@
                     <h3 class="font-semibold text-gray-800 text-lg">{{ $product->name }}</h3>
                     <p class="text-sm text-gray-500">{{ $product->category->name ?? 'No Category' }}</p>
 
-                    <!-- ✅ DISPLAY DISCOUNTED PRICE -->
                     @if($product->isDiscounted())
                     <div class="mt-1">
                         <span class="text-sm text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
@@ -213,7 +246,12 @@
                 </div>
                 @empty
                 <div class="col-span-3 text-center py-8 text-gray-500">
+                    @if(!empty($search))
+                    <p>No products found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
+                    <p class="text-xs text-gray-400">Try adjusting your search.</p>
+                    @else
                     <p>No products available at this branch.</p>
+                    @endif
                 </div>
                 @endforelse
             </div>
@@ -227,9 +265,8 @@
 
     <!-- ✅ PRODUCT DETAILS + REVIEWS MODAL -->
     @if($showReviewModal && $selectedProduct)
-    <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
-        style="overscroll-behavior: contain;">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="closeReviewModal"></div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="overscroll-behavior: contain;">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" wire:click="closeReviewModal"></div>
 
         <div class="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 90vh;">

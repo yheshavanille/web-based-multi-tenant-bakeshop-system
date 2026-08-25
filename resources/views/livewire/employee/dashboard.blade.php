@@ -1,8 +1,8 @@
 <div>
     <!-- Welcome Section -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl shadow-sm border border-blue-100 p-6 mb-6">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl shadow-sm border border-amber-100 p-6 mb-6">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-3xl shadow-md">
+            <div class="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center text-3xl shadow-md">
                 👋
             </div>
             <div>
@@ -22,7 +22,7 @@
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-800">📋 Recent Orders</h2>
             <a href="{{ route('livewire.employee.orders') }}"
-                class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                class="text-sm text-amber-600 hover:text-amber-800 font-medium">
                 View All →
             </a>
         </div>
@@ -57,15 +57,11 @@
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 text-center">
             <p class="text-sm text-gray-500">⚠️ Low Stock</p>
-            <p class="text-2xl font-bold text-yellow-600">
-                {{ $products->where('stock', '<=', 5)->where('stock', '>', 0)->count() }}
-            </p>
+            <p class="text-2xl font-bold text-yellow-600">{{ $lowStockCount }}</p>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 text-center">
             <p class="text-sm text-gray-500">🔴 Out of Stock</p>
-            <p class="text-2xl font-bold text-red-600">
-                {{ $products->where('stock', 0)->count() }}
-            </p>
+            <p class="text-2xl font-bold text-red-600">{{ $outOfStockCount }}</p>
         </div>
     </div>
 

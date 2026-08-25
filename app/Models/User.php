@@ -17,7 +17,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone',  // ← MAKE SURE THIS IS HERE!
+        'phone',
+        'profile_picture',
+        'is_active', // ✅ Already exists
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function shop()

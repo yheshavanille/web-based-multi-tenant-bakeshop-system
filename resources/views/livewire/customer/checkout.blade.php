@@ -175,17 +175,10 @@
                         <div class="space-y-1.5">
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
-                                {{ $payment_method === 'gcash' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
-                                <input type="radio" wire:model="payment_method" value="gcash"
+                                {{ $payment_method === 'paymongo' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+                                <input type="radio" wire:model="payment_method" value="paymongo"
                                     class="text-amber-600 focus:ring-amber-500">
-                                📱 GCash
-                            </label>
-                            <label
-                                class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
-                                {{ $payment_method === 'paymaya' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
-                                <input type="radio" wire:model="payment_method" value="paymaya"
-                                    class="text-amber-600 focus:ring-amber-500">
-                                📱 PayMaya
+                                💳 PayMongo (GCash / PayMaya)
                             </label>
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
@@ -218,9 +211,11 @@
                         </div>
                     </div>
 
-                    <button wire:click="placeOrder"
+                    <button wire:click="placeOrder" wire:loading.attr="disabled"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
                         class="w-full mt-4 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                        Place Order 🛒
+                        <span wire:loading.remove>Place Order 🛒</span>
+                        <span wire:loading>Processing...</span>
                     </button>
 
                     <a href="{{ route('livewire.customer.cart') }}"

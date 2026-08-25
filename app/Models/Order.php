@@ -15,10 +15,16 @@ class Order extends Model
         'status',
         'payment_method',
         'payment_status',
+        'payment_intent_id',
         'pickup_time',
         'notes',
         'service_review',
     ];
+
+    public function isEPayment()
+    {
+        return in_array($this->payment_method, ['gcash', 'paymaya', 'paymongo']);
+    }
 
     public function customer()
     {

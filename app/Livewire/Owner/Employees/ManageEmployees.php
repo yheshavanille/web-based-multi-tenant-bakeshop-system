@@ -23,6 +23,8 @@ class ManageEmployees extends Component
     public $selectedBranchId = null;
     public $password = '';
     public $password_confirmation = '';
+    public $showDeleted = false;
+    public $search = '';
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -46,14 +48,48 @@ class ManageEmployees extends Component
     public function loadEmployees()
     {
         $shop = Auth::user()->shop;
-        $query = Employee::with(['user', 'branch'])
-            ->where('shop_id', $shop->id);
+
+        if ($this->showDeleted) {
+            $query = Employee::onlyTrashed()
+                ->with(['user', 'branch'])
+                ->where('shop_id', $shop->id);
+        } else {
+            $query = Employee::with(['user', 'branch'])
+                ->where('shop_id', $shop->id)
+                ->whereNull('employees.deleted_at');
+        }
 
         if ($this->selectedBranchId) {
             $query->where('branch_id', $this->selectedBranchId);
         }
 
+        // Apply search filter
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->whereHas('user', function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('email', 'like', $searchTerm);
+            });
+        }
+
         $this->employees = $query->get();
+    }
+
+    public function updatedSearch()
+    {
+        $this->loadEmployees();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->loadEmployees();
+    }
+
+    public function toggleDeleted()
+    {
+        $this->showDeleted = !$this->showDeleted;
+        $this->loadEmployees();
     }
 
     public function createNew()
@@ -66,6 +102,17 @@ class ManageEmployees extends Component
     public function edit($employeeId)
     {
         $employee = Employee::with('user')->findOrFail($employeeId);
+
+        if (!$employee->user || $employee->user->trashed()) {
+            session()->flash('error', 'This employee cannot be edited because their account has been deleted.');
+            return;
+        }
+
+        if (!$employee->user->is_active) {
+            session()->flash('error', 'This employee cannot be edited because their account has been suspended.');
+            return;
+        }
+
         $this->employeeId = $employee->id;
         $this->name = $employee->user->name;
         $this->email = $employee->user->email;
@@ -88,15 +135,26 @@ class ManageEmployees extends Component
         $shop = Auth::user()->shop;
 
         if ($this->editing) {
+            $employee = Employee::findOrFail($this->employeeId);
+
+            if (!$employee->user || $employee->user->trashed()) {
+                session()->flash('error', 'This employee cannot be edited because their account has been deleted.');
+                return;
+            }
+
+            if (!$employee->user->is_active) {
+                session()->flash('error', 'This employee cannot be edited because their account has been suspended.');
+                return;
+            }
+
             $rules = [
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:users,email,' . $this->employeeId,
+                'email' => 'required|email|unique:users,email,' . $employee->user_id,
                 'role' => 'required|in:order_manager,inventory_manager',
                 'branch_id' => 'required|exists:branches,id',
             ];
             $this->validate($rules);
 
-            $employee = Employee::findOrFail($this->employeeId);
             $user = User::findOrFail($employee->user_id);
 
             $user->update([
@@ -117,9 +175,9 @@ class ManageEmployees extends Component
                 'name' => $this->name,
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
+                'role' => 'employee',
+                'shop_id' => $shop->id,
             ]);
-
-            $user->assignRole('employee');
 
             Employee::create([
                 'user_id' => $user->id,
@@ -139,6 +197,17 @@ class ManageEmployees extends Component
     public function toggleStatus($employeeId)
     {
         $employee = Employee::findOrFail($employeeId);
+
+        if (!$employee->user || $employee->user->trashed()) {
+            session()->flash('error', 'Cannot change status - user account is deleted.');
+            return;
+        }
+
+        if (!$employee->user->is_active) {
+            session()->flash('error', 'Cannot change status - user account is suspended.');
+            return;
+        }
+
         $employee->update(['is_active' => !$employee->is_active]);
         $employee->user->update(['is_active' => $employee->is_active]);
         $this->loadEmployees();
@@ -148,11 +217,36 @@ class ManageEmployees extends Component
     public function delete($employeeId)
     {
         $employee = Employee::findOrFail($employeeId);
-        $user = User::findOrFail($employee->user_id);
+        $employeeName = $employee->user?->name ?? 'Unknown Employee';
+
+        // Soft delete the employee only
         $employee->delete();
-        $user->delete();
+
         $this->loadEmployees();
-        session()->flash('message', 'Employee deleted successfully.');
+        session()->flash('message', 'Employee "' . $employeeName . '" deleted successfully.');
+    }
+
+    public function restore($employeeId)
+    {
+        $employee = Employee::onlyTrashed()->findOrFail($employeeId);
+
+        // Check if user still exists and is not deleted
+        if (!$employee->user || $employee->user->trashed()) {
+            session()->flash('error', 'Cannot restore - the user account has been deleted by Super Admin.');
+            return;
+        }
+
+        // Check if user is suspended
+        if (!$employee->user->is_active) {
+            session()->flash('error', 'Cannot restore - the user account is suspended. Please contact Super Admin.');
+            return;
+        }
+
+        // Restore the employee only
+        $employee->restore();
+
+        $this->loadEmployees();
+        session()->flash('message', 'Employee "' . $employee->user->name . '" restored successfully.');
     }
 
     public function render()

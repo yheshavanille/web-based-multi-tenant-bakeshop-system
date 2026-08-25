@@ -130,8 +130,31 @@ Route::prefix('customer')
 Route::prefix('employee')
     ->middleware(['auth', 'employee'])
     ->group(function () {
+        // Dashboard - accessible to both
         Route::get('/dashboard', \App\Livewire\Employee\Dashboard::class)->name('livewire.employee.dashboard');
-        Route::get('/products', \App\Livewire\Employee\Products::class)->name('livewire.employee.products');
-        Route::get('/orders', \App\Livewire\Employee\Orders::class)->name('livewire.employee.orders');
-        Route::get('/inventory', \App\Livewire\Employee\ManageStock::class)->name('livewire.employee.inventory');
+
+        // Orders - only Order Manager
+        Route::get('/orders', \App\Livewire\Employee\Orders::class)
+            ->name('livewire.employee.orders')
+            ->middleware('employee.role:order_manager');
+
+        // Products - only Order Manager (they manage products)
+        Route::get('/products', \App\Livewire\Employee\Products::class)
+            ->name('livewire.employee.products')
+            ->middleware('employee.role:order_manager');
+
+        // Inventory (Stock Management) - only Inventory Manager
+        Route::get('/inventory', \App\Livewire\Employee\ManageStock::class)
+            ->name('livewire.employee.inventory')
+            ->middleware('employee.role:inventory_manager');
     });
+
+Route::get('/payment/success', function () {
+    session()->flash('order_success', 'Payment successful! Your order is now being prepared.');
+    return redirect()->route('livewire.customer.orders');
+})->name('payment.success');
+
+Route::get('/payment/cancel', function () {
+    session()->flash('error', 'Payment was cancelled. You can try again from your cart.');
+    return redirect()->route('livewire.customer.cart');
+})->name('payment.cancel');

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Pages\Users;
 
 use App\Models\DeletedUserLog;
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -15,7 +16,7 @@ class ManageUsers extends Component
     public $roleFilter = 'all';
     public $statusFilter = 'all';
     public $search = '';
-    public $activeTab = 'active'; // 'active', 'soft_deleted', 'permanently_deleted'
+    public $activeTab = 'active';
 
     protected $queryString = ['roleFilter', 'statusFilter', 'search', 'activeTab'];
 
@@ -25,8 +26,7 @@ class ManageUsers extends Component
         $permanentlyDeletedUsers = collect();
 
         if ($this->activeTab === 'soft_deleted') {
-            // ✅ Show soft-deleted users
-            $query = User::with('roles', 'shop')->onlyTrashed();
+            $query = User::with('roles', 'shop', 'employee')->onlyTrashed();
 
             if ($this->roleFilter !== 'all') {
                 $query->whereHas('roles', function ($q) {
@@ -43,7 +43,6 @@ class ManageUsers extends Component
 
             $users = $query->orderBy('deleted_at', 'desc')->paginate(15);
         } elseif ($this->activeTab === 'permanently_deleted') {
-            // ✅ Show permanently deleted users from log
             $query = DeletedUserLog::query();
 
             if (!empty($this->search)) {
@@ -55,8 +54,7 @@ class ManageUsers extends Component
 
             $permanentlyDeletedUsers = $query->orderBy('deleted_at', 'desc')->paginate(15);
         } else {
-            // ✅ Active users (default)
-            $query = User::with('roles', 'shop')->whereNull('deleted_at');
+            $query = User::with('roles', 'shop', 'employee')->whereNull('deleted_at');
 
             if ($this->statusFilter === 'active') {
                 $query->where('is_active', true);
@@ -101,15 +99,28 @@ class ManageUsers extends Component
             return;
         }
 
+        // Soft delete employee too if user is an employee
+        $employee = Employee::where('user_id', $userId)->first();
+        if ($employee) {
+            $employee->delete();
+        }
+
         $user->delete();
-        session()->flash('message', 'User soft deleted successfully.');
+        session()->flash('message', 'User and associated employee record soft deleted successfully.');
     }
 
     public function restoreUser($userId)
     {
         $user = User::withTrashed()->findOrFail($userId);
         $user->restore();
-        session()->flash('message', 'User restored successfully.');
+
+        // Restore employee if exists
+        $employee = Employee::onlyTrashed()->where('user_id', $userId)->first();
+        if ($employee) {
+            $employee->restore();
+        }
+
+        session()->flash('message', 'User and associated employee record restored successfully.');
     }
 
     public function forceDeleteUser($userId)
@@ -121,7 +132,6 @@ class ManageUsers extends Component
             return;
         }
 
-        // ✅ Save to log before force deleting
         DeletedUserLog::create([
             'original_user_id' => $user->id,
             'name' => $user->name,
@@ -132,6 +142,12 @@ class ManageUsers extends Component
             'deleted_by' => Auth::user()->name,
             'deleted_at' => now(),
         ]);
+
+        // Force delete employee if exists
+        $employee = Employee::withTrashed()->where('user_id', $userId)->first();
+        if ($employee) {
+            $employee->forceDelete();
+        }
 
         $user->forceDelete();
         session()->flash('message', 'User permanently deleted. Record saved to log.');
@@ -158,5 +174,27 @@ class ManageUsers extends Component
         $this->statusFilter = 'all';
         $this->search = '';
         $this->activeTab = 'active';
+    }
+
+    /**
+     * Get employee status label for display
+     */
+    public function getEmployeeStatus($user)
+    {
+        $employee = $user->employee;
+
+        if (!$employee) {
+            return null;
+        }
+
+        if ($employee->trashed()) {
+            return '🗑️ Deleted by Employer';
+        }
+
+        if (!$employee->is_active) {
+            return '🟡 Disabled by Employer';
+        }
+
+        return null;
     }
 }

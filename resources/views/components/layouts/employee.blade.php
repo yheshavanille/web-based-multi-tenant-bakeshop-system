@@ -13,14 +13,17 @@
 </head>
 
 <body>
+    <!-- Navbar -->
     <x-navbar.employee />
 
+    <!-- Main Content -->
     <div class="min-h-screen bg-gray-50 pt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             {{ $slot }}
         </div>
     </div>
 
+    <!-- Toast Notification -->
     <div x-data="{
         show: false,
         message: '',

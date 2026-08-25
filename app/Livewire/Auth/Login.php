@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -20,6 +21,23 @@ class Login extends Component
             'password' => 'required',
         ]);
 
+        // ✅ Check if user exists and is active
+        $user = User::where('email', $this->email)->first();
+
+        if ($user) {
+            // ✅ Check if user is suspended (is_active = false)
+            if (isset($user->is_active) && !$user->is_active) {
+                $this->addError('email', 'Your account has been suspended. Please contact support.');
+                return;
+            }
+
+            // ✅ Check if user is soft deleted
+            if ($user->trashed()) {
+                $this->addError('email', 'Your account has been deactivated. Please contact support.');
+                return;
+            }
+        }
+
         if (!Auth::attempt([
             'email' => $this->email,
             'password' => $this->password,
@@ -31,6 +49,13 @@ class Login extends Component
         request()->session()->regenerate();
 
         $user = Auth::user();
+
+        // ✅ Double-check the authenticated user is active
+        if (isset($user->is_active) && !$user->is_active) {
+            Auth::logout();
+            $this->addError('email', 'Your account has been suspended. Please contact support.');
+            return;
+        }
 
         // Role-based redirect
         return match (true) {

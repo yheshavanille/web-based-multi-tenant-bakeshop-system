@@ -20,6 +20,7 @@ class ViewProduct extends Component
     public string $selectedCategory = 'all';
     public $selectedBranchId = null;
     public $showDeleted = false;
+    public $search = '';
     public Collection $categories;
     public $branches = [];
 
@@ -27,13 +28,6 @@ class ViewProduct extends Component
     public $showProductModal = false;
     public $selectedProduct = null;
     public $productAnalytics = [];
-
-    // Discount properties
-    public $editMode = false;
-    public $discount_type = 'none';
-    public $discount_value = 0;
-    public $discount_start = null;
-    public $discount_end = null;
 
     // Product Form properties
     public $showForm = false;
@@ -46,8 +40,6 @@ class ViewProduct extends Component
     public $image;
     public $image_url = '';
     public $stock = '';
-    public $form_discount_type = 'none';
-    public $form_discount_value = 0;
     public $form_branch_id = null;
 
     public $originalValues = [];
@@ -60,8 +52,6 @@ class ViewProduct extends Component
         'image' => 'nullable|image|max:2048',
         'stock' => 'required|integer|min:0',
         'form_branch_id' => 'required|exists:branches,id',
-        'form_discount_type' => 'in:none,percentage,fixed',
-        'form_discount_value' => 'numeric|min:0',
     ];
 
     public function mount($branch = null)
@@ -79,6 +69,16 @@ class ViewProduct extends Component
     public function toggleDeleted()
     {
         $this->showDeleted = !$this->showDeleted;
+    }
+
+    public function updatedSearch()
+    {
+        // This triggers the render to update
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
     }
 
     public function delete(int $productId)
@@ -99,15 +99,18 @@ class ViewProduct extends Component
 
     public function viewProductDetails($productId)
     {
-        $this->selectedProduct = Product::with('branches', 'category')
-            ->findOrFail($productId);
+        // ✅ Load product with ALL necessary relationships
+        $this->selectedProduct = Product::with([
+            'branches' => function ($query) {
+                $query->withPivot('stock');
+            },
+            'category',
+            'productReviews' => function ($query) {
+                $query->with('customer')->latest();
+            }
+        ])->findOrFail($productId);
 
-        $this->discount_type = $this->selectedProduct->discount_type ?? 'none';
-        $this->discount_value = $this->selectedProduct->discount_value ?? 0;
-        $this->discount_start = $this->selectedProduct->discount_start;
-        $this->discount_end = $this->selectedProduct->discount_end;
-        $this->editMode = false;
-
+        // ✅ Calculate analytics
         $orderItems = OrderItem::where('product_id', $productId)
             ->whereHas('order', function ($q) {
                 $q->where('status', 'completed');
@@ -130,79 +133,13 @@ class ViewProduct extends Component
         $this->showProductModal = false;
         $this->selectedProduct = null;
         $this->productAnalytics = [];
-        $this->editMode = false;
-        $this->discount_type = 'none';
-        $this->discount_value = 0;
-        $this->discount_start = null;
-        $this->discount_end = null;
         $this->dispatch('product-modal-closed');
-    }
-
-    public function enableEditMode()
-    {
-        $this->editMode = true;
-    }
-
-    public function saveDiscount()
-    {
-        if (!$this->selectedProduct) {
-            return;
-        }
-
-        $oldDiscountType = $this->selectedProduct->discount_type ?? 'none';
-        $oldDiscountValue = $this->selectedProduct->discount_value ?? 0;
-
-        if ($this->discount_type === 'none' || $this->discount_value <= 0) {
-            $this->selectedProduct->update([
-                'discount_type' => 'none',
-                'discount_value' => 0,
-                'discount_start' => null,
-                'discount_end' => null,
-            ]);
-
-            if ($oldDiscountType !== 'none' || $oldDiscountValue > 0) {
-                ProductEditHistory::create([
-                    'product_id' => $this->selectedProduct->id,
-                    'user_id' => Auth::id(),
-                    'field' => 'discount_type',
-                    'old_value' => $oldDiscountType === 'percentage' ? $oldDiscountValue . '%' : '₱' . number_format($oldDiscountValue, 2),
-                    'new_value' => 'Removed',
-                ]);
-            }
-
-            session()->flash('message', '✅ Discount removed successfully.');
-        } else {
-            $this->selectedProduct->update([
-                'discount_type' => $this->discount_type,
-                'discount_value' => $this->discount_value,
-                'discount_start' => $this->discount_start,
-                'discount_end' => $this->discount_end,
-            ]);
-
-            $discountLabel = $this->discount_type === 'percentage'
-                ? $this->discount_value . '%'
-                : '₱' . number_format($this->discount_value, 2);
-
-            $oldLabel = $oldDiscountType === 'percentage' ? $oldDiscountValue . '%' : '₱' . number_format($oldDiscountValue, 2);
-            ProductEditHistory::create([
-                'product_id' => $this->selectedProduct->id,
-                'user_id' => Auth::id(),
-                'field' => 'discount_type',
-                'old_value' => $oldDiscountType === 'none' || $oldDiscountValue <= 0 ? 'No Discount' : $oldLabel,
-                'new_value' => $discountLabel,
-            ]);
-
-            session()->flash('message', '✅ Discount set to ' . $discountLabel . ' successfully!');
-        }
-
-        $this->selectedProduct = Product::with('branches', 'category')->findOrFail($this->selectedProduct->id);
-        $this->editMode = false;
     }
 
     // PRODUCT FORM METHODS
     public function showCreateForm()
     {
-        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'stock', 'form_discount_type', 'form_discount_value', 'form_branch_id']);
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'stock', 'form_branch_id']);
         $this->editing = false;
         $this->showForm = true;
         $this->originalValues = [];
@@ -212,7 +149,6 @@ class ViewProduct extends Component
     {
         $product = Product::findOrFail($productId);
 
-        // ✅ STORE ORIGINAL VALUES
         $this->originalValues = [
             'name' => $product->name,
             'price' => (string)$product->price,
@@ -220,8 +156,6 @@ class ViewProduct extends Component
             'description' => (string)$product->description,
             'image_url' => (string)$product->image_url,
             'stock' => (string)($product->branches->first()?->pivot->stock ?? 0),
-            'discount_type' => $product->discount_type ?? 'none',
-            'discount_value' => (string)($product->discount_value ?? 0),
         ];
 
         $this->productId = $product->id;
@@ -231,8 +165,6 @@ class ViewProduct extends Component
         $this->description = (string)$product->description;
         $this->image_url = (string)$product->image_url;
         $this->stock = (string)($product->branches->first()?->pivot->stock ?? 0);
-        $this->form_discount_type = $product->discount_type ?? 'none';
-        $this->form_discount_value = (string)($product->discount_value ?? 0);
         $this->form_branch_id = $product->branches->first()?->id ?? null;
 
         $this->editing = true;
@@ -244,7 +176,7 @@ class ViewProduct extends Component
     {
         $this->showForm = false;
         $this->editing = false;
-        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'stock', 'form_discount_type', 'form_discount_value', 'form_branch_id']);
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'stock', 'form_branch_id']);
         $this->originalValues = [];
     }
 
@@ -263,7 +195,6 @@ class ViewProduct extends Component
         if ($this->editing) {
             $product = Product::findOrFail($this->productId);
 
-            // ✅ LOG CHANGED FIELDS (ONLY THE ONES THAT ACTUALLY CHANGED)
             $fields = ['name', 'price', 'category_id', 'description', 'image_url', 'stock'];
             foreach ($fields as $field) {
                 $oldValue = $this->originalValues[$field] ?? null;
@@ -273,7 +204,6 @@ class ViewProduct extends Component
                     default => $this->$field,
                 };
 
-                // ✅ ONLY LOG IF VALUE ACTUALLY CHANGED
                 if ((string)$oldValue !== (string)$newValue) {
                     ProductEditHistory::create([
                         'product_id' => $product->id,
@@ -291,11 +221,8 @@ class ViewProduct extends Component
                 'category_id' => $this->category_id,
                 'description' => $this->description,
                 'image_url' => $imagePath ?? $product->image_url,
-                'discount_type' => $this->form_discount_type,
-                'discount_value' => $this->form_discount_value,
             ]);
 
-            // ✅ Update stock for the selected branch
             if ($this->form_branch_id && $this->stock !== null) {
                 $branchProduct = $product->branches()->where('branch_id', $this->form_branch_id)->first();
                 if ($branchProduct) {
@@ -312,11 +239,8 @@ class ViewProduct extends Component
                 'description' => $this->description,
                 'image_url' => $imagePath,
                 'shop_id' => $shop->id,
-                'discount_type' => $this->form_discount_type,
-                'discount_value' => $this->form_discount_value,
             ]);
 
-            // ✅ LOG PRODUCT CREATION
             ProductEditHistory::create([
                 'product_id' => $product->id,
                 'user_id' => Auth::id(),
@@ -325,7 +249,6 @@ class ViewProduct extends Component
                 'new_value' => 'Product created',
             ]);
 
-            // ✅ Attach to selected branch with stock
             if ($this->form_branch_id) {
                 $product->branches()->attach($this->form_branch_id, ['stock' => $this->stock ?? 0]);
             } else {
@@ -340,7 +263,7 @@ class ViewProduct extends Component
 
         $this->showForm = false;
         $this->editing = false;
-        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'stock', 'form_discount_type', 'form_discount_value', 'form_branch_id']);
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'stock', 'form_branch_id']);
         $this->originalValues = [];
     }
 
@@ -348,7 +271,17 @@ class ViewProduct extends Component
     {
         $shop = Auth::user()->shop;
 
-        $query = $shop->products()->with('branches');
+        $query = $shop->products()->with(['branches' => function ($query) {
+            $query->withPivot('stock');
+        }, 'category']);
+
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            });
+        }
 
         if ($this->selectedCategory !== 'all') {
             $query->where('category_id', $this->selectedCategory);
@@ -364,8 +297,20 @@ class ViewProduct extends Component
             $query->onlyTrashed();
         }
 
+        $products = $query->get();
+
+        // Calculate stock for each product
+        foreach ($products as $product) {
+            if ($this->selectedBranchId) {
+                $branch = $product->branches->firstWhere('id', $this->selectedBranchId);
+                $product->current_stock = $branch ? $branch->pivot->stock : 0;
+            } else {
+                $product->current_stock = $product->branches->sum('pivot.stock');
+            }
+        }
+
         return view('livewire.owner.products.view-product', [
-            'products' => $query->get(),
+            'products' => $products,
             'categories' => $this->categories,
         ])->layout('components.layouts.owner');
     }

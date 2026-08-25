@@ -5,6 +5,7 @@ namespace App\Livewire\Employee;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\BranchProduct;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -26,7 +27,6 @@ class Dashboard extends Component
     {
         $this->employee = Auth::user()->employee;
 
-        // ✅ CHECK IF SHOP EXISTS
         if (!$this->employee || !$this->employee->shop || $this->employee->shop->trashed()) {
             Auth::logout();
             session()->flash('error', 'Your shop is no longer active.');
@@ -55,6 +55,7 @@ class Dashboard extends Component
 
     public function loadInventoryData()
     {
+        // ✅ FIX: Load products with their pivot stock for this branch
         $this->products = Product::where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id);
@@ -65,21 +66,24 @@ class Dashboard extends Component
                     $query->where('branches.id', $this->branch->id);
                 },
             ])
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                // ✅ Add stock as a property from the pivot table
+                $product->stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
+                return $product;
+            });
 
         $this->totalProducts = $this->products->count();
 
         $this->outOfStockCount = $this->products->filter(function ($product) {
-            $stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
-            return $stock == 0;
+            return $product->stock == 0;
         })->count();
 
         $this->lowStockCount = $this->products->filter(function ($product) {
-            $stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
-            return $stock > 0 && $stock <= 5;
+            return $product->stock > 0 && $product->stock <= 5;
         })->count();
 
-        // Restock Suggestions - Simplified approach
+        // Restock Suggestions
         $lowStockProducts = Product::where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id)
@@ -89,7 +93,11 @@ class Dashboard extends Component
             ->with(['branches' => function ($query) {
                 $query->where('branch_id', $this->branch->id);
             }])
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                $product->stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
+                return $product;
+            });
 
         $this->restockSuggestions = $lowStockProducts->filter(function ($product) {
             $orderCount = OrderItem::where('product_id', $product->id)

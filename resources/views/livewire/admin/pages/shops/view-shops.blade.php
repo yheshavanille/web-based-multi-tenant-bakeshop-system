@@ -28,6 +28,35 @@
             </div>
         </div>
 
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" wire:model.live="search" placeholder="Search shops by name, address, or owner..."
+                    class="w-full pl-10 pr-10 h-10 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                @if(!empty($search))
+                <button wire:click="clearSearch"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+                @endif
+            </div>
+            @if(!empty($search))
+            <p class="mt-1 text-xs text-gray-500">
+                Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
+                <span class="text-gray-400">({{ $shops->count() }} found)</span>
+            </p>
+            @endif
+        </div>
+
         @if (session()->has('message'))
         <div
             class="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 shadow-sm">
@@ -120,9 +149,22 @@
                 class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
                 <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-4xl">🏪
                 </div>
-                <p class="mt-5 text-lg font-semibold text-slate-800">{{ $showDeleted ? 'No deleted shops found' : 'No
-                    bakeshops available' }}</p>
-                <p class="mt-1 text-sm text-slate-500">There are no listings to display in this view.</p>
+                <p class="mt-5 text-lg font-semibold text-slate-800">
+                    @if(!empty($search))
+                    No shops found matching "<span class="text-amber-600">{{ $search }}</span>"
+                    @elseif($showDeleted)
+                    No deleted shops found
+                    @else
+                    No bakeshops available
+                    @endif
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                    @if(!empty($search))
+                    Try adjusting your search.
+                    @else
+                    There are no listings to display in this view.
+                    @endif
+                </p>
             </div>
             @endforelse
         </div>

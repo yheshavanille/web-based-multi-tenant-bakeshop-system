@@ -13,6 +13,7 @@ class BranchOrders extends Component
     public $orders = [];
     public $showOrderDetails = false;
     public $selectedOrder = null;
+    public $search = '';
 
     public function mount($branchId)
     {
@@ -27,11 +28,27 @@ class BranchOrders extends Component
 
     public function loadOrders()
     {
-        $this->orders = Order::where('branch_id', $this->branch->id)
+        $query = Order::where('branch_id', $this->branch->id)
             ->where('status', 'completed')
             ->with(['customer', 'items.product'])
-            ->orderBy('created_at', 'desc')
-            ->get()
+            ->orderBy('created_at', 'desc');
+
+        // Apply search filter
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('order_number', 'like', $searchTerm)
+                    ->orWhereHas('customer', function ($q2) use ($searchTerm) {
+                        $q2->where('name', 'like', $searchTerm)
+                            ->orWhere('email', 'like', $searchTerm);
+                    })
+                    ->orWhereHas('items.product', function ($q2) use ($searchTerm) {
+                        $q2->where('name', 'like', $searchTerm);
+                    });
+            });
+        }
+
+        $this->orders = $query->get()
             ->map(function ($order) {
                 $itemCount = $order->items->count();
                 $cancelledCount = $order->items->where('status', 'cancelled')->count();
@@ -62,6 +79,17 @@ class BranchOrders extends Component
 
                 return $order;
             });
+    }
+
+    public function updatedSearch()
+    {
+        $this->loadOrders();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->loadOrders();
     }
 
     public function viewOrderDetails($orderId)

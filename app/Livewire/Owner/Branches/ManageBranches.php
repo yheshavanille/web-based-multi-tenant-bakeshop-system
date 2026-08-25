@@ -15,14 +15,23 @@ class ManageBranches extends Component
     public $is_active = true;
     public $branches = [];
     public $editing = false;
+    public $search = '';
 
     protected function rules(): array
     {
         return [
             'name' => 'required|string|min:3',
             'address' => 'required|string|min:5',
-            'contact_number' => 'nullable|string|max:50',
+            'contact_number' => 'nullable|string|regex:/^09\d{9}$/|size:11',
             'is_active' => 'boolean',
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'contact_number.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789).',
+            'contact_number.size' => 'Phone number must be exactly 11 digits.',
         ];
     }
 
@@ -35,6 +44,17 @@ class ManageBranches extends Component
     public function updated($propertyName): void
     {
         $this->validateOnly($propertyName);
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->loadBranches();
+    }
+
+    public function clearSearch(): void
+    {
+        $this->search = '';
+        $this->loadBranches();
     }
 
     private function getShop()
@@ -51,9 +71,18 @@ class ManageBranches extends Component
     public function loadBranches(): void
     {
         $shop = $this->getShop();
-        $this->branches = Branch::where('shop_id', $shop->id)
-            ->orderBy('id', 'desc')
-            ->get();
+        $query = Branch::where('shop_id', $shop->id);
+
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('address', 'like', $searchTerm)
+                    ->orWhere('contact_number', 'like', $searchTerm);
+            });
+        }
+
+        $this->branches = $query->orderBy('id', 'desc')->get();
     }
 
     public function resetForm(): void

@@ -11,7 +11,7 @@
     </div>
 
     <!-- Start Selling Button -->
-    @if(!auth()->user()->hasRole('owner'))
+    @if($canApplyAsSeller)
     <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -27,7 +27,53 @@
             </a>
         </div>
     </div>
+    @elseif($hasActiveShop)
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-4xl">🏪</span>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">You're already selling!</h3>
+                    <p class="text-sm text-gray-600">Manage your shop, products, and orders.</p>
+                </div>
+            </div>
+            <a href="{{ route('livewire.owner.dashboard') }}"
+                class="px-6 py-3 bg-amber-600 text-white rounded-xl hover:bg-amber-700 transition shadow-md hover:shadow-lg whitespace-nowrap">
+                Go to Shop Dashboard →
+            </a>
+        </div>
+    </div>
     @endif
+
+    <!-- Search Bar -->
+    <div class="mb-4">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input type="text" wire:model.live="search"
+                placeholder="Search bakeshops by name, address, or description..."
+                class="w-full pl-10 pr-10 h-10 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+            @if(!empty($search))
+            <button wire:click="clearSearch"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            @endif
+        </div>
+        @if(!empty($search))
+        <p class="mt-1 text-xs text-gray-500">
+            Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
+            <span class="text-gray-400">({{ $featuredShops->count() }} found)</span>
+        </p>
+        @endif
+    </div>
 
     <!-- Featured Shops -->
     @if($featuredShops->count() > 0)
@@ -64,6 +110,22 @@
             @endforeach
         </div>
     </div>
+    @else
+    <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
+        <span class="text-6xl block mb-4">🏪</span>
+        @if(!empty($search))
+        <p class="text-gray-500 text-lg">No bakeshops found matching "<span class="font-medium text-amber-600">{{
+                $search }}</span>"</p>
+        <p class="text-sm text-gray-400">Try adjusting your search or explore all shops.</p>
+        <a href="{{ route('livewire.customer.browse-shops') }}"
+            class="inline-block mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+            Browse All Shops
+        </a>
+        @else
+        <p class="text-gray-500 text-lg">No bakeshops available yet</p>
+        <p class="text-sm text-gray-400">Check back later for new bakeshops.</p>
+        @endif
+    </div>
     @endif
 
     <!-- Features -->
@@ -85,20 +147,4 @@
             <p class="text-sm font-medium text-gray-900 mt-1">Secure Payments</p>
         </div>
     </div>
-
-    <!-- Start Selling Banner -->
-    @if(!auth()->user()->hasRole('owner'))
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900">🚀 Turn your passion into business!</h3>
-                <p class="text-sm text-gray-600">Register your bakeshop and reach more customers.</p>
-            </div>
-            <a href="#"
-                class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
-                Start Selling →
-            </a>
-        </div>
-    </div>
-    @endif
 </div>

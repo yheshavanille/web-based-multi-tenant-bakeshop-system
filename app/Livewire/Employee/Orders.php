@@ -7,9 +7,11 @@ use App\Models\OrderItem;
 use App\Models\BranchProduct;
 use App\Models\Product;
 use App\Models\StockHistory;
+use App\Notifications\OrderStatusUpdatedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class Orders extends Component
@@ -18,6 +20,11 @@ class Orders extends Component
     public $branch;
     public $selectedStatus = 'all';
     public $showItems = [];
+    public $search = '';
+
+    // ✅ Order Details Modal
+    public $showDetailsModal = false;
+    public $selectedOrderDetails = null;
 
     public function mount()
     {
@@ -36,11 +43,59 @@ class Orders extends Component
             $query->where('status', $this->selectedStatus);
         }
 
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('order_number', 'like', $searchTerm)
+                    ->orWhereHas('customer', function ($q2) use ($searchTerm) {
+                        $q2->where('name', 'like', $searchTerm)
+                            ->orWhere('email', 'like', $searchTerm);
+                    })
+                    ->orWhereHas('items.product', function ($q2) use ($searchTerm) {
+                        $q2->where('name', 'like', $searchTerm);
+                    });
+            });
+        }
+
         $this->orders = $query->get();
+    }
+
+    // ✅ Open Order Details Modal
+    public function openDetailsModal($orderId)
+    {
+        $this->selectedOrderDetails = Order::with(['customer', 'items.product', 'branch'])
+            ->where('branch_id', $this->branch->id)
+            ->where('id', $orderId)
+            ->first();
+
+        if (!$this->selectedOrderDetails) {
+            session()->flash('error', 'Order not found.');
+            return;
+        }
+
+        $this->showDetailsModal = true;
+    }
+
+    // ✅ Close Order Details Modal
+    public function closeDetailsModal()
+    {
+        $this->showDetailsModal = false;
+        $this->selectedOrderDetails = null;
     }
 
     public function updatedSelectedStatus()
     {
+        $this->loadOrders();
+    }
+
+    public function updatedSearch()
+    {
+        $this->loadOrders();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
         $this->loadOrders();
     }
 
@@ -78,8 +133,22 @@ class Orders extends Component
         $order->refresh();
 
         // ✅ UPDATE PAYMENT STATUS IF ORDER IS COMPLETED
-        if ($order->status === 'completed' && $order->payment_method === 'pickup_payment') {
+        if ($order->status === 'completed') {
             $order->update(['payment_status' => 'paid']);
+        }
+
+        // ✅ SEND NOTIFICATION TO CUSTOMER AND OWNER
+        if ($oldStatus !== $status) {
+            $customer = $order->customer;
+            if ($customer) {
+                Notification::send($customer, new OrderStatusUpdatedNotification($order, $oldStatus, $status));
+            }
+
+            // ✅ ALSO NOTIFY THE SHOP OWNER
+            $owner = $order->shop->user;
+            if ($owner && $owner->id !== ($customer->id ?? null)) {
+                Notification::send($owner, new OrderStatusUpdatedNotification($order, $oldStatus, $status));
+            }
         }
 
         $this->loadOrders();

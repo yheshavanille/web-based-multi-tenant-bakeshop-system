@@ -21,6 +21,7 @@ class Products extends Component
     public $branch;
     public $shop;
     public $showDeleted = false;
+    public $search = '';
 
     public $name = '';
     public $price = '';
@@ -83,6 +84,15 @@ class Products extends Component
             })
             ->with('category');
 
+        // Apply search filter
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            });
+        }
+
         if ($this->showDeleted) {
             $query->onlyTrashed();
         }
@@ -90,9 +100,20 @@ class Products extends Component
         $this->products = $query->get();
     }
 
+    public function updatedSearch()
+    {
+        $this->loadProducts();
+    }
+
     public function toggleDeleted()
     {
         $this->showDeleted = !$this->showDeleted;
+        $this->loadProducts();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
         $this->loadProducts();
     }
 
@@ -190,7 +211,6 @@ class Products extends Component
                 'shop_id' => $this->shop->id,
             ]);
 
-            // ✅ LOG PRODUCT CREATION
             ProductEditHistory::create([
                 'product_id' => $product->id,
                 'user_id' => Auth::id(),

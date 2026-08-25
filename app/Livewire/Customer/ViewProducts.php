@@ -24,6 +24,7 @@ class ViewProducts extends Component
     public $products = [];
     public $categories = [];
     public $bestSellers = [];
+    public $search = '';
 
     // Review properties
     public $showReviewModal = false;
@@ -80,17 +81,39 @@ class ViewProducts extends Component
             return;
         }
 
-        $this->products = Product::where('shop_id', $this->shopId)
+        $query = Product::where('shop_id', $this->shopId)
             ->whereHas('branches', function ($query) use ($branch) {
                 $query->where('branch_id', $branch->id)
                     ->where('stock', '>', 0);
             })
             ->with(['category', 'branches'])
-            ->withAvg('productReviews', 'rating')
-            ->when($this->selectedCategory !== 'all', function ($query) {
-                $query->where('category_id', $this->selectedCategory);
-            })
-            ->get();
+            ->withAvg('productReviews', 'rating');
+
+        // Apply search filter
+        if (!empty($this->search)) {
+            $searchTerm = '%' . $this->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            });
+        }
+
+        if ($this->selectedCategory !== 'all') {
+            $query->where('category_id', $this->selectedCategory);
+        }
+
+        $this->products = $query->get();
+    }
+
+    public function updatedSearch()
+    {
+        $this->loadProducts();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->loadProducts();
     }
 
     public function loadBestSellers()
@@ -191,6 +214,7 @@ class ViewProducts extends Component
 
     public function openReviewModal($productId)
     {
+        // ✅ Force a fresh query to get the latest reviews
         $this->selectedProduct = Product::with(['productReviews' => function ($query) {
             $query->with('customer')->latest();
         }])->findOrFail($productId);

@@ -4,12 +4,15 @@
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.employee.dashboard') }}" class="flex items-center gap-2">
                     <span class="text-2xl">🍞</span>
-                    <span class="text-xl font-bold text-gray-900">BakeshopHub</span>
+                    <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                     <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Employee</span>
                 </a>
             </div>
 
             <div class="flex items-center gap-3">
+                <!-- ✅ NOTIFICATION BELL -->
+                @livewire('components.notification-bell')
+
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false"
                         class="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition">
