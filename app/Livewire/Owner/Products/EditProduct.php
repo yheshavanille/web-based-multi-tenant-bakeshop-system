@@ -19,12 +19,17 @@ class EditProduct extends Component
     public $price;
     public $category_id;
     public $selectedBranches = [];
-    public $stock_per_branch = 10;
+    public $stock_per_branch = null;
     public $image_url;
     public $image;
     public $description;
     public $categories;
     public $branches;
+
+    public $discount_type = 'none';
+    public $discount_value = 0;
+    public $discount_start;
+    public $discount_end;
 
     public function updatedImage()
     {
@@ -52,12 +57,15 @@ class EditProduct extends Component
         $this->image_url = $product->image_url;
         $this->description = $product->description;
 
-        // Get selected branch IDs
+        $this->discount_type = $product->discount_type ?? 'none';
+        $this->discount_value = $product->discount_value ?? 0;
+        $this->discount_start = $product->discount_start ? $product->discount_start->format('Y-m-d\TH:i') : null;
+        $this->discount_end = $product->discount_end ? $product->discount_end->format('Y-m-d\TH:i') : null;
+
         $this->selectedBranches = $product->branches->pluck('id')->toArray();
 
-        // Get stock from first branch (if any)
         if ($product->branches->isNotEmpty()) {
-            $this->stock_per_branch = $product->branches->first()->pivot->stock ?? 10;
+            $this->stock_per_branch = $product->branches->first()->pivot->stock ?? null;
         }
 
         $shop = $user->shop;
@@ -78,8 +86,7 @@ class EditProduct extends Component
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
             'selectedBranches.required' => 'Please select at least one branch.',
-            'stock_per_branch.required' => 'Stock quantity is required.',
-            'stock_per_branch.min' => 'Stock quantity must be 0 or more.',
+            'discount_value.min' => 'Discount value must be greater than 0.',
         ];
     }
 
@@ -91,10 +98,13 @@ class EditProduct extends Component
             'category_id' => 'required|exists:categories,id',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
-            'stock_per_branch' => 'required|integer|min:0',
             'image_url' => 'nullable',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
+            'discount_type' => 'required|in:none,percentage,fixed',
+            'discount_value' => 'required_if:discount_type,percentage,fixed|nullable|numeric|min:0',
+            'discount_start' => 'nullable|date',
+            'discount_end' => 'nullable|date|after:discount_start',
         ];
     }
 
@@ -127,12 +137,15 @@ class EditProduct extends Component
             'category_id' => $this->category_id,
             'image_url' => $imagePath,
             'description' => $this->description,
+            'discount_type' => $this->discount_type,
+            'discount_value' => $this->discount_type !== 'none' ? $this->discount_value : 0,
+            'discount_start' => $this->discount_start,
+            'discount_end' => $this->discount_end,
         ]);
 
-        // Sync branches with stock
         $syncData = [];
         foreach ($this->selectedBranches as $branchId) {
-            $syncData[$branchId] = ['stock' => $this->stock_per_branch];
+            $syncData[$branchId] = ['stock' => $this->stock_per_branch ?? 0];
         }
         $product->branches()->sync($syncData);
 

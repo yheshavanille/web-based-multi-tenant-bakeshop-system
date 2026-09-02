@@ -6,7 +6,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\BranchProduct;
+use App\Notifications\LowStockNotification;
+use App\Notifications\OutOfStockNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -41,6 +44,7 @@ class Dashboard extends Component
             $this->loadOrderData();
         } elseif ($this->role === 'inventory_manager') {
             $this->loadInventoryData();
+            $this->checkAndSendStockNotifications();
         }
     }
 
@@ -112,6 +116,60 @@ class Dashboard extends Component
 
             return $orderCount > 0;
         })->sortByDesc('orders_last_7_days');
+    }
+
+    // ✅ Check stock and send notifications (ONLY for stocks <= 5)
+    public function checkAndSendStockNotifications()
+    {
+        // Get all products with their stock for this branch
+        $products = Product::where('shop_id', $this->shop->id)
+            ->whereHas('branches', function ($query) {
+                $query->where('branch_id', $this->branch->id);
+            })
+            ->with(['branches' => function ($query) {
+                $query->where('branches.id', $this->branch->id);
+            }])
+            ->get()
+            ->map(function ($product) {
+                $product->stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
+                return $product;
+            });
+
+        $inventoryManager = $this->employee;
+
+        foreach ($products as $product) {
+            $stock = $product->stock;
+
+            // ✅ SKIP if stock is greater than 5 (not low stock)
+            if ($stock > 5) {
+                continue;
+            }
+
+            // Check if notification already exists for this product (within last 24 hours)
+            $existingNotification = $inventoryManager->user->notifications()
+                ->where('data->product_id', $product->id)
+                ->where('data->type', 'low_stock')
+                ->where('created_at', '>=', now()->subHours(24))
+                ->exists();
+
+            if ($existingNotification) {
+                continue; // Skip if already notified recently
+            }
+
+            if ($stock <= 0) {
+                // Out of Stock
+                Notification::send(
+                    $inventoryManager->user,
+                    new OutOfStockNotification($product, $this->branch)
+                );
+            } elseif ($stock <= 5) {
+                // Low Stock (1-5)
+                Notification::send(
+                    $inventoryManager->user,
+                    new LowStockNotification($product, $this->branch, $stock)
+                );
+            }
+        }
     }
 
     public function render()

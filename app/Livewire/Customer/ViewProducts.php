@@ -26,7 +26,6 @@ class ViewProducts extends Component
     public $bestSellers = [];
     public $search = '';
 
-    // Review properties
     public $showReviewModal = false;
     public $selectedProduct = null;
     public $productReviews = [];
@@ -89,7 +88,6 @@ class ViewProducts extends Component
             ->with(['category', 'branches'])
             ->withAvg('productReviews', 'rating');
 
-        // Apply search filter
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
@@ -210,14 +208,13 @@ class ViewProducts extends Component
         $this->loadProducts();
     }
 
-    // ==================== REVIEW MODAL METHODS ====================
-
     public function openReviewModal($productId)
     {
-        // ✅ Force a fresh query to get the latest reviews
-        $this->selectedProduct = Product::with(['productReviews' => function ($query) {
-            $query->with('customer')->latest();
-        }])->findOrFail($productId);
+        $this->selectedProduct = Product::with([
+            'productReviews' => function ($query) {
+                $query->with('customer')->latest();
+            }
+        ])->findOrFail($productId);
 
         $this->productReviews = $this->selectedProduct->productReviews;
         $this->averageRating = $this->selectedProduct->productReviews->avg('rating') ?? 0;
@@ -232,6 +229,7 @@ class ViewProducts extends Component
         $this->averageRating = 0;
 
         $this->loadProducts();
+        $this->loadBestSellers();
     }
 
     public function getShopRating()
@@ -253,6 +251,7 @@ class ViewProducts extends Component
         return view('livewire.customer.view-products', [
             'shopRating' => $shopRating,
             'shopRatingCount' => $shopRatingCount,
+            'bestSellers' => $this->bestSellers, // ✅ PASS BEST SELLERS TO VIEW
         ])->layout('components.layouts.customer');
     }
 }

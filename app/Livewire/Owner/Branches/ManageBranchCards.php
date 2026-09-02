@@ -98,8 +98,18 @@ class ManageBranchCards extends Component
         // Cancelled orders
         $stats['cancelled_orders'] = $orders->where('status', 'cancelled')->count();
 
-        // Total revenue (from completed orders)
-        $stats['total_revenue'] = $orders->where('status', 'completed')->sum('total_amount');
+        // Total revenue (from completed orders) - EXCLUDE CANCELLED ITEMS
+        $completedOrders = $orders->where('status', 'completed');
+        $totalRevenue = 0;
+        foreach ($completedOrders as $order) {
+            $adjustedTotal = $order->items
+                ->where('status', '!=', 'cancelled')
+                ->sum(function ($item) {
+                    return $item->price * $item->quantity;
+                });
+            $totalRevenue += $adjustedTotal;
+        }
+        $stats['total_revenue'] = $totalRevenue;
 
         // Average order value
         $stats['avg_order_value'] = $stats['completed_orders'] > 0
@@ -133,12 +143,29 @@ class ManageBranchCards extends Component
             ->where('is_active', true)
             ->count();
 
-        // Recent orders (last 5)
+        // Recent orders (last 5) - WITH ADJUSTED TOTALS
         $stats['recent_orders'] = Order::where('branch_id', $branchId)
-            ->with('customer')
+            ->with(['customer', 'items'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(function ($order) {
+                // ✅ Calculate adjusted total (exclude cancelled items)
+                $adjustedTotal = $order->items
+                    ->where('status', '!=', 'cancelled')
+                    ->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    });
+
+                // ✅ Calculate adjusted tax and grand total
+                $adjustedTax = round($adjustedTotal * 0.12, 2);
+                $adjustedGrandTotal = $adjustedTotal + $adjustedTax;
+
+                $order->display_total = $adjustedGrandTotal;
+                $order->adjusted_total = $adjustedTotal;
+
+                return $order;
+            });
 
         return $stats;
     }

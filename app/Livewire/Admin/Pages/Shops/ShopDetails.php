@@ -127,7 +127,6 @@ class ShopDetails extends Component
         $order->completed_count = $completedCount;
         $order->pending_count = $pendingCount;
 
-        // ✅ Calculate adjusted total (exclude cancelled items)
         $order->adjusted_total = $order->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {
@@ -176,7 +175,6 @@ class ShopDetails extends Component
         $this->selectedOrder = Order::with(['customer', 'branch', 'items.product', 'shop'])
             ->findOrFail($orderId);
 
-        // ✅ Calculate adjusted total
         $this->selectedOrder->adjusted_total = $this->selectedOrder->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {
@@ -194,7 +192,6 @@ class ShopDetails extends Component
 
     public function render()
     {
-        // Load analytics
         $this->loadAnalytics();
 
         $query = Product::with('category', 'branches')
@@ -205,12 +202,10 @@ class ShopDetails extends Component
                 });
             }], 'quantity');
 
-        // Filter by category
         if ($this->selectedCategory !== 'all') {
             $query->where('category_id', $this->selectedCategory);
         }
 
-        // Filter by branch
         if ($this->selectedBranch !== 'all') {
             $query->whereHas('branches', function ($q) {
                 $q->where('branch_id', $this->selectedBranch);
@@ -219,7 +214,6 @@ class ShopDetails extends Component
 
         $products = $query->get();
 
-        // Calculate total revenue correctly
         foreach ($products as $product) {
             $product->total_revenue = OrderItem::where('product_id', $product->id)
                 ->whereHas('order', function ($q) {

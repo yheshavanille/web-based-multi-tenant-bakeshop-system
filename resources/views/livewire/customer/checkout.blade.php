@@ -41,30 +41,46 @@
                     </div>
 
                     @foreach($cartItems as $item)
+                    @php
+                    $product = $item->product;
+                    $isDiscounted = $product && $product->isDiscounted();
+                    $displayPrice = $isDiscounted ? $product->getDiscountedPrice() : $product->price;
+                    $originalPrice = $product->price ?? 0;
+                    $discountLabel = $isDiscounted ? $product->getDiscountLabel() : null;
+                    @endphp
                     <div class="p-4 border-b border-gray-100 last:border-0">
                         <!-- Product Row -->
                         <div class="flex items-start gap-4">
                             <div
                                 class="w-16 h-16 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                @if($item->product->image_url)
-                                <img src="{{ asset($item->product->image_url) }}" class="w-full h-full object-cover">
+                                @if($product && $product->image_url)
+                                <img src="{{ asset($product->image_url) }}" class="w-full h-full object-cover">
                                 @else
                                 <span class="text-2xl">🍰</span>
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-medium text-gray-800">{{ $item->product->name }}</p>
-                                <p class="text-sm text-gray-500">{{ $item->product->category->name ?? 'Uncategorized' }}
+                                <p class="font-medium text-gray-800">{{ $product->name ?? 'Product Unavailable' }}</p>
+                                <p class="text-sm text-gray-500">{{ $product->category->name ?? 'Uncategorized' }}
                                 </p>
                                 <div class="flex items-center gap-3 mt-1 text-sm">
                                     <span class="text-gray-600">Qty: {{ $item->quantity }}</span>
                                     <span class="text-gray-300">|</span>
-                                    <span class="text-amber-600 font-medium">₱{{ number_format($item->product->price, 2)
+                                    @if($isDiscounted)
+                                    <span class="text-green-600 font-medium">₱{{ number_format($displayPrice, 2)
                                         }}</span>
+                                    <span class="text-gray-400 line-through text-xs">₱{{ number_format($originalPrice,
+                                        2) }}</span>
+                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">{{
+                                        $discountLabel }}</span>
+                                    @else
+                                    <span class="text-amber-600 font-medium">₱{{ number_format($displayPrice, 2)
+                                        }}</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="text-right flex-shrink-0">
-                                <p class="font-semibold text-gray-800">₱{{ number_format($item->product->price *
+                                <p class="font-semibold text-gray-800">₱{{ number_format($displayPrice *
                                     $item->quantity, 2) }}</p>
                             </div>
                         </div>
@@ -94,17 +110,16 @@
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-
                             <div>
                                 <p class="text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">Pickup Time
                                 </p>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Set Pickup Time</label>
                                 <input type="datetime-local" wire:model.live="pickupTimes.{{ $item->id }}"
                                     id="pickup_time_{{ $item->id }}"
-                                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm pointer-events-none">
                                 <div class="flex justify-end gap-3 mt-1">
                                     <button type="button"
-                                        onclick="document.getElementById('pickup_time_{{ $item->id }}').value = ''"
+                                        onclick="document.getElementById('pickup_time_{{ $item->id }}').value = ''; $wire.set('pickupTimes.{{ $item->id }}', '')"
                                         class="text-sm text-gray-500 hover:text-gray-700 transition">
                                         Clear
                                     </button>
@@ -175,14 +190,36 @@
                         <div class="space-y-1.5">
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
-                                {{ $payment_method === 'paymongo' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+            {{ $payment_method === 'paymongo' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
                                 <input type="radio" wire:model="payment_method" value="paymongo"
                                     class="text-amber-600 focus:ring-amber-500">
-                                💳 PayMongo (GCash / PayMaya)
+                                💳 PayMongo
                             </label>
+
+                            @if($payment_method === 'paymongo')
+                            <div class="ml-6 space-y-1.5 border-l-2 border-amber-200 pl-4">
+                                <label
+                                    class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer transition text-sm
+                {{ $payment_method_detail === 'gcash' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+                                    <input type="radio" wire:click="$set('payment_method_detail', 'gcash')"
+                                        value="gcash" {{ $payment_method_detail==='gcash' ? 'checked' : '' }}
+                                        class="text-amber-600 focus:ring-amber-500">
+                                    📱 GCash
+                                </label>
+                                <label
+                                    class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer transition text-sm
+                {{ $payment_method_detail === 'paymaya' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+                                    <input type="radio" wire:click="$set('payment_method_detail', 'paymaya')"
+                                        value="paymaya" {{ $payment_method_detail==='paymaya' ? 'checked' : '' }}
+                                        class="text-amber-600 focus:ring-amber-500">
+                                    📱 PayMaya
+                                </label>
+                            </div>
+                            @endif
+
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
-                                {{ $payment_method === 'pickup_payment' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+            {{ $payment_method === 'pickup_payment' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
                                 <input type="radio" wire:model="payment_method" value="pickup_payment"
                                     class="text-amber-600 focus:ring-amber-500">
                                 💵 Cash on Pickup
@@ -195,11 +232,15 @@
 
                     <hr class="my-3">
 
-                    <!-- Totals -->
+                    <!-- Totals with VAT -->
                     <div class="space-y-1.5">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500">Subtotal</span>
-                            <span class="text-gray-700">₱{{ number_format($total, 2) }}</span>
+                            <span class="text-gray-700">₱{{ number_format($subtotal, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">VAT (12%)</span>
+                            <span class="text-gray-700">₱{{ number_format($tax, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500">Service Fee</span>
@@ -207,7 +248,7 @@
                         </div>
                         <div class="flex justify-between text-base font-bold pt-2 border-t border-gray-200">
                             <span class="text-gray-800">Total</span>
-                            <span class="text-amber-600">₱{{ number_format($total, 2) }}</span>
+                            <span class="text-amber-600">₱{{ number_format($grandTotal, 2) }}</span>
                         </div>
                     </div>
 

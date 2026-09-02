@@ -145,6 +145,67 @@
                     @enderror
                 </div>
 
+                <!-- ✅ DISCOUNT SECTION -->
+                <div class="border-t border-gray-200 pt-4 mt-4 md:col-span-2">
+                    <h3 class="text-md font-semibold text-gray-800 mb-3">🏷️ Discount Settings</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+                            <select wire:model.live="discount_type"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <option value="none">No Discount</option>
+                                <option value="percentage">Percentage (%)</option>
+                                <option value="fixed">Fixed Amount (₱)</option>
+                            </select>
+                            @error('discount_type')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
+                            <input type="number" step="0.01" wire:model.live="discount_value"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                min="0" {{ $discount_type==='none' ? 'disabled' : '' }}>
+                            @error('discount_value')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- ✅ REAL-TIME DISCOUNT PREVIEW -->
+                    @if($discount_type !== 'none' && $discount_value > 0 && $price > 0)
+                    @php
+                    $discountedPrice = $price;
+                    if ($discount_type === 'percentage') {
+                    $discountedPrice = $price * (1 - $discount_value / 100);
+                    } elseif ($discount_type === 'fixed') {
+                    $discountedPrice = max(0, $price - $discount_value);
+                    }
+                    $discountedPrice = max(0, $discountedPrice);
+                    @endphp
+                    <div class="md:col-span-2 mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <p class="text-sm text-gray-700">
+                                <span class="font-medium">Original Price:</span>
+                                <span class="text-gray-500 line-through">₱{{ number_format($price, 2) }}</span>
+                            </p>
+                            <p class="text-sm text-gray-700">
+                                <span class="font-medium">Discounted Price:</span>
+                                <span class="text-lg font-bold text-green-600">₱{{ number_format($discountedPrice, 2)
+                                    }}</span>
+                            </p>
+                            <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+                                {{ $discount_type === 'percentage' ? $discount_value . '% OFF' : '₱' .
+                                number_format($discount_value, 2) . ' OFF' }}
+                            </span>
+                            <span class="text-xs text-gray-400">
+                                (Save ₱{{ number_format($price - $discountedPrice, 2) }})
+                            </span>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
                 <!-- Image Upload -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
@@ -190,11 +251,25 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             @forelse($products as $product)
             @php
+            // ✅ Get branch IDs where product exists
+            $branchIds = $product->branches->pluck('id')->toArray();
+
+            // ✅ EXACT SAME LOGIC AS BEST SELLERS - SHOW 16
+            if (!empty($branchIds)) {
+            $orderItems = \App\Models\OrderItem::where('product_id', $product->id)
+            ->whereHas('order', function ($q) use ($branchIds) {
+            $q->where('status', 'completed')
+            ->whereIn('branch_id', $branchIds);
+            })
+            ->get();
+            } else {
             $orderItems = \App\Models\OrderItem::where('product_id', $product->id)
             ->whereHas('order', function ($q) {
             $q->where('status', 'completed');
             })
             ->get();
+            }
+
             $totalSold = $orderItems->sum('quantity');
             $totalRevenue = $orderItems->sum(function($item) {
             return $item->quantity * $item->price;
@@ -230,7 +305,18 @@
 
                     <p class="text-sm text-gray-500 mt-0.5">{{ $product->category->name ?? 'No Category' }}</p>
 
-                    <p class="text-lg font-bold text-amber-600 mt-1">₱{{ number_format($product->price, 2) }}</p>
+                    <!-- ✅ FIXED: Show discounted price if active -->
+                    <p class="text-lg font-bold mt-1">
+                        @if($product->isDiscounted())
+                        <span class="text-red-600">₱{{ number_format($product->getDiscountedPrice(), 2) }}</span>
+                        <span class="text-sm text-gray-400 line-through ml-2">₱{{ number_format($product->price, 2)
+                            }}</span>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full ml-1">{{
+                            $product->getDiscountLabel() }}</span>
+                        @else
+                        <span class="text-amber-600">₱{{ number_format($product->price, 2) }}</span>
+                        @endif
+                    </p>
 
                     <!-- Stock Display -->
                     <div class="mt-1">
@@ -242,7 +328,7 @@
                         </span>
                     </div>
 
-                    <!-- Sales Summary -->
+                    <!-- Sales Summary - NOW SHOWS 16 -->
                     <div class="mt-2 flex items-center gap-3 flex-wrap">
                         <span class="text-xs text-gray-500">📊 Sold:</span>
                         <span class="text-xs font-semibold text-green-600">{{ $totalSold }}</span>
@@ -373,7 +459,18 @@
                         <h2 class="text-xl font-bold text-gray-800">{{ $selectedProduct->name }}</h2>
                         <p class="text-sm text-gray-500">📂 {{ $selectedProduct->category->name ?? 'Uncategorized' }}
                         </p>
-                        <p class="text-2xl font-bold text-amber-600">₱{{ number_format($selectedProduct->price, 2) }}
+                        <!-- ✅ FIXED: Show discounted price in modal too -->
+                        <p class="text-2xl font-bold">
+                            @if($selectedProduct->isDiscounted())
+                            <span class="text-red-600">₱{{ number_format($selectedProduct->getDiscountedPrice(), 2)
+                                }}</span>
+                            <span class="text-sm text-gray-400 line-through ml-2">₱{{
+                                number_format($selectedProduct->price, 2) }}</span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full ml-1">{{
+                                $selectedProduct->getDiscountLabel() }}</span>
+                            @else
+                            <span class="text-amber-600">₱{{ number_format($selectedProduct->price, 2) }}</span>
+                            @endif
                         </p>
                         @php
                         $totalStock = $selectedProduct->branches->sum('pivot.stock');
@@ -387,7 +484,7 @@
                     </div>
                 </div>
 
-                <!-- Analytics Cards -->
+                <!-- Analytics Cards - NOW SHOWS 16 -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center">
                         <p class="text-xs text-gray-500 uppercase tracking-wider">Total Sold</p>

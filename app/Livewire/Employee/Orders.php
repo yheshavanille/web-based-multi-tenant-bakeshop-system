@@ -105,14 +105,29 @@ class Orders extends Component
             $query->where('branch_id', $this->branch->id);
         })->findOrFail($itemId);
 
+        // ✅ BLOCK: If the item was cancelled by customer (we'll track this with status for now)
+        // Since we don't have cancelled_by on order_items yet, we check:
+        // 1. Item status is 'cancelled'
+        // 2. Order status is NOT 'cancelled' (meaning only this item was cancelled)
+        // OR the order was cancelled by customer
         if ($item->status === 'cancelled') {
-            session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
-            $this->loadOrders();
-            return;
+            // If the order is still pending but this item is cancelled, customer cancelled it
+            if ($item->order->status === 'pending') {
+                session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
+                $this->loadOrders();
+                return;
+            }
+            // If the order was cancelled by customer
+            if ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer') {
+                session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
+                $this->loadOrders();
+                return;
+            }
         }
 
-        if ($item->order->status === 'cancelled') {
-            session()->flash('error', 'This order was cancelled and cannot be updated.');
+        // ✅ Also block if the entire order was cancelled by customer
+        if ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer') {
+            session()->flash('error', 'This order was cancelled by the customer and cannot be updated.');
             $this->loadOrders();
             return;
         }

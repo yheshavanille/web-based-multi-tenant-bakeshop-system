@@ -3,6 +3,7 @@
 namespace App\Livewire\Components;
 
 use App\Models\Order;
+use App\Models\SellerRegistration;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Component;
@@ -14,8 +15,13 @@ class NotificationBell extends Component
     public $showModal = false;
     public $selectedNotification = null;
     public $orderDetails = null;
+    public $sellerRegistration = null;
 
-    protected $listeners = ['notificationUpdated' => 'loadNotifications'];
+    // ✅ ADD refreshNotifications listener
+    protected $listeners = [
+        'notificationUpdated' => 'loadNotifications',
+        'refreshNotifications' => 'loadNotifications',
+    ];
 
     public function mount()
     {
@@ -44,6 +50,11 @@ class NotificationBell extends Component
 
     private function shouldShowNotification($user, $notification)
     {
+        // ✅ SUPER ADMIN - SHOW EVERYTHING
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
         $type = $notification->data['type'] ?? '';
         $currentRoute = Route::currentRouteName() ?? '';
 
@@ -63,24 +74,22 @@ class NotificationBell extends Component
             || str_starts_with($currentRoute, 'admin.')
             || request()->is('admin/*');
 
-        // ✅ CUSTOMER VIEW: Only show customer's own order notifications
+        // ✅ CUSTOMER VIEW
         if ($isCustomerView && !$isOwnerView && !$isEmployeeView && !$isAdminView) {
-            // Customers should only see their own order status updates
             if ($type === 'order_status_updated') {
-                // Check if this notification is for the customer
                 $orderId = $notification->data['order_id'] ?? null;
                 if ($orderId) {
                     $order = Order::find($orderId);
                     if ($order && $order->customer_id === $user->id) {
-                        return true; // This is the customer's own order
+                        return true;
                     }
                 }
-                return false; // Not their order
+                return false;
             }
             return in_array($type, ['seller_approved', 'seller_rejected']);
         }
 
-        // ✅ OWNER VIEW: Show all owner notifications
+        // ✅ OWNER VIEW
         if ($isOwnerView) {
             return in_array($type, ['new_order', 'order_status_updated', 'seller_approved', 'seller_rejected']);
         }
@@ -99,25 +108,9 @@ class NotificationBell extends Component
             }
         }
 
-        // ✅ ADMIN VIEW: Show everything
+        // ✅ ADMIN VIEW
         if ($isAdminView) {
             return true;
-        }
-
-        // ✅ Fallback
-        if ($user->hasRole('owner') && $isCustomerView) {
-            // Check if this is the customer's own order
-            if ($type === 'order_status_updated') {
-                $orderId = $notification->data['order_id'] ?? null;
-                if ($orderId) {
-                    $order = Order::find($orderId);
-                    if ($order && $order->customer_id === $user->id) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            return in_array($type, ['seller_approved', 'seller_rejected']);
         }
 
         return true;
@@ -151,13 +144,24 @@ class NotificationBell extends Component
             $this->loadNotifications();
         }
 
-        // ✅ Load order details if notification is order-related
         $this->orderDetails = null;
-        if (in_array($this->selectedNotification->data['type'] ?? '', ['new_order', 'order_status_updated'])) {
+        $this->sellerRegistration = null;
+
+        $type = $this->selectedNotification->data['type'] ?? '';
+
+        if (in_array($type, ['new_order', 'order_status_updated'])) {
             $orderId = $this->selectedNotification->data['order_id'] ?? null;
             if ($orderId) {
                 $this->orderDetails = Order::with(['items.product', 'customer', 'branch', 'shop'])
                     ->find($orderId);
+            }
+        }
+
+        if (in_array($type, ['new_seller_registration', 'seller_approved', 'seller_rejected'])) {
+            $registrationId = $this->selectedNotification->data['registration_id'] ?? null;
+            if ($registrationId) {
+                $this->sellerRegistration = SellerRegistration::with(['user'])
+                    ->find($registrationId);
             }
         }
 
@@ -169,6 +173,7 @@ class NotificationBell extends Component
         $this->showModal = false;
         $this->selectedNotification = null;
         $this->orderDetails = null;
+        $this->sellerRegistration = null;
     }
 
     public function render()

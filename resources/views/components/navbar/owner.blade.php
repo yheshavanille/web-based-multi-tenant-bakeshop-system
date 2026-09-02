@@ -106,6 +106,18 @@
                             <span class="text-lg">⚙️</span> Shop Settings
                         </a>
 
+                        <!-- ✅ PRODUCT EDIT HISTORY -->
+                        <a href="{{ route('livewire.owner.product-history') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">✏️</span> Product Edit History
+                        </a>
+
+                        <!-- ✅ STOCK UPDATE HISTORY -->
+                        <a href="{{ route('livewire.owner.stock-history') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">📦</span> Stock Update History
+                        </a>
+
                         <div class="border-t border-gray-100 my-1"></div>
 
                         <a href="{{ route('livewire.customer.dashboard') }}"

@@ -12,8 +12,10 @@ class OrderItem extends Model
         'branch_id',
         'quantity',
         'price',
+        'original_price', // ✅ ADD THIS
         'pickup_time',
         'status',
+        'cancelled_by',
     ];
 
     public function order()

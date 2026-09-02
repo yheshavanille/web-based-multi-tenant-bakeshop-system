@@ -19,10 +19,9 @@ class PayMongoService
     /**
      * Create a checkout session for GCash/PayMaya
      */
-    public function createPaymentIntent($order)
+    public function createPaymentIntent($order, $paymentType = null)
     {
         try {
-            // ✅ Use Checkout Sessions API instead of Sources
             $payload = [
                 'data' => [
                     'attributes' => [
@@ -34,11 +33,11 @@ class PayMongoService
                                 'currency' => 'PHP',
                                 'amount' => (int) ($order->total_amount * 100),
                                 'description' => 'Order #' . $order->order_number,
-                                'name' => 'Bakeshop Order',
+                                'name' => 'Web-based Multi-tenant Bakeshop System',
                                 'quantity' => 1,
                             ]
                         ],
-                        'payment_method_types' => ['gcash', 'paymaya'],
+                        'payment_method_types' => ['gcash', 'paymaya'], // ✅ Always allow both
                         'reference_number' => $order->order_number,
                         'description' => 'Order #' . $order->order_number,
                         'success_url' => route('payment.success'),
@@ -88,7 +87,6 @@ class PayMongoService
                 return $data;
             }
 
-            // ✅ If Checkout Session fails, try Source API as fallback
             Log::warning('Checkout session failed, trying Source API fallback');
             return $this->createSourceFallback($order);
         } catch (\Exception $e) {
@@ -97,18 +95,17 @@ class PayMongoService
                 'error' => $e->getMessage(),
             ]);
 
-            // ✅ Try Source API as fallback
             return $this->createSourceFallback($order);
         }
     }
-
     /**
      * Fallback: Create a payment source
      */
     private function createSourceFallback($order)
     {
         try {
-            $paymentMethod = $order->payment_method;
+            // ✅ Use payment_method_detail instead of payment_method
+            $paymentMethod = $order->payment_method_detail ?? 'gcash';
 
             $payload = [
                 'data' => [

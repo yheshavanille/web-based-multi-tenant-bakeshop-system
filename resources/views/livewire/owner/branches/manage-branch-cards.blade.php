@@ -251,8 +251,8 @@
                                 <p class="text-xs text-gray-500">{{ $order->customer->name ?? 'N/A' }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-semibold text-amber-600">₱{{ number_format($order->total_amount,
-                                    2) }}</p>
+                                <p class="text-sm font-semibold text-amber-600">₱{{ number_format($order->display_total
+                                    ?? $order->total_amount, 2) }}</p>
                                 <span class="text-xs px-2 py-0.5 rounded-full
                                     {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
                                     {{ $order->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}

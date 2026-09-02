@@ -84,7 +84,6 @@ class Products extends Component
             })
             ->with('category');
 
-        // Apply search filter
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
@@ -175,7 +174,12 @@ class Products extends Component
         if ($this->editing) {
             $product = Product::findOrFail($this->productId);
 
-            $fields = ['name', 'price', 'category_id', 'description', 'image_url'];
+            // ✅ Handle image separately
+            $oldImageUrl = $this->originalValues['image_url'] ?? null;
+            $newImageUrl = $imagePath ?? $product->image_url;
+
+            // Track fields
+            $fields = ['name', 'price', 'category_id', 'description'];
 
             foreach ($fields as $field) {
                 $oldValue = $this->originalValues[$field] ?? null;
@@ -192,12 +196,26 @@ class Products extends Component
                 }
             }
 
+            // ✅ Track image change separately
+            if ($oldImageUrl !== $newImageUrl) {
+                $oldLabel = $oldImageUrl ? 'Old image' : 'No image';
+                $newLabel = $newImageUrl ? 'New image' : 'Removed image';
+
+                ProductEditHistory::create([
+                    'product_id' => $product->id,
+                    'user_id' => Auth::id(),
+                    'field' => 'image_url',
+                    'old_value' => $oldLabel,
+                    'new_value' => $newLabel,
+                ]);
+            }
+
             $product->update([
                 'name' => $this->name,
                 'price' => $this->price,
                 'category_id' => $this->category_id,
                 'description' => $this->description,
-                'image_url' => $imagePath ?? $product->image_url,
+                'image_url' => $newImageUrl,
             ]);
 
             session()->flash('message', 'Product updated successfully!');

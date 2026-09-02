@@ -18,6 +18,10 @@ class ManageUsers extends Component
     public $search = '';
     public $activeTab = 'active';
 
+    // ✅ User Details Modal
+    public $showUserModal = false;
+    public $selectedUser = null;
+
     protected $queryString = ['roleFilter', 'statusFilter', 'search', 'activeTab'];
 
     public function render()
@@ -60,6 +64,11 @@ class ManageUsers extends Component
                 $query->where('is_active', true);
             } elseif ($this->statusFilter === 'suspended') {
                 $query->where('is_active', false);
+            } elseif ($this->statusFilter === 'deactivated_by_owner') {
+                // ✅ Users whose employee is deactivated by owner (employee->is_active = false)
+                $query->whereHas('employee', function ($q) {
+                    $q->where('is_active', false);
+                });
             }
 
             if ($this->roleFilter !== 'all') {
@@ -90,6 +99,22 @@ class ManageUsers extends Component
         $this->resetPage();
     }
 
+    // ✅ View User Details
+    public function viewUserDetails($userId)
+    {
+        $this->selectedUser = User::with(['shop', 'employee.branch'])
+            ->withTrashed()
+            ->findOrFail($userId);
+        $this->showUserModal = true;
+    }
+
+    // ✅ Close User Modal
+    public function closeUserModal()
+    {
+        $this->showUserModal = false;
+        $this->selectedUser = null;
+    }
+
     public function deleteUser($userId)
     {
         $user = User::findOrFail($userId);
@@ -99,7 +124,6 @@ class ManageUsers extends Component
             return;
         }
 
-        // Soft delete employee too if user is an employee
         $employee = Employee::where('user_id', $userId)->first();
         if ($employee) {
             $employee->delete();
@@ -114,13 +138,12 @@ class ManageUsers extends Component
         $user = User::withTrashed()->findOrFail($userId);
         $user->restore();
 
-        // Restore employee if exists
         $employee = Employee::onlyTrashed()->where('user_id', $userId)->first();
         if ($employee) {
             $employee->restore();
         }
 
-        session()->flash('message', 'User and associated employee record restored successfully.');
+        session()->flash('message', 'User record restored successfully.');
     }
 
     public function forceDeleteUser($userId)
@@ -143,7 +166,6 @@ class ManageUsers extends Component
             'deleted_at' => now(),
         ]);
 
-        // Force delete employee if exists
         $employee = Employee::withTrashed()->where('user_id', $userId)->first();
         if ($employee) {
             $employee->forceDelete();
@@ -176,9 +198,6 @@ class ManageUsers extends Component
         $this->activeTab = 'active';
     }
 
-    /**
-     * Get employee status label for display
-     */
     public function getEmployeeStatus($user)
     {
         $employee = $user->employee;
@@ -192,7 +211,7 @@ class ManageUsers extends Component
         }
 
         if (!$employee->is_active) {
-            return '🟡 Disabled by Employer';
+            return '🟡 Deactivated by Owner';
         }
 
         return null;

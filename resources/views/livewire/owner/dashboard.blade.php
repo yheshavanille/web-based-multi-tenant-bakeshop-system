@@ -96,7 +96,6 @@
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Updated</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
                     </tr>
@@ -108,13 +107,8 @@
                         <td class="px-4 py-3 text-gray-600">{{ $order->customer?->name ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-600">{{ $order->branch?->name ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-600">{{ $order->item_count }} items</td>
-                        <td class="px-4 py-3 font-medium text-amber-600">₱{{ number_format($order->total_amount, 2) }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <span class="text-xs font-medium text-gray-700">{{ $order->status_summary }}</span>
-                            @if($order->cancelled_count > 0)
-                            <span class="text-xs text-red-500">⚠️</span>
-                            @endif
+                        <td class="px-4 py-3 font-medium text-amber-600">
+                            ₱{{ number_format($order->display_total ?? $order->total_amount, 2) }}
                         </td>
                         <td class="px-4 py-3 text-gray-400 text-xs">{{ $order->updated_at->diffForHumans() }}</td>
                         <td class="px-4 py-3">
@@ -222,41 +216,77 @@
     </div>
     @endif
 
-    <!-- Recent Reviews -->
-    @if($recentReviews->count() > 0)
+    <!-- ✅ RECENT PRODUCT UPDATES - WITH BRANCH COLUMN -->
+    @if(isset($productEditHistories) && $productEditHistories->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">📝</span>
-                <h2 class="text-lg font-semibold text-gray-800">Recent Reviews</h2>
+                <span class="text-xl">✏️</span>
+                <h2 class="text-lg font-semibold text-gray-800">Recent Product Updates</h2>
+                <span class="text-sm text-gray-500">Last 10 updates</span>
             </div>
-            <a href="{{ route('livewire.owner.reviews-history') }}"
-                class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+            <button wire:click="viewAllProductHistory"
+                class="text-sm text-amber-600 hover:text-amber-700 font-medium transition">
                 View All →
-            </a>
+            </button>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Customer</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Rating</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Review</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Date</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Field</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Old Value</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">New Value</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Updated By</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Time</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
-                    @foreach($recentReviews as $review)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $review->customer?->name ?? 'Anonymous' }}
+                    @foreach($productEditHistories as $history)
+                    @php
+                    // Get the branch name for this product edit
+                    $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                    @endphp
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $branchName }}</td>
+                        <td class="px-4 py-3 text-gray-600">
+                            <span class="px-2 py-0.5 text-xs rounded-full
+                                {{ $history->field === 'created' ? 'bg-green-100 text-green-800' : '' }}
+                                {{ $history->field === 'name' ? 'bg-blue-100 text-blue-800' : '' }}
+                                {{ $history->field === 'price' ? 'bg-amber-100 text-amber-800' : '' }}
+                                {{ $history->field === 'category_id' ? 'bg-purple-100 text-purple-800' : '' }}
+                                {{ $history->field === 'description' ? 'bg-gray-100 text-gray-800' : '' }}
+                                {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}">
+                                {{ ucfirst(str_replace('_', ' ', $history->field)) }}
+                            </span>
                         </td>
-                        <td class="px-4 py-3 text-gray-600">{{ $review->branch?->name ?? 'N/A' }}</td>
-                        <td class="px-4 py-3">
-                            <span class="text-amber-500 text-sm">{{ str_repeat('⭐', $review->rating) }}</span>
+                        <td class="px-4 py-3 text-gray-500 text-sm">
+                            @if($history->field === 'price')
+                            ₱{{ number_format($history->old_value ?? 0, 2) }}
+                            @elseif($history->field === 'image_url')
+                            <span class="text-xs text-gray-400">{{ $history->old_value ? 'Old image' : 'No image'
+                                }}</span>
+                            @else
+                            {{ $history->old_value ?? '-' }}
+                            @endif
                         </td>
-                        <td class="px-4 py-3 text-gray-600 max-w-xs truncate">{{ $review->review ?? '-' }}</td>
-                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $review->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-3 text-gray-700 text-sm">
+                            @if($history->field === 'price')
+                            ₱{{ number_format($history->new_value ?? 0, 2) }}
+                            @elseif($history->field === 'image_url')
+                            <span class="text-xs text-green-600">{{ $history->new_value ? 'New image' : 'Removed'
+                                }}</span>
+                            @elseif($history->field === 'created')
+                            <span class="text-xs text-green-600">Product created</span>
+                            @else
+                            {{ $history->new_value ?? '-' }}
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->user->name ?? 'System' }}</td>
+                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -323,10 +353,12 @@
         @endif
     </div>
 
-    <!-- Order Details Modal -->
+    <!-- Order Details Modal - WITH BLURRY BACKGROUND, ORIGINAL PRICE, AND REVIEWS -->
     @if($showOrderModal && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="closeOrderModal"></div>
+        <!-- ✅ BLURRY OVERLAY -->
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeOrderModal"></div>
+
         <div class="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 90vh;">
 
@@ -386,7 +418,7 @@
 
                 <!-- Order Items -->
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Items</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
@@ -394,6 +426,7 @@
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Product</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Qty</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Price</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Original</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Subtotal</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Status</th>
                                 </tr>
@@ -404,7 +437,22 @@
                                     <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-4 py-2 text-gray-600">{{ $item->quantity }}</td>
-                                    <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price, 2) }}</td>
+                                    <td class="px-4 py-2">
+                                        @if($item->original_price && $item->original_price > $item->price)
+                                        <span class="text-red-600 font-medium">₱{{ number_format($item->price, 2)
+                                            }}</span>
+                                        @else
+                                        <span class="text-gray-600">₱{{ number_format($item->price, 2) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        @if($item->original_price && $item->original_price > $item->price)
+                                        <span class="text-gray-400 line-through">₱{{
+                                            number_format($item->original_price, 2) }}</span>
+                                        @else
+                                        <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price *
                                         $item->quantity, 2) }}</td>
                                     <td class="px-4 py-2">
@@ -422,14 +470,92 @@
                             </tbody>
                             <tfoot class="bg-gray-50">
                                 <tr>
-                                    <td colspan="3" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Subtotal:
+                                    </td>
+                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
+                                        number_format($selectedOrder->subtotal ?? $selectedOrder->total_amount, 2) }}
+                                    </td>
+                                </tr>
+                                @if($selectedOrder->tax_amount)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">VAT (12%):
+                                    </td>
+                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
+                                        number_format($selectedOrder->tax_amount, 2) }}</td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
                                     <td colspan="2" class="px-4 py-2 font-bold text-amber-600">₱{{
-                                        number_format($selectedOrder->adjusted_total ?? $selectedOrder->total_amount, 2)
-                                        }}</td>
+                                        number_format($selectedOrder->total_amount, 2) }}</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
+                </div>
+
+                <!-- ✅ Customer Review Section -->
+                <div class="border-t border-gray-200 pt-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">⭐ Customer Review</h4>
+                    @php
+                    $serviceReview = $selectedOrder->serviceReview;
+                    @endphp
+                    @if($serviceReview)
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-amber-500 text-lg">{{ str_repeat('⭐', $serviceReview->rating) }}</span>
+                            <span class="text-sm text-gray-500">({{ $serviceReview->rating }}/5)</span>
+                            @if($serviceReview->employee_rating)
+                            <span class="text-xs text-gray-400 ml-2">👤 Employee: {{ str_repeat('⭐',
+                                $serviceReview->employee_rating) }}</span>
+                            @endif
+                        </div>
+                        @if($serviceReview->review)
+                        <p class="text-sm text-gray-700 italic">"{{ $serviceReview->review }}"</p>
+                        @endif
+                        <p class="text-xs text-gray-400">Reviewed {{ $serviceReview->created_at->diffForHumans() }}</p>
+                    </div>
+                    @else
+                    <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500 text-sm">
+                        <p>No review yet for this order.</p>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- ✅ Product Reviews Section -->
+                <div class="border-t border-gray-200 pt-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Product Reviews</h4>
+                    @php
+                    $productReviews = $selectedOrder->productReviews;
+                    @endphp
+                    @if($productReviews && $productReviews->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($productReviews as $productReview)
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ $productReview->product->name ??
+                                        'N/A' }}</p>
+                                    <div class="flex items-center gap-1 mt-1">
+                                        <span class="text-amber-500 text-sm">{{ str_repeat('⭐', $productReview->rating)
+                                            }}</span>
+                                        <span class="text-xs text-gray-500">({{ $productReview->rating }}/5)</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-400">{{ $productReview->created_at->diffForHumans()
+                                    }}</span>
+                            </div>
+                            @if($productReview->review)
+                            <p class="text-sm text-gray-600 mt-1 italic">"{{ $productReview->review }}"</p>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500 text-sm">
+                        <p>No product reviews yet for this order.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -499,4 +625,170 @@
         </div>
         @endif
     </div>
+
+    <!-- ✅ PRODUCT HISTORY MODAL - WITH BRANCH COLUMN -->
+    @if($showProductHistoryModal && $allProductHistories)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeProductHistoryModal"></div>
+
+        <div
+            class="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">✏️ All Product Updates</h3>
+                        <p class="text-sm text-gray-500">{{ $allProductHistories->count() }} total updates</p>
+                    </div>
+                    <button wire:click="closeProductHistoryModal" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-6 py-4">
+                <table class="w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Product</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Branch</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Field</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Old Value</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">New Value</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Updated By</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @foreach($allProductHistories as $history)
+                        @php
+                        $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                        @endphp
+                        <tr>
+                            <td class="px-4 py-2 font-medium text-gray-800">{{ $history->product->name }}</td>
+                            <td class="px-4 py-2 text-gray-600">{{ $branchName }}</td>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-0.5 text-xs rounded-full
+                                    {{ $history->field === 'created' ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $history->field === 'name' ? 'bg-blue-100 text-blue-800' : '' }}
+                                    {{ $history->field === 'price' ? 'bg-amber-100 text-amber-800' : '' }}
+                                    {{ $history->field === 'category_id' ? 'bg-purple-100 text-purple-800' : '' }}
+                                    {{ $history->field === 'description' ? 'bg-gray-100 text-gray-800' : '' }}
+                                    {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}">
+                                    {{ ucfirst(str_replace('_', ' ', $history->field)) }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-gray-500 text-sm">
+                                @if($history->field === 'price')
+                                ₱{{ number_format($history->old_value ?? 0, 2) }}
+                                @elseif($history->field === 'image_url')
+                                <span class="text-xs text-gray-400">{{ $history->old_value ? 'Old image' : 'No image'
+                                    }}</span>
+                                @elseif($history->field === 'created')
+                                <span class="text-xs text-gray-400">—</span>
+                                @else
+                                {{ $history->old_value ?? '-' }}
+                                @endif
+                            </td>
+                            <td class="px-4 py-2 text-gray-700 text-sm">
+                                @if($history->field === 'price')
+                                ₱{{ number_format($history->new_value ?? 0, 2) }}
+                                @elseif($history->field === 'image_url')
+                                <span class="text-xs text-green-600">{{ $history->new_value ? 'New image' : 'Removed'
+                                    }}</span>
+                                @elseif($history->field === 'created')
+                                <span class="text-xs text-green-600">Product created</span>
+                                @else
+                                {{ $history->new_value ?? '-' }}
+                                @endif
+                            </td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->user->name ?? 'System' }}</td>
+                            <td class="px-4 py-2 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
+                <button wire:click="closeProductHistoryModal"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- ✅ STOCK HISTORY MODAL -->
+    @if($showStockHistoryModal && $allStockHistories)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeStockHistoryModal"></div>
+
+        <div
+            class="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">📦 All Stock Updates</h3>
+                        <p class="text-sm text-gray-500">{{ $allStockHistories->count() }} total updates</p>
+                    </div>
+                    <button wire:click="closeStockHistoryModal" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-6 py-4">
+                <table class="w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Product</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Branch</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Old Stock</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">New Stock</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Changed By</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Notes</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @foreach($allStockHistories as $history)
+                        <tr>
+                            <td class="px-4 py-2 font-medium text-gray-800">{{ $history->product->name }}</td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->branch->name }}</td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->old_stock }}</td>
+                            <td class="px-4 py-2">
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full
+                                    {{ $history->new_stock > $history->old_stock ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $history->new_stock < $history->old_stock ? 'bg-red-100 text-red-800' : '' }}
+                                    {{ $history->new_stock == $history->old_stock ? 'bg-gray-100 text-gray-800' : '' }}">
+                                    {{ $history->new_stock }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->user->name }}</td>
+                            <td class="px-4 py-2 text-gray-500">{{ $history->notes ?? '-' }}</td>
+                            <td class="px-4 py-2 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
+                <button wire:click="closeStockHistoryModal"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>

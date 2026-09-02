@@ -92,14 +92,12 @@
                                 </div>
 
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-gray-700">Stock per Branch</label>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Stock per Branch <span
+                                            class="text-xs text-gray-400">(optional)</span></label>
                                     <input type="number" wire:model="stock_per_branch" min="0"
                                         class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                     <p class="text-xs text-gray-500 mt-1">Default stock quantity for selected branches
-                                    </p>
-                                    @error('stock_per_branch')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
-                                    @enderror
+                                        (leave 0 if you want to set stock later)</p>
                                 </div>
                             </div>
 
@@ -145,6 +143,62 @@
                                 @error('description')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
+                            </div>
+
+                            <!-- ✅ DISCOUNT SECTION -->
+                            <div class="border-t border-gray-200 pt-4 mt-2">
+                                <h3 class="text-md font-semibold text-gray-800 mb-3">🏷️ Discount Settings</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount
+                                            Type</label>
+                                        <select wire:model="discount_type"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
+                                            <option value="none">No Discount</option>
+                                            <option value="percentage">Percentage (%)</option>
+                                            <option value="fixed">Fixed Amount (₱)</option>
+                                        </select>
+                                        @error('discount_type')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">
+                                            Discount Value
+                                            <span class="text-xs text-gray-400">
+                                                ({{ $discount_type === 'percentage' ? 'e.g., 20 for 20%' : 'e.g., 100
+                                                for ₱100 off' }})
+                                            </span>
+                                        </label>
+                                        <input type="number" step="0.01" wire:model="discount_value" min="0"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                                            {{ $discount_type==='none' ? 'disabled' : '' }}>
+                                        @error('discount_value')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount Start
+                                            Date</label>
+                                        <input type="datetime-local" wire:model="discount_start"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                        @error('discount_start')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount End
+                                            Date</label>
+                                        <input type="datetime-local" wire:model="discount_end"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                        @error('discount_end')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div>

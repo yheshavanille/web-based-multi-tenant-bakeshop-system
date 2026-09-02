@@ -22,11 +22,11 @@ class PaymentWebhookController extends Controller
         // Get the event type
         $eventType = $payload['data']['attributes']['type'] ?? null;
 
-        if ($eventType === 'payment_intent.succeeded') {
+        if ($eventType === 'payment_intent.succeeded' || $eventType === 'checkout_session.payment_succeeded') {
             $paymentIntentId = $payload['data']['attributes']['data']['id'] ?? null;
 
             if ($paymentIntentId) {
-                $this->handleSuccessfulPayment($paymentIntentId);
+                $this->handleSuccessfulPayment($paymentIntentId, $payload);
             }
         } elseif ($eventType === 'payment_intent.payment_failed') {
             $paymentIntentId = $payload['data']['attributes']['data']['id'] ?? null;
@@ -39,7 +39,7 @@ class PaymentWebhookController extends Controller
         return response()->json(['status' => 'success'], 200);
     }
 
-    private function handleSuccessfulPayment($paymentIntentId)
+    private function handleSuccessfulPayment($paymentIntentId, $payload)
     {
         $order = Order::where('payment_intent_id', $paymentIntentId)->first();
 
@@ -48,11 +48,45 @@ class PaymentWebhookController extends Controller
             return;
         }
 
-        // Update order status
-        $order->update([
+        // ✅ Get payment method from the webhook
+        $paymentMethodType = null;
+        $data = $payload['data']['attributes']['data'] ?? null;
+
+        // Check for payment method in the payment intent
+        if ($data && isset($data['attributes']['payment_method'])) {
+            $paymentMethodType = $data['attributes']['payment_method'];
+            Log::info('Payment method from checkout session', ['payment_method_type' => $paymentMethodType]);
+        }
+
+        // Alternative: check for payment method types used
+        if (!$paymentMethodType && isset($data['attributes']['payment_method_types'])) {
+            $types = $data['attributes']['payment_method_types'];
+            if (is_array($types) && count($types) > 0) {
+                $paymentMethodType = $types[0];
+            }
+            Log::info('Payment method from types', ['payment_method_type' => $paymentMethodType]);
+        }
+
+        // Fallback: check the order's existing payment_method_detail
+        if (!$paymentMethodType) {
+            $paymentMethodType = $order->payment_method_detail ?? 'gcash';
+            Log::info('Using existing payment_method_detail', ['payment_method_type' => $paymentMethodType]);
+        }
+
+        Log::info('Final payment method type', ['payment_method_type' => $paymentMethodType]);
+
+        // ✅ Update order with the actual payment method used
+        $updateData = [
             'payment_status' => 'paid',
-            'status' => 'preparing', // Automatically move to preparing once paid
-        ]);
+            'status' => 'preparing',
+        ];
+
+        // ✅ If payment method type is available, update payment_method_detail
+        if ($paymentMethodType) {
+            $updateData['payment_method_detail'] = $paymentMethodType;
+        }
+
+        $order->update($updateData);
 
         // ✅ Reduce stock when payment is confirmed
         $orderItems = OrderItem::where('order_id', $order->id)->get();
@@ -65,7 +99,6 @@ class PaymentWebhookController extends Controller
                 $oldStock = $branchProduct->stock;
                 $branchProduct->decrement('stock', $item->quantity);
 
-                // Log stock history
                 StockHistory::create([
                     'product_id' => $item->product_id,
                     'branch_id' => $item->branch_id,
@@ -90,6 +123,7 @@ class PaymentWebhookController extends Controller
         Log::info('Payment succeeded and order updated', [
             'order_id' => $order->id,
             'order_number' => $order->order_number,
+            'payment_method_type' => $paymentMethodType,
             'payment_intent_id' => $paymentIntentId,
         ]);
     }
@@ -103,7 +137,6 @@ class PaymentWebhookController extends Controller
             return;
         }
 
-        // Update order status
         $order->update([
             'payment_status' => 'failed',
             'status' => 'payment_failed',

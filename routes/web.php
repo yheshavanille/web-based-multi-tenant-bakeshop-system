@@ -28,6 +28,7 @@ use App\Livewire\Owner\Category\EditCategory;
 use App\Livewire\Owner\Category\ViewCategory;
 use App\Livewire\Owner\Dashboard as OwnerDashboard;
 use App\Livewire\Owner\Employees\ManageEmployees;
+use App\Livewire\Owner\ProductHistory;
 use App\Livewire\Owner\Products\CreateProduct;
 use App\Livewire\Owner\Products\EditProduct;
 use App\Livewire\Owner\Products\ViewProduct;
@@ -35,6 +36,7 @@ use App\Livewire\Owner\PublicPages\OwnerAboutUs;
 use App\Livewire\Owner\PublicPages\OwnerTeams;
 use App\Livewire\Owner\ReviewsHistory;
 use App\Livewire\Owner\Shop\EditShop;
+use App\Livewire\Owner\StockUpdateHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +54,10 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect()->route('livewire.auth.login');
 })->name('logout.post')->middleware('auth');
+
+// ✅ Webhook Routes (No auth required - PayMongo calls this)
+Route::post('/api/paymongo/webhook', [App\Http\Controllers\PaymentWebhookController::class, 'handle'])
+    ->name('paymongo.webhook');
 
 // ==================== ADMIN ROUTES ====================
 Route::prefix('admin')
@@ -100,6 +106,12 @@ Route::prefix('owner')
         // ✅ Reviews History
         Route::get('/reviews-history', ReviewsHistory::class)->name('livewire.owner.reviews-history');
 
+        // ✅ Product Edit History
+        Route::get('/product-history', ProductHistory::class)->name('livewire.owner.product-history');
+
+        // ✅ Stock Update History
+        Route::get('/stock-history', StockUpdateHistory::class)->name('livewire.owner.stock-history');
+
         // public pages
         Route::get('/owner-about-us', OwnerAboutUs::class)->name('livewire.owner.public-pages.owner-about-us');
         Route::get('/owner-teams', OwnerTeams::class)->name('livewire.owner.public-pages.owner-teams');
@@ -115,7 +127,7 @@ Route::prefix('customer')
         Route::get('/shops/{shopId}/products/{branch?}', \App\Livewire\Customer\ViewProducts::class)->name('livewire.customer.view-products');
         Route::get('/cart', \App\Livewire\Customer\Cart::class)->name('livewire.customer.cart');
         Route::get('/checkout', \App\Livewire\Customer\Checkout::class)->name('livewire.customer.checkout');
-        Route::get('/order-confirmation/{order}', \App\Livewire\Customer\OrderConfirmation::class)->name('livewire.customer.order-confirmation');
+        Route::get('/order-confirmation/{order?}', \App\Livewire\Customer\OrderConfirmation::class)->name('livewire.customer.order-confirmation');
         Route::get('/orders', \App\Livewire\Customer\Orders::class)->name('livewire.customer.orders');
 
         Route::get('/start-selling', \App\Livewire\Customer\StartSelling::class)->name('livewire.customer.start-selling');

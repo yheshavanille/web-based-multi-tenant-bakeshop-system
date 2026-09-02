@@ -177,11 +177,13 @@
                 @php
                 $stock = $product->branches->firstWhere('id', $selectedBranchId)?->pivot->stock ?? 0;
                 @endphp
-                <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer"
+                <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col"
                     wire:click="openReviewModal({{ $product->id }})">
+
                     @if($product->image_url)
                     <img src="{{ asset($product->image_url) }}" class="w-full h-40 object-cover rounded-lg mb-3">
                     @endif
+
                     <h3 class="font-semibold text-gray-800 text-lg">{{ $product->name }}</h3>
                     <p class="text-sm text-gray-500">{{ $product->category->name ?? 'No Category' }}</p>
 
@@ -230,19 +232,21 @@
                         </div>
                     </div>
 
-                    <p class="text-sm text-gray-600 line-clamp-2 mt-2">{{ $product->description }}</p>
+                    <p class="text-sm text-gray-600 line-clamp-2 mt-2 flex-1">{{ $product->description }}</p>
 
-                    @if($stock > 0)
-                    <button wire:click.stop="addToCart({{ $product->id }})"
-                        class="mt-3 w-full px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                        Add to Cart 🛒
-                    </button>
-                    @else
-                    <button disabled
-                        class="mt-3 w-full px-4 py-2.5 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium">
-                        Out of Stock
-                    </button>
-                    @endif
+                    <div class="mt-auto pt-3">
+                        @if($stock > 0)
+                        <button wire:click.stop="addToCart({{ $product->id }})"
+                            class="w-full px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                            Add to Cart 🛒
+                        </button>
+                        @else
+                        <button disabled
+                            class="w-full px-4 py-2.5 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium">
+                            Out of Stock
+                        </button>
+                        @endif
+                    </div>
                 </div>
                 @empty
                 <div class="col-span-3 text-center py-8 text-gray-500">
@@ -326,6 +330,28 @@
                         @else
                         <span class="text-sm text-gray-400">No ratings yet</span>
                         @endif
+                    </div>
+                </div>
+
+                <!-- ✅ TOTAL SOLD - USING THE SAME QUERY AS BEST SELLERS -->
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">📦</span>
+                        <div>
+                            <p class="text-xs text-gray-500">Total Sold</p>
+                            <p class="text-lg font-bold text-amber-600">
+                                @php
+                                $branchId = $selectedBranchId ?? 0;
+                                $soldCount = \App\Models\OrderItem::whereHas('order', function($q) use ($branchId) {
+                                $q->where('branch_id', $branchId)
+                                ->where('status', 'completed');
+                                })
+                                ->where('product_id', $selectedProduct->id)
+                                ->sum('quantity');
+                                @endphp
+                                {{ $soldCount }} units
+                            </p>
+                        </div>
                     </div>
                 </div>
 

@@ -3,7 +3,8 @@
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="text-6xl mb-4">🚀</div>
-            <h1 class="text-3xl font-bold text-gray-800">Start Selling on BakeshopHub</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Start Selling on
+                Web-based Multi-Tenant Bakeshop System</h1>
             <p class="text-gray-500 mt-2">Reach more customers and grow your bakeshop business.</p>
         </div>
 

@@ -66,7 +66,6 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Customer</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Amount</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Date</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
                         </tr>
@@ -79,14 +78,6 @@
                             <td class="px-4 py-3 text-gray-600">{{ $order->item_count }} items</td>
                             <td class="px-4 py-3 font-semibold text-green-600">₱{{ number_format($order->adjusted_total
                                 ?? $order->total_amount, 2) }}</td>
-                            <td class="px-4 py-3">
-                                <span class="text-xs font-medium text-gray-700">
-                                    {{ $order->status_summary }}
-                                </span>
-                                @if($order->cancelled_count > 0)
-                                <span class="text-xs text-red-500">⚠️</span>
-                                @endif
-                            </td>
                             <td class="px-4 py-3 text-gray-500">{{ $order->created_at->format('M d, Y h:i A') }}</td>
                             <td class="px-4 py-3">
                                 <button wire:click="viewOrderDetails({{ $order->id }})"
@@ -112,20 +103,21 @@
         </div>
     </div>
 
-    <!-- Order Details Modal -->
+    <!-- ✅ Order Details Modal - WITH BLURRY BACKGROUND & ORIGINAL PRICE -->
     @if($showOrderDetails && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
         style="overscroll-behavior: contain;">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" wire:click="closeOrderDetails"></div>
+        <!-- Blurry Background -->
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeOrderDetails"></div>
 
-        <div class="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        <div class="relative z-10 w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 90vh;">
 
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">Order Details</h3>
+                        <h3 class="text-xl font-bold text-gray-800">📋 Order Details</h3>
                         <p class="text-sm text-gray-500">
                             #{{ $selectedOrder->order_number }} •
                             {{ $selectedOrder->branch->name ?? 'N/A' }} •
@@ -141,17 +133,17 @@
                 </div>
             </div>
 
-            <!-- Modal Body -->
+            <!-- Scrollable Body -->
             <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
                 <!-- Order Info Grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div>
+                    <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Order Date</p>
                         <p class="text-sm font-medium text-gray-800">{{ $selectedOrder->created_at->format('M d, Y h:i
                             A') }}</p>
                     </div>
-                    <div>
+                    <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Status</p>
                         <span class="text-sm font-medium px-2 py-0.5 rounded-full
                             {{ $selectedOrder->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
@@ -162,12 +154,11 @@
                             {{ ucfirst(str_replace('_', ' ', $selectedOrder->status)) }}
                         </span>
                     </div>
-                    <div>
+                    <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Payment Method</p>
-                        <p class="text-sm font-medium text-gray-800">{{ ucfirst(str_replace('_', ' ',
-                            $selectedOrder->payment_method)) }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrder->payment_method_label }}</p>
                     </div>
-                    <div>
+                    <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Payment Status</p>
                         <span
                             class="text-sm font-medium px-2 py-0.5 rounded-full
@@ -179,7 +170,7 @@
 
                 <!-- Order Items -->
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Items</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
@@ -187,6 +178,7 @@
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Product</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Qty</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Price</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Original</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Subtotal</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Status</th>
                                 </tr>
@@ -197,7 +189,22 @@
                                     <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-4 py-2 text-gray-600">{{ $item->quantity }}</td>
-                                    <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price, 2) }}</td>
+                                    <td class="px-4 py-2">
+                                        @if($item->original_price && $item->original_price > $item->price)
+                                        <span class="text-red-600 font-medium">₱{{ number_format($item->price, 2)
+                                            }}</span>
+                                        @else
+                                        <span class="text-gray-600">₱{{ number_format($item->price, 2) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        @if($item->original_price && $item->original_price > $item->price)
+                                        <span class="text-gray-400 line-through">₱{{
+                                            number_format($item->original_price, 2) }}</span>
+                                        @else
+                                        <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price *
                                         $item->quantity, 2) }}</td>
                                     <td class="px-4 py-2">
@@ -215,7 +222,22 @@
                             </tbody>
                             <tfoot class="bg-gray-50">
                                 <tr>
-                                    <td colspan="3" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Subtotal:
+                                    </td>
+                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
+                                        number_format($selectedOrder->subtotal ?? $selectedOrder->adjusted_total ??
+                                        $selectedOrder->total_amount, 2) }}</td>
+                                </tr>
+                                @if($selectedOrder->tax_amount)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">VAT (12%):
+                                    </td>
+                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
+                                        number_format($selectedOrder->tax_amount, 2) }}</td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
                                     <td colspan="2" class="px-4 py-2 font-bold text-amber-600">₱{{
                                         number_format($selectedOrder->adjusted_total ?? $selectedOrder->total_amount, 2)
                                         }}</td>
@@ -224,6 +246,27 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Pickup Details -->
+                @if($selectedOrder->pickup_time)
+                <div class="border-t border-gray-200 pt-4">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📍 Pickup Details</h4>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-sm text-gray-700">
+                            <span class="font-medium">Branch:</span> {{ $selectedOrder->branch->name ?? 'N/A' }}
+                        </p>
+                        <p class="text-sm text-gray-700">
+                            <span class="font-medium">Pickup Time:</span> {{
+                            \Carbon\Carbon::parse($selectedOrder->pickup_time)->format('M d, Y h:i A') }}
+                        </p>
+                        @if($selectedOrder->notes)
+                        <p class="text-sm text-gray-700 mt-1">
+                            <span class="font-medium">Notes:</span> {{ $selectedOrder->notes }}
+                        </p>
+                        @endif
+                    </div>
+                </div>
+                @endif
 
             </div>
 

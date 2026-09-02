@@ -134,6 +134,11 @@
 
                             <td class="px-4 py-3 font-medium text-amber-600">
                                 ₱{{ number_format($order->total_amount, 2) }}
+                                @if($order->tax_amount)
+                                <span class="text-xs text-gray-400 block">
+                                    (incl. VAT ₱{{ number_format($order->tax_amount, 2) }})
+                                </span>
+                                @endif
                             </td>
 
                             <td class="px-4 py-3 text-right">
@@ -187,7 +192,14 @@
 
                                                 <p class="text-xs text-gray-500">
                                                     Qty: {{ $item->quantity }}
+                                                    @if($item->original_price && $item->original_price > $item->price)
+                                                    <span class="text-red-600 font-medium">₱{{
+                                                        number_format($item->price, 2) }}</span>
+                                                    <span class="text-gray-400 line-through ml-1">₱{{
+                                                        number_format($item->original_price, 2) }}</span>
+                                                    @else
                                                     x ₱{{ number_format($item->price, 2) }}
+                                                    @endif
 
                                                     @if($item->pickup_time)
                                                     | 🕐
@@ -214,11 +226,16 @@
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
-                                                <!-- ✅ Status Dropdown - HIDE for cancelled items -->
-                                                @if($item->status !== 'cancelled' && $item->order->status !==
-                                                'cancelled')
+                                                <!-- ✅ Status Dropdown - ALWAYS SHOWN (including cancelled items) -->
+                                                <!-- ✅ Uses Alpine.js for confirmation popup -->
                                                 <select
                                                     wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
+                                                    x-data x-on:change="if ($event.target.value === 'cancelled') {
+                                                        if (!confirm('⚠️ Are you sure you want to cancel this item? This action can be undone by changing the status back.')) {
+                                                            $event.target.value = '{{ $item->status }}';
+                                                            $event.preventDefault();
+                                                        }
+                                                    }"
                                                     class="px-2 py-1 text-xs border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                                     <option value="pending" {{ $item->status === 'pending' ? 'selected'
                                                         : '' }}>Pending</option>
@@ -233,9 +250,6 @@
                                                     <option value="cancelled" {{ $item->status === 'cancelled' ?
                                                         'selected' : '' }}>Cancelled</option>
                                                 </select>
-                                                @else
-                                                <span class="text-xs text-gray-400 font-medium">—</span>
-                                                @endif
 
                                             </div>
 
@@ -325,8 +339,8 @@
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Payment Method</p>
-                        <p class="text-sm font-medium text-gray-800">{{ ucfirst(str_replace('_', ' ',
-                            $selectedOrderDetails->payment_method)) }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrderDetails->payment_method_label }}
+                        </p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Payment Status</p>
@@ -348,6 +362,7 @@
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Product</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Qty</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Price</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Original</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Subtotal</th>
                                     <th class="px-4 py-2 text-left font-medium text-gray-700">Status</th>
                                 </tr>
@@ -358,7 +373,22 @@
                                     <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-4 py-2 text-gray-600">{{ $item->quantity }}</td>
-                                    <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price, 2) }}</td>
+                                    <td class="px-4 py-2">
+                                        @if($item->original_price && $item->original_price > $item->price)
+                                        <span class="text-red-600 font-medium">₱{{ number_format($item->price, 2)
+                                            }}</span>
+                                        @else
+                                        <span class="text-gray-600">₱{{ number_format($item->price, 2) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        @if($item->original_price && $item->original_price > $item->price)
+                                        <span class="text-gray-400 line-through">₱{{
+                                            number_format($item->original_price, 2) }}</span>
+                                        @else
+                                        <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price *
                                         $item->quantity, 2) }}</td>
                                     <td class="px-4 py-2">
@@ -376,7 +406,22 @@
                             </tbody>
                             <tfoot class="bg-gray-50">
                                 <tr>
-                                    <td colspan="3" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Subtotal:
+                                    </td>
+                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
+                                        number_format($selectedOrderDetails->subtotal ??
+                                        $selectedOrderDetails->total_amount, 2) }}</td>
+                                </tr>
+                                @if($selectedOrderDetails->tax_amount)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">VAT (12%):
+                                    </td>
+                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
+                                        number_format($selectedOrderDetails->tax_amount, 2) }}</td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
                                     <td colspan="2" class="px-4 py-2 font-bold text-amber-600">₱{{
                                         number_format($selectedOrderDetails->total_amount, 2) }}</td>
                                 </tr>

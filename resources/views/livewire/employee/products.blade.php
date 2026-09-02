@@ -196,6 +196,9 @@
                             </td>
                         </tr>
                         @else
+                        @php
+                        $stock = $product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0;
+                        @endphp
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
@@ -220,12 +223,9 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3">
-                                @php
-                                $stock = $product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0;
-                                @endphp
                                 <span class="px-2.5 py-1 text-xs font-medium rounded-full
-                                    {{ $stock > 10 ? 'bg-green-100 text-green-800' : '' }}
-                                    {{ $stock <= 10 && $stock > 0 ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                    {{ $stock > 5 ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $stock <= 5 && $stock > 0 ? 'bg-yellow-100 text-yellow-800' : '' }}
                                     {{ $stock <= 0 ? 'bg-red-100 text-red-800' : '' }}">
                                     {{ $stock }}
                                 </span>

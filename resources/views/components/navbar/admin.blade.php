@@ -1,7 +1,6 @@
 <nav class="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
-            <!-- Logo -->
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.admin.admin-dashboard') }}" class="flex items-center gap-2">
                     <span class="text-2xl">🍞</span>
@@ -10,10 +9,8 @@
                 </a>
             </div>
 
-            <!-- Right Side - Notification Bell + Profile Dropdown -->
             <div class="flex items-center gap-3">
-                <!-- ✅ NOTIFICATION BELL -->
-                @livewire('components.notification-bell')
+                <livewire:components.notification-bell :key="'admin-notif-'.time()" />
 
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false"
@@ -28,7 +25,6 @@
                         </svg>
                     </button>
 
-                    <!-- Dropdown Menu -->
                     <div x-show="open" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                         class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">

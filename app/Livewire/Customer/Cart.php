@@ -28,10 +28,7 @@ class Cart extends Component
             ->where('user_id', Auth::id())
             ->get();
 
-        if ($this->cartItems->count() > 0 && empty($this->selectedItems)) {
-            $this->selectedItems = $this->cartItems->pluck('id')->toArray();
-            $this->selectAll = true;
-        }
+        // ✅ REMOVED AUTO-SELECT - Items will NOT be selected by default
 
         $this->calculateTotal();
     }
@@ -39,7 +36,12 @@ class Cart extends Component
     public function calculateTotal()
     {
         $this->total = $this->cartItems->sum(function ($item) {
-            return $item->product ? $item->product->price * $item->quantity : 0;
+            $product = $item->product;
+            if (!$product) return 0;
+
+            // ✅ Use discounted price if available
+            $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
+            return $price * $item->quantity;
         });
     }
 
@@ -48,7 +50,12 @@ class Cart extends Component
         $total = 0;
         foreach ($this->cartItems as $item) {
             if (in_array($item->id, $this->selectedItems)) {
-                $total += $item->product ? $item->product->price * $item->quantity : 0;
+                $product = $item->product;
+                if (!$product) continue;
+
+                // ✅ Use discounted price if available
+                $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
+                $total += $price * $item->quantity;
             }
         }
         return $total;

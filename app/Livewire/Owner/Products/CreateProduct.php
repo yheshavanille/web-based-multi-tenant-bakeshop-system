@@ -19,13 +19,18 @@ class CreateProduct extends Component
     public float $price = 0;
     public string $category_id = '';
     public array $selectedBranches = [];
-    public int $stock_per_branch = 10;
+    public $stock_per_branch = null;
     public Collection $categories;
     public $branches;
 
     public string $image_url = '';
     public $image = null;
     public string $description = '';
+
+    public $discount_type = 'none';
+    public $discount_value = 0;
+    public $discount_start;
+    public $discount_end;
 
     public function updatedImage()
     {
@@ -75,9 +80,8 @@ class CreateProduct extends Component
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
             'selectedBranches.required' => 'Please select at least one branch.',
-            'stock_per_branch.required' => 'Stock quantity is required.',
-            'stock_per_branch.min' => 'Stock quantity must be 0 or more.',
             'image_url.url' => 'Image URL must be valid.',
+            'discount_value.min' => 'Discount value must be greater than 0.',
         ];
     }
 
@@ -89,10 +93,13 @@ class CreateProduct extends Component
             'category_id' => 'required|exists:categories,id',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
-            'stock_per_branch' => 'required|integer|min:0',
             'image_url' => 'nullable|url',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
+            'discount_type' => 'required|in:none,percentage,fixed',
+            'discount_value' => 'required_if:discount_type,percentage,fixed|nullable|numeric|min:0',
+            'discount_start' => 'nullable|date',
+            'discount_end' => 'nullable|date|after:discount_start',
         ];
     }
 
@@ -122,11 +129,14 @@ class CreateProduct extends Component
             'image_url' => $imagePath,
             'description' => $this->description,
             'shop_id' => $shop->id,
+            'discount_type' => $this->discount_type,
+            'discount_value' => $this->discount_type !== 'none' ? $this->discount_value : 0,
+            'discount_start' => $this->discount_start,
+            'discount_end' => $this->discount_end,
         ]);
 
-        // Attach branches with stock
         foreach ($this->selectedBranches as $branchId) {
-            $product->branches()->attach($branchId, ['stock' => $this->stock_per_branch]);
+            $product->branches()->attach($branchId, ['stock' => $this->stock_per_branch ?? 0]);
         }
 
         session()->flash('message', '✅ Product created successfully!');

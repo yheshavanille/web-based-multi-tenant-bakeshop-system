@@ -4,7 +4,10 @@ namespace App\Livewire\Customer;
 
 use App\Models\SellerRegistration as SellerRegistrationModel;
 use App\Models\Shop;
+use App\Models\User;
+use App\Notifications\NewSellerRegistrationNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -46,7 +49,6 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.customer.dashboard');
         }
 
-        // ✅ Check if user has an ACTIVE shop (not soft-deleted)
         $hasActiveShop = Shop::where('user_id', Auth::id())
             ->whereNull('deleted_at')
             ->exists();
@@ -56,7 +58,6 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.owner.dashboard');
         }
 
-        // If user has owner role but no active shop, remove the role so they can reapply
         if (auth()->user()->hasRole('owner') && !$hasActiveShop) {
             auth()->user()->removeRole('owner');
         }
@@ -90,7 +91,6 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.customer.dashboard');
         }
 
-        // ✅ Check if user has an ACTIVE shop (not soft-deleted)
         $hasActiveShop = Shop::where('user_id', Auth::id())
             ->whereNull('deleted_at')
             ->exists();
@@ -100,7 +100,6 @@ class SellerRegistration extends Component
             return redirect()->route('livewire.owner.dashboard');
         }
 
-        // If user has owner role but no active shop, remove the role
         if (auth()->user()->hasRole('owner') && !$hasActiveShop) {
             auth()->user()->removeRole('owner');
         }
@@ -117,7 +116,7 @@ class SellerRegistration extends Component
             $validIdPath = $this->valid_id->store('valid_ids', 'public');
         }
 
-        SellerRegistrationModel::create([
+        $registration = SellerRegistrationModel::create([
             'user_id' => Auth::id(),
             'shop_name' => $this->shop_name,
             'shop_address' => $this->shop_address,
@@ -128,6 +127,10 @@ class SellerRegistration extends Component
             'status' => 'pending',
             'submitted_at' => now(),
         ]);
+
+        // ✅ SEND NOTIFICATION TO ALL SUPER ADMINS
+        $superAdmins = User::role('super_admin')->get();
+        Notification::send($superAdmins, new NewSellerRegistrationNotification($registration));
 
         session()->flash('success', 'Application submitted! You will be notified once approved.');
         return redirect()->route('livewire.customer.dashboard');

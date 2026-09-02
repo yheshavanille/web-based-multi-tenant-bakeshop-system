@@ -18,6 +18,9 @@ use Livewire\Component;
 class Checkout extends Component
 {
     public $cartItems = [];
+    public $subtotal = 0;
+    public $tax = 0;
+    public $grandTotal = 0;
     public $total = 0;
     public $shopId;
     public $shop;
@@ -25,8 +28,14 @@ class Checkout extends Component
     public $branchSelections = [];
     public $pickupTimes = [];
     public $payment_method = 'pickup_payment';
+    public $payment_method_detail = 'gcash';
     public $notes = '';
     public $isProcessing = false;
+
+    public function setPaymentDetail($value)
+    {
+        $this->payment_method_detail = $value;
+    }
 
     public function mount()
     {
@@ -79,9 +88,15 @@ class Checkout extends Component
 
     public function calculateTotal()
     {
-        $this->total = $this->cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+        $this->subtotal = $this->cartItems->sum(function ($item) {
+            $product = $item->product;
+            $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
+            return $price * $item->quantity;
         });
+
+        $this->tax = round($this->subtotal * 0.12, 2);
+        $this->grandTotal = $this->subtotal + $this->tax;
+        $this->total = $this->grandTotal;
     }
 
     public function getAvailableBranches($cartItemId)
@@ -118,21 +133,23 @@ class Checkout extends Component
             'payment_method' => 'required|in:paymongo,pickup_payment',
         ]);
 
-        // Check if all items have branch selections
+        Log::info('Payment method detail:', [
+            'payment_method_detail' => $this->payment_method_detail,
+            'payment_method' => $this->payment_method,
+        ]);
+
+        if ($this->payment_method === 'paymongo' && empty($this->payment_method_detail)) {
+            $this->payment_method_detail = 'gcash';
+        }
+
+        $itemsByBranch = [];
         foreach ($this->cartItems as $item) {
-            if (!isset($this->branchSelections[$item->id]) || empty($this->branchSelections[$item->id])) {
+            $branchId = $this->branchSelections[$item->id] ?? null;
+            if (!$branchId) {
                 session()->flash('error', 'Please select a branch for: ' . $item->product->name);
                 return;
             }
-            if (!isset($this->pickupTimes[$item->id]) || empty($this->pickupTimes[$item->id])) {
-                session()->flash('error', 'Please select a pickup time for: ' . $item->product->name);
-                return;
-            }
-        }
-
-        // Check stock before placing order
-        foreach ($this->cartItems as $item) {
-            $branch = Branch::find($this->branchSelections[$item->id]);
+            $branch = Branch::find($branchId);
             if ($branch) {
                 $pivot = $branch->products()->where('product_id', $item->product_id)->first();
                 if ($pivot && $pivot->pivot->stock < $item->quantity) {
@@ -140,94 +157,160 @@ class Checkout extends Component
                     return;
                 }
             }
+            $itemsByBranch[$branchId][] = $item;
+        }
+
+        foreach ($this->cartItems as $item) {
+            if (!isset($this->pickupTimes[$item->id]) || empty($this->pickupTimes[$item->id])) {
+                session()->flash('error', 'Please select a pickup time for: ' . $item->product->name);
+                return;
+            }
         }
 
         $this->isProcessing = true;
+        $createdOrders = [];
 
-        // Generate order number
-        $orderNumber = 'ORD-' . strtoupper(uniqid());
+        foreach ($itemsByBranch as $branchId => $items) {
+            $orderNumber = 'ORD-' . strtoupper(uniqid());
 
-        // Create order
-        $primaryBranch = $this->branchSelections[$this->cartItems->first()->id] ?? null;
+            $subtotal = 0;
+            foreach ($items as $item) {
+                $product = $item->product;
+                $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
+                $subtotal += $price * $item->quantity;
+            }
+            $tax = round($subtotal * 0.12, 2);
+            $grandTotal = $subtotal + $tax;
 
-        $order = Order::create([
-            'order_number' => $orderNumber,
-            'customer_id' => Auth::id(),
-            'shop_id' => $this->shopId,
-            'branch_id' => $primaryBranch,
-            'total_amount' => $this->total,
-            'status' => 'pending',
-            'payment_method' => $this->payment_method,
-            'payment_status' => 'pending',
-            'pickup_time' => now(),
-            'notes' => $this->notes,
-        ]);
+            $firstItem = $items[0];
+            $pickupTime = $this->pickupTimes[$firstItem->id] ?? now()->addMinutes(30);
 
-        // Create order items with individual branch and pickup time
-        foreach ($this->cartItems as $item) {
-            $selectedBranchId = $this->branchSelections[$item->id];
-            $pickupTime = $this->pickupTimes[$item->id];
-
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'branch_id' => $selectedBranchId,
-                'quantity' => $item->quantity,
-                'price' => $item->product->price,
-                'pickup_time' => $pickupTime,
+            $order = Order::create([
+                'order_number' => $orderNumber,
+                'customer_id' => Auth::id(),
+                'shop_id' => $this->shopId,
+                'branch_id' => $branchId,
+                'subtotal' => $subtotal,
+                'tax_amount' => $tax,
+                'total_amount' => $grandTotal,
                 'status' => 'pending',
+                'payment_method' => $this->payment_method,
+                'payment_method_detail' => $this->payment_method === 'paymongo' ? $this->payment_method_detail : null,
+                'payment_status' => 'pending',
+                'pickup_time' => $pickupTime,
+                'notes' => $this->notes,
             ]);
+
+            foreach ($items as $item) {
+                $product = $item->product;
+                $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
+                $originalPrice = $product->price;
+                $pickupTime = $this->pickupTimes[$item->id] ?? now()->addMinutes(30);
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'branch_id' => $branchId,
+                    'quantity' => $item->quantity,
+                    'price' => $price,
+                    'original_price' => $originalPrice,
+                    'pickup_time' => $pickupTime,
+                    'status' => 'pending',
+                ]);
+
+                $branch = Branch::find($branchId);
+                if ($branch) {
+                    $pivot = $branch->products()->where('product_id', $item->product_id)->first();
+                    if ($pivot) {
+                        $currentStock = $pivot->pivot->stock;
+                        $pivot->pivot->update(['stock' => $currentStock - $item->quantity]);
+                    }
+                }
+            }
+
+            $createdOrders[] = $order;
         }
 
-        // Clear cart - ONLY delete items that were ordered
         $cartIds = $this->cartItems->pluck('id')->toArray();
         Cart::where('user_id', Auth::id())->whereIn('id', $cartIds)->delete();
 
         $this->dispatch('cartUpdated');
 
-        // Handle payment based on method
-        if ($this->payment_method === 'pickup_payment') {
-            // ✅ Cash on Pickup - Send notification and redirect
+        foreach ($createdOrders as $order) {
             $this->notifyOrderManagers($order);
-            $this->isProcessing = false;
+        }
+
+        $this->isProcessing = false;
+        $this->dispatch('refreshNotifications');
+
+        // ✅ If payment is PayMongo, combine all orders into ONE payment
+        if ($this->payment_method === 'paymongo' && count($createdOrders) > 0) {
+            $totalAmount = 0;
+            foreach ($createdOrders as $order) {
+                $totalAmount += $order->total_amount;
+            }
+
+            $paymentOrder = $createdOrders[0];
+            $paymentOrder->update([
+                'total_amount' => $totalAmount,
+                'subtotal' => round($totalAmount / 1.12, 2),
+                'tax_amount' => round($totalAmount - ($totalAmount / 1.12), 2),
+                'notes' => $this->notes,
+            ]);
+
+            return $this->processEPayment($paymentOrder);
+        }
+
+        // ✅ For Cash on Pickup - pass ALL order IDs to confirmation page
+        if ($this->payment_method === 'pickup_payment' && count($createdOrders) > 0) {
+            $orderIds = collect($createdOrders)->pluck('id')->implode(',');
+            session()->flash('order_success', count($createdOrders) . ' orders placed successfully!');
+            return redirect()->route('livewire.customer.order-confirmation', ['order' => $orderIds]);
+        }
+
+        if (count($createdOrders) === 1) {
             session()->flash('order_success', 'Order placed successfully!');
-            return redirect()->route('livewire.customer.order-confirmation', ['order' => $order->id]);
+            return redirect()->route('livewire.customer.order-confirmation', ['order' => $createdOrders[0]->id]);
         } else {
-            // ✅ E-Payment - Process with PayMongo
-            return $this->processEPayment($order);
+            session()->flash('message', count($createdOrders) . ' orders placed successfully!');
+            return redirect()->route('livewire.customer.orders');
         }
     }
 
     private function processEPayment($order)
     {
         try {
-            // ✅ Check if PayMongo is configured
             $payMongoService = new PayMongoService();
             if (!$payMongoService->isConfigured()) {
                 throw new \Exception('PayMongo is not configured. Please add your API keys to .env');
             }
 
-            Log::info('Creating PayMongo source for order', [
+            $paymentMethodDetail = $order->payment_method_detail ?? 'gcash';
+
+            Log::info('Creating PayMongo payment for order', [
                 'order_id' => $order->id,
-                'payment_method' => $order->payment_method,
                 'amount' => $order->total_amount,
+                'payment_method_detail' => $paymentMethodDetail,
             ]);
 
             $result = $payMongoService->createPaymentIntent($order);
 
-            // ✅ Validate response
             if (!isset($result['data']['attributes']['next_action']['redirect']['url'])) {
                 Log::error('PayMongo response missing redirect URL', ['response' => $result]);
                 throw new \Exception('Payment redirect URL not found.');
             }
 
-            $redirectUrl = $result['data']['attributes']['next_action']['redirect']['url'];
+            $checkoutUrl = $result['data']['attributes']['next_action']['redirect']['url'];
 
-            Log::info('Redirecting to PayMongo', ['url' => $redirectUrl]);
+            $order->update([
+                'payment_method_detail' => $paymentMethodDetail,
+            ]);
+
+            Log::info('Redirecting to PayMongo', ['url' => $checkoutUrl]);
 
             $this->isProcessing = false;
 
-            return redirect()->away($redirectUrl);
+            return redirect()->away($checkoutUrl);
         } catch (\Exception $e) {
             $this->isProcessing = false;
             Log::error('Payment processing error', [
@@ -241,21 +324,33 @@ class Checkout extends Component
 
     private function notifyOrderManagers($order)
     {
+        Log::info('🔔 Looking for order managers for shop: ' . $this->shopId);
+
         $orderManagers = Employee::where('shop_id', $this->shopId)
             ->where('role', 'order_manager')
             ->where('is_active', true)
             ->with('user')
-            ->get()
-            ->pluck('user')
-            ->filter();
+            ->get();
 
-        if ($orderManagers->count() > 0) {
-            Notification::send($orderManagers, new OrderPlacedNotification($order));
+        Log::info('🔔 Found ' . $orderManagers->count() . ' order managers');
+
+        foreach ($orderManagers as $manager) {
+            Log::info('🔔 Order manager: ' . ($manager->user->name ?? 'No user') . ' (active: ' . ($manager->is_active ? 'yes' : 'no') . ')');
+        }
+
+        $users = $orderManagers->pluck('user')->filter();
+
+        if ($users->count() > 0) {
+            Notification::send($users, new OrderPlacedNotification($order));
+            Log::info('✅ Notification sent to ' . $users->count() . ' order managers');
+        } else {
+            Log::warning('⚠️ No active order managers found for shop ' . $this->shopId);
         }
 
         $owner = $order->shop->user;
         if ($owner) {
             Notification::send($owner, new OrderPlacedNotification($order));
+            Log::info('✅ Notification sent to owner: ' . $owner->name);
         }
     }
 

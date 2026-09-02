@@ -56,11 +56,11 @@
             <p class="text-2xl font-bold text-gray-800">{{ $totalProducts }}</p>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 text-center">
-            <p class="text-sm text-gray-500">⚠️ Low Stock</p>
+            <p class="text-sm text-gray-500">⚠️ Low Stock (1-5)</p>
             <p class="text-2xl font-bold text-yellow-600">{{ $lowStockCount }}</p>
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 text-center">
-            <p class="text-sm text-gray-500">🔴 Out of Stock</p>
+            <p class="text-sm text-gray-500">🔴 Out of Stock (0)</p>
             <p class="text-2xl font-bold text-red-600">{{ $outOfStockCount }}</p>
         </div>
     </div>
@@ -78,6 +78,7 @@
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Price</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Stock</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
@@ -92,6 +93,15 @@
                                 {{ $product->stock <= 0 ? 'bg-red-100 text-red-800' : '' }}">
                                 {{ $product->stock }}
                             </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($product->stock <= 0) <span class="text-xs text-red-600 font-medium">🚫 Out of
+                                Stock</span>
+                                @elseif($product->stock <= 5) <span class="text-xs text-yellow-600 font-medium">⚠️ Low
+                                    Stock</span>
+                                    @else
+                                    <span class="text-xs text-green-600 font-medium">✅ In Stock</span>
+                                    @endif
                         </td>
                     </tr>
                     @endforeach

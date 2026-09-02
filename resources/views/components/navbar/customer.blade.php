@@ -90,7 +90,7 @@
                         </a>
                         <a href="{{ route('livewire.customer.orders') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📋</span> My Orders
+                            <span class="text-lg">📋</span> My Orders & Transaction History
                         </a>
                         <a href="{{ route('livewire.customer.profile') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">

@@ -149,7 +149,7 @@ class Dashboard extends Component
         $shop = Auth::user()->shop;
 
         $this->recentOrders = Order::where('shop_id', $shop->id)
-            ->with(['customer', 'branch', 'items'])
+            ->with(['customer', 'branch', 'items', 'serviceReview'])
             ->orderBy('updated_at', 'desc')
             ->limit(10)
             ->get()
@@ -161,6 +161,18 @@ class Dashboard extends Component
                 $preparingCount = $order->items->where('status', 'preparing')->count();
                 $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
 
+                // ✅ Calculate adjusted total (exclude cancelled items)
+                $adjustedTotal = $order->items
+                    ->where('status', '!=', 'cancelled')
+                    ->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    });
+
+                // ✅ Calculate adjusted tax and grand total
+                $adjustedTax = round($adjustedTotal * 0.12, 2);
+                $adjustedGrandTotal = $adjustedTotal + $adjustedTax;
+
+                // ✅ Build status summary
                 $statusParts = [];
                 if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
                 if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
@@ -168,11 +180,19 @@ class Dashboard extends Component
                 if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
                 if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
 
-                $order->status_summary = implode(', ', $statusParts);
+                $order->status_summary = !empty($statusParts)
+                    ? implode(', ', $statusParts)
+                    : ucfirst(str_replace('_', ' ', $order->status));
+
                 $order->item_count = $itemCount;
                 $order->cancelled_count = $cancelledCount;
                 $order->completed_count = $completedCount;
                 $order->pending_count = $pendingCount;
+
+                // ✅ OVERRIDE the total amount with adjusted total
+                $order->display_total = $adjustedGrandTotal;
+                $order->adjusted_total = $adjustedTotal;
+                $order->adjusted_tax = $adjustedTax;
 
                 return $order;
             });
@@ -180,14 +200,31 @@ class Dashboard extends Component
 
     public function viewOrderDetails($orderId)
     {
-        $this->selectedOrder = Order::with(['customer', 'branch', 'items.product', 'shop'])
-            ->findOrFail($orderId);
+        // ✅ Load order with ALL relationships including product reviews
+        $this->selectedOrder = Order::with([
+            'customer',
+            'branch',
+            'items.product',
+            'shop',
+            'serviceReview',
+            // ✅ Load product reviews for this order's products
+            'productReviews' => function ($query) {
+                $query->with('product')->orderBy('created_at', 'desc');
+            }
+        ])->findOrFail($orderId);
 
-        $this->selectedOrder->adjusted_total = $this->selectedOrder->items
+        // ✅ Calculate adjusted total (exclude cancelled items)
+        $adjustedTotal = $this->selectedOrder->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {
                 return $item->price * $item->quantity;
             });
+
+        // ✅ Set adjusted values for the modal
+        $this->selectedOrder->adjusted_total = $adjustedTotal;
+        $this->selectedOrder->subtotal = $adjustedTotal;
+        $this->selectedOrder->tax_amount = round($adjustedTotal * 0.12, 2);
+        $this->selectedOrder->total_amount = $adjustedTotal + $this->selectedOrder->tax_amount;
 
         $this->showOrderModal = true;
     }

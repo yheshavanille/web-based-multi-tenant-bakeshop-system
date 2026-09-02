@@ -28,21 +28,11 @@ class OrderStatusUpdatedNotification extends Notification
 
     public function toDatabase($notifiable)
     {
-        $statusLabels = [
-            'pending' => 'Pending',
-            'preparing' => 'Preparing',
-            'ready_for_pickup' => 'Ready for Pickup',
-            'completed' => 'Completed',
-            'cancelled' => 'Cancelled',
-        ];
+        $oldStatusLabel = $this->getStatusLabel($this->oldStatus);
+        $newStatusLabel = $this->getStatusLabel($this->newStatus);
 
-        $oldLabel = $statusLabels[$this->oldStatus] ?? $this->oldStatus;
-        $newLabel = $statusLabels[$this->newStatus] ?? $this->newStatus;
-
-        // ✅ Determine the correct URL based on the user's role
         $url = $this->getNotificationUrl($notifiable);
 
-        // ✅ Get payment method label
         $paymentMethod = $this->order->payment_method ?? 'N/A';
         $paymentMethodLabel = $this->getPaymentMethodLabel($paymentMethod);
 
@@ -50,17 +40,33 @@ class OrderStatusUpdatedNotification extends Notification
             'type' => 'order_status_updated',
             'order_id' => $this->order->id,
             'order_number' => $this->order->order_number,
-            'old_status' => $this->oldStatus,
-            'new_status' => $this->newStatus,
-            'old_status_label' => $oldLabel,
-            'new_status_label' => $newLabel,
+            'customer_name' => $this->order->customer->name ?? 'Customer',
+            'shop_name' => $this->order->shop->shop_name ?? 'Shop',
+            'total_amount' => $this->order->total_amount,
             'branch_id' => $this->order->branch_id,
             'payment_method' => $paymentMethod,
             'payment_method_label' => $paymentMethodLabel,
             'payment_status' => $this->order->payment_status,
-            'message' => 'Order #' . $this->order->order_number . ' status changed from ' . $oldLabel . ' to ' . $newLabel,
+            'old_status' => $this->oldStatus,
+            'new_status' => $this->newStatus,
+            'old_status_label' => $oldStatusLabel,
+            'new_status_label' => $newStatusLabel,
+            'message' => 'Order #' . $this->order->order_number . ' status updated from ' . $oldStatusLabel . ' to ' . $newStatusLabel,
             'url' => $url,
         ];
+    }
+
+    private function getStatusLabel($status)
+    {
+        return match ($status) {
+            'pending' => 'Pending',
+            'preparing' => 'Preparing',
+            'ready_for_pickup' => 'Ready for Pickup',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+            'no_show' => 'No Show',
+            default => ucfirst(str_replace('_', ' ', $status)),
+        };
     }
 
     private function getNotificationUrl($notifiable)

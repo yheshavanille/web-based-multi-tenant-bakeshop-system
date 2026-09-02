@@ -119,4 +119,14 @@ class Product extends Model
 
         return null;
     }
+
+    // ✅ GET TOTAL SOLD
+    public function getTotalSoldAttribute()
+    {
+        return $this->orderItems()
+            ->whereHas('order', function ($query) {
+                $query->where('status', 'completed');
+            })
+            ->sum('quantity');
+    }
 }
