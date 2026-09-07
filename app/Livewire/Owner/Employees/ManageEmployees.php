@@ -27,6 +27,12 @@ class ManageEmployees extends Component
     public $showDeleted = false;
     public $search = '';
 
+    // Password Reset Properties
+    public $showResetPassword = false;
+    public $current_password = '';
+    public $new_password = '';
+    public $new_password_confirmation = '';
+
     protected $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
@@ -65,7 +71,6 @@ class ManageEmployees extends Component
             $query->where('branch_id', $this->selectedBranchId);
         }
 
-        // Apply search filter
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->whereHas('user', function ($q) use ($searchTerm) {
@@ -103,6 +108,7 @@ class ManageEmployees extends Component
     public function createNew()
     {
         $this->reset(['name', 'email', 'phone', 'role', 'branch_id', 'password', 'password_confirmation', 'employeeId']);
+        $this->reset(['showResetPassword', 'current_password', 'new_password', 'new_password_confirmation']);
         $this->editing = false;
         $this->showForm = true;
     }
@@ -116,11 +122,8 @@ class ManageEmployees extends Component
             return;
         }
 
-        // ✅ If the user is inactive but belongs to this shop, allow editing
-        // (This means the owner deactivated them, not Super Admin)
         $shop = Auth::user()->shop;
 
-        // Check if user was suspended by Super Admin (user inactive AND employee still active)
         $isSuspendedByAdmin = !$employee->user->is_active && $employee->is_active;
 
         if ($isSuspendedByAdmin) {
@@ -128,8 +131,6 @@ class ManageEmployees extends Component
             return;
         }
 
-        // ✅ Allow editing for owner-deactivated employees
-        // (user inactive, employee inactive - owner deactivated them)
         $this->employeeId = $employee->id;
         $this->name = $employee->user->name;
         $this->email = $employee->user->email;
@@ -140,12 +141,48 @@ class ManageEmployees extends Component
         $this->showForm = true;
         $this->password = '';
         $this->password_confirmation = '';
+        $this->reset(['showResetPassword', 'current_password', 'new_password', 'new_password_confirmation']);
     }
 
     public function cancel()
     {
         $this->showForm = false;
         $this->reset(['name', 'email', 'phone', 'role', 'branch_id', 'password', 'password_confirmation', 'employeeId']);
+        $this->reset(['showResetPassword', 'current_password', 'new_password', 'new_password_confirmation']);
+    }
+
+    public function toggleResetPassword()
+    {
+        $this->showResetPassword = !$this->showResetPassword;
+        if (!$this->showResetPassword) {
+            $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
+        }
+    }
+
+    public function updatePassword()
+    {
+        $this->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        $employee = Employee::findOrFail($this->employeeId);
+        $user = User::findOrFail($employee->user_id);
+
+        if (!Hash::check($this->current_password, $user->password)) {
+            $this->addError('current_password', 'Current password is incorrect.');
+            return;
+        }
+
+        $user->update([
+            'password' => Hash::make($this->new_password),
+        ]);
+
+        $this->showResetPassword = false;
+        $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
+        $this->loadEmployees();
+
+        session()->flash('message', 'Password updated successfully!');
     }
 
     public function save()
@@ -160,8 +197,6 @@ class ManageEmployees extends Component
                 return;
             }
 
-            // ✅ Allow editing if user is inactive AND employee is inactive (owner deactivated)
-            // Only block if user is inactive but employee is active (Super Admin suspended)
             $isSuspendedByAdmin = !$employee->user->is_active && $employee->is_active;
 
             if ($isSuspendedByAdmin) {
@@ -176,10 +211,10 @@ class ManageEmployees extends Component
                 'role' => 'required|in:order_manager,inventory_manager',
                 'branch_id' => 'required|exists:branches,id',
             ];
+
             $this->validate($rules);
 
             $user = User::findOrFail($employee->user_id);
-
             $user->update([
                 'name' => $this->name,
                 'email' => $this->email,
@@ -204,7 +239,6 @@ class ManageEmployees extends Component
                 'shop_id' => $shop->id,
             ]);
 
-            // ✅ Assign the 'employee' role using Spatie
             $user->assignRole('employee');
 
             Employee::create([
@@ -215,7 +249,7 @@ class ManageEmployees extends Component
                 'is_active' => true,
             ]);
 
-            session()->flash('message', 'Employee created successfully! Password: ' . $this->password);
+            session()->flash('message', 'Employee created successfully!');
         }
 
         $this->cancel();
@@ -231,7 +265,6 @@ class ManageEmployees extends Component
             return;
         }
 
-        // ✅ Check if Super Admin suspended the user
         $isSuspendedByAdmin = !$employee->user->is_active && $employee->deactivated_by === 'super_admin';
 
         if ($isSuspendedByAdmin) {
@@ -239,14 +272,12 @@ class ManageEmployees extends Component
             return;
         }
 
-        // ✅ Toggle status
         $newStatus = !$employee->is_active;
         $employee->update([
             'is_active' => $newStatus,
-            'deactivated_by' => $newStatus ? null : 'owner', // If deactivating, mark as owner
+            'deactivated_by' => $newStatus ? null : 'owner',
         ]);
 
-        // ✅ Update user's is_active to match
         $employee->user->update(['is_active' => $newStatus]);
 
         $this->loadEmployees();

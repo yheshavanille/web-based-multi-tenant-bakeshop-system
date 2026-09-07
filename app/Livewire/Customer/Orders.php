@@ -37,6 +37,10 @@ class Orders extends Component
     public function loadOrders()
     {
         $query = Order::where('customer_id', Auth::id())
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
             ->with(['items.product', 'shop', 'branch', 'serviceReview'])
             ->orderBy('created_at', 'desc');
 
@@ -188,7 +192,6 @@ class Orders extends Component
 
     public function openDetailsModal($orderId)
     {
-        // ✅ Use select() to only get needed columns and load relationships efficiently
         $this->selectedOrderDetails = Order::where('customer_id', Auth::id())
             ->where('id', $orderId)
             ->with(['items' => function ($query) {

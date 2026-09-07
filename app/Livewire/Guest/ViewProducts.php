@@ -1,16 +1,14 @@
 <?php
 
-namespace App\Livewire\Customer;
+namespace App\Livewire\Guest;
 
 use App\Models\Branch;
-use App\Models\Cart;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\ServiceReview;
 use App\Models\Shop;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -30,6 +28,9 @@ class ViewProducts extends Component
     public $selectedProduct = null;
     public $productReviews = [];
     public $averageRating = 0;
+
+    // ✅ Flag to show login modal
+    public $showLoginModal = false;
 
     public function mount($shopId, $branch = null)
     {
@@ -144,9 +145,11 @@ class ViewProducts extends Component
             ->get();
     }
 
+    // ✅ FIXED: Reload best sellers when category changes
     public function updatedSelectedCategory()
     {
         $this->loadProducts();
+        $this->loadBestSellers();
     }
 
     public function getStock($productId)
@@ -158,57 +161,17 @@ class ViewProducts extends Component
         return $pivot ? $pivot->pivot->stock : 0;
     }
 
-    // ✅ FIXED: Added $this->loadBestSellers() to reload best sellers after adding to cart
+    // ✅ Guest addToCart - shows login modal instead of adding to cart
     public function addToCart($productId)
     {
-        $product = Product::findOrFail($productId);
+        // ✅ Show login modal for guests
+        $this->showLoginModal = true;
+    }
 
-        if (!$this->selectedBranchId) {
-            session()->flash('error', 'Please select a branch first.');
-            return;
-        }
-
-        $branch = Branch::find($this->selectedBranchId);
-        $pivot = $branch->products()->where('product_id', $productId)->first();
-
-        if (!$pivot || $pivot->pivot->stock <= 0) {
-            session()->flash('error', 'This product is out of stock at the selected branch.');
-            return;
-        }
-
-        $availableStock = $pivot->pivot->stock;
-
-        $cart = Cart::where('user_id', Auth::id())
-            ->where('product_id', $productId)
-            ->where('branch_id', $this->selectedBranchId)
-            ->first();
-
-        $currentQuantity = $cart ? $cart->quantity : 0;
-
-        if ($currentQuantity >= $availableStock) {
-            session()->flash('error', 'You already have the maximum available stock for this product!');
-            return;
-        }
-
-        if ($cart) {
-            $cart->increment('quantity');
-            $message = $product->name . ' quantity updated! 🛒';
-        } else {
-            Cart::create([
-                'user_id' => Auth::id(),
-                'product_id' => $productId,
-                'branch_id' => $this->selectedBranchId,
-                'quantity' => 1,
-            ]);
-            $message = $product->name . ' added to cart! 🛒';
-        }
-
-        // ✅ FIX: Reload BOTH products AND best sellers
-        $this->loadProducts();
-        $this->loadBestSellers();
-
-        $this->dispatch('cartUpdated');
-        $this->dispatch('show-toast', message: $message);
+    // ✅ Close login modal
+    public function closeLoginModal()
+    {
+        $this->showLoginModal = false;
     }
 
     public function openReviewModal($productId)
@@ -251,10 +214,10 @@ class ViewProducts extends Component
         $shopRating = $this->getShopRating();
         $shopRatingCount = $this->getShopRatingCount();
 
-        return view('livewire.customer.view-products', [
+        return view('livewire.guest.view-products', [
             'shopRating' => $shopRating,
             'shopRatingCount' => $shopRatingCount,
             'bestSellers' => $this->bestSellers,
-        ])->layout('components.layouts.customer');
+        ])->layout('components.layouts.guest');
     }
 }

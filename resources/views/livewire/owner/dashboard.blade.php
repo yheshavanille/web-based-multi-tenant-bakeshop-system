@@ -34,7 +34,7 @@
         <div
             class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between">
-                <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Sales</p>
+                <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Revenue</p>
                 <span class="text-2xl">💰</span>
             </div>
             <p class="text-2xl font-bold text-gray-800 mt-2">₱{{ number_format($totalSales, 2) }}</p>
@@ -246,7 +246,6 @@
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach($productEditHistories as $history)
                     @php
-                    // Get the branch name for this product edit
                     $branchName = $history->product->branches->first()?->name ?? 'N/A';
                     @endphp
                     <tr>
@@ -259,7 +258,9 @@
                                 {{ $history->field === 'price' ? 'bg-amber-100 text-amber-800' : '' }}
                                 {{ $history->field === 'category_id' ? 'bg-purple-100 text-purple-800' : '' }}
                                 {{ $history->field === 'description' ? 'bg-gray-100 text-gray-800' : '' }}
-                                {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}">
+                                {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}
+                                {{ $history->field === 'deleted' ? 'bg-red-100 text-red-800' : '' }}
+                                {{ $history->field === 'restored' ? 'bg-green-100 text-green-800' : '' }}">
                                 {{ ucfirst(str_replace('_', ' ', $history->field)) }}
                             </span>
                         </td>
@@ -269,6 +270,8 @@
                             @elseif($history->field === 'image_url')
                             <span class="text-xs text-gray-400">{{ $history->old_value ? 'Old image' : 'No image'
                                 }}</span>
+                            @elseif($history->field === 'deleted')
+                            <span class="text-xs text-red-600">{{ $history->old_value }}</span>
                             @else
                             {{ $history->old_value ?? '-' }}
                             @endif
@@ -281,6 +284,10 @@
                                 }}</span>
                             @elseif($history->field === 'created')
                             <span class="text-xs text-green-600">Product created</span>
+                            @elseif($history->field === 'deleted')
+                            <span class="text-xs text-red-600">{{ $history->new_value }}</span>
+                            @elseif($history->field === 'restored')
+                            <span class="text-xs text-green-600">{{ $history->new_value }}</span>
                             @else
                             {{ $history->new_value ?? '-' }}
                             @endif
@@ -676,7 +683,9 @@
                                     {{ $history->field === 'price' ? 'bg-amber-100 text-amber-800' : '' }}
                                     {{ $history->field === 'category_id' ? 'bg-purple-100 text-purple-800' : '' }}
                                     {{ $history->field === 'description' ? 'bg-gray-100 text-gray-800' : '' }}
-                                    {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}">
+                                    {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}
+                                    {{ $history->field === 'deleted' ? 'bg-red-100 text-red-800' : '' }}
+                                    {{ $history->field === 'restored' ? 'bg-green-100 text-green-800' : '' }}">
                                     {{ ucfirst(str_replace('_', ' ', $history->field)) }}
                                 </span>
                             </td>
@@ -686,6 +695,8 @@
                                 @elseif($history->field === 'image_url')
                                 <span class="text-xs text-gray-400">{{ $history->old_value ? 'Old image' : 'No image'
                                     }}</span>
+                                @elseif($history->field === 'deleted')
+                                <span class="text-xs text-red-600">{{ $history->old_value }}</span>
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-gray-400">—</span>
                                 @else
@@ -700,6 +711,10 @@
                                     }}</span>
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-green-600">Product created</span>
+                                @elseif($history->field === 'deleted')
+                                <span class="text-xs text-red-600">{{ $history->new_value }}</span>
+                                @elseif($history->field === 'restored')
+                                <span class="text-xs text-green-600">{{ $history->new_value }}</span>
                                 @else
                                 {{ $history->new_value ?? '-' }}
                                 @endif

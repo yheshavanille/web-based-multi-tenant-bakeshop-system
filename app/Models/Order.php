@@ -11,6 +11,8 @@ class Order extends Model
         'customer_id',
         'shop_id',
         'branch_id',
+        'parent_order_id',
+        'is_parent_order',
         'subtotal',
         'tax_amount',
         'total_amount',
@@ -29,6 +31,7 @@ class Order extends Model
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'is_parent_order' => 'boolean',
     ];
 
     public function isEPayment()
@@ -38,7 +41,6 @@ class Order extends Model
 
     public function getPaymentMethodLabelAttribute()
     {
-        // ✅ Changed: Show only "PayMongo" instead of "PayMongo (Gcash)" or "PayMongo (PayMaya)"
         if ($this->payment_method === 'paymongo') {
             return 'PayMongo';
         }
@@ -68,6 +70,16 @@ class Order extends Model
     public function serviceReview()
     {
         return $this->hasOne(ServiceReview::class);
+    }
+
+    public function parentOrder()
+    {
+        return $this->belongsTo(Order::class, 'parent_order_id');
+    }
+
+    public function childOrders()
+    {
+        return $this->hasMany(Order::class, 'parent_order_id');
     }
 
     public function isCancelledByCustomer()

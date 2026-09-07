@@ -1,19 +1,35 @@
 <div>
-    <div class="relative overflow-hidden min-h-screen bg-white">
+    <div class="relative overflow-hidden min-h-screen bg-white flex items-center">
         <div class="max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div class="grid grid-cols-2 gap-12 lg:gap-16 items-stretch">
 
-                <!-- LEFT: Register Form -->
-                <div>
-                    <h1 class="text-3xl text-gray-900 font-bold md:text-4xl">
+                <!-- LEFT: Introduction -->
+                <div class="col-start-1 row-start-1 flex flex-col justify-center" style="min-height: 26rem;">
+                    <h1 class="text-5xl text-gray-900 font-bold leading-tight md:text-6xl">
                         Create your account
                     </h1>
-                    <p class="mt-2 text-gray-600 text-sm leading-relaxed max-w-md">
-                        A complete platform for bakeshops to manage orders, inventory, customer reviews, and sales
-                        analytics in one place.
+                    <p class="mt-5 text-lg text-gray-600 leading-relaxed max-w-xl md:text-xl">
+                        Your all-in-one bakeshop management solution. Handle orders, track inventory, manage employees,
+                        and gain real-time sales insights - all from a single platform. Built to help bakeshops in
+                        Victorias City grow and serve customers better.
                     </p>
+                    <ul class="mt-6 space-y-3 text-base text-gray-700 md:text-lg">
+                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> All-in-one
+                            solution</li>
+                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Orders,
+                            inventory, employees, sales analytics</li>
+                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Real-time
+                            insights</li>
+                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Local focus
+                            (Victorias City)</li>
+                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Growth-oriented
+                        </li>
+                    </ul>
+                </div>
 
-                    <div class="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm mt-6">
+                <!-- RIGHT: Register Form -->
+                <div class="w-full col-start-2 row-start-1 justify-self-end">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-8 md:p-10 shadow-sm">
                         <form wire:submit.prevent="register">
                             <div class="mb-4">
                                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -60,19 +76,16 @@
                                 Create Account
                             </button>
                         </form>
+
+                        <p class="mt-8 text-center text-sm text-gray-500">
+                            Already have an account?
+                            <a href="{{ route('livewire.auth.login') }}"
+                                class="text-amber-600 hover:text-amber-700 font-medium hover:underline">
+                                Sign in here
+                            </a>
+                        </p>
                     </div>
-
-                    <p class="mt-4 text-center text-sm text-gray-500">
-                        Already have an account?
-                        <a href="{{ route('livewire.auth.login') }}"
-                            class="text-amber-600 hover:text-amber-700 font-medium hover:underline">
-                            Sign in here
-                        </a>
-                    </p>
                 </div>
-
-
-
             </div>
         </div>
     </div>

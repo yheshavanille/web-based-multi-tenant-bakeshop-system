@@ -170,13 +170,19 @@ class ViewProduct extends Component
     {
         $product = Product::findOrFail($productId);
 
+        // Get the first branch or use the selected branch filter
+        $firstBranch = $product->branches->first();
+        $branchId = $firstBranch?->id ?? null;
+        $stockValue = $firstBranch?->pivot->stock ?? 0;
+
         $this->originalValues = [
             'name' => $product->name,
             'price' => (string)$product->price,
             'category_id' => (string)$product->category_id,
             'description' => (string)$product->description,
             'image_url' => (string)$product->image_url,
-            'stock' => (string)($product->branches->first()?->pivot->stock ?? ''),
+            'stock' => (string)$stockValue,
+            'branch_id' => $branchId,
             'discount_type' => $product->discount_type ?? 'none',
             'discount_value' => (string)($product->discount_value ?? 0),
         ];
@@ -187,8 +193,8 @@ class ViewProduct extends Component
         $this->category_id = (string)$product->category_id;
         $this->description = (string)$product->description;
         $this->image_url = (string)$product->image_url;
-        $this->stock = (string)($product->branches->first()?->pivot->stock ?? '');
-        $this->form_branch_id = $product->branches->first()?->id ?? null;
+        $this->stock = $stockValue;
+        $this->form_branch_id = $branchId;
         $this->discount_type = $product->discount_type ?? 'none';
         $this->discount_value = $product->discount_value ?? 0;
 
@@ -254,16 +260,35 @@ class ViewProduct extends Component
                 ]);
             }
 
-            $oldStock = $this->originalValues['stock'] ?? null;
-            $newStock = (string)($this->stock ?? '');
+            // Check if branch changed
+            $oldBranchId = $this->originalValues['branch_id'] ?? null;
+            $newBranchId = $this->form_branch_id;
 
-            if ($oldStock !== null && $oldStock !== $newStock) {
+            // Get the old stock from the original values
+            $oldStock = $this->originalValues['stock'] ?? null;
+            $newStock = $this->stock ?? 0;
+
+            // If branch changed, log the change
+            if ($oldBranchId && $newBranchId && $oldBranchId != $newBranchId) {
+                $oldBranch = Branch::find($oldBranchId);
+                $newBranch = Branch::find($newBranchId);
+                ProductEditHistory::create([
+                    'product_id' => $product->id,
+                    'user_id' => Auth::id(),
+                    'field' => 'branch',
+                    'old_value' => $oldBranch?->name ?? 'Unknown',
+                    'new_value' => $newBranch?->name ?? 'Unknown',
+                ]);
+            }
+
+            // Log stock change if changed
+            if ($oldStock !== null && (string)$oldStock !== (string)$newStock) {
                 ProductEditHistory::create([
                     'product_id' => $product->id,
                     'user_id' => Auth::id(),
                     'field' => 'stock',
-                    'old_value' => $oldStock,
-                    'new_value' => $newStock,
+                    'old_value' => (string)$oldStock,
+                    'new_value' => (string)$newStock,
                 ]);
             }
 
@@ -282,6 +307,7 @@ class ViewProduct extends Component
                 ]);
             }
 
+            // Update product details
             $product->update([
                 'name' => $this->name,
                 'price' => $this->price,
@@ -292,10 +318,26 @@ class ViewProduct extends Component
                 'discount_value' => $this->discount_type !== 'none' ? $this->discount_value : 0,
             ]);
 
+            // Update stock for the selected branch
             if ($this->form_branch_id) {
-                $branchProduct = $product->branches()->where('branch_id', $this->form_branch_id)->first();
-                if ($branchProduct) {
+                // Check if product is already assigned to this branch
+                $existingBranch = $product->branches()->where('branch_id', $this->form_branch_id)->first();
+
+                if ($existingBranch) {
+                    // Update existing branch stock
                     $product->branches()->updateExistingPivot($this->form_branch_id, ['stock' => $this->stock ?? 0]);
+                } else {
+                    // If branch changed, remove from old branch and add to new one
+                    // First, detach all branches
+                    $product->branches()->detach();
+                    // Then attach the new branch with stock
+                    $product->branches()->attach($this->form_branch_id, ['stock' => $this->stock ?? 0]);
+                }
+            } else {
+                // If no branch selected, update the first branch
+                $firstBranch = $product->branches()->first();
+                if ($firstBranch) {
+                    $product->branches()->updateExistingPivot($firstBranch->id, ['stock' => $this->stock ?? 0]);
                 }
             }
 

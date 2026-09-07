@@ -15,7 +15,7 @@ class Logout extends Component
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->route('livewire.auth.login'); // or your login route name
+        return redirect()->route('livewire.guest.browse-shops');
     }
     public function render()
     {

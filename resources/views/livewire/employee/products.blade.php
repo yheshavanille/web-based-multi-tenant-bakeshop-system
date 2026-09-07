@@ -31,17 +31,19 @@
         <!-- Search Bar -->
         <div class="mb-4">
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
+                    style="position: absolute;">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
                 <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
-                    class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                    class="w-full py-2.5 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                 @if(!empty($search))
                 <button wire:click="clearSearch"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
+                    style="position: absolute;">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                         </path>
@@ -174,8 +176,10 @@
                         <tr>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Price</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Stock</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Current Stock</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Category</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Created By</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Updated By</th>
                             <th class="px-4 py-3 text-right font-medium text-gray-700">Actions</th>
                         </tr>
                     </thead>
@@ -183,7 +187,7 @@
                         @forelse($products as $product)
                         @if($product->trashed())
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
                                     <span class="text-4xl">🗑️</span>
                                     <p class="text-sm font-medium text-gray-800">{{ $product->name }}</p>
@@ -198,6 +202,8 @@
                         @else
                         @php
                         $stock = $product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0;
+                        $createdByName = $product->created_by ?? $product->owner?->name ?? 'System';
+                        $updatedByName = $product->updated_by ?? $product->owner?->name ?? 'System';
                         @endphp
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 py-3">
@@ -231,6 +237,16 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-gray-500">{{ $product->category->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 text-gray-600 text-sm">
+                                <span class="font-medium">{{ $createdByName }}</span>
+                                <span class="text-gray-400 text-xs block">{{ $product->created_at_display ??
+                                    $product->created_at->diffForHumans() ?? '—' }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-600 text-sm">
+                                <span class="font-medium">{{ $updatedByName }}</span>
+                                <span class="text-gray-400 text-xs block">{{ $product->updated_at_display ??
+                                    $product->updated_at->diffForHumans() ?? '—' }}</span>
+                            </td>
                             <td class="px-4 py-3 text-right space-x-2">
                                 <button wire:click="edit({{ $product->id }})"
                                     class="text-blue-600 hover:text-blue-800 text-xs font-medium">
@@ -246,7 +262,7 @@
                         @endif
                         @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
                                     <span class="text-4xl">📭</span>
                                     <p>{{ $showDeleted ? 'No deleted products found.' : 'No products for this branch

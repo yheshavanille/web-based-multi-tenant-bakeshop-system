@@ -27,6 +27,7 @@ class Profile extends Component
 
     public $temp_profile_picture_preview = null;
     public $uploadSuccess = false;
+    public $removeImage = false;
 
     public function mount()
     {
@@ -45,6 +46,7 @@ class Profile extends Component
 
         $this->temp_profile_picture_preview = $this->new_profile_picture->temporaryUrl();
         $this->uploadSuccess = false;
+        $this->removeImage = false;
     }
 
     public function updateProfile()
@@ -55,7 +57,7 @@ class Profile extends Component
             'phone' => [
                 'required',
                 'string',
-                'regex:/^09\d{9}$/', // Removed size:11
+                'regex:/^09\d{9}$/',
             ],
             'new_profile_picture' => 'nullable|image|max:2048',
         ], [
@@ -73,47 +75,51 @@ class Profile extends Component
             'phone' => $this->phone,
         ];
 
+        $message = 'Profile updated successfully!';
+
+        // Handle profile picture removal
+        if ($this->removeImage) {
+            if ($this->user->profile_picture) {
+                Storage::disk('public')->delete($this->user->profile_picture);
+            }
+            $updateData['profile_picture'] = null;
+            $this->profile_picture = null;
+            $this->removeImage = false;
+            $message = 'Profile picture removed successfully!';
+        }
+
         // Handle profile picture upload
         if ($this->new_profile_picture) {
-            // Delete old profile picture if exists
             if ($this->user->profile_picture) {
                 Storage::disk('public')->delete($this->user->profile_picture);
             }
 
-            // Store the new image
             $path = $this->new_profile_picture->store('profile-pictures', 'public');
             $updateData['profile_picture'] = $path;
             $this->profile_picture = $path;
-
-            // Clear the temporary preview
             $this->temp_profile_picture_preview = null;
             $this->uploadSuccess = true;
+            $this->removeImage = false;
+            $message = 'Profile picture updated successfully!';
         }
 
-        // Update user
         $this->user->update($updateData);
-
-        // Refresh user data
         $this->user = Auth::user();
         $this->profile_picture = $this->user->profile_picture;
 
-        session()->flash('message', 'Profile updated successfully!');
-
+        session()->flash('message', $message);
         return redirect()->route('livewire.customer.profile');
     }
 
     public function removeProfilePicture()
     {
-        if ($this->user->profile_picture) {
-            Storage::disk('public')->delete($this->user->profile_picture);
-            $this->user->update(['profile_picture' => null]);
-            $this->profile_picture = null;
-            $this->new_profile_picture = null;
-            $this->temp_profile_picture_preview = null;
+        $this->removeImage = true;
+        $this->temp_profile_picture_preview = null;
+        $this->new_profile_picture = null;
+        $this->profile_picture = null;
+        $this->uploadSuccess = false;
 
-            session()->flash('message', 'Profile picture removed successfully!');
-            return redirect()->route('livewire.customer.profile');
-        }
+        session()->flash('message', 'Profile picture marked for removal. Click "Update Profile" to save changes.');
     }
 
     public function togglePasswordForm()

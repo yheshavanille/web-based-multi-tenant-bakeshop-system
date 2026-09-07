@@ -109,7 +109,7 @@
                         <!-- ✅ PRODUCT EDIT HISTORY -->
                         <a href="{{ route('livewire.owner.product-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">✏️</span> Product Edit History
+                            <span class="text-lg">✏️</span> Product Update & Edit History
                         </a>
 
                         <!-- ✅ STOCK UPDATE HISTORY -->

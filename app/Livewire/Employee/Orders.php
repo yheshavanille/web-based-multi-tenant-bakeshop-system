@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\BranchProduct;
 use App\Models\Product;
 use App\Models\StockHistory;
+use App\Models\ProductEditHistory;
 use App\Notifications\OrderStatusUpdatedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -33,9 +34,14 @@ class Orders extends Component
         $this->loadOrders();
     }
 
+    // ✅ UPDATED: Exclude parent orders from employee view
     public function loadOrders()
     {
         $query = Order::where('branch_id', $this->branch->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
             ->with(['customer', 'items.product'])
             ->orderBy('created_at', 'desc');
 
@@ -65,6 +71,10 @@ class Orders extends Component
     {
         $this->selectedOrderDetails = Order::with(['customer', 'items.product', 'branch'])
             ->where('branch_id', $this->branch->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
             ->where('id', $orderId)
             ->first();
 
@@ -102,30 +112,22 @@ class Orders extends Component
     public function updateItemStatus($itemId, $status)
     {
         $item = OrderItem::whereHas('order', function ($query) {
-            $query->where('branch_id', $this->branch->id);
+            $query->where('branch_id', $this->branch->id)
+                ->where(function ($q) {
+                    $q->whereNull('is_parent_order')
+                        ->orWhere('is_parent_order', false);
+                });
         })->findOrFail($itemId);
 
-        // ✅ BLOCK: If the item was cancelled by customer (we'll track this with status for now)
-        // Since we don't have cancelled_by on order_items yet, we check:
-        // 1. Item status is 'cancelled'
-        // 2. Order status is NOT 'cancelled' (meaning only this item was cancelled)
-        // OR the order was cancelled by customer
+        // ✅ BLOCK: If the item was cancelled by customer
         if ($item->status === 'cancelled') {
-            // If the order is still pending but this item is cancelled, customer cancelled it
-            if ($item->order->status === 'pending') {
-                session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
-                $this->loadOrders();
-                return;
-            }
-            // If the order was cancelled by customer
-            if ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer') {
+            if ($item->order->status === 'pending' || ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer')) {
                 session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
                 $this->loadOrders();
                 return;
             }
         }
 
-        // ✅ Also block if the entire order was cancelled by customer
         if ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer') {
             session()->flash('error', 'This order was cancelled by the customer and cannot be updated.');
             $this->loadOrders();
@@ -135,31 +137,39 @@ class Orders extends Component
         $oldStatus = $item->status;
         $item->update(['status' => $status]);
 
+        // ✅ LOG TO PRODUCT EDIT HISTORY for order status changes
+        if ($oldStatus !== $status) {
+            ProductEditHistory::create([
+                'product_id' => $item->product_id,
+                'user_id' => Auth::id(),
+                'field' => 'order_status',
+                'old_value' => ucfirst(str_replace('_', ' ', $oldStatus)),
+                'new_value' => ucfirst(str_replace('_', ' ', $status)),
+            ]);
+        }
+
         if ($status === 'completed' && $oldStatus !== 'completed') {
             $this->reduceStock($item);
         }
 
         $order = $item->order;
-
-        // Recalculate order status
         $this->recalculateOrderStatus($order);
-
-        // ✅ REFRESH ORDER TO GET UPDATED STATUS
         $order->refresh();
 
-        // ✅ UPDATE PAYMENT STATUS IF ORDER IS COMPLETED
+        // ✅ FIX: Update payment status based on order status
         if ($order->status === 'completed') {
             $order->update(['payment_status' => 'paid']);
+        } else {
+            // If order is not completed (pending, preparing, ready_for_pickup, etc.), set payment_status to 'pending'
+            $order->update(['payment_status' => 'pending']);
         }
 
-        // ✅ SEND NOTIFICATION TO CUSTOMER AND OWNER
         if ($oldStatus !== $status) {
             $customer = $order->customer;
             if ($customer) {
                 Notification::send($customer, new OrderStatusUpdatedNotification($order, $oldStatus, $status));
             }
 
-            // ✅ ALSO NOTIFY THE SHOP OWNER
             $owner = $order->shop->user;
             if ($owner && $owner->id !== ($customer->id ?? null)) {
                 Notification::send($owner, new OrderStatusUpdatedNotification($order, $oldStatus, $status));

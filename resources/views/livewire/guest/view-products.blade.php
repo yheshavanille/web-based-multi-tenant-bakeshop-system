@@ -3,7 +3,7 @@
 
         <!-- Back Button with Background -->
         <div class="mb-4">
-            <a href="{{ route('livewire.customer.browse-shops') }}"
+            <a href="{{ route('livewire.guest.browse-shops') }}"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -335,7 +335,7 @@
                     </div>
                 </div>
 
-                <!-- ✅ TOTAL SOLD - USING THE SAME QUERY AS BEST SELLERS -->
+                <!-- ✅ TOTAL SOLD -->
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                     <div class="flex items-center gap-2">
                         <span class="text-lg">📦</span>
@@ -447,4 +447,49 @@
         </div>
     </div>
     @endif
+
+    <!-- ✅ LOGIN MODAL FOR GUESTS -->
+    @if($showLoginModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeLoginModal"></div>
+
+        <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-gray-800">🔐 Login Required</h3>
+                    <button wire:click="closeLoginModal" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-6 py-6 text-center">
+                <div class="text-6xl mb-4">🍰</div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-2">Please Login to Add Items to Your Cart</h4>
+                <p class="text-sm text-gray-500 mb-6">
+                    You need to be logged in to order from our bakeshops.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <a href="{{ route('livewire.auth.login') }}"
+                        class="w-full px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                        🔑 Login Now
+                    </a>
+                    <a href="{{ route('livewire.auth.register') }}"
+                        class="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+                        📝 Create Account
+                    </a>
+                    <button wire:click="closeLoginModal"
+                        class="w-full px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition">
+                        Continue Browsing
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>

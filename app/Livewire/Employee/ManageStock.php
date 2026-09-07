@@ -101,7 +101,9 @@ class ManageStock extends Component
             'notes' => $note,
         ]);
 
-        // ✅ LOG TO PRODUCT EDIT HISTORY (for Recent Product Updates)
+        // ✅ LOG TO PRODUCT EDIT HISTORY with better notes
+        $notesText = !empty($note) ? "Stock updated from {$oldStock} to {$newStock}. Note: {$note}" : "Stock updated from {$oldStock} to {$newStock}";
+
         ProductEditHistory::create([
             'product_id' => $product->id,
             'user_id' => Auth::id(),

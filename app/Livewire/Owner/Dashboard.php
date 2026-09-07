@@ -161,12 +161,20 @@ class Dashboard extends Component
                 $preparingCount = $order->items->where('status', 'preparing')->count();
                 $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
 
+                // ✅ If the entire order is cancelled, set total to 0
+                $isFullyCancelled = $order->status === 'cancelled' || $cancelledCount === $itemCount;
+
                 // ✅ Calculate adjusted total (exclude cancelled items)
                 $adjustedTotal = $order->items
                     ->where('status', '!=', 'cancelled')
                     ->sum(function ($item) {
                         return $item->price * $item->quantity;
                     });
+
+                // ✅ If fully cancelled, set to 0
+                if ($isFullyCancelled) {
+                    $adjustedTotal = 0;
+                }
 
                 // ✅ Calculate adjusted tax and grand total
                 $adjustedTax = round($adjustedTotal * 0.12, 2);
@@ -213,18 +221,26 @@ class Dashboard extends Component
             }
         ])->findOrFail($orderId);
 
-        // ✅ Calculate adjusted total (exclude cancelled items)
-        $adjustedTotal = $this->selectedOrder->items
-            ->where('status', '!=', 'cancelled')
-            ->sum(function ($item) {
-                return $item->price * $item->quantity;
-            });
+        // ✅ If order is cancelled, set total to 0
+        if ($this->selectedOrder->status === 'cancelled') {
+            $this->selectedOrder->adjusted_total = 0;
+            $this->selectedOrder->subtotal = 0;
+            $this->selectedOrder->tax_amount = 0;
+            $this->selectedOrder->total_amount = 0;
+        } else {
+            // ✅ Calculate adjusted total (exclude cancelled items)
+            $adjustedTotal = $this->selectedOrder->items
+                ->where('status', '!=', 'cancelled')
+                ->sum(function ($item) {
+                    return $item->price * $item->quantity;
+                });
 
-        // ✅ Set adjusted values for the modal
-        $this->selectedOrder->adjusted_total = $adjustedTotal;
-        $this->selectedOrder->subtotal = $adjustedTotal;
-        $this->selectedOrder->tax_amount = round($adjustedTotal * 0.12, 2);
-        $this->selectedOrder->total_amount = $adjustedTotal + $this->selectedOrder->tax_amount;
+            // ✅ Set adjusted values for the modal
+            $this->selectedOrder->adjusted_total = $adjustedTotal;
+            $this->selectedOrder->subtotal = $adjustedTotal;
+            $this->selectedOrder->tax_amount = round($adjustedTotal * 0.12, 2);
+            $this->selectedOrder->total_amount = $adjustedTotal + $this->selectedOrder->tax_amount;
+        }
 
         $this->showOrderModal = true;
     }
@@ -233,6 +249,8 @@ class Dashboard extends Component
     {
         $this->showOrderModal = false;
         $this->selectedOrder = null;
+        // ✅ Reload recent orders to refresh the table
+        $this->loadRecentOrders();
     }
 
     // ✅ Product Edit Details Methods

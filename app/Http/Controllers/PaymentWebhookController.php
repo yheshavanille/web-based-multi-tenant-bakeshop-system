@@ -21,74 +21,108 @@ class PaymentWebhookController extends Controller
 
         // Get the event type
         $eventType = $payload['data']['attributes']['type'] ?? null;
+        $checkoutSessionId = $payload['data']['attributes']['data']['id'] ?? null;
 
-        if ($eventType === 'payment_intent.succeeded' || $eventType === 'checkout_session.payment_succeeded') {
-            $paymentIntentId = $payload['data']['attributes']['data']['id'] ?? null;
-
-            if ($paymentIntentId) {
-                $this->handleSuccessfulPayment($paymentIntentId, $payload);
+        if ($eventType === 'checkout_session.payment_succeeded') {
+            if ($checkoutSessionId) {
+                $this->handleSuccessfulPayment($checkoutSessionId, $payload);
             }
-        } elseif ($eventType === 'payment_intent.payment_failed') {
-            $paymentIntentId = $payload['data']['attributes']['data']['id'] ?? null;
-
-            if ($paymentIntentId) {
-                $this->handleFailedPayment($paymentIntentId);
+        } elseif ($eventType === 'checkout_session.payment_failed') {
+            if ($checkoutSessionId) {
+                $this->handleFailedPayment($checkoutSessionId);
             }
         }
 
         return response()->json(['status' => 'success'], 200);
     }
 
-    private function handleSuccessfulPayment($paymentIntentId, $payload)
+    private function handleSuccessfulPayment($checkoutSessionId, $payload)
     {
-        $order = Order::where('payment_intent_id', $paymentIntentId)->first();
+        // Find the parent order by payment_intent_id (which stores the checkout session ID)
+        $parentOrder = Order::where('payment_intent_id', $checkoutSessionId)
+            ->where('is_parent_order', true)
+            ->first();
 
-        if (!$order) {
-            Log::warning('Order not found for payment intent', ['payment_intent_id' => $paymentIntentId]);
+        if (!$parentOrder) {
+            Log::warning('Parent order not found for checkout session', ['checkout_session_id' => $checkoutSessionId]);
+
+            // Fallback: try to find any order with this payment_intent_id
+            $order = Order::where('payment_intent_id', $checkoutSessionId)->first();
+            if ($order) {
+                Log::info('Found regular order instead of parent order', ['order_id' => $order->id]);
+                $this->updateOrderAndChildren($order, $payload);
+            }
             return;
         }
 
-        // ✅ Get payment method from the webhook
-        $paymentMethodType = null;
-        $data = $payload['data']['attributes']['data'] ?? null;
+        Log::info('Parent order found', [
+            'parent_order_id' => $parentOrder->id,
+            'order_number' => $parentOrder->order_number,
+        ]);
 
-        // Check for payment method in the payment intent
-        if ($data && isset($data['attributes']['payment_method'])) {
-            $paymentMethodType = $data['attributes']['payment_method'];
-            Log::info('Payment method from checkout session', ['payment_method_type' => $paymentMethodType]);
-        }
+        // Update parent order
+        $this->updateOrderAndChildren($parentOrder, $payload);
+    }
 
-        // Alternative: check for payment method types used
-        if (!$paymentMethodType && isset($data['attributes']['payment_method_types'])) {
-            $types = $data['attributes']['payment_method_types'];
-            if (is_array($types) && count($types) > 0) {
-                $paymentMethodType = $types[0];
-            }
-            Log::info('Payment method from types', ['payment_method_type' => $paymentMethodType]);
-        }
+    private function updateOrderAndChildren($order, $payload)
+    {
+        // Get payment method from webhook
+        $paymentMethodType = $this->extractPaymentMethod($payload);
 
-        // Fallback: check the order's existing payment_method_detail
-        if (!$paymentMethodType) {
-            $paymentMethodType = $order->payment_method_detail ?? 'gcash';
-            Log::info('Using existing payment_method_detail', ['payment_method_type' => $paymentMethodType]);
-        }
-
-        Log::info('Final payment method type', ['payment_method_type' => $paymentMethodType]);
-
-        // ✅ Update order with the actual payment method used
+        // Update the order (parent or regular)
         $updateData = [
             'payment_status' => 'paid',
             'status' => 'preparing',
         ];
 
-        // ✅ If payment method type is available, update payment_method_detail
         if ($paymentMethodType) {
             $updateData['payment_method_detail'] = $paymentMethodType;
         }
 
         $order->update($updateData);
 
-        // ✅ Reduce stock when payment is confirmed
+        // If this is a parent order, update all child orders
+        if ($order->is_parent_order) {
+            Log::info('Updating child orders for parent', ['parent_order_id' => $order->id]);
+
+            Order::where('parent_order_id', $order->id)->update([
+                'payment_status' => 'paid',
+                'status' => 'preparing',
+                'payment_method_detail' => $paymentMethodType,
+            ]);
+
+            // Process stock reduction for each child order
+            $childOrders = Order::where('parent_order_id', $order->id)->get();
+            foreach ($childOrders as $childOrder) {
+                $this->reduceStockForOrder($childOrder);
+                $this->notifyOrderManagers($childOrder);
+            }
+        } else {
+            // Regular order - reduce stock and notify
+            $this->reduceStockForOrder($order);
+            $this->notifyOrderManagers($order);
+        }
+
+        // Send notification to customer
+        $customer = $order->customer;
+        if ($customer) {
+            Notification::send($customer, new OrderStatusUpdatedNotification(
+                $order,
+                'pending',
+                'preparing'
+            ));
+        }
+
+        Log::info('Payment succeeded and order(s) updated', [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'is_parent' => $order->is_parent_order,
+            'payment_method_type' => $paymentMethodType,
+        ]);
+    }
+
+    private function reduceStockForOrder($order)
+    {
         $orderItems = OrderItem::where('order_id', $order->id)->get();
         foreach ($orderItems as $item) {
             $branchProduct = BranchProduct::where('branch_id', $item->branch_id)
@@ -109,43 +143,94 @@ class PaymentWebhookController extends Controller
                 ]);
             }
         }
+    }
 
-        // ✅ Send notification to customer
-        $customer = $order->customer;
-        if ($customer) {
-            Notification::send($customer, new OrderStatusUpdatedNotification(
+    private function notifyOrderManagers($order)
+    {
+        // Get order managers for this shop
+        $orderManagers = \App\Models\Employee::where('shop_id', $order->shop_id)
+            ->where('role', 'order_manager')
+            ->where('is_active', true)
+            ->with('user')
+            ->get();
+
+        $users = $orderManagers->pluck('user')->filter();
+
+        if ($users->count() > 0) {
+            Notification::send($users, new OrderStatusUpdatedNotification(
                 $order,
                 'pending',
                 'preparing'
             ));
         }
 
-        Log::info('Payment succeeded and order updated', [
-            'order_id' => $order->id,
-            'order_number' => $order->order_number,
-            'payment_method_type' => $paymentMethodType,
-            'payment_intent_id' => $paymentIntentId,
-        ]);
+        // Also notify owner
+        $owner = $order->shop->user;
+        if ($owner) {
+            Notification::send($owner, new OrderStatusUpdatedNotification(
+                $order,
+                'pending',
+                'preparing'
+            ));
+        }
     }
 
-    private function handleFailedPayment($paymentIntentId)
+    private function extractPaymentMethod($payload)
     {
-        $order = Order::where('payment_intent_id', $paymentIntentId)->first();
+        $data = $payload['data']['attributes']['data'] ?? null;
 
-        if (!$order) {
-            Log::warning('Order not found for failed payment', ['payment_intent_id' => $paymentIntentId]);
+        // Check for payment method in the payment intent
+        if ($data && isset($data['attributes']['payment_method'])) {
+            return $data['attributes']['payment_method'];
+        }
+
+        // Check for payment method types
+        if ($data && isset($data['attributes']['payment_method_types'])) {
+            $types = $data['attributes']['payment_method_types'];
+            if (is_array($types) && count($types) > 0) {
+                return $types[0];
+            }
+        }
+
+        // Check for source type
+        if ($data && isset($data['attributes']['source']['type'])) {
+            return $data['attributes']['source']['type'];
+        }
+
+        return null;
+    }
+
+    private function handleFailedPayment($checkoutSessionId)
+    {
+        $parentOrder = Order::where('payment_intent_id', $checkoutSessionId)
+            ->where('is_parent_order', true)
+            ->first();
+
+        if (!$parentOrder) {
+            $order = Order::where('payment_intent_id', $checkoutSessionId)->first();
+            if ($order) {
+                $order->update([
+                    'payment_status' => 'failed',
+                    'status' => 'payment_failed',
+                ]);
+            }
             return;
         }
 
-        $order->update([
+        $parentOrder->update([
             'payment_status' => 'failed',
             'status' => 'payment_failed',
         ]);
 
-        Log::info('Payment failed for order', [
-            'order_id' => $order->id,
-            'order_number' => $order->order_number,
-            'payment_intent_id' => $paymentIntentId,
+        // Update all child orders
+        Order::where('parent_order_id', $parentOrder->id)->update([
+            'payment_status' => 'failed',
+            'status' => 'payment_failed',
+        ]);
+
+        Log::info('Payment failed for parent order', [
+            'parent_order_id' => $parentOrder->id,
+            'checkout_session_id' => $checkoutSessionId,
         ]);
     }
 }

@@ -9,10 +9,13 @@ use Livewire\Component;
 class OrderConfirmation extends Component
 {
     public $orders = [];
+    public $childOrders = [];
     public $totalAmount = 0;
     public $totalSubtotal = 0;
     public $totalTax = 0;
     public $shopName = '';
+    public $isParentOrder = false;
+    public $parentOrderId = null;
 
     public function mount($order = null)
     {
@@ -45,6 +48,19 @@ class OrderConfirmation extends Component
             ->where('customer_id', Auth::id())
             ->whereIn('id', $orderIds)
             ->get();
+
+        // Check if any order is a parent order
+        $parentOrder = $this->orders->firstWhere('is_parent_order', true);
+        if ($parentOrder) {
+            $this->isParentOrder = true;
+            $this->parentOrderId = $parentOrder->id;
+
+            // Load child orders for this parent
+            $this->childOrders = Order::with(['items.product', 'items.branch', 'shop', 'branch'])
+                ->where('customer_id', Auth::id())
+                ->where('parent_order_id', $parentOrder->id)
+                ->get();
+        }
 
         // If no orders found, fallback to latest order
         if ($this->orders->isEmpty()) {

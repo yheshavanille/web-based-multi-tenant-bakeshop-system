@@ -65,9 +65,16 @@ class ManageUsers extends Component
             } elseif ($this->statusFilter === 'suspended') {
                 $query->where('is_active', false);
             } elseif ($this->statusFilter === 'deactivated_by_owner') {
-                // ✅ Users whose employee is deactivated by owner (employee->is_active = false)
+                // ✅ Users whose employee is deactivated by owner
                 $query->whereHas('employee', function ($q) {
-                    $q->where('is_active', false);
+                    $q->where('is_active', false)
+                        ->where('deactivated_by', 'owner');
+                });
+            } elseif ($this->statusFilter === 'suspended_by_admin') {
+                // ✅ Users suspended by Super Admin
+                $query->whereHas('employee', function ($q) {
+                    $q->where('is_active', false)
+                        ->where('deactivated_by', 'super_admin');
                 });
             }
 
@@ -175,6 +182,7 @@ class ManageUsers extends Component
         session()->flash('message', 'User permanently deleted. Record saved to log.');
     }
 
+    // ✅ FIXED: Sync user and employee status
     public function toggleUserStatus($userId)
     {
         $user = User::findOrFail($userId);
@@ -184,20 +192,32 @@ class ManageUsers extends Component
             return;
         }
 
-        $user->is_active = !$user->is_active;
+        // ✅ Toggle user status
+        $newStatus = !$user->is_active;
+        $user->is_active = $newStatus;
         $user->save();
 
-        session()->flash('message', 'User status updated successfully.');
+        // ✅ If user has an employee record, sync the status
+        if ($user->employee) {
+            $employee = $user->employee;
+
+            // If activating, also activate the employee and clear deactivated_by
+            if ($newStatus) {
+                $employee->is_active = true;
+                $employee->deactivated_by = null;
+            } else {
+                // If suspending, deactivate employee and mark as deactivated_by = 'super_admin'
+                $employee->is_active = false;
+                $employee->deactivated_by = 'super_admin';
+            }
+            $employee->save();
+        }
+
+        $message = $newStatus ? 'User activated successfully.' : 'User suspended successfully.';
+        session()->flash('message', $message);
     }
 
-    public function resetFilters()
-    {
-        $this->roleFilter = 'all';
-        $this->statusFilter = 'all';
-        $this->search = '';
-        $this->activeTab = 'active';
-    }
-
+    // ✅ Get employee status with deactivated_by check
     public function getEmployeeStatus($user)
     {
         $employee = $user->employee;
@@ -211,9 +231,21 @@ class ManageUsers extends Component
         }
 
         if (!$employee->is_active) {
+            // ✅ Check if deactivated by Super Admin or Owner
+            if ($employee->deactivated_by === 'super_admin') {
+                return '🔴 Suspended by Super Admin';
+            }
             return '🟡 Deactivated by Owner';
         }
 
         return null;
+    }
+
+    public function resetFilters()
+    {
+        $this->roleFilter = 'all';
+        $this->statusFilter = 'all';
+        $this->search = '';
+        $this->activeTab = 'active';
     }
 }

@@ -40,10 +40,13 @@ use App\Livewire\Owner\StockUpdateHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('livewire.auth.login');
-});
+// ✅ GUEST ROUTES (No auth required)
+Route::get('/', \App\Livewire\Guest\BrowseShops::class)->name('livewire.guest.browse-shops');
+Route::get('/guest/shops/{shopId}/products/{branch?}', \App\Livewire\Guest\ViewProducts::class)->name('livewire.guest.view-products');
+Route::get('/guest/start-selling', \App\Livewire\Guest\StartSelling::class)->name('livewire.guest.start-selling');
+Route::get('/guest/seller-registration', \App\Livewire\Guest\SellerRegistration::class)->name('livewire.guest.seller-registration');
 
+// ✅ AUTH ROUTES
 Route::get('/login', Login::class)->name('livewire.auth.login');
 Route::get('/register', Register::class)->name('livewire.auth.register');
 Route::get('/logout', Logout::class)->name('livewire.auth.logout');
@@ -52,7 +55,7 @@ Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
-    return redirect()->route('livewire.auth.login');
+    return redirect()->route('livewire.guest.browse-shops');
 })->name('logout.post')->middleware('auth');
 
 // ✅ Webhook Routes (No auth required - PayMongo calls this)

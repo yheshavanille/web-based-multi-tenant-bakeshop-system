@@ -14,17 +14,19 @@
         <!-- Search Bar -->
         <div class="mb-4">
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
+                    style="position: absolute;">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
                 <input type="text" wire:model.live="search" placeholder="Search by product name..."
-                    class="w-full pl-10 pr-10 h-10 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                    class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                 @if(!empty($search))
-                <button wire:click="clearSearch"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition">
+                <button wire:click="clearSearch" type="button"
+                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
+                    style="position: absolute;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                         </path>
@@ -41,6 +43,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Field</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Old Value</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">New Value</th>
@@ -50,8 +53,12 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($histories as $history)
+                        @php
+                        $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                        @endphp
                         <tr>
                             <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ $branchName }}</td>
                             <td class="px-4 py-3 text-gray-600">
                                 <span class="px-2 py-0.5 text-xs rounded-full
                                     {{ $history->field === 'created' ? 'bg-green-100 text-green-800' : '' }}
@@ -59,7 +66,9 @@
                                     {{ $history->field === 'price' ? 'bg-amber-100 text-amber-800' : '' }}
                                     {{ $history->field === 'category_id' ? 'bg-purple-100 text-purple-800' : '' }}
                                     {{ $history->field === 'description' ? 'bg-gray-100 text-gray-800' : '' }}
-                                    {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}">
+                                    {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}
+                                    {{ $history->field === 'deleted' ? 'bg-red-100 text-red-800' : '' }}
+                                    {{ $history->field === 'restored' ? 'bg-green-100 text-green-800' : '' }}">
                                     {{ ucfirst(str_replace('_', ' ', $history->field)) }}
                                 </span>
                             </td>
@@ -69,6 +78,10 @@
                                 @elseif($history->field === 'image_url')
                                 <span class="text-xs text-gray-400">{{ $history->old_value ? 'Old image' : 'No image'
                                     }}</span>
+                                @elseif($history->field === 'deleted')
+                                <span class="text-xs text-red-600">{{ $history->old_value }}</span>
+                                @elseif($history->field === 'created')
+                                <span class="text-xs text-gray-400">—</span>
                                 @else
                                 {{ $history->old_value ?? '-' }}
                                 @endif
@@ -81,6 +94,10 @@
                                     }}</span>
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-green-600">Product created</span>
+                                @elseif($history->field === 'deleted')
+                                <span class="text-xs text-red-600">{{ $history->new_value }}</span>
+                                @elseif($history->field === 'restored')
+                                <span class="text-xs text-green-600">{{ $history->new_value }}</span>
                                 @else
                                 {{ $history->new_value ?? '-' }}
                                 @endif

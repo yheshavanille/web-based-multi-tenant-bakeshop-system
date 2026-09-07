@@ -68,6 +68,7 @@
                         <option value="active">🟢 Active</option>
                         <option value="suspended">🔴 Suspended</option>
                         <option value="deactivated_by_owner">🟡 Deactivated by Owner</option>
+                        <option value="suspended_by_admin">🔴 Suspended by Super Admin</option>
                     </select>
                 </div>
                 @endif
@@ -112,7 +113,11 @@
                         if ($employee->trashed()) {
                         $employeeStatus = '🗑️ Deleted by Employer';
                         } elseif (!$employee->is_active) {
+                        if ($employee->deactivated_by === 'super_admin') {
+                        $employeeStatus = '🔴 Suspended by Super Admin';
+                        } else {
                         $employeeStatus = '🟡 Deactivated by Owner';
+                        }
                         }
                         }
                         @endphp
@@ -162,9 +167,10 @@
                                     Deleted
                                 </span>
                                 @elseif($employeeStatus)
-                                <span
-                                    class="px-2 py-1 text-xs font-medium rounded-full
-                                    {{ strpos($employeeStatus, 'Deleted') !== false ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                    @if(strpos($employeeStatus, 'Suspended by Super Admin') !== false) bg-red-100 text-red-800
+                                    @elseif(strpos($employeeStatus, 'Deleted by Employer') !== false) bg-red-100 text-red-800
+                                    @else bg-yellow-100 text-yellow-800 @endif">
                                     {{ $employeeStatus }}
                                 </span>
                                 @elseif(isset($user->is_active) && $user->is_active)

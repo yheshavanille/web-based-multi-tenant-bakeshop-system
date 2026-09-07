@@ -15,6 +15,7 @@ class Employee extends Model
         'branch_id',
         'role',
         'is_active',
+        'deactivated_by',
     ];
 
     protected $casts = [
@@ -86,6 +87,14 @@ class Employee extends Model
         if ($this->trashed()) {
             return 'Deleted';
         }
+        // ✅ Check if deactivated by owner
+        if (!$this->is_active && $this->deactivated_by === 'owner') {
+            return 'Deactivated by Owner';
+        }
+        // ✅ Check if deactivated by super admin
+        if (!$this->is_active && $this->deactivated_by === 'super_admin') {
+            return 'Suspended by Super Admin';
+        }
         return $this->is_active ? 'Active' : 'Inactive';
     }
 
@@ -98,6 +107,12 @@ class Employee extends Model
             return 'red';
         }
         if ($this->trashed()) {
+            return 'red';
+        }
+        if (!$this->is_active && $this->deactivated_by === 'owner') {
+            return 'yellow';
+        }
+        if (!$this->is_active && $this->deactivated_by === 'super_admin') {
             return 'red';
         }
         return $this->is_active ? 'green' : 'red';

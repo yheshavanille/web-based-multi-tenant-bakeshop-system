@@ -32,18 +32,19 @@ class PayMongoService
                             [
                                 'currency' => 'PHP',
                                 'amount' => (int) ($order->total_amount * 100),
-                                'description' => 'Order #' . $order->order_number,
-                                'name' => 'Web-based Multi-tenant Bakeshop System',
+                                'description' => 'Reference #' . $order->order_number,
+                                'name' => 'Web-based Multi-tenant Bakeshop System - Reference #' . $order->order_number,
                                 'quantity' => 1,
                             ]
                         ],
-                        'payment_method_types' => ['gcash', 'paymaya'], // ✅ Always allow both
+                        'payment_method_types' => ['gcash', 'paymaya'],
                         'reference_number' => $order->order_number,
-                        'description' => 'Order #' . $order->order_number,
+                        'description' => 'Reference #' . $order->order_number,
                         'success_url' => route('payment.success'),
                         'cancel_url' => route('payment.cancel'),
                         'metadata' => [
                             'order_id' => (string) $order->id,
+                            'is_parent_order' => $order->is_parent_order ? 'true' : 'false',
                         ]
                     ]
                 ]
@@ -72,6 +73,7 @@ class PayMongoService
                     throw new \Exception('No checkout URL found.');
                 }
 
+                // Store the checkout session ID as payment_intent_id
                 $order->update([
                     'payment_intent_id' => $data['data']['id'],
                 ]);
@@ -82,6 +84,7 @@ class PayMongoService
                     'order_id' => $order->id,
                     'session_id' => $data['data']['id'],
                     'checkout_url' => $checkoutUrl,
+                    'is_parent_order' => $order->is_parent_order,
                 ]);
 
                 return $data;
@@ -98,13 +101,13 @@ class PayMongoService
             return $this->createSourceFallback($order);
         }
     }
+
     /**
      * Fallback: Create a payment source
      */
     private function createSourceFallback($order)
     {
         try {
-            // ✅ Use payment_method_detail instead of payment_method
             $paymentMethod = $order->payment_method_detail ?? 'gcash';
 
             $payload = [
@@ -119,6 +122,7 @@ class PayMongoService
                         ],
                         'metadata' => [
                             'order_id' => (string) $order->id,
+                            'is_parent_order' => $order->is_parent_order ? 'true' : 'false',
                         ]
                     ]
                 ]

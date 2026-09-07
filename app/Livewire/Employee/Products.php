@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Carbon\Carbon;
 
 class Products extends Component
 {
@@ -82,7 +83,11 @@ class Products extends Component
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id);
             })
-            ->with('category');
+            ->with(['category', 'shop.user']);
+
+        if ($this->showDeleted) {
+            $query->onlyTrashed();
+        }
 
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
@@ -92,11 +97,42 @@ class Products extends Component
             });
         }
 
-        if ($this->showDeleted) {
-            $query->onlyTrashed();
-        }
-
         $this->products = $query->get();
+
+        foreach ($this->products as $product) {
+            $owner = $product->shop?->user;
+
+            // ✅ Get the latest history entry using DB::table directly
+            $latestHistory = DB::table('product_edit_histories')
+                ->where('product_id', $product->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            // ✅ Get the first created entry
+            $createdEntry = DB::table('product_edit_histories')
+                ->where('product_id', $product->id)
+                ->where('field', 'created')
+                ->orderBy('created_at', 'asc')
+                ->first();
+
+            if ($createdEntry) {
+                $creator = DB::table('users')->where('id', $createdEntry->user_id)->first();
+                $product->created_by = $creator->name ?? 'System';
+                $product->created_at_display = $createdEntry->created_at ? Carbon::parse($createdEntry->created_at)->diffForHumans() : '—';
+            } else {
+                $product->created_by = $owner->name ?? 'System';
+                $product->created_at_display = $product->created_at->diffForHumans();
+            }
+
+            if ($latestHistory) {
+                $updater = DB::table('users')->where('id', $latestHistory->user_id)->first();
+                $product->updated_by = $updater->name ?? 'System';
+                $product->updated_at_display = $latestHistory->created_at ? Carbon::parse($latestHistory->created_at)->diffForHumans() : '—';
+            } else {
+                $product->updated_by = $owner->name ?? 'System';
+                $product->updated_at_display = $product->updated_at->diffForHumans();
+            }
+        }
     }
 
     public function updatedSearch()
@@ -118,10 +154,15 @@ class Products extends Component
 
     public function createNew()
     {
+        \Log::info('=== CREATE NEW FORM OPENED ===');
+        \Log::info('Current user ID: ' . Auth::id());
+        \Log::info('Current user name: ' . Auth::user()->name);
+
         $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'originalValues']);
         $this->editing = false;
         $this->showForm = true;
         $this->originalValues = [];
+        $this->loadProducts();
     }
 
     public function edit($productId)
@@ -162,6 +203,11 @@ class Products extends Component
 
     public function save()
     {
+        \Log::info('=== SAVE METHOD DEBUG ===');
+        \Log::info('Current user ID: ' . Auth::id());
+        \Log::info('Current user name: ' . Auth::user()->name);
+        \Log::info('Current user email: ' . Auth::user()->email);
+
         $this->validate();
 
         $imagePath = null;
@@ -174,11 +220,9 @@ class Products extends Component
         if ($this->editing) {
             $product = Product::findOrFail($this->productId);
 
-            // ✅ Handle image separately
             $oldImageUrl = $this->originalValues['image_url'] ?? null;
             $newImageUrl = $imagePath ?? $product->image_url;
 
-            // Track fields
             $fields = ['name', 'price', 'category_id', 'description'];
 
             foreach ($fields as $field) {
@@ -196,7 +240,6 @@ class Products extends Component
                 }
             }
 
-            // ✅ Track image change separately
             if ($oldImageUrl !== $newImageUrl) {
                 $oldLabel = $oldImageUrl ? 'Old image' : 'No image';
                 $newLabel = $newImageUrl ? 'New image' : 'Removed image';
@@ -229,13 +272,17 @@ class Products extends Component
                 'shop_id' => $this->shop->id,
             ]);
 
-            ProductEditHistory::create([
+            $historyId = DB::table('product_edit_histories')->insertGetId([
                 'product_id' => $product->id,
                 'user_id' => Auth::id(),
                 'field' => 'created',
                 'old_value' => null,
                 'new_value' => 'Product created',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
+
+            \Log::info('✅ History created with ID: ' . $historyId . ' for product: ' . $product->id . ' by user: ' . Auth::id());
 
             DB::table('branch_product')->insert([
                 'branch_id' => $this->branch->id,
@@ -264,21 +311,39 @@ class Products extends Component
             return;
         }
 
-        $product->branches()->detach($this->branch->id);
+        ProductEditHistory::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id(),
+            'field' => 'deleted',
+            'old_value' => $product->name,
+            'new_value' => 'Product deleted',
+        ]);
+
+        $product->delete();
 
         $this->loadProducts();
-        session()->flash('message', 'Product removed from this branch.');
+        session()->flash('message', 'Product moved to trash.');
     }
 
     public function restore($productId)
     {
         $product = Product::withTrashed()
+            ->where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id);
             })
             ->findOrFail($productId);
 
+        ProductEditHistory::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id(),
+            'field' => 'restored',
+            'old_value' => 'Product deleted',
+            'new_value' => 'Product restored',
+        ]);
+
         $product->restore();
+
         $this->loadProducts();
         session()->flash('message', 'Product restored successfully.');
     }

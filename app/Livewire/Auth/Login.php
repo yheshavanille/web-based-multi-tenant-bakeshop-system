@@ -14,6 +14,17 @@ class Login extends Component
 
     protected $layout = 'components.layouts.app';
 
+    public function mount()
+    {
+        // ✅ Only store redirect if user explicitly clicked "Start Selling"
+        if (request()->has('start_selling') && request()->get('start_selling') === 'true') {
+            session()->put('redirect_after_login', route('livewire.guest.start-selling'));
+        } else {
+            // ✅ Clear any existing redirect if no start_selling parameter
+            session()->forget('redirect_after_login');
+        }
+    }
+
     public function login()
     {
         $this->validate([
@@ -55,6 +66,12 @@ class Login extends Component
             Auth::logout();
             $this->addError('email', 'Your account has been suspended. Please contact support.');
             return;
+        }
+
+        // ✅ Check if there's a redirect stored from "Start Selling"
+        if (session()->has('redirect_after_login')) {
+            $redirectUrl = session()->pull('redirect_after_login');
+            return redirect($redirectUrl);
         }
 
         // Role-based redirect
