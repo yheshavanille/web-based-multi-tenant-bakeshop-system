@@ -185,7 +185,7 @@
 
                     <hr class="my-3">
 
-                    <!-- Payment -->
+                    <!-- ✅ Payment - Option A (Only PayMongo + Cash on Pickup) -->
                     <div class="mb-4">
                         <p class="text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">Payment Method</p>
                         <div class="space-y-1.5">
@@ -196,27 +196,6 @@
                                     class="text-amber-600 focus:ring-amber-500">
                                 💳 PayMongo
                             </label>
-
-                            @if($payment_method === 'paymongo')
-                            <div class="ml-6 space-y-1.5 border-l-2 border-amber-200 pl-4">
-                                <label
-                                    class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer transition text-sm
-                                    {{ $payment_method_detail === 'gcash' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
-                                    <input type="radio" wire:click="$set('payment_method_detail', 'gcash')"
-                                        value="gcash" {{ $payment_method_detail==='gcash' ? 'checked' : '' }}
-                                        class="text-amber-600 focus:ring-amber-500">
-                                    📱 GCash
-                                </label>
-                                <label
-                                    class="flex items-center gap-2 p-2 border rounded-lg cursor-pointer transition text-sm
-                                    {{ $payment_method_detail === 'paymaya' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
-                                    <input type="radio" wire:click="$set('payment_method_detail', 'paymaya')"
-                                        value="paymaya" {{ $payment_method_detail==='paymaya' ? 'checked' : '' }}
-                                        class="text-amber-600 focus:ring-amber-500">
-                                    📱 PayMaya
-                                </label>
-                            </div>
-                            @endif
 
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm

@@ -14,6 +14,7 @@ class BranchOrders extends Component
     public $showOrderDetails = false;
     public $selectedOrder = null;
     public $search = '';
+    public $selectedStatus = 'all';
 
     public function mount($branchId)
     {
@@ -29,9 +30,47 @@ class BranchOrders extends Component
     public function loadOrders()
     {
         $query = Order::where('branch_id', $this->branch->id)
-            ->where('status', 'completed')
             ->with(['customer', 'items.product'])
             ->orderBy('created_at', 'desc');
+
+        // ✅ Apply status filter
+        if ($this->selectedStatus !== 'all') {
+            if ($this->selectedStatus === 'no_show') {
+                $query->whereHas('items', function ($q) {
+                    $q->where('status', 'no_show');
+                });
+            } elseif ($this->selectedStatus === 'completed') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'preparing', 'ready_for_pickup']);
+                })->where('status', 'completed');
+            } elseif ($this->selectedStatus === 'ready_for_pickup') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'preparing', 'completed']);
+                })->where('status', 'ready_for_pickup');
+            } elseif ($this->selectedStatus === 'preparing') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'ready_for_pickup', 'completed']);
+                })->where('status', 'preparing');
+            } elseif ($this->selectedStatus === 'pending') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'preparing', 'ready_for_pickup', 'completed']);
+                })->where('status', 'pending');
+            } elseif ($this->selectedStatus === 'cancelled') {
+                $query->where('status', 'cancelled');
+            } elseif ($this->selectedStatus === 'partially_completed') {
+                $query->where(function ($q) {
+                    $q->whereHas('items', function ($q2) {
+                        $q2->where('status', 'completed');
+                    });
+                })->where(function ($q) {
+                    $q->whereHas('items', function ($q2) {
+                        $q2->whereIn('status', ['pending', 'preparing', 'ready_for_pickup', 'no_show', 'cancelled']);
+                    });
+                })->where('status', 'partially_completed');
+            } else {
+                $query->where('status', $this->selectedStatus);
+            }
+        }
 
         // Apply search filter
         if (!empty($this->search)) {
@@ -56,6 +95,7 @@ class BranchOrders extends Component
                 $pendingCount = $order->items->where('status', 'pending')->count();
                 $preparingCount = $order->items->where('status', 'preparing')->count();
                 $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
+                $noShowCount = $order->items->where('status', 'no_show')->count();
 
                 $statusParts = [];
                 if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
@@ -63,12 +103,17 @@ class BranchOrders extends Component
                 if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
                 if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
                 if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+                if ($noShowCount > 0) $statusParts[] = $noShowCount . ' no show';
 
-                $order->status_summary = implode(', ', $statusParts);
+                $order->status_summary = !empty($statusParts)
+                    ? implode(', ', $statusParts)
+                    : ucfirst(str_replace('_', ' ', $order->status));
+
                 $order->item_count = $itemCount;
                 $order->cancelled_count = $cancelledCount;
                 $order->completed_count = $completedCount;
                 $order->pending_count = $pendingCount;
+                $order->no_show_count = $noShowCount;
 
                 // ✅ Calculate adjusted total (exclude cancelled items)
                 $order->adjusted_total = $order->items
@@ -79,6 +124,11 @@ class BranchOrders extends Component
 
                 return $order;
             });
+    }
+
+    public function updatedSelectedStatus()
+    {
+        $this->loadOrders();
     }
 
     public function updatedSearch()

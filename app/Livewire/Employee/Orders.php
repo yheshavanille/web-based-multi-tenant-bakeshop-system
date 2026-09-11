@@ -45,8 +45,42 @@ class Orders extends Component
             ->with(['customer', 'items.product'])
             ->orderBy('created_at', 'desc');
 
+        // ✅ FIX: Filter by item statuses, not just main order status
         if ($this->selectedStatus !== 'all') {
-            $query->where('status', $this->selectedStatus);
+            if ($this->selectedStatus === 'no_show') {
+                $query->whereHas('items', function ($q) {
+                    $q->where('status', 'no_show');
+                });
+            } elseif ($this->selectedStatus === 'completed') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled']);
+                })->where('status', 'completed');
+            } elseif ($this->selectedStatus === 'ready_for_pickup') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'preparing']);
+                })->where('status', 'ready_for_pickup');
+            } elseif ($this->selectedStatus === 'preparing') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'ready_for_pickup', 'completed']);
+                })->where('status', 'preparing');
+            } elseif ($this->selectedStatus === 'pending') {
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'preparing', 'ready_for_pickup', 'completed']);
+                })->where('status', 'pending');
+            } elseif ($this->selectedStatus === 'partially_completed') {
+                // ✅ Filter orders with mixed statuses (at least one completed + at least one non-completed)
+                $query->where(function ($q) {
+                    $q->whereHas('items', function ($q2) {
+                        $q2->where('status', 'completed');
+                    });
+                })->where(function ($q) {
+                    $q->whereHas('items', function ($q2) {
+                        $q2->whereIn('status', ['pending', 'preparing', 'ready_for_pickup', 'no_show', 'cancelled']);
+                    });
+                })->where('status', 'partially_completed');
+            } else {
+                $query->where('status', $this->selectedStatus);
+            }
         }
 
         if (!empty($this->search)) {
@@ -156,14 +190,6 @@ class Orders extends Component
         $this->recalculateOrderStatus($order);
         $order->refresh();
 
-        // ✅ FIX: Update payment status based on order status
-        if ($order->status === 'completed') {
-            $order->update(['payment_status' => 'paid']);
-        } else {
-            // If order is not completed (pending, preparing, ready_for_pickup, etc.), set payment_status to 'pending'
-            $order->update(['payment_status' => 'pending']);
-        }
-
         if ($oldStatus !== $status) {
             $customer = $order->customer;
             if ($customer) {
@@ -227,6 +253,7 @@ class Orders extends Component
         ]);
     }
 
+    // ✅ UPDATED: Handles mixed statuses properly
     private function recalculateOrderStatus($order)
     {
         $itemStatuses = $order->items()->pluck('status')->toArray();
@@ -241,21 +268,42 @@ class Orders extends Component
             return $s === 'completed';
         }));
         $cancelledCount = count(array_filter($itemStatuses, function ($s) {
-            return $s === 'cancelled';
+            return in_array($s, ['cancelled', 'no_show']);
         }));
         $totalItems = count($itemStatuses);
 
+        // All cancelled → CANCELLED + REFUNDED
         if ($cancelledCount === $totalItems) {
-            $order->update(['status' => 'cancelled']);
-        } elseif ($completedCount === $totalItems - $cancelledCount) {
-            $order->update(['status' => 'completed']);
-        } elseif ($pendingCount > 0) {
-            $order->update(['status' => 'pending']);
-        } elseif ($readyCount > 0) {
-            $order->update(['status' => 'ready_for_pickup']);
-        } else {
-            $order->update(['status' => 'preparing']);
+            $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+            return;
         }
+
+        // All completed → COMPLETED + PAID
+        if ($completedCount === $totalItems) {
+            $order->update(['status' => 'completed', 'payment_status' => 'paid']);
+            return;
+        }
+
+        // ✅ Any completed items + any other statuses → PARTIALLY_COMPLETED + PARTIALLY_PAID
+        if ($completedCount > 0 && ($pendingCount > 0 || $readyCount > 0 || $cancelledCount > 0)) {
+            $order->update(['status' => 'partially_completed', 'payment_status' => 'partially_paid']);
+            return;
+        }
+
+        // Has pending items → PENDING + PENDING
+        if ($pendingCount > 0) {
+            $order->update(['status' => 'pending', 'payment_status' => 'pending']);
+            return;
+        }
+
+        // Has ready items → READY_FOR_PICKUP + PENDING
+        if ($readyCount > 0) {
+            $order->update(['status' => 'ready_for_pickup', 'payment_status' => 'pending']);
+            return;
+        }
+
+        // Fallback → PREPARING + PENDING
+        $order->update(['status' => 'preparing', 'payment_status' => 'pending']);
     }
 
     public function render()

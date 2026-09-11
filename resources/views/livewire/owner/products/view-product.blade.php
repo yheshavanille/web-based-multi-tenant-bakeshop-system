@@ -459,7 +459,7 @@
                     </div>
                     <div class="space-y-2">
                         <h2 class="text-xl font-bold text-gray-800">{{ $selectedProduct->name }}</h2>
-                        <p class="text-sm text-gray-500">📂 {{ $selectedProduct->category->name ?? 'Uncategorized' }}
+                        <p class="text-sm text-gray-500"> {{ $selectedProduct->category->name ?? 'Uncategorized' }}
                         </p>
                         <!-- ✅ FIXED: Show discounted price in modal too -->
                         <p class="text-2xl font-bold">

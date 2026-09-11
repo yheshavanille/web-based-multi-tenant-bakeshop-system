@@ -1,10 +1,41 @@
 <div>
-    <div class="relative overflow-hidden min-h-screen bg-white flex items-center">
-        <div class="max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
-            <div class="grid grid-cols-2 gap-12 lg:gap-16 items-stretch">
+    <style>
+        @media (max-width: 1023px) {
+            .register-responsive-shell {
+                align-items: flex-start;
+            }
+
+            .register-responsive-container {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+
+            .register-responsive-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 2rem;
+            }
+
+            .register-responsive-introduction,
+            .register-responsive-form-wrapper {
+                grid-column: auto;
+                grid-row: auto;
+                min-height: 0 !important;
+            }
+
+            .register-responsive-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+
+    <div class="register-responsive-shell relative overflow-hidden min-h-screen bg-white flex items-center">
+        <div
+            class="register-responsive-container max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
+            <div class="register-responsive-grid grid grid-cols-2 gap-12 lg:gap-16 items-stretch">
 
                 <!-- LEFT: Introduction -->
-                <div class="col-start-1 row-start-1 flex flex-col justify-center" style="min-height: 26rem;">
+                <div class="register-responsive-introduction col-start-1 row-start-1 flex flex-col justify-center"
+                    style="min-height: 26rem;">
                     <h1 class="text-5xl text-gray-900 font-bold leading-tight md:text-6xl">
                         Create your account
                     </h1>
@@ -28,8 +59,9 @@
                 </div>
 
                 <!-- RIGHT: Register Form -->
-                <div class="w-full col-start-2 row-start-1 justify-self-end">
-                    <div class="bg-white rounded-2xl border border-gray-200 p-8 md:p-10 shadow-sm">
+                <div class="register-responsive-form-wrapper w-full col-start-2 row-start-1 justify-self-end">
+                    <div
+                        class="register-responsive-card bg-white rounded-2xl border border-gray-200 p-8 md:p-10 shadow-sm">
                         <form wire:submit.prevent="register">
                             <div class="mb-4">
                                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>

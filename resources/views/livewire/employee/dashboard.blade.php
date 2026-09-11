@@ -66,7 +66,7 @@
     </div>
 
     <!-- Products List -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-800">📦 Products</h2>
         </div>
@@ -111,6 +111,63 @@
         @else
         <div class="text-center py-8 text-gray-500">
             <p>No products for this branch yet.</p>
+        </div>
+        @endif
+    </div>
+
+    <!-- ✅ Recent Stock Updates - Inventory Manager Only -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">📋</span>
+                <h2 class="text-lg font-semibold text-gray-800">Recent Stock Updates</h2>
+                <span class="text-sm text-gray-500">Last 10 updates</span>
+            </div>
+            <a href="{{ route('livewire.employee.stock-history') }}"
+                class="text-sm text-amber-600 hover:text-amber-700 font-medium transition">
+                View All →
+            </a>
+        </div>
+
+        @if($stockHistories->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Old</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">New</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Changed By</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Notes</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Time</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    @foreach($stockHistories as $history)
+                    <tr>
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->branch->name }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->old_stock }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                {{ $history->new_stock > $history->old_stock ? 'bg-green-100 text-green-800' : '' }}
+                                {{ $history->new_stock < $history->old_stock ? 'bg-red-100 text-red-800' : '' }}
+                                {{ $history->new_stock == $history->old_stock ? 'bg-gray-100 text-gray-800' : '' }}">
+                                {{ $history->new_stock }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->user->name }}</td>
+                        <td class="px-4 py-3 text-gray-500">{{ $history->notes ?? '-' }}</td>
+                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="text-center py-8 text-gray-500">
+            <p>No stock updates yet.</p>
         </div>
         @endif
     </div>

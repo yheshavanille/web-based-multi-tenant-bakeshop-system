@@ -65,34 +65,51 @@ class Dashboard extends Component
         $this->totalProducts = Product::where('shop_id', $shop->id)->count();
         $this->employeesCount = Employee::where('shop_id', $shop->id)->count();
 
-        $this->totalSales = Order::where('shop_id', $shop->id)
+        // ✅ FIX: Calculate total revenue from completed items (including partially_completed orders)
+        $this->totalSales = OrderItem::whereHas('order', function ($query) use ($shop) {
+            $query->where('shop_id', $shop->id)
+                ->whereIn('status', ['completed', 'partially_completed']);
+        })
             ->where('status', 'completed')
-            ->sum('total_amount');
+            ->sum(DB::raw('quantity * price'));
 
-        $this->totalOrders = Order::where('shop_id', $shop->id)
+        // ✅ FIX: Count orders that have at least one completed item
+        $this->totalOrders = OrderItem::whereHas('order', function ($query) use ($shop) {
+            $query->where('shop_id', $shop->id)
+                ->whereIn('status', ['completed', 'partially_completed']);
+        })
             ->where('status', 'completed')
-            ->count();
+            ->distinct('order_id')
+            ->count('order_id');
 
-        // Branch performance
+        // ✅ FIX: Branch performance - count revenue from completed items
         foreach ($this->branches as $branch) {
             $this->branchPerformance[$branch->id] = [
                 'name' => $branch->name,
-                'sales' => Order::where('branch_id', $branch->id)
+                'sales' => OrderItem::whereHas('order', function ($query) use ($branch) {
+                    $query->where('branch_id', $branch->id)
+                        ->whereIn('status', ['completed', 'partially_completed']);
+                })
                     ->where('status', 'completed')
-                    ->sum('total_amount'),
-                'orders' => Order::where('branch_id', $branch->id)
+                    ->sum(DB::raw('quantity * price')),
+                'orders' => OrderItem::whereHas('order', function ($query) use ($branch) {
+                    $query->where('branch_id', $branch->id)
+                        ->whereIn('status', ['completed', 'partially_completed']);
+                })
                     ->where('status', 'completed')
-                    ->count(),
+                    ->distinct('order_id')
+                    ->count('order_id'),
                 'rating' => ServiceReview::where('branch_id', $branch->id)->avg('rating') ?? 0,
                 'rating_count' => ServiceReview::where('branch_id', $branch->id)->count(),
             ];
         }
 
-        // Best selling products
+        // ✅ FIX: Best selling products - include items from partially_completed orders
         $this->bestSellers = OrderItem::whereHas('order', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id)
-                ->where('status', 'completed');
+                ->whereIn('status', ['completed', 'partially_completed']);
         })
+            ->where('status', 'completed')
             ->select(
                 'product_id',
                 DB::raw('SUM(quantity) as total_sold'),
@@ -144,6 +161,7 @@ class Dashboard extends Component
         $this->loadRecentOrders();
     }
 
+    // ✅ UPDATED: Handles partially_completed status properly
     public function loadRecentOrders()
     {
         $shop = Auth::user()->shop;
@@ -163,6 +181,9 @@ class Dashboard extends Component
 
                 // ✅ If the entire order is cancelled, set total to 0
                 $isFullyCancelled = $order->status === 'cancelled' || $cancelledCount === $itemCount;
+
+                // ✅ Check if partially completed
+                $isPartiallyCompleted = $order->status === 'partially_completed' || ($completedCount > 0 && $cancelledCount > 0 && $pendingCount === 0);
 
                 // ✅ Calculate adjusted total (exclude cancelled items)
                 $adjustedTotal = $order->items
@@ -187,6 +208,7 @@ class Dashboard extends Component
                 if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
                 if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
                 if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+                if ($isPartiallyCompleted) $statusParts[] = 'partially completed';
 
                 $order->status_summary = !empty($statusParts)
                     ? implode(', ', $statusParts)

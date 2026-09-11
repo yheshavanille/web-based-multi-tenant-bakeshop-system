@@ -74,23 +74,40 @@ class NotificationBell extends Component
             || str_starts_with($currentRoute, 'admin.')
             || request()->is('admin/*');
 
-        // ✅ CUSTOMER VIEW
+        // ✅ CUSTOMER VIEW - Only show customer's own order notifications
         if ($isCustomerView && !$isOwnerView && !$isEmployeeView && !$isAdminView) {
             if ($type === 'order_status_updated') {
                 $orderId = $notification->data['order_id'] ?? null;
                 if ($orderId) {
                     $order = Order::find($orderId);
-                    if ($order && $order->customer_id === $user->id) {
-                        return true;
+                    if ($order) {
+                        // ✅ If the user is the OWNER of this shop, hide it in customer view
+                        if ($order->shop && $order->shop->user_id === $user->id) {
+                            return false;
+                        }
+                        // ✅ If the user is the CUSTOMER, show it
+                        if ($order->customer_id === $user->id) {
+                            return true;
+                        }
                     }
                 }
                 return false;
             }
+            // Seller registration notifications are fine in customer view
             return in_array($type, ['seller_approved', 'seller_rejected']);
         }
 
-        // ✅ OWNER VIEW
+        // ✅ OWNER VIEW - Show all shop-related notifications
         if ($isOwnerView) {
+            // ✅ Check if this notification belongs to the user's shop
+            $orderId = $notification->data['order_id'] ?? null;
+            if ($orderId) {
+                $order = Order::find($orderId);
+                if ($order && $order->shop_id === $user->shop_id) {
+                    return true;
+                }
+            }
+            // For owner-specific notifications
             return in_array($type, ['new_order', 'order_status_updated', 'seller_approved', 'seller_rejected']);
         }
 
@@ -99,13 +116,20 @@ class NotificationBell extends Component
             $employee = $user->employee;
             if (!$employee) return false;
 
-            if ($employee->role === 'order_manager') {
-                return $type === 'new_order' || $type === 'order_status_updated';
+            // Check if notification belongs to employee's branch
+            $orderId = $notification->data['order_id'] ?? null;
+            if ($orderId) {
+                $order = Order::find($orderId);
+                if ($order && $order->branch_id === $employee->branch_id) {
+                    if ($employee->role === 'order_manager') {
+                        return $type === 'new_order' || $type === 'order_status_updated';
+                    }
+                    if ($employee->role === 'inventory_manager') {
+                        return $type === 'low_stock';
+                    }
+                }
             }
-
-            if ($employee->role === 'inventory_manager') {
-                return $type === 'low_stock';
-            }
+            return false;
         }
 
         // ✅ ADMIN VIEW

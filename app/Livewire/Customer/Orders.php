@@ -44,8 +44,37 @@ class Orders extends Component
             ->with(['items.product', 'shop', 'branch', 'serviceReview'])
             ->orderBy('created_at', 'desc');
 
+        // ✅ FIX: Filter by item statuses, not just main order status
         if ($this->selectedStatus !== 'all') {
-            $query->where('status', $this->selectedStatus);
+            if ($this->selectedStatus === 'no_show') {
+                // ✅ Filter orders that have at least one no_show item
+                $query->whereHas('items', function ($q) {
+                    $q->where('status', 'no_show');
+                });
+            } elseif ($this->selectedStatus === 'completed') {
+                // ✅ Filter orders where ALL items are completed (no no_show or cancelled)
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled']);
+                })->where('status', 'completed');
+            } elseif ($this->selectedStatus === 'ready_for_pickup') {
+                // ✅ Filter orders where ALL items are ready (no no_show, cancelled, pending, preparing)
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'preparing']);
+                })->where('status', 'ready_for_pickup');
+            } elseif ($this->selectedStatus === 'preparing') {
+                // ✅ Filter orders where ALL items are preparing (no no_show, cancelled, pending, ready)
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'pending', 'ready_for_pickup', 'completed']);
+                })->where('status', 'preparing');
+            } elseif ($this->selectedStatus === 'pending') {
+                // ✅ Filter orders where ALL items are pending (no no_show, cancelled, preparing, ready, completed)
+                $query->whereDoesntHave('items', function ($q) {
+                    $q->whereIn('status', ['no_show', 'cancelled', 'preparing', 'ready_for_pickup', 'completed']);
+                })->where('status', 'pending');
+            } else {
+                // ✅ For other statuses (cancelled), filter normally
+                $query->where('status', $this->selectedStatus);
+            }
         }
 
         if (!empty($this->search)) {
@@ -133,6 +162,7 @@ class Orders extends Component
         $this->loadOrders();
     }
 
+    // ✅ UPDATED: Handles mixed statuses properly
     private function recalculateOrderStatus($order)
     {
         $itemStatuses = $order->items()->pluck('status')->toArray();
@@ -144,21 +174,39 @@ class Orders extends Component
             return $s === 'completed';
         }));
         $cancelledCount = count(array_filter($itemStatuses, function ($s) {
-            return $s === 'cancelled';
+            return in_array($s, ['cancelled', 'no_show']);
         }));
         $totalItems = count($itemStatuses);
 
+        // All cancelled → CANCELLED + REFUNDED
         if ($cancelledCount === $totalItems) {
-            $order->update(['status' => 'cancelled']);
-        } elseif ($completedCount === $totalItems - $cancelledCount) {
-            $order->update(['status' => 'completed']);
-        } elseif ($pendingCount > 0) {
-            $order->update(['status' => 'pending']);
-        } else {
-            $order->update(['status' => 'preparing']);
+            $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+            return;
         }
+
+        // All completed → COMPLETED + PAID
+        if ($completedCount === $totalItems) {
+            $order->update(['status' => 'completed', 'payment_status' => 'paid']);
+            return;
+        }
+
+        // ✅ Any completed items + any other statuses → PARTIALLY_COMPLETED + PARTIALLY_PAID
+        if ($completedCount > 0 && ($pendingCount > 0 || $cancelledCount > 0)) {
+            $order->update(['status' => 'partially_completed', 'payment_status' => 'partially_paid']);
+            return;
+        }
+
+        // Has pending items → PENDING
+        if ($pendingCount > 0) {
+            $order->update(['status' => 'pending', 'payment_status' => 'pending']);
+            return;
+        }
+
+        // Fallback → PREPARING
+        $order->update(['status' => 'preparing', 'payment_status' => 'pending']);
     }
 
+    // ✅ UPDATED: Allows reviews for partially_completed orders with completed items
     public function openReviewModal($orderId)
     {
         $this->selectedOrder = Order::with(['items.product', 'shop', 'serviceReview'])
@@ -171,8 +219,19 @@ class Orders extends Component
             return;
         }
 
+        // ✅ Check if order already has a service review
         if ($this->selectedOrder->serviceReview) {
             session()->flash('error', 'You already reviewed this order.');
+            return;
+        }
+
+        // ✅ Check if order has at least one completed item (allow reviews for partially_completed)
+        $hasCompletedItem = $this->selectedOrder->items->contains(function ($item) {
+            return $item->status === 'completed';
+        });
+
+        if (!$hasCompletedItem) {
+            session()->flash('error', 'You can only review orders with completed items.');
             return;
         }
 
@@ -182,6 +241,37 @@ class Orders extends Component
         $this->serviceReviewText = '';
         $this->productRatings = [];
         $this->productReviews = [];
+    }
+
+    // ✅ NEW: Edit existing review
+    public function openEditReviewModal($orderId)
+    {
+        $this->selectedOrder = Order::with(['items.product', 'serviceReview'])
+            ->where('customer_id', Auth::id())
+            ->where('id', $orderId)
+            ->first();
+
+        if (!$this->selectedOrder) {
+            session()->flash('error', 'Order not found.');
+            return;
+        }
+
+        // ✅ Load existing service review
+        $serviceReview = $this->selectedOrder->serviceReview;
+        if ($serviceReview) {
+            $this->serviceRating = $serviceReview->rating;
+            $this->employeeRating = $serviceReview->employee_rating;
+            $this->serviceReviewText = $serviceReview->review;
+        }
+
+        // ✅ Load existing product reviews
+        $existingProductReviews = ProductReview::where('order_id', $orderId)->get();
+        foreach ($existingProductReviews as $review) {
+            $this->productRatings[$review->product_id] = $review->rating;
+            $this->productReviews[$review->product_id] = $review->review;
+        }
+
+        $this->showReviewModal = true;
     }
 
     public function closeReviewModal()
@@ -251,6 +341,7 @@ class Orders extends Component
         $this->productRatings[$productId] = $rating;
     }
 
+    // ✅ UPDATED: Update or create reviews
     public function submitReview()
     {
         if ($this->serviceRating < 1) {
@@ -264,28 +355,38 @@ class Orders extends Component
         }
 
         try {
-            $serviceReview = ServiceReview::create([
-                'customer_id' => Auth::id(),
-                'shop_id' => $this->selectedOrder->shop_id,
-                'branch_id' => $this->selectedOrder->branch_id,
-                'order_id' => $this->selectedOrder->id,
-                'rating' => $this->serviceRating,
-                'employee_rating' => $this->employeeRating,
-                'review' => $this->serviceReviewText,
-            ]);
+            // ✅ Update or create service review
+            $serviceReview = ServiceReview::updateOrCreate(
+                [
+                    'order_id' => $this->selectedOrder->id,
+                    'customer_id' => Auth::id()
+                ],
+                [
+                    'shop_id' => $this->selectedOrder->shop_id,
+                    'branch_id' => $this->selectedOrder->branch_id,
+                    'rating' => $this->serviceRating,
+                    'employee_rating' => $this->employeeRating,
+                    'review' => $this->serviceReviewText,
+                ]
+            );
 
             Log::info('Service review saved', ['service_review' => $serviceReview]);
 
+            // ✅ Update or create product reviews
             foreach ($this->productRatings as $productId => $rating) {
                 if ($rating > 0) {
-                    $productReview = ProductReview::create([
-                        'customer_id' => Auth::id(),
-                        'shop_id' => $this->selectedOrder->shop_id,
-                        'order_id' => $this->selectedOrder->id,
-                        'product_id' => $productId,
-                        'rating' => $rating,
-                        'review' => $this->productReviews[$productId] ?? null,
-                    ]);
+                    $productReview = ProductReview::updateOrCreate(
+                        [
+                            'order_id' => $this->selectedOrder->id,
+                            'customer_id' => Auth::id(),
+                            'product_id' => $productId,
+                        ],
+                        [
+                            'shop_id' => $this->selectedOrder->shop_id,
+                            'rating' => $rating,
+                            'review' => $this->productReviews[$productId] ?? null,
+                        ]
+                    );
                     Log::info('Product review saved', [
                         'product_id' => $productId,
                         'product_review' => $productReview,
@@ -297,7 +398,7 @@ class Orders extends Component
                 'service_review' => true,
             ]);
 
-            session()->flash('message', 'Thank you for your review! ⭐');
+            session()->flash('message', 'Review updated successfully! ⭐');
             $this->closeReviewModal();
             $this->loadOrders();
         } catch (\Exception $e) {

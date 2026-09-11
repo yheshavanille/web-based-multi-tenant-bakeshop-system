@@ -32,6 +32,7 @@
                     <option value="preparing">🔵 Preparing</option>
                     <option value="ready_for_pickup">✅ Ready</option>
                     <option value="completed">📦 Completed</option>
+                    <option value="partially_completed">🟡 Partially Completed</option>
                     <option value="no_show">🚫 No Show</option>
                     <option value="cancelled">🚫 Cancelled</option>
                 </select>
@@ -335,6 +336,7 @@
                             {{ $selectedOrderDetails->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                             {{ $selectedOrderDetails->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                             {{ $selectedOrderDetails->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
+                            {{ $selectedOrderDetails->status === 'partially_completed' ? 'bg-yellow-100 text-yellow-800' : '' }}
                             {{ $selectedOrderDetails->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
                             {{ ucfirst(str_replace('_', ' ', $selectedOrderDetails->status)) }}
                         </span>
@@ -348,7 +350,10 @@
                         <p class="text-xs text-gray-500">Payment Status</p>
                         <span
                             class="text-sm font-medium px-2 py-0.5 rounded-full
-                            {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                            {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}">
                             {{ ucfirst($selectedOrderDetails->payment_status) }}
                         </span>
                     </div>
@@ -399,7 +404,8 @@
                                             {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                                             {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                                             {{ $item->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}
+                                            {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
                                             {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                         </span>
                                     </td>

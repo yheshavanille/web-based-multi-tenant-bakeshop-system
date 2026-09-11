@@ -68,6 +68,14 @@
                         </a>
                         @endif
 
+                        {{-- ✅ Stock Edit History - Only for Inventory Manager --}}
+                        @if($employee?->role === 'inventory_manager')
+                        <a href="{{ route('livewire.employee.stock-history') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">📋</span> Stock Edit History
+                        </a>
+                        @endif
+
                         <div class="border-t border-gray-100 my-1"></div>
 
                         <form method="POST" action="{{ route('logout.post') }}" class="block">

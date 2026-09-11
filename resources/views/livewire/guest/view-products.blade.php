@@ -1,10 +1,18 @@
 <div>
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+    <style>
+        @media (max-width: 639px) {
+            .guest-products-content {
+                padding-top: 5rem;
+            }
+        }
+    </style>
 
-        <!-- Back Button with Background -->
-        <div class="mb-4">
+    <div class="guest-products-content max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+        <!-- Back Button with Background - MORE BREATHING ROOM -->
+        <div class="mb-6">
             <a href="{{ route('livewire.guest.browse-shops') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm font-medium">
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm font-medium shadow-sm hover:shadow">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

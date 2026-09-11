@@ -4,30 +4,26 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('livewire.owner.branches.manage-cards') }}"
-                        class="text-gray-500 hover:text-gray-700">
+                    <a href="{{ route('livewire.owner.dashboard') }}" class="text-gray-500 hover:text-gray-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                     </a>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">📋 Order History</h1>
+                        <h1 class="text-2xl font-bold text-gray-800">📋 All Orders</h1>
                         <p class="text-sm text-gray-500">
-                            {{ $branch->name }} • {{ $orders->count() }} completed orders
+                            {{ $branch->name }} • {{ $orders->count() }} total orders
                         </p>
                     </div>
                 </div>
             </div>
-            <a href="{{ route('livewire.owner.branches.manage-cards') }}"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
-                ← Back to Branches
-            </a>
         </div>
 
-        <!-- Search Bar -->
-        <div class="mb-4">
-            <div class="relative">
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+            <!-- Search Bar -->
+            <div class="relative flex-1 min-w-[200px]">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,13 +45,27 @@
                 </button>
                 @endif
             </div>
-            @if(!empty($search))
-            <p class="mt-1 text-xs text-gray-500">
-                Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-                <span class="text-gray-400">({{ $orders->count() }} found)</span>
-            </p>
-            @endif
+
+            <!-- Status Filter -->
+            <select wire:model.live="selectedStatus"
+                class="px-4 py-2 pr-10 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat min-w-[150px]">
+                <option value="all">📋 All Status</option>
+                <option value="pending">⏳ Pending</option>
+                <option value="preparing">🔵 Preparing</option>
+                <option value="ready_for_pickup">✅ Ready</option>
+                <option value="completed">📦 Completed</option>
+                <option value="partially_completed">🟡 Partially Completed</option>
+                <option value="no_show">🚫 No Show</option>
+                <option value="cancelled">🚫 Cancelled</option>
+            </select>
         </div>
+
+        @if(!empty($search))
+        <p class="mt-1 text-xs text-gray-500">
+            Showing results for: <span class="font-medium {{-- text-amber-60 --}}0">{{ $search }}</span>
+            <span class="text-gray-400">({{ $orders->count() }} found)</span>
+        </p>
+        @endif
 
         <!-- Orders Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -78,9 +88,11 @@
                             <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $order->customer->name ?? 'N/A' }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $order->item_count }} items</td>
-                            <td class="px-4 py-3 font-semibold text-green-600">₱{{ number_format($order->adjusted_total
+                            <td class="px-4 py-3 font-semibold text-green-600">₱{{
+                                number_format($order->adjusted_total
                                 ?? $order->total_amount, 2) }}</td>
-                            <td class="px-4 py-3 text-gray-500">{{ $order->created_at->format('M d, Y h:i A') }}</td>
+                            <td class="px-4 py-3 text-gray-500">{{ $order->created_at->format('M d, Y h:i A') }}
+                            </td>
                             <td class="px-4 py-3">
                                 <button wire:click="viewOrderDetails({{ $order->id }})"
                                     class="text-xs text-blue-600 hover:text-blue-800 font-medium">
@@ -98,7 +110,7 @@
                 <p>No orders found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
                 <p class="text-xs text-gray-400">Try adjusting your search.</p>
                 @else
-                <p>No completed orders for this branch yet.</p>
+                <p>No orders for this branch yet.</p>
                 @endif
             </div>
             @endif
@@ -142,7 +154,8 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Order Date</p>
-                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrder->created_at->format('M d, Y h:i
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrder->created_at->format('M d, Y
+                            h:i
                             A') }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3">
@@ -152,7 +165,9 @@
                             {{ $selectedOrder->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                             {{ $selectedOrder->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                             {{ $selectedOrder->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                            {{ $selectedOrder->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                            {{ $selectedOrder->status === 'partially_completed' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $selectedOrder->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}
+                            {{ $selectedOrder->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
                             {{ ucfirst(str_replace('_', ' ', $selectedOrder->status)) }}
                         </span>
                     </div>
@@ -162,9 +177,11 @@
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Payment Status</p>
-                        <span
-                            class="text-sm font-medium px-2 py-0.5 rounded-full
-                            {{ $selectedOrder->payment_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                        <span class="text-sm font-medium px-2 py-0.5 rounded-full
+                            {{ $selectedOrder->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
+                            {{ $selectedOrder->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $selectedOrder->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}
+                            {{ $selectedOrder->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}">
                             {{ ucfirst($selectedOrder->payment_status) }}
                         </span>
                     </div>
@@ -188,7 +205,8 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @foreach($selectedOrder->items as $item)
                                 <tr>
-                                    <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}
+                                    <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A'
+                                        }}
                                     </td>
                                     <td class="px-4 py-2 text-gray-600">{{ $item->quantity }}</td>
                                     <td class="px-4 py-2">
@@ -215,7 +233,8 @@
                                             {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                                             {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                                             {{ $item->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}
+                                            {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
                                             {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                         </span>
                                     </td>
@@ -224,7 +243,8 @@
                             </tbody>
                             <tfoot class="bg-gray-50">
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Subtotal:
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">
+                                        Subtotal:
                                     </td>
                                     <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
                                         number_format($selectedOrder->subtotal ?? $selectedOrder->adjusted_total ??
@@ -232,16 +252,19 @@
                                 </tr>
                                 @if($selectedOrder->tax_amount)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">VAT (12%):
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">VAT
+                                        (12%):
                                     </td>
                                     <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
                                         number_format($selectedOrder->tax_amount, 2) }}</td>
                                 </tr>
                                 @endif
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
+                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Total:
+                                    </td>
                                     <td colspan="2" class="px-4 py-2 font-bold text-amber-600">₱{{
-                                        number_format($selectedOrder->adjusted_total ?? $selectedOrder->total_amount, 2)
+                                        number_format($selectedOrder->adjusted_total ??
+                                        $selectedOrder->total_amount, 2)
                                         }}</td>
                                 </tr>
                             </tfoot>

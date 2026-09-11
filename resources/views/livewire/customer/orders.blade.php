@@ -22,7 +22,9 @@
                     <option value="preparing">🔵 Preparing</option>
                     <option value="ready_for_pickup">✅ Ready</option>
                     <option value="completed">📦 Completed</option>
+                    <option value="partially_completed">🟡 Partially Completed</option>
                     <option value="cancelled">🚫 Cancelled</option>
+                    <option value="no_show">🚫 No Show</option>
                 </select>
             </div>
         </div>
@@ -124,15 +126,23 @@
                                         class="text-xs text-red-600 hover:text-red-800 font-medium transition">
                                         Cancel Order
                                     </button>
-                                    @elseif($order->status === 'completed' && !$order->serviceReview)
+                                    @elseif(in_array($order->status, ['completed', 'partially_completed']) &&
+                                    !$order->serviceReview)
+                                    @php
+                                    $hasCompletedItem = $order->items->contains(fn($item) => $item->status ===
+                                    'completed');
+                                    @endphp
+                                    @if($hasCompletedItem)
                                     <button wire:click="openReviewModal({{ $order->id }})"
                                         class="text-xs text-amber-600 hover:text-amber-800 font-medium transition">
                                         ⭐ Leave Review
                                     </button>
-                                    @elseif($order->status === 'completed' && $order->serviceReview)
-                                    <button wire:click="openReviewDetailsModal({{ $order->id }})"
-                                        class="text-xs bg-green-100 text-green-700 hover:bg-green-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                        ✅ View Review
+                                    @endif
+                                    @elseif(in_array($order->status, ['completed', 'partially_completed']) &&
+                                    $order->serviceReview)
+                                    <button wire:click="openEditReviewModal({{ $order->id }})"
+                                        class="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                        ✏️ Edit Review
                                     </button>
                                     @endif
                                 </div>
@@ -256,6 +266,7 @@
                             {{ $selectedOrderDetails->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                             {{ $selectedOrderDetails->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                             {{ $selectedOrderDetails->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
+                            {{ $selectedOrderDetails->status === 'partially_completed' ? 'bg-yellow-100 text-yellow-800' : '' }}
                             {{ $selectedOrderDetails->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
                             {{ ucfirst(str_replace('_', ' ', $selectedOrderDetails->status)) }}
                         </span>
@@ -269,7 +280,10 @@
                         <p class="text-xs text-gray-500">Payment Status</p>
                         <span
                             class="text-sm font-medium px-2 py-0.5 rounded-full
-                            {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                            {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}">
                             {{ ucfirst($selectedOrderDetails->payment_status) }}
                         </span>
                     </div>
@@ -319,7 +333,8 @@
                                             {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                                             {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
                                             {{ $item->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}
+                                            {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
                                             {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                         </span>
                                     </td>
@@ -510,7 +525,13 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">✏️ Leave Review</h3>
+                        <h3 class="text-xl font-bold text-gray-800">
+                            @if($selectedOrder->serviceReview)
+                            ✏️ Edit Review
+                            @else
+                            ✏️ Leave Review
+                            @endif
+                        </h3>
                         <p class="text-sm text-gray-500">
                             Order #{{ $selectedOrder->order_number }} •
                             @if($selectedOrder->shop)
@@ -530,6 +551,7 @@
             </div>
 
             <div class="min-h-0 flex-1 px-6 py-4 space-y-6 overflow-y-auto">
+                <!-- Service Quality Section -->
                 <div>
                     <h4 class="text-sm font-semibold text-gray-800 mb-3">🌟 Service Quality</h4>
                     <div class="space-y-4">
@@ -568,12 +590,28 @@
                     </div>
                 </div>
 
+                <!-- ✅ Product Reviews - ONLY SHOW COMPLETED ITEMS -->
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-800 mb-3">📦 Product Reviews (Optional)</h4>
-                    <p class="text-xs text-gray-500 mb-3">Rate each product you ordered</p>
+
+                    @php
+                    $completedItems = $selectedOrder->items->filter(function ($item) {
+                    return $item->status === 'completed';
+                    });
+                    $noShowItems = $selectedOrder->items->filter(function ($item) {
+                    return $item->status === 'no_show' || $item->status === 'cancelled';
+                    });
+                    @endphp
+
+                    @if($noShowItems->count() > 0)
+                    <div class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700">
+                        ⚠️ {{ $noShowItems->count() }} item(s) (No Show/Cancelled) are not eligible for review.
+                    </div>
+                    @endif
 
                     <div class="space-y-4">
-                        @foreach($selectedOrder->items as $item)
+                        @if($completedItems->count() > 0)
+                        @foreach($completedItems as $item)
                         @php
                         $productId = $item->product_id;
                         $currentRating = $productRatings[$productId] ?? 0;
@@ -617,6 +655,11 @@
                             </div>
                         </div>
                         @endforeach
+                        @else
+                        <div class="text-center py-4 text-gray-500">
+                            <p class="text-sm">No completed items to review.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -628,7 +671,11 @@
                 </button>
                 <button wire:click="submitReview"
                     class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                    @if($selectedOrder->serviceReview)
+                    Update Review ⭐
+                    @else
                     Submit Review ⭐
+                    @endif
                 </button>
             </div>
         </div>

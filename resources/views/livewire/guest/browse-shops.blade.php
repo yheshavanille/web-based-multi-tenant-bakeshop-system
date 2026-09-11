@@ -1,16 +1,17 @@
 <div>
-    <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+    <div class="max-w-[85rem] px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-14 mx-auto">
 
         <!-- ✅ HERO SECTION FOR GUESTS -->
-        <div class="bg-gradient-to-br from-amber-50 to-white rounded-xl p-8 mb-8 border border-amber-100">
-            <h1 class="text-3xl font-bold text-gray-900">Welcome to Web-based Multi-tenant Bakeshop 🍰</h1>
+        <div
+            class="bg-gradient-to-br from-amber-50 to-white rounded-xl p-5 sm:p-8 mb-6 sm:mb-8 border border-amber-100">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Welcome to Web-based Multi-tenant Bakeshop 🍰</h1>
             <p class="text-gray-600 mt-2 max-w-2xl">
                 Discover delicious baked goods from the best bakeshops in Victorias City.
                 Every bread, cake, and pastry is made fresh with love and quality ingredients.
             </p>
             <div class="flex flex-wrap items-center gap-4 mt-4">
                 <a href="{{ route('livewire.guest.start-selling') }}"
-                    class="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition font-medium">
+                    class="inline-flex items-center px-5 py-2.5 sm:px-6 sm:py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition font-medium">
                     🚀 Start Selling
                 </a>
             </div>
@@ -49,15 +50,15 @@
         </div>
 
         <!-- GRID - 2 columns on medium screens -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             @forelse($shops as $shop)
             <div
                 class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
                 <!-- Shop Header -->
                 <div class="p-4 border-b border-gray-100">
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-3 sm:gap-4">
                         <div
-                            class="w-16 h-16 bg-amber-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                            class="w-14 h-14 sm:w-16 sm:h-16 bg-amber-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                             @if($shop->shop_image)
                             <img src="{{ asset($shop->shop_image) }}" alt="{{ $shop->shop_name }}"
                                 class="w-full h-full object-cover">
@@ -66,7 +67,8 @@
                             @endif
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 text-lg">{{ $shop->shop_name }}</h3>
+                            <h3 class="font-semibold text-gray-900 text-base sm:text-lg break-words">{{ $shop->shop_name
+                                }}</h3>
                             <p class="text-sm text-gray-500">{{ $shop->address ?? 'Victorias City' }}</p>
                             <p class="text-sm text-gray-400">👤 {{ $shop->user->name ?? 'N/A' }}</p>
                             <div class="flex items-center gap-2 mt-1">
@@ -93,16 +95,16 @@
                     @endphp
 
                     @if($products && $products->count() > 0)
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                         @foreach($products as $product)
                         <div
-                            class="bg-gray-50 rounded-lg p-3 text-center hover:shadow-sm transition border border-transparent hover:border-amber-200">
+                            class="bg-gray-50 rounded-lg p-2 sm:p-3 text-center hover:shadow-sm transition border border-transparent hover:border-amber-200">
                             @if($product->image_url)
                             <img src="{{ asset($product->image_url) }}"
-                                class="w-full h-16 object-cover rounded-lg mb-1">
+                                class="w-full h-20 sm:h-16 object-cover rounded-lg mb-1">
                             @else
                             <div
-                                class="w-full h-16 bg-amber-100 rounded-lg flex items-center justify-center text-2xl mb-1">
+                                class="w-full h-20 sm:h-16 bg-amber-100 rounded-lg flex items-center justify-center text-2xl mb-1">
                                 🍰
                             </div>
                             @endif

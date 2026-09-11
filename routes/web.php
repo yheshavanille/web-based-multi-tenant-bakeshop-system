@@ -162,6 +162,11 @@ Route::prefix('employee')
         Route::get('/inventory', \App\Livewire\Employee\ManageStock::class)
             ->name('livewire.employee.inventory')
             ->middleware('employee.role:inventory_manager');
+
+        // ✅ Stock Edit History - Only Inventory Manager
+        Route::get('/stock-history', \App\Livewire\Employee\StockEditHistory::class)
+            ->name('livewire.employee.stock-history')
+            ->middleware('employee.role:inventory_manager');
     });
 
 Route::get('/payment/success', function () {

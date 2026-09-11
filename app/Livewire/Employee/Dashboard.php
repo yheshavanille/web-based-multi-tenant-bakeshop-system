@@ -5,7 +5,7 @@ namespace App\Livewire\Employee;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\BranchProduct;
+use App\Models\StockHistory;
 use App\Notifications\LowStockNotification;
 use App\Notifications\OutOfStockNotification;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +25,7 @@ class Dashboard extends Component
     public $outOfStockCount = 0;
     public $lowStockCount = 0;
     public $restockSuggestions = [];
+    public $stockHistories = [];
 
     public function mount()
     {
@@ -44,6 +45,7 @@ class Dashboard extends Component
             $this->loadOrderData();
         } elseif ($this->role === 'inventory_manager') {
             $this->loadInventoryData();
+            $this->loadStockHistories();
             $this->checkAndSendStockNotifications();
         }
     }
@@ -116,6 +118,16 @@ class Dashboard extends Component
 
             return $orderCount > 0;
         })->sortByDesc('orders_last_7_days');
+    }
+
+    // ✅ Load Stock Histories for Inventory Manager Dashboard
+    public function loadStockHistories()
+    {
+        $this->stockHistories = StockHistory::where('branch_id', $this->branch->id)
+            ->with(['product', 'user', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
     }
 
     // ✅ Check stock and send notifications (ONLY for stocks <= 5)

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" style="overflow-x: hidden; max-width: 100%;">
 
 <head>
     <meta charset="utf-8">
@@ -12,12 +12,12 @@
     @livewireStyles
 </head>
 
-<body>
+<body style="overflow-x: hidden; max-width: 100%;">
     <!-- Guest Navbar -->
     <x-navbar.guest />
 
     <!-- Main Content -->
-    <div class="min-h-screen bg-gray-50 pt-16">
+    <div class="min-h-screen bg-gray-50 pt-28 sm:pt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             {{ $slot }}
         </div>

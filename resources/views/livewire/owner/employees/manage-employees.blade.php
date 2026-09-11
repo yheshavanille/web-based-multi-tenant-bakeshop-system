@@ -135,12 +135,13 @@
                 @if(!$editing)
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <div class="relative" x-data="{ show: false }">
+                    <div class="relative" style="position: relative; height: 42px;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="password"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
+                            class="block h-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
                             placeholder="Enter password">
                         <button type="button" @click="show = !show"
-                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"
+                            class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none">
                             <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -157,12 +158,13 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                    <div class="relative" x-data="{ show: false }">
+                    <div class="relative" style="position: relative; height: 42px;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="password_confirmation"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
+                            class="block h-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
                             placeholder="Confirm password">
                         <button type="button" @click="show = !show"
-                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"
+                            class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none">
                             <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -197,12 +199,14 @@
                             <!-- Current Password -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                                <div class="relative" x-data="{ show: false }">
+                                <div class="relative" style="position: relative; height: 42px;"
+                                    x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" wire:model="current_password"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
+                                        class="block h-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
                                         placeholder="Enter current password">
                                     <button type="button" @click="show = !show"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"
+                                        class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -225,12 +229,14 @@
                             <!-- New Password -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                                <div class="relative" x-data="{ show: false }">
+                                <div class="relative" style="position: relative; height: 42px;"
+                                    x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" wire:model="new_password"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
+                                        class="block h-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
                                         placeholder="Enter new password">
                                     <button type="button" @click="show = !show"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"
+                                        class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -251,12 +257,14 @@
                             <!-- Confirm New Password -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-                                <div class="relative" x-data="{ show: false }">
+                                <div class="relative" style="position: relative; height: 42px;"
+                                    x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" wire:model="new_password_confirmation"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
+                                        class="block h-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 pr-10"
                                         placeholder="Confirm new password">
                                     <button type="button" @click="show = !show"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"
+                                        class="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
