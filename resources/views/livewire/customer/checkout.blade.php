@@ -24,10 +24,20 @@
                 <!-- ✅ GROUPED BY SHOP -->
                 @foreach($shopGroups as $shopId => $shopData)
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Shop Header -->
+                    <!-- Shop Header with Shop Image -->
                     <div class="px-4 py-3 bg-amber-50 border-b border-gray-200">
                         <div class="flex items-center gap-3">
-                            <span class="text-2xl">🏪</span>
+                            <div
+                                class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-amber-200 bg-white">
+                                @if($shopData['shop']->shop_image)
+                                <img src="{{ asset($shopData['shop']->shop_image) }}"
+                                    alt="{{ $shopData['shop']->shop_name }}" class="w-full h-full object-cover">
+                                @else
+                                <div class="w-full h-full bg-amber-100 flex items-center justify-center text-lg">
+                                    🏪
+                                </div>
+                                @endif
+                            </div>
                             <div>
                                 <p class="font-semibold text-gray-800">{{ $shopData['shop']->shop_name }}</p>
                                 <p class="text-sm text-gray-500">{{ $shopData['shop']->address ?? 'Victorias City' }}

@@ -167,6 +167,10 @@ class Dashboard extends Component
         $shop = Auth::user()->shop;
 
         $this->recentOrders = Order::where('shop_id', $shop->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
             ->with(['customer', 'branch', 'items', 'serviceReview'])
             ->orderBy('updated_at', 'desc')
             ->limit(10)

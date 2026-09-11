@@ -49,6 +49,8 @@
             @endif
         </div>
 
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">Featured Bakeshops</h2>
+
         <!-- GRID - 2 columns on medium screens -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             @forelse($shops as $shop)
