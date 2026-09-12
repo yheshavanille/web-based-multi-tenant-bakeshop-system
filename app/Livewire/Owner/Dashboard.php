@@ -65,7 +65,6 @@ class Dashboard extends Component
         $this->totalProducts = Product::where('shop_id', $shop->id)->count();
         $this->employeesCount = Employee::where('shop_id', $shop->id)->count();
 
-        // ✅ FIX: Calculate total revenue from completed items (including partially_completed orders)
         $this->totalSales = OrderItem::whereHas('order', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -73,7 +72,6 @@ class Dashboard extends Component
             ->where('status', 'completed')
             ->sum(DB::raw('quantity * price'));
 
-        // ✅ FIX: Count orders that have at least one completed item
         $this->totalOrders = OrderItem::whereHas('order', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -82,7 +80,6 @@ class Dashboard extends Component
             ->distinct('order_id')
             ->count('order_id');
 
-        // ✅ FIX: Branch performance - count revenue from completed items
         foreach ($this->branches as $branch) {
             $this->branchPerformance[$branch->id] = [
                 'name' => $branch->name,
@@ -104,7 +101,6 @@ class Dashboard extends Component
             ];
         }
 
-        // ✅ FIX: Best selling products - include items from partially_completed orders
         $this->bestSellers = OrderItem::whereHas('order', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -121,18 +117,15 @@ class Dashboard extends Component
             ->limit(5)
             ->get();
 
-        // Shop overall rating
         $this->shopRating = ServiceReview::where('shop_id', $shop->id)->avg('rating') ?? 0;
         $this->shopRatingCount = ServiceReview::where('shop_id', $shop->id)->count();
 
-        // Recent reviews
         $this->recentReviews = ServiceReview::where('shop_id', $shop->id)
             ->with(['customer', 'branch'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        // Stock histories
         $this->stockHistories = StockHistory::whereHas('product', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id);
         })
@@ -141,7 +134,6 @@ class Dashboard extends Component
             ->limit(10)
             ->get();
 
-        // Product Edit Histories
         $this->productEditHistories = ProductEditHistory::whereHas('product', function ($query) use ($shop) {
             $query->where('shop_id', $shop->id);
         })
@@ -161,7 +153,6 @@ class Dashboard extends Component
         $this->loadRecentOrders();
     }
 
-    // ✅ UPDATED: Handles partially_completed status properly
     public function loadRecentOrders()
     {
         $shop = Auth::user()->shop;
@@ -183,29 +174,23 @@ class Dashboard extends Component
                 $preparingCount = $order->items->where('status', 'preparing')->count();
                 $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
 
-                // ✅ If the entire order is cancelled, set total to 0
                 $isFullyCancelled = $order->status === 'cancelled' || $cancelledCount === $itemCount;
 
-                // ✅ Check if partially completed
                 $isPartiallyCompleted = $order->status === 'partially_completed' || ($completedCount > 0 && $cancelledCount > 0 && $pendingCount === 0);
 
-                // ✅ Calculate adjusted total (exclude cancelled items)
                 $adjustedTotal = $order->items
                     ->where('status', '!=', 'cancelled')
                     ->sum(function ($item) {
                         return $item->price * $item->quantity;
                     });
 
-                // ✅ If fully cancelled, set to 0
                 if ($isFullyCancelled) {
                     $adjustedTotal = 0;
                 }
 
-                // ✅ Calculate adjusted tax and grand total
                 $adjustedTax = round($adjustedTotal * 0.12, 2);
                 $adjustedGrandTotal = $adjustedTotal + $adjustedTax;
 
-                // ✅ Build status summary
                 $statusParts = [];
                 if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
                 if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
@@ -223,7 +208,6 @@ class Dashboard extends Component
                 $order->completed_count = $completedCount;
                 $order->pending_count = $pendingCount;
 
-                // ✅ OVERRIDE the total amount with adjusted total
                 $order->display_total = $adjustedGrandTotal;
                 $order->adjusted_total = $adjustedTotal;
                 $order->adjusted_tax = $adjustedTax;
@@ -234,34 +218,29 @@ class Dashboard extends Component
 
     public function viewOrderDetails($orderId)
     {
-        // ✅ Load order with ALL relationships including product reviews
         $this->selectedOrder = Order::with([
             'customer',
             'branch',
             'items.product',
             'shop',
             'serviceReview',
-            // ✅ Load product reviews for this order's products
             'productReviews' => function ($query) {
                 $query->with('product')->orderBy('created_at', 'desc');
             }
         ])->findOrFail($orderId);
 
-        // ✅ If order is cancelled, set total to 0
         if ($this->selectedOrder->status === 'cancelled') {
             $this->selectedOrder->adjusted_total = 0;
             $this->selectedOrder->subtotal = 0;
             $this->selectedOrder->tax_amount = 0;
             $this->selectedOrder->total_amount = 0;
         } else {
-            // ✅ Calculate adjusted total (exclude cancelled items)
             $adjustedTotal = $this->selectedOrder->items
                 ->where('status', '!=', 'cancelled')
                 ->sum(function ($item) {
                     return $item->price * $item->quantity;
                 });
 
-            // ✅ Set adjusted values for the modal
             $this->selectedOrder->adjusted_total = $adjustedTotal;
             $this->selectedOrder->subtotal = $adjustedTotal;
             $this->selectedOrder->tax_amount = round($adjustedTotal * 0.12, 2);
@@ -275,11 +254,68 @@ class Dashboard extends Component
     {
         $this->showOrderModal = false;
         $this->selectedOrder = null;
-        // ✅ Reload recent orders to refresh the table
         $this->loadRecentOrders();
     }
 
-    // ✅ Product Edit Details Methods
+    // ✅ NEW: Calculate the 4-section breakdown with product lists
+    public function getBreakdown()
+    {
+        if (!$this->selectedOrder) {
+            return null;
+        }
+
+        $items = $this->selectedOrder->items;
+
+        $completedItems = $items->where('status', 'completed');
+        $completedSubtotal = $completedItems->sum(fn($item) => $item->price * $item->quantity);
+        $completedVat = round($completedSubtotal * 0.12, 2);
+
+        $notChargedItems = $items->whereIn('status', ['no_show', 'cancelled']);
+        $notChargedSubtotal = $notChargedItems->sum(fn($item) => $item->price * $item->quantity);
+        $notChargedVat = round($notChargedSubtotal * 0.12, 2);
+
+        $outstandingItems = $items->whereIn('status', ['pending', 'preparing', 'ready_for_pickup']);
+        $outstandingSubtotal = $outstandingItems->sum(fn($item) => $item->price * $item->quantity);
+        $outstandingVat = round($outstandingSubtotal * 0.12, 2);
+
+        $originalSubtotal = $items->sum(fn($item) => $item->price * $item->quantity);
+        $originalVat = round($originalSubtotal * 0.12, 2);
+
+        $mapItems = function ($collection) {
+            return $collection->map(function ($item) {
+                return [
+                    'name' => $item->product->name ?? 'Product Unavailable',
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->price * $item->quantity,
+                    'status' => $item->status,
+                ];
+            })->values()->toArray();
+        };
+
+        return [
+            'original_subtotal' => $originalSubtotal,
+            'original_vat' => $originalVat,
+            'original_total' => $originalSubtotal + $originalVat,
+            'original_items' => $mapItems($items),
+
+            'charged_subtotal' => $completedSubtotal,
+            'charged_vat' => $completedVat,
+            'amount_charged' => $completedSubtotal + $completedVat,
+            'charged_items' => $mapItems($completedItems),
+
+            'not_charged_subtotal' => $notChargedSubtotal,
+            'not_charged_vat' => $notChargedVat,
+            'amount_not_charged' => $notChargedSubtotal + $notChargedVat,
+            'not_charged_items' => $mapItems($notChargedItems),
+
+            'outstanding_subtotal' => $outstandingSubtotal,
+            'outstanding_vat' => $outstandingVat,
+            'amount_outstanding' => $outstandingSubtotal + $outstandingVat,
+            'outstanding_items' => $mapItems($outstandingItems),
+        ];
+    }
+
     public function viewProductEditDetails($historyId)
     {
         $this->selectedProductEdit = ProductEditHistory::with(['product', 'user'])
@@ -293,7 +329,6 @@ class Dashboard extends Component
         $this->selectedProductEdit = null;
     }
 
-    // ✅ View All Stock History
     public function viewAllStockHistory()
     {
         $shop = Auth::user()->shop;
@@ -312,7 +347,6 @@ class Dashboard extends Component
         $this->allStockHistories = [];
     }
 
-    // ✅ View All Product History
     public function viewAllProductHistory()
     {
         $shop = Auth::user()->shop;
@@ -331,7 +365,6 @@ class Dashboard extends Component
         $this->allProductHistories = [];
     }
 
-    // Employee Modal methods
     public function openEmployeesModal()
     {
         $this->loadAllEmployees();

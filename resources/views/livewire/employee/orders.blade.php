@@ -229,12 +229,11 @@
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
-                                                <!-- ✅ Status Dropdown - ALWAYS SHOWN (including cancelled items) -->
-                                                <!-- ✅ Uses Alpine.js for confirmation popup -->
+                                                <!-- ✅ Status Dropdown -->
                                                 <select
                                                     wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
                                                     x-data x-on:change="if ($event.target.value === 'cancelled') {
-                                                        if (!confirm('⚠️ Are you sure you want to cancel this item? This action can be undone by changing the status back.')) {
+                                                        if (!confirm('⚠️ Are you sure you want to cancel this item?')) {
                                                             $event.target.value = '{{ $item->status }}';
                                                             $event.preventDefault();
                                                         }
@@ -291,13 +290,13 @@
 
     </div>
 
-    <!-- ✅ Order Details Modal -->
+    <!-- ✅ Order Details Modal - Larger & Scrollable -->
     @if($showDetailsModal && $selectedOrderDetails)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" wire:click="closeDetailsModal"></div>
 
-        <div
-            class="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            style="max-height: 92vh;">
 
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
@@ -319,7 +318,7 @@
                 </div>
             </div>
 
-            <!-- Modal Body -->
+            <!-- Modal Body - Scrollable -->
             <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
                 <!-- Order Info Grid -->
@@ -413,26 +412,142 @@
                                 @endforeach
                             </tbody>
                             <tfoot class="bg-gray-50">
+                                @php $b = $this->getBreakdown(); @endphp
+
+                                {{-- 📦 ORIGINAL ORDER --}}
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Subtotal:
+                                    <td colspan="6" class="px-4 pt-3 pb-1">
+                                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">📦
+                                            Original Order</div>
                                     </td>
-                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
-                                        number_format($selectedOrderDetails->subtotal ??
-                                        $selectedOrderDetails->total_amount, 2) }}</td>
                                 </tr>
-                                @if($selectedOrderDetails->tax_amount)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">VAT (12%):
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">Subtotal:</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['original_subtotal'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['original_vat'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-gray-800">
+                                        Original Total:</td>
+                                    <td colspan="2" class="px-4 py-1 font-bold text-gray-800">₱{{
+                                        number_format($b['original_total'], 2) }}</td>
+                                </tr>
+
+                                {{-- ✅ CHARGED TO CUSTOMER --}}
+                                @if($b['amount_charged'] > 0)
+                                <tr>
+                                    <td colspan="6" class="px-4 pt-3 pb-1 border-t border-gray-200">
+                                        <div class="text-xs font-semibold text-green-600 uppercase tracking-wider">✅
+                                            Charged to Customer</div>
                                     </td>
-                                    <td colspan="2" class="px-4 py-2 font-medium text-gray-800">₱{{
-                                        number_format($selectedOrderDetails->tax_amount, 2) }}</td>
+                                </tr>
+                                @foreach($b['charged_items'] as $item)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-0.5 text-right text-xs text-gray-500">
+                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
+                                    </td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
+                                        ₱{{ number_format($item['subtotal'], 2) }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">Completed Items:
+                                    </td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['charged_subtotal'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['charged_vat'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-green-700">
+                                        Amount Charged:</td>
+                                    <td colspan="2" class="px-4 py-1 font-bold text-green-600">₱{{
+                                        number_format($b['amount_charged'], 2) }}</td>
                                 </tr>
                                 @endif
+
+                                {{-- ❌ NOT CHARGED --}}
+                                @if($b['amount_not_charged'] > 0)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-right font-semibold text-gray-800">Total:</td>
-                                    <td colspan="2" class="px-4 py-2 font-bold text-amber-600">₱{{
-                                        number_format($selectedOrderDetails->total_amount, 2) }}</td>
+                                    <td colspan="6" class="px-4 pt-3 pb-1 border-t border-gray-200">
+                                        <div class="text-xs font-semibold text-red-600 uppercase tracking-wider">❌ Not
+                                            Charged</div>
+                                    </td>
                                 </tr>
+                                @foreach($b['not_charged_items'] as $item)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-0.5 text-right text-xs text-gray-500">
+                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
+                                    </td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
+                                        ₱{{ number_format($item['subtotal'], 2) }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">No Show /
+                                        Cancelled:</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['not_charged_subtotal'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['not_charged_vat'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-red-700">
+                                        Amount Not Charged:</td>
+                                    <td colspan="2" class="px-4 py-1 font-bold text-red-600">₱{{
+                                        number_format($b['amount_not_charged'], 2) }}</td>
+                                </tr>
+                                @endif
+
+                                {{-- ⏳ OUTSTANDING --}}
+                                @if($b['amount_outstanding'] > 0)
+                                <tr>
+                                    <td colspan="6" class="px-4 pt-3 pb-1 border-t border-gray-200">
+                                        <div class="text-xs font-semibold text-amber-600 uppercase tracking-wider">⏳
+                                            Outstanding</div>
+                                    </td>
+                                </tr>
+                                @foreach($b['outstanding_items'] as $item)
+                                <tr>
+                                    <td colspan="4" class="px-4 py-0.5 text-right text-xs text-gray-500">
+                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
+                                    </td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
+                                        ₱{{ number_format($item['subtotal'], 2) }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">Pending +
+                                        Preparing + Ready:</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['outstanding_subtotal'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                        number_format($b['outstanding_vat'], 2) }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-amber-700">
+                                        Amount Outstanding:</td>
+                                    <td colspan="2" class="px-4 py-1 font-bold text-amber-600">₱{{
+                                        number_format($b['amount_outstanding'], 2) }}</td>
+                                </tr>
+                                @endif
                             </tfoot>
                         </table>
                     </div>

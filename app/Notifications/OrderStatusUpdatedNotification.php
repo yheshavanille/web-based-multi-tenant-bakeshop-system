@@ -13,12 +13,23 @@ class OrderStatusUpdatedNotification extends Notification
     protected $order;
     protected $oldStatus;
     protected $newStatus;
+    protected $productName;
+    protected $itemId;
 
-    public function __construct(Order $order, $oldStatus, $newStatus)
+    /**
+     * @param Order $order
+     * @param string $oldStatus
+     * @param string $newStatus
+     * @param string|null $productName  The name of the updated product (optional)
+     * @param int|null $itemId  The order_item ID (optional, for reference)
+     */
+    public function __construct(Order $order, $oldStatus, $newStatus, $productName = null, $itemId = null)
     {
         $this->order = $order;
         $this->oldStatus = $oldStatus;
         $this->newStatus = $newStatus;
+        $this->productName = $productName;
+        $this->itemId = $itemId;
     }
 
     public function via($notifiable)
@@ -36,6 +47,11 @@ class OrderStatusUpdatedNotification extends Notification
         $paymentMethod = $this->order->payment_method ?? 'N/A';
         $paymentMethodLabel = $this->getPaymentMethodLabel($paymentMethod);
 
+        // ✅ Build the message with product name if available
+        $message = $this->productName
+            ? $this->productName . ' status updated from ' . $oldStatusLabel . ' to ' . $newStatusLabel
+            : 'Order #' . $this->order->order_number . ' status updated from ' . $oldStatusLabel . ' to ' . $newStatusLabel;
+
         return [
             'type' => 'order_status_updated',
             'order_id' => $this->order->id,
@@ -51,7 +67,10 @@ class OrderStatusUpdatedNotification extends Notification
             'new_status' => $this->newStatus,
             'old_status_label' => $oldStatusLabel,
             'new_status_label' => $newStatusLabel,
-            'message' => 'Order #' . $this->order->order_number . ' status updated from ' . $oldStatusLabel . ' to ' . $newStatusLabel,
+            // ✅ NEW: product info
+            'product_name' => $this->productName,
+            'item_id' => $this->itemId,
+            'message' => $message,
             'url' => $url,
         ];
     }

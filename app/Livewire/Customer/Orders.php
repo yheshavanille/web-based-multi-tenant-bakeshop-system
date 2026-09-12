@@ -261,7 +261,6 @@ class Orders extends Component
         $this->selectedOrder = null;
     }
 
-    // ✅ Alpine.js opens modal instantly; Livewire loads data in background
     public function openDetailsModal($orderId)
     {
         $this->selectedOrderDetails = Order::where('customer_id', Auth::id())
@@ -276,7 +275,6 @@ class Orders extends Component
             return;
         }
 
-        // ✅ Tell Alpine to open the modal AFTER data is loaded
         $this->dispatch('open-details-modal');
     }
 
@@ -387,6 +385,65 @@ class Orders extends Component
             ]);
             session()->flash('error', 'Failed to submit review. Please try again.');
         }
+    }
+
+    // ✅ Calculate the 4-section breakdown with product lists
+    public function getBreakdown()
+    {
+        if (!$this->selectedOrderDetails) {
+            return null;
+        }
+
+        $items = $this->selectedOrderDetails->items;
+
+        $completedItems = $items->where('status', 'completed');
+        $completedSubtotal = $completedItems->sum(fn($item) => $item->price * $item->quantity);
+        $completedVat = round($completedSubtotal * 0.12, 2);
+
+        $notChargedItems = $items->whereIn('status', ['no_show', 'cancelled']);
+        $notChargedSubtotal = $notChargedItems->sum(fn($item) => $item->price * $item->quantity);
+        $notChargedVat = round($notChargedSubtotal * 0.12, 2);
+
+        $outstandingItems = $items->whereIn('status', ['pending', 'preparing', 'ready_for_pickup']);
+        $outstandingSubtotal = $outstandingItems->sum(fn($item) => $item->price * $item->quantity);
+        $outstandingVat = round($outstandingSubtotal * 0.12, 2);
+
+        $originalSubtotal = $items->sum(fn($item) => $item->price * $item->quantity);
+        $originalVat = round($originalSubtotal * 0.12, 2);
+
+        $mapItems = function ($collection) {
+            return $collection->map(function ($item) {
+                return [
+                    'name' => $item->product->name ?? 'Product Unavailable',
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->price * $item->quantity,
+                    'status' => $item->status,
+                ];
+            })->values()->toArray();
+        };
+
+        return [
+            'original_subtotal' => $originalSubtotal,
+            'original_vat' => $originalVat,
+            'original_total' => $originalSubtotal + $originalVat,
+            'original_items' => $mapItems($items),
+
+            'charged_subtotal' => $completedSubtotal,
+            'charged_vat' => $completedVat,
+            'amount_charged' => $completedSubtotal + $completedVat,
+            'charged_items' => $mapItems($completedItems),
+
+            'not_charged_subtotal' => $notChargedSubtotal,
+            'not_charged_vat' => $notChargedVat,
+            'amount_not_charged' => $notChargedSubtotal + $notChargedVat,
+            'not_charged_items' => $mapItems($notChargedItems),
+
+            'outstanding_subtotal' => $outstandingSubtotal,
+            'outstanding_vat' => $outstandingVat,
+            'amount_outstanding' => $outstandingSubtotal + $outstandingVat,
+            'outstanding_items' => $mapItems($outstandingItems),
+        ];
     }
 
     public function render()

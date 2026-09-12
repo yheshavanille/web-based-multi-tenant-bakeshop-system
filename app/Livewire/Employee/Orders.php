@@ -68,7 +68,6 @@ class Orders extends Component
                     $q->whereIn('status', ['no_show', 'cancelled', 'preparing', 'ready_for_pickup', 'completed']);
                 })->where('status', 'pending');
             } elseif ($this->selectedStatus === 'partially_completed') {
-                // ✅ Filter orders with mixed statuses (at least one completed + at least one non-completed)
                 $query->where(function ($q) {
                     $q->whereHas('items', function ($q2) {
                         $q2->where('status', 'completed');
@@ -190,15 +189,30 @@ class Orders extends Component
         $this->recalculateOrderStatus($order);
         $order->refresh();
 
+        // ✅ FIX: Pass product name and item ID when sending notifications
         if ($oldStatus !== $status) {
+            $productName = $item->product->name ?? 'Product';
+
             $customer = $order->customer;
             if ($customer) {
-                Notification::send($customer, new OrderStatusUpdatedNotification($order, $oldStatus, $status));
+                Notification::send($customer, new OrderStatusUpdatedNotification(
+                    $order,
+                    $oldStatus,
+                    $status,
+                    $productName,
+                    $item->id
+                ));
             }
 
             $owner = $order->shop->user;
             if ($owner && $owner->id !== ($customer->id ?? null)) {
-                Notification::send($owner, new OrderStatusUpdatedNotification($order, $oldStatus, $status));
+                Notification::send($owner, new OrderStatusUpdatedNotification(
+                    $order,
+                    $oldStatus,
+                    $status,
+                    $productName,
+                    $item->id
+                ));
             }
         }
 
@@ -272,38 +286,91 @@ class Orders extends Component
         }));
         $totalItems = count($itemStatuses);
 
-        // All cancelled → CANCELLED + REFUNDED
         if ($cancelledCount === $totalItems) {
             $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
             return;
         }
 
-        // All completed → COMPLETED + PAID
         if ($completedCount === $totalItems) {
             $order->update(['status' => 'completed', 'payment_status' => 'paid']);
             return;
         }
 
-        // ✅ Any completed items + any other statuses → PARTIALLY_COMPLETED + PARTIALLY_PAID
         if ($completedCount > 0 && ($pendingCount > 0 || $readyCount > 0 || $cancelledCount > 0)) {
             $order->update(['status' => 'partially_completed', 'payment_status' => 'partially_paid']);
             return;
         }
 
-        // Has pending items → PENDING + PENDING
         if ($pendingCount > 0) {
             $order->update(['status' => 'pending', 'payment_status' => 'pending']);
             return;
         }
 
-        // Has ready items → READY_FOR_PICKUP + PENDING
         if ($readyCount > 0) {
             $order->update(['status' => 'ready_for_pickup', 'payment_status' => 'pending']);
             return;
         }
 
-        // Fallback → PREPARING + PENDING
         $order->update(['status' => 'preparing', 'payment_status' => 'pending']);
+    }
+
+    // ✅ Calculate the 4-section breakdown with product lists
+    public function getBreakdown()
+    {
+        if (!$this->selectedOrderDetails) {
+            return null;
+        }
+
+        $items = $this->selectedOrderDetails->items;
+
+        $completedItems = $items->where('status', 'completed');
+        $completedSubtotal = $completedItems->sum(fn($item) => $item->price * $item->quantity);
+        $completedVat = round($completedSubtotal * 0.12, 2);
+
+        $notChargedItems = $items->whereIn('status', ['no_show', 'cancelled']);
+        $notChargedSubtotal = $notChargedItems->sum(fn($item) => $item->price * $item->quantity);
+        $notChargedVat = round($notChargedSubtotal * 0.12, 2);
+
+        $outstandingItems = $items->whereIn('status', ['pending', 'preparing', 'ready_for_pickup']);
+        $outstandingSubtotal = $outstandingItems->sum(fn($item) => $item->price * $item->quantity);
+        $outstandingVat = round($outstandingSubtotal * 0.12, 2);
+
+        $originalSubtotal = $items->sum(fn($item) => $item->price * $item->quantity);
+        $originalVat = round($originalSubtotal * 0.12, 2);
+
+        $mapItems = function ($collection) {
+            return $collection->map(function ($item) {
+                return [
+                    'name' => $item->product->name ?? 'Product Unavailable',
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->price * $item->quantity,
+                    'status' => $item->status,
+                ];
+            })->values()->toArray();
+        };
+
+        return [
+            'original_subtotal' => $originalSubtotal,
+            'original_vat' => $originalVat,
+            'original_total' => $originalSubtotal + $originalVat,
+            'original_items' => $mapItems($items),
+
+            'charged_subtotal' => $completedSubtotal,
+            'charged_vat' => $completedVat,
+            'amount_charged' => $completedSubtotal + $completedVat,
+            'charged_items' => $mapItems($completedItems),
+
+            'not_charged_subtotal' => $notChargedSubtotal,
+            'not_charged_vat' => $notChargedVat,
+            'amount_not_charged' => $notChargedSubtotal + $notChargedVat,
+            'not_charged_items' => $mapItems($notChargedItems),
+
+            'outstanding_subtotal' => $outstandingSubtotal,
+            'outstanding_vat' => $outstandingVat,
+            'amount_outstanding' => $outstandingSubtotal + $outstandingVat,
+            'outstanding_items' => $mapItems($outstandingItems),
+        ];
     }
 
     public function render()

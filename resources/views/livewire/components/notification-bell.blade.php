@@ -303,8 +303,39 @@
                 @if($selectedNotification->data['type'] === 'order_status_updated')
                 <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
                     <p class="text-sm font-semibold text-blue-800">🔄 Order Status Updated</p>
-                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                    <p class="text-sm text-gray-700 mt-1">Order #{{ $selectedNotification->data['order_number'] ?? 'N/A'
+                        }}</p>
                 </div>
+
+                {{-- ✅ HIGHLIGHTED ITEM STATUS CHANGE CARD --}}
+                @if(isset($selectedNotification->data['product_name']) && $selectedNotification->data['product_name'])
+                <div class="bg-amber-50 rounded-lg p-4 border-2 border-amber-300">
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">⚠️ Item Status Changed</p>
+                    <p class="text-base font-bold text-gray-800 mb-2">{{ $selectedNotification->data['product_name'] }}
+                    </p>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="text-yellow-600 font-medium">{{ $selectedNotification->data['old_status_label'] ??
+                            'N/A' }}</span>
+                        <span class="text-gray-400">→</span>
+                        <span class="text-green-600 font-medium">{{ $selectedNotification->data['new_status_label'] ??
+                            'N/A' }}</span>
+                    </div>
+                </div>
+                @else
+                {{-- Fallback: if no product name, show old/new status only --}}
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs text-gray-500">Old Status</p>
+                        <p class="text-sm font-medium text-yellow-600">{{
+                            $selectedNotification->data['old_status_label'] ?? 'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs text-gray-500">New Status</p>
+                        <p class="text-sm font-medium text-green-600">{{ $selectedNotification->data['new_status_label']
+                            ?? 'N/A' }}</p>
+                    </div>
+                </div>
+                @endif
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-gray-50 rounded-lg p-3">
@@ -313,22 +344,14 @@
                             'N/A' }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-xs text-gray-500">Old Status</p>
-                        <p class="text-sm font-medium text-yellow-600">{{
-                            $selectedNotification->data['old_status_label'] ?? 'N/A' }}</p>
-                    </div>
-                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
-                        <p class="text-xs text-gray-500">New Status</p>
-                        <p class="text-sm font-medium text-green-600">→ {{
-                            $selectedNotification->data['new_status_label'] ?? 'N/A' }}</p>
-                    </div>
-                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500">Customer</p>
-                        <p class="text-sm font-medium text-gray-800">{{ $orderDetails?->customer?->name ?? 'N/A' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['customer_name'] ??
+                            ($orderDetails?->customer?->name ?? 'N/A') }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500">Shop</p>
-                        <p class="text-sm font-medium text-gray-800">{{ $orderDetails?->shop?->shop_name ?? 'N/A' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['shop_name'] ??
+                            ($orderDetails?->shop?->shop_name ?? 'N/A') }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500">Payment Method</p>
@@ -353,7 +376,9 @@
                     <h4 class="text-sm font-semibold text-gray-700 mb-2">📦 Order Items</h4>
                     <div class="space-y-2 max-h-40 overflow-y-auto">
                         @foreach($orderDetails->items as $item)
-                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+                        <div
+                            class="flex justify-between items-center p-2 rounded-lg border
+                            {{ isset($selectedNotification->data['item_id']) && $selectedNotification->data['item_id'] == $item->id ? 'bg-amber-100 border-amber-300' : 'bg-gray-50 border-gray-100' }}">
                             <div>
                                 <p class="text-sm font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}</p>
                                 <p class="text-xs text-gray-500">
