@@ -10,7 +10,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <livewire:components.notification-bell :key="'admin-notif-'.time()" />
+                <livewire:components.notification-bell :context="'admin'" :key="'admin-notif'" />
 
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false"

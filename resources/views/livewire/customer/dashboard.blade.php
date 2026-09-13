@@ -15,7 +15,7 @@
     <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <span class="text-4xl">🚀</span>
+                <span class="text-4xl">💰</span>
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800">Start Selling!</h3>
                     <p class="text-sm text-gray-600">Turn your passion into business. Register your bakeshop today.</p>

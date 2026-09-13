@@ -68,6 +68,13 @@
             <div class="login-responsive-form-wrapper w-full col-start-2 row-start-1 justify-self-end">
                 <div class="login-responsive-card bg-white rounded-2xl border border-gray-200 p-8 md:p-10 shadow-sm flex flex-col justify-start"
                     style="min-height: 26rem;">
+
+                    @if (session()->has('status'))
+                    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                        {{ session('status') }}
+                    </div>
+                    @endif
+
                     <form wire:submit.prevent="login">
                         <div class="mb-5"> <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email
                                 Address</label> <input type="email" id="email" wire:model="email"
@@ -85,7 +92,7 @@
                                 class="flex items-center gap-2 text-gray-600 cursor-pointer"> <input type="checkbox"
                                     wire:model="remember"
                                     class="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500">
-                                Remember me </label> <a href="#"
+                                Remember me </label> <a href="{{ route('livewire.auth.forgot-password') }}"
                                 class="text-amber-600 hover:text-amber-700 hover:underline">Forgot password?</a> </div>
                         <button type="submit"
                             class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-amber-500 hover:bg-amber-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">

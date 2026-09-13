@@ -31,7 +31,7 @@
             <!-- Right Side - Notification Bell + Profile Dropdown -->
             <div class="flex items-center gap-3">
                 <!-- ✅ NOTIFICATION BELL -->
-                @livewire('components.notification-bell')
+                @livewire('components.notification-bell', ['context' => 'customer'])
 
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false"

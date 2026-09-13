@@ -5,7 +5,6 @@ namespace App\Livewire\Components;
 use App\Models\Order;
 use App\Models\SellerRegistration;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 
 class NotificationBell extends Component
@@ -17,14 +16,20 @@ class NotificationBell extends Component
     public $orderDetails = null;
     public $sellerRegistration = null;
 
-    // ✅ ADD refreshNotifications listener
+    /**
+     * Which "view" this bell is mounted in.
+     * Possible values: 'customer', 'owner', 'employee', 'admin'
+     */
+    public $context = 'customer';
+
     protected $listeners = [
         'notificationUpdated' => 'loadNotifications',
         'refreshNotifications' => 'loadNotifications',
     ];
 
-    public function mount()
+    public function mount($context = 'customer')
     {
+        $this->context = $context;
         $this->loadNotifications();
     }
 
@@ -56,36 +61,25 @@ class NotificationBell extends Component
         }
 
         $type = $notification->data['type'] ?? '';
-        $currentRoute = Route::currentRouteName() ?? '';
 
-        $isCustomerView = str_starts_with($currentRoute, 'livewire.customer.')
-            || str_starts_with($currentRoute, 'customer.')
-            || request()->is('customer/*');
+        // ✅ Use $this->context instead of Route::currentRouteName()
+        $isCustomerView = $this->context === 'customer';
+        $isOwnerView    = $this->context === 'owner';
+        $isEmployeeView = $this->context === 'employee';
+        $isAdminView    = $this->context === 'admin';
 
-        $isOwnerView = str_starts_with($currentRoute, 'livewire.owner.')
-            || str_starts_with($currentRoute, 'owner.')
-            || request()->is('owner/*');
-
-        $isEmployeeView = str_starts_with($currentRoute, 'livewire.employee.')
-            || str_starts_with($currentRoute, 'employee.')
-            || request()->is('employee/*');
-
-        $isAdminView = str_starts_with($currentRoute, 'livewire.admin.')
-            || str_starts_with($currentRoute, 'admin.')
-            || request()->is('admin/*');
-
-        // ✅ CUSTOMER VIEW - Only show customer's own order notifications
-        if ($isCustomerView && !$isOwnerView && !$isEmployeeView && !$isAdminView) {
+        // ✅ CUSTOMER VIEW
+        if ($isCustomerView) {
             if ($type === 'order_status_updated') {
                 $orderId = $notification->data['order_id'] ?? null;
                 if ($orderId) {
-                    $order = Order::find($orderId);
+                    $order = Order::with('shop')->find($orderId);
                     if ($order) {
-                        // ✅ If the user is the OWNER of this shop, hide it in customer view
+                        // If user is the OWNER of this shop, hide it in customer view
                         if ($order->shop && $order->shop->user_id === $user->id) {
                             return false;
                         }
-                        // ✅ If the user is the CUSTOMER, show it
+                        // If user is the CUSTOMER, show it
                         if ($order->customer_id === $user->id) {
                             return true;
                         }
@@ -93,21 +87,27 @@ class NotificationBell extends Component
                 }
                 return false;
             }
-            // Seller registration notifications are fine in customer view
+
+            if ($type === 'new_order') {
+                return false;
+            }
+
             return in_array($type, ['seller_approved', 'seller_rejected']);
         }
 
-        // ✅ OWNER VIEW - Show all shop-related notifications
+        // ✅ OWNER VIEW
         if ($isOwnerView) {
-            // ✅ Check if this notification belongs to the user's shop
+            // ✅ Get the user's owned shop ID via the relationship
+            $ownedShopId = $user->shop?->id;
+
             $orderId = $notification->data['order_id'] ?? null;
             if ($orderId) {
                 $order = Order::find($orderId);
-                if ($order && $order->shop_id === $user->shop_id) {
+                if ($order && $ownedShopId && $order->shop_id === $ownedShopId) {
                     return true;
                 }
+                return false;
             }
-            // For owner-specific notifications
             return in_array($type, ['new_order', 'order_status_updated', 'seller_approved', 'seller_rejected']);
         }
 
@@ -116,18 +116,18 @@ class NotificationBell extends Component
             $employee = $user->employee;
             if (!$employee) return false;
 
-            // Check if notification belongs to employee's branch
             $orderId = $notification->data['order_id'] ?? null;
             if ($orderId) {
                 $order = Order::find($orderId);
                 if ($order && $order->branch_id === $employee->branch_id) {
                     if ($employee->role === 'order_manager') {
-                        return $type === 'new_order' || $type === 'order_status_updated';
+                        return in_array($type, ['new_order', 'order_status_updated']);
                     }
                     if ($employee->role === 'inventory_manager') {
                         return $type === 'low_stock';
                     }
                 }
+                return false;
             }
             return false;
         }
@@ -137,7 +137,7 @@ class NotificationBell extends Component
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public function loadUnreadCount()

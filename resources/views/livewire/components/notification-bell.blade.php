@@ -300,6 +300,9 @@
                 @endif
                 @endif
 
+                {{-- ============================================================ --}}
+                {{-- ORDER STATUS UPDATED --}}
+                {{-- ============================================================ --}}
                 @if($selectedNotification->data['type'] === 'order_status_updated')
                 <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
                     <p class="text-sm font-semibold text-blue-800">🔄 Order Status Updated</p>
@@ -322,7 +325,6 @@
                     </div>
                 </div>
                 @else
-                {{-- Fallback: if no product name, show old/new status only --}}
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Old Status</p>
@@ -371,53 +373,181 @@
                     </div>
                 </div>
 
+                {{-- ============================================================ --}}
+                {{-- 4-SECTION ORDER BREAKDOWN --}}
+                {{-- ============================================================ --}}
                 @if(isset($orderDetails) && $orderDetails && $orderDetails->items->count() > 0)
-                <div class="border-t border-gray-200 pt-3">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📦 Order Items</h4>
-                    <div class="space-y-2 max-h-40 overflow-y-auto">
-                        @foreach($orderDetails->items as $item)
-                        <div
-                            class="flex justify-between items-center p-2 rounded-lg border
-                            {{ isset($selectedNotification->data['item_id']) && $selectedNotification->data['item_id'] == $item->id ? 'bg-amber-100 border-amber-300' : 'bg-gray-50 border-gray-100' }}">
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}</p>
-                                <p class="text-xs text-gray-500">
-                                    Qty: {{ $item->quantity }}
-                                    @if($item->original_price && $item->original_price > $item->price)
-                                    <span class="text-red-600 font-medium">₱{{ number_format($item->price, 2) }}</span>
-                                    <span class="text-gray-400 line-through ml-1">₱{{
-                                        number_format($item->original_price, 2) }}</span>
-                                    @else
-                                    x ₱{{ number_format($item->price, 2) }}
-                                    @endif
-                                </p>
-                            </div>
-                            <p class="text-sm font-semibold text-amber-600">₱{{ number_format($item->price *
-                                $item->quantity, 2) }}</p>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
+                @php
+                // Group items by bucket
+                $chargedItems = $orderDetails->items->where('status', 'completed');
+                $notChargedItems = $orderDetails->items->whereIn('status', ['cancelled', 'no_show']);
+                $outstandingItems = $orderDetails->items->whereIn('status', ['pending', 'preparing',
+                'ready_for_pickup']);
 
-                @if(isset($orderDetails))
+                // Compute subtotals
+                $chargedSubtotal = $chargedItems->sum(fn($i) => $i->price * $i->quantity);
+                $notChargedSubtotal = $notChargedItems->sum(fn($i) => $i->price * $i->quantity);
+                $outstandingSubtotal = $outstandingItems->sum(fn($i) => $i->price * $i->quantity);
+
+                // Compute VAT (12% per bucket)
+                $chargedVat = $chargedSubtotal * 0.12;
+                $notChargedVat = $notChargedSubtotal * 0.12;
+                $outstandingVat = $outstandingSubtotal * 0.12;
+
+                // Compute totals
+                $chargedTotal = $chargedSubtotal + $chargedVat;
+                $notChargedTotal = $notChargedSubtotal + $notChargedVat;
+                $outstandingTotal = $outstandingSubtotal + $outstandingVat;
+
+                // Original order
+                $originalSubtotal = $orderDetails->subtotal ?? $orderDetails->total_amount;
+                $originalVat = $orderDetails->tax_amount ?? ($originalSubtotal * 0.12);
+                $originalTotal = $orderDetails->total_amount;
+                @endphp
+
                 <div class="border-t border-gray-200 pt-3">
-                    <div class="bg-gray-50 rounded-lg p-3 space-y-1.5">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Subtotal</span>
-                            <span class="text-gray-700">₱{{ number_format($orderDetails->subtotal ??
-                                $orderDetails->total_amount, 2) }}</span>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Summary</h4>
+
+                    {{-- ============ ORIGINAL ORDER ============ --}}
+                    <div class="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-200">
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">📦 Original Order</p>
+                        <div class="space-y-1 mb-2">
+                            @foreach($orderDetails->items as $item)
+                            @php
+                            $isUpdatedItem = isset($selectedNotification->data['item_id'])
+                            && $selectedNotification->data['item_id'] == $item->id;
+                            @endphp
+                            <div class="flex justify-between items-center text-sm gap-3 rounded px-3 py-2
+                                {{ $isUpdatedItem ? 'bg-amber-100 border border-amber-300' : '' }}">
+                                <span class="text-gray-700 truncate">• {{ $item->product->name ?? 'N/A' }} ({{
+                                    $item->quantity }}x)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($item->price *
+                                    $item->quantity, 2) }}</span>
+                            </div>
+                            @endforeach
                         </div>
-                        @if($orderDetails->tax_amount)
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">VAT (12%)</span>
-                            <span class="text-gray-700">₱{{ number_format($orderDetails->tax_amount, 2) }}</span>
+
+                        <div class="space-y-1 pt-2 border-t border-gray-300">
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">Subtotal</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($originalSubtotal, 2)
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">VAT (12%)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($originalVat, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold pt-1 border-t border-gray-300 gap-2">
+                                <span class="text-gray-800">Original Total</span>
+                                <span class="text-gray-800 flex-shrink-0">₱{{ number_format($originalTotal, 2) }}</span>
+                            </div>
                         </div>
+                    </div>
+
+                    {{-- ============ CHARGED TO CUSTOMER ============ --}}
+                    <div class="bg-green-50 rounded-lg p-3 mb-3 border border-green-200">
+                        <p class="text-xs font-bold text-green-700 uppercase tracking-wider mb-2">✅ Charged to Customer
+                        </p>
+                        @if($chargedItems->count() > 0)
+                        <div class="space-y-1 mb-2">
+                            @foreach($chargedItems as $item)
+                            <div class="flex justify-between items-center text-sm gap-2">
+                                <span class="text-gray-700 truncate">• {{ $item->product->name ?? 'N/A' }} ({{
+                                    $item->quantity }}x)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($item->price *
+                                    $item->quantity, 2) }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                        <div class="space-y-1 pt-2 border-t border-green-200">
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">Completed Items</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($chargedSubtotal, 2)
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">VAT (12%)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($chargedVat, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold pt-1 border-t border-green-200 gap-2">
+                                <span class="text-green-800">Amount Charged</span>
+                                <span class="text-green-800 flex-shrink-0">₱{{ number_format($chargedTotal, 2) }}</span>
+                            </div>
+                        </div>
+                        @else
+                        <p class="text-sm text-gray-500 italic">No completed items yet.</p>
                         @endif
-                        <div class="flex justify-between text-base font-bold pt-1 border-t border-gray-200">
-                            <span class="text-gray-800">Total</span>
-                            <span class="text-amber-600">₱{{ number_format($orderDetails->total_amount, 2) }}</span>
+                    </div>
+
+                    {{-- ============ NOT CHARGED ============ --}}
+                    <div class="bg-red-50 rounded-lg p-3 mb-3 border border-red-200">
+                        <p class="text-xs font-bold text-red-700 uppercase tracking-wider mb-2">❌ Not Charged</p>
+                        @if($notChargedItems->count() > 0)
+                        <div class="space-y-1 mb-2">
+                            @foreach($notChargedItems as $item)
+                            <div class="flex justify-between items-center text-sm gap-2">
+                                <span class="text-gray-700 truncate">• {{ $item->product->name ?? 'N/A' }} ({{
+                                    $item->quantity }}x)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($item->price *
+                                    $item->quantity, 2) }}</span>
+                            </div>
+                            @endforeach
                         </div>
+                        <div class="space-y-1 pt-2 border-t border-red-200">
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">Cancelled / No Show</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($notChargedSubtotal, 2)
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">VAT (12%)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($notChargedVat, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold pt-1 border-t border-red-200 gap-2">
+                                <span class="text-red-800">Amount Not Charged</span>
+                                <span class="text-red-800 flex-shrink-0">₱{{ number_format($notChargedTotal, 2)
+                                    }}</span>
+                            </div>
+                        </div>
+                        @else
+                        <p class="text-sm text-gray-500 italic">No cancelled or no-show items.</p>
+                        @endif
+                    </div>
+
+                    {{-- ============ OUTSTANDING ============ --}}
+                    <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                        <p class="text-xs font-bold text-yellow-700 uppercase tracking-wider mb-2">⏳ Outstanding</p>
+                        @if($outstandingItems->count() > 0)
+                        <div class="space-y-1 mb-2">
+                            @foreach($outstandingItems as $item)
+                            <div class="flex justify-between items-center text-sm gap-2">
+                                <span class="text-gray-700 truncate">• {{ $item->product->name ?? 'N/A' }} ({{
+                                    $item->quantity }}x)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($item->price *
+                                    $item->quantity, 2) }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                        <div class="space-y-1 pt-2 border-t border-yellow-200">
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">Pending + Preparing</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($outstandingSubtotal, 2)
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm gap-2">
+                                <span class="text-gray-500">VAT (12%)</span>
+                                <span class="text-gray-700 flex-shrink-0">₱{{ number_format($outstandingVat, 2)
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold pt-1 border-t border-yellow-200 gap-2">
+                                <span class="text-yellow-800">Amount Outstanding</span>
+                                <span class="text-yellow-800 flex-shrink-0">₱{{ number_format($outstandingTotal, 2)
+                                    }}</span>
+                            </div>
+                        </div>
+                        @else
+                        <p class="text-sm text-gray-500 italic">No pending or preparing items.</p>
+                        @endif
                     </div>
                 </div>
                 @endif

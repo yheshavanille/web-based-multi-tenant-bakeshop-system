@@ -69,7 +69,6 @@ class Checkout extends Component
             $this->pickupTimes[$item->id] = now()->addMinutes(30)->format('Y-m-d\TH:i');
         }
 
-        // ✅ Group items by shop AFTER everything is set up
         $this->groupItemsByShop();
     }
 
@@ -90,7 +89,6 @@ class Checkout extends Component
             $this->shopGroups[$shopId]['items'][] = $item;
         }
 
-        // ✅ Debug: Log shop groups
         \Log::info('Shop Groups:', ['shop_ids' => array_keys($this->shopGroups)]);
     }
 
@@ -99,17 +97,18 @@ class Checkout extends Component
         $selectedCartIds = session()->get('checkout_items', []);
 
         if (empty($selectedCartIds)) {
-            $this->cartItems = Cart::with('product.shop') // ✅ Load shop relationship
+            $this->cartItems = Cart::with('product.shop')
                 ->where('user_id', Auth::id())
                 ->get();
         } else {
-            $this->cartItems = Cart::with('product.shop') // ✅ Load shop relationship
+            $this->cartItems = Cart::with('product.shop')
                 ->where('user_id', Auth::id())
                 ->whereIn('id', $selectedCartIds)
                 ->get();
         }
 
-        session()->forget('checkout_items');
+        // ✅ Session is preserved here so the checkout selection survives
+        //    back-button navigation. It gets cleared after payment succeeds.
         $this->calculateTotal();
     }
 
@@ -300,13 +299,16 @@ class Checkout extends Component
                 $createdOrders[] = $order;
             }
 
-            $cartIds = $this->cartItems->pluck('id')->toArray();
-            Cart::where('user_id', Auth::id())->whereIn('id', $cartIds)->delete();
-            $this->dispatch('cartUpdated');
+            // ✅ DON'T delete cart yet — order isn't confirmed until payment succeeds.
+            //    Save the cart IDs to session so the payment.success route can clear them.
+            session()->put('pending_cart_clear', $this->cartItems->pluck('id')->toArray());
 
             foreach ($createdOrders as $order) {
                 $this->notifyOrderManagers($order);
             }
+
+            // ✅ Keep checkout_items in session too — so back-button navigation
+            //    from PayMongo still shows only the selected items.
 
             $this->isProcessing = false;
             $this->dispatch('refreshNotifications');
@@ -378,6 +380,7 @@ class Checkout extends Component
             $createdOrders[] = $order;
         }
 
+        // ✅ Cash on Pickup: order is confirmed immediately, so delete cart right away
         $cartIds = $this->cartItems->pluck('id')->toArray();
         Cart::where('user_id', Auth::id())->whereIn('id', $cartIds)->delete();
 
@@ -386,6 +389,9 @@ class Checkout extends Component
         foreach ($createdOrders as $order) {
             $this->notifyOrderManagers($order);
         }
+
+        // ✅ Clear the checkout selection now that the order succeeded
+        session()->forget('checkout_items');
 
         $this->isProcessing = false;
         $this->dispatch('refreshNotifications');
