@@ -1,6 +1,13 @@
 <div>
     <div class="max-w-2xl mx-auto">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">My Profile</h1>
+        <!-- Header with Super Admin Badge -->
+        <div class="flex items-center gap-3 mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">My Profile</h1>
+            <span
+                class="text-xs font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                👑 Super Admin
+            </span>
+        </div>
 
         @if (session()->has('message'))
         <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
@@ -23,7 +30,6 @@
                 <div class="flex items-center gap-6">
                     <div class="relative flex-shrink-0">
                         @if($temp_profile_picture_preview)
-                        <!-- Show temporary preview of uploaded image -->
                         <img src="{{ $temp_profile_picture_preview }}" alt="Profile Picture Preview"
                             class="w-20 h-20 rounded-full object-cover border-2 border-amber-400 shadow-md">
                         <div
@@ -31,11 +37,9 @@
                             New
                         </div>
                         @elseif($profile_picture)
-                        <!-- Show existing profile picture -->
                         <img src="{{ asset('storage/' . $profile_picture) }}?t={{ time() }}" alt="Profile Picture"
                             class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
                         @else
-                        <!-- Show initials if no profile picture -->
                         <div
                             class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center text-3xl text-amber-600 border-2 border-gray-200">
                             {{ substr($name, 0, 1) }}

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\EmployeeActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -140,5 +141,10 @@ class Employee extends Model
     public function hasAvailableActions()
     {
         return $this->user && !$this->user->trashed() && !$this->trashed();
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(EmployeeActivity::class)->latest();
     }
 }

@@ -129,6 +129,63 @@
         @endif
     </div>
 
+    <!-- ✅ RECENT EMPLOYEE ACTIVITIES -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">👥</span>
+                <h2 class="text-lg font-semibold text-gray-800">Recent Employee Activities</h2>
+                <span class="text-sm text-gray-500">Last 5 activities</span>
+            </div>
+            <a href="{{ route('livewire.owner.employee-activities') }}"
+                class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                View All →
+            </a>
+        </div>
+
+        @if($recentEmployeeActivities->count() > 0)
+        <div class="space-y-3">
+            @foreach($recentEmployeeActivities as $activity)
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                @php
+                $pic = $activity->employee->user->profile_picture ?? null;
+                @endphp
+                @if($pic)
+                <img src="{{ asset('storage/' . $pic) }}"
+                    class="w-10 h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                @else
+                <div
+                    class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                    {{ strtoupper(substr($activity->employee->user->name ?? 'E', 0, 2)) }}
+                </div>
+                @endif
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">
+                        {{ $activity->employee->user->name ?? 'N/A' }}
+                    </p>
+                    <p class="text-xs text-gray-600 truncate">{{ $activity->description }}</p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <span class="text-xs px-2 py-0.5 rounded-full
+                        {{ $activity->action === 'password_changed_self' ? 'bg-blue-100 text-blue-800' : '' }}
+                        {{ $activity->action === 'password_changed_by_owner' ? 'bg-purple-100 text-purple-800' : '' }}
+                        {{ $activity->action === 'profile_updated' ? 'bg-green-100 text-green-800' : '' }}
+                        {{ $activity->action === 'employee_created' ? 'bg-amber-100 text-amber-800' : '' }}">
+                        {{ $activity->action_label }}
+                    </span>
+                    <p class="text-xs text-gray-400 mt-1">{{ $activity->created_at->diffForHumans() }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @else
+        <div class="text-center py-8 text-gray-500">
+            <span class="text-3xl block mb-2">📭</span>
+            <p class="text-sm">No employee activities yet.</p>
+        </div>
+        @endif
+    </div>
+
     <!-- Best Selling Products -->
     @if($bestSellers->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">

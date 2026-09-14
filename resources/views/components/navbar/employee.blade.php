@@ -16,10 +16,21 @@
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false"
                         class="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition">
+                        @php
+                        $user = auth()->user();
+                        $profilePic = $user->profile_picture;
+                        @endphp
+
+                        @if($profilePic)
+                        <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
+                            class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">
+                        @else
                         <div
-                            class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'E', 0, 2)) }}
+                            class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                            {{ strtoupper(substr($user->name ?? 'E', 0, 2)) }}
                         </div>
+                        @endif
+
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                             </path>
@@ -31,15 +42,28 @@
                         class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
 
                         <div class="px-4 py-3 border-b border-gray-100">
-                            <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
-                            @php($employee = auth()->user()->employee)
-                            <p class="text-xs text-gray-400">
-                                {{ $employee?->role_label ?? 'Employee' }}
-                                @if($employee?->branch)
-                                - {{ $employee->branch->name }}
+                            <div class="flex items-center gap-3">
+                                @if($profilePic)
+                                <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
+                                    class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">
+                                @else
+                                <div
+                                    class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                                    {{ strtoupper(substr($user->name ?? 'E', 0, 2)) }}
+                                </div>
                                 @endif
-                            </p>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $user->email }}</p>
+                                    @php($employee = $user->employee)
+                                    <p class="text-xs text-gray-400">
+                                        {{ $employee?->role_label ?? 'Employee' }}
+                                        @if($employee?->branch)
+                                        - {{ $employee->branch->name }}
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <a href="{{ route('livewire.employee.dashboard') }}"
@@ -75,6 +99,12 @@
                             <span class="text-lg">📋</span> Stock Edit History
                         </a>
                         @endif
+
+                        <!-- ✅ My Profile -->
+                        <a href="{{ route('livewire.employee.profile') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">👤</span> My Profile
+                        </a>
 
                         <div class="border-t border-gray-100 my-1"></div>
 

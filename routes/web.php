@@ -79,6 +79,12 @@ Route::prefix('admin')
         Route::get('/shops/shopdetails/{shopId}', ShopDetails::class)->name('livewire.admin.pages.shops.shop-details');
         Route::get('/users', ManageUsers::class)->name('livewire.admin.pages.users.manage-users');
         Route::get('/pending-sellers', \App\Livewire\Admin\PendingSellers::class)->name('livewire.admin.pending-sellers');
+
+        // ✅ NEW: Employee Activities (all shops)
+        Route::get('/employee-activities', \App\Livewire\Admin\EmployeeActivities::class)->name('livewire.admin.employee-activities');
+
+        // ✅ NEW: Super Admin Profile
+        Route::get('/profile', \App\Livewire\Admin\Profile::class)->name('livewire.admin.profile');
     });
 
 // ==================== OWNER ROUTES ====================
@@ -100,6 +106,7 @@ Route::prefix('owner')
         Route::get('/reviews-history', ReviewsHistory::class)->name('livewire.owner.reviews-history');
         Route::get('/product-history', ProductHistory::class)->name('livewire.owner.product-history');
         Route::get('/stock-history', StockUpdateHistory::class)->name('livewire.owner.stock-history');
+        Route::get('/employee-activities', \App\Livewire\Owner\EmployeeActivities::class)->name('livewire.owner.employee-activities');
         Route::get('/owner-about-us', OwnerAboutUs::class)->name('livewire.owner.public-pages.owner-about-us');
         Route::get('/owner-teams', OwnerTeams::class)->name('livewire.owner.public-pages.owner-teams');
     });
@@ -127,6 +134,9 @@ Route::prefix('employee')
     ->middleware(['auth', 'employee'])
     ->group(function () {
         Route::get('/dashboard', \App\Livewire\Employee\Dashboard::class)->name('livewire.employee.dashboard');
+
+        // ✅ Employee Profile
+        Route::get('/profile', \App\Livewire\Employee\Profile::class)->name('livewire.employee.profile');
         Route::get('/orders', \App\Livewire\Employee\Orders::class)
             ->name('livewire.employee.orders')
             ->middleware('employee.role:order_manager');

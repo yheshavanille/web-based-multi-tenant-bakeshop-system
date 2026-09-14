@@ -4,13 +4,18 @@ namespace App\Livewire\Owner\Employees;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\EmployeeActivity;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class ManageEmployees extends Component
 {
+    use WithFileUploads;
+
     public $employees = [];
     public $branches = [];
     public $showForm = false;
@@ -27,9 +32,17 @@ class ManageEmployees extends Component
     public $showDeleted = false;
     public $search = '';
 
-    // Password Reset Properties
+    // ✅ NEW: Recent activities preview
+    public $recentEmployeeActivities = [];
+
+    // Profile Picture Properties
+    public $new_profile_picture;
+    public $temp_profile_picture_preview = null;
+    public $existing_profile_picture = null;
+    public $removeImage = false;
+
+    // Password Reset Properties (for editing employees)
     public $showResetPassword = false;
-    public $current_password = '';
     public $new_password = '';
     public $new_password_confirmation = '';
 
@@ -51,6 +64,21 @@ class ManageEmployees extends Component
 
         $this->selectedBranchId = $branch;
         $this->loadEmployees();
+
+        // ✅ NEW: Load recent activities
+        $this->loadRecentEmployeeActivities();
+    }
+
+    // ✅ NEW: Recent Activities
+    public function loadRecentEmployeeActivities()
+    {
+        $shop = Auth::user()->shop;
+
+        $this->recentEmployeeActivities = EmployeeActivity::where('shop_id', $shop->id)
+            ->with(['employee.user', 'employee.branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
     }
 
     public function loadEmployees()
@@ -93,6 +121,16 @@ class ManageEmployees extends Component
         $this->loadEmployees();
     }
 
+    public function updatedNewProfilePicture()
+    {
+        $this->validate([
+            'new_profile_picture' => 'image|max:2048',
+        ]);
+
+        $this->temp_profile_picture_preview = $this->new_profile_picture->temporaryUrl();
+        $this->removeImage = false;
+    }
+
     public function clearSearch()
     {
         $this->search = '';
@@ -108,7 +146,8 @@ class ManageEmployees extends Component
     public function createNew()
     {
         $this->reset(['name', 'email', 'phone', 'role', 'branch_id', 'password', 'password_confirmation', 'employeeId']);
-        $this->reset(['showResetPassword', 'current_password', 'new_password', 'new_password_confirmation']);
+        $this->reset(['showResetPassword', 'new_password', 'new_password_confirmation']);
+        $this->reset(['new_profile_picture', 'temp_profile_picture_preview', 'existing_profile_picture', 'removeImage']);
         $this->editing = false;
         $this->showForm = true;
     }
@@ -141,53 +180,45 @@ class ManageEmployees extends Component
         $this->showForm = true;
         $this->password = '';
         $this->password_confirmation = '';
-        $this->reset(['showResetPassword', 'current_password', 'new_password', 'new_password_confirmation']);
+
+        $this->existing_profile_picture = $employee->user->profile_picture;
+
+        $this->reset(['showResetPassword', 'new_password', 'new_password_confirmation']);
+        $this->reset(['new_profile_picture', 'temp_profile_picture_preview', 'removeImage']);
     }
 
     public function cancel()
     {
         $this->showForm = false;
         $this->reset(['name', 'email', 'phone', 'role', 'branch_id', 'password', 'password_confirmation', 'employeeId']);
-        $this->reset(['showResetPassword', 'current_password', 'new_password', 'new_password_confirmation']);
+        $this->reset(['showResetPassword', 'new_password', 'new_password_confirmation']);
+        $this->reset(['new_profile_picture', 'temp_profile_picture_preview', 'existing_profile_picture', 'removeImage']);
+    }
+
+    public function removeProfilePicture()
+    {
+        $this->removeImage = true;
+        $this->temp_profile_picture_preview = null;
+        $this->new_profile_picture = null;
     }
 
     public function toggleResetPassword()
     {
         $this->showResetPassword = !$this->showResetPassword;
         if (!$this->showResetPassword) {
-            $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
+            $this->reset(['new_password', 'new_password_confirmation']);
         }
-    }
-
-    public function updatePassword()
-    {
-        $this->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
-        ]);
-
-        $employee = Employee::findOrFail($this->employeeId);
-        $user = User::findOrFail($employee->user_id);
-
-        if (!Hash::check($this->current_password, $user->password)) {
-            $this->addError('current_password', 'Current password is incorrect.');
-            return;
-        }
-
-        $user->update([
-            'password' => Hash::make($this->new_password),
-        ]);
-
-        $this->showResetPassword = false;
-        $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
-        $this->loadEmployees();
-
-        session()->flash('message', 'Password updated successfully!');
     }
 
     public function save()
     {
         $shop = Auth::user()->shop;
+
+        if ($this->new_profile_picture) {
+            $this->validate([
+                'new_profile_picture' => 'image|max:2048',
+            ]);
+        }
 
         if ($this->editing) {
             $employee = Employee::findOrFail($this->employeeId);
@@ -212,36 +243,76 @@ class ManageEmployees extends Component
                 'branch_id' => 'required|exists:branches,id',
             ];
 
+            if (!empty($this->new_password) || !empty($this->new_password_confirmation)) {
+                $rules['new_password'] = 'required|min:8|confirmed';
+            }
+
             $this->validate($rules);
 
             $user = User::findOrFail($employee->user_id);
-            $user->update([
+
+            $updateData = [
                 'name' => $this->name,
                 'email' => $this->email,
                 'phone' => $this->phone,
-            ]);
+            ];
+
+            if ($this->new_profile_picture) {
+                if ($user->profile_picture) {
+                    Storage::disk('public')->delete($user->profile_picture);
+                }
+                $path = $this->new_profile_picture->store('profile-pictures', 'public');
+                $updateData['profile_picture'] = $path;
+            } elseif ($this->removeImage) {
+                if ($user->profile_picture) {
+                    Storage::disk('public')->delete($user->profile_picture);
+                }
+                $updateData['profile_picture'] = null;
+            }
+
+            $user->update($updateData);
 
             $employee->update([
                 'role' => $this->role,
                 'branch_id' => $this->branch_id,
             ]);
 
+            if (!empty($this->new_password)) {
+                $user->update([
+                    'password' => Hash::make($this->new_password),
+                ]);
+
+                EmployeeActivity::create([
+                    'employee_id' => $employee->id,
+                    'shop_id'     => $employee->shop_id,
+                    'action'      => 'password_changed_by_owner',
+                    'description' => Auth::user()->name . ' changed ' . $user->name . "'s password",
+                ]);
+            }
+
             session()->flash('message', 'Employee updated successfully!');
         } else {
             $this->validate();
 
-            $user = User::create([
+            $userData = [
                 'name' => $this->name,
                 'email' => $this->email,
                 'phone' => $this->phone,
                 'password' => Hash::make($this->password),
                 'role' => 'employee',
                 'shop_id' => $shop->id,
-            ]);
+            ];
+
+            if ($this->new_profile_picture) {
+                $path = $this->new_profile_picture->store('profile-pictures', 'public');
+                $userData['profile_picture'] = $path;
+            }
+
+            $user = User::create($userData);
 
             $user->assignRole('employee');
 
-            Employee::create([
+            $newEmployee = Employee::create([
                 'user_id' => $user->id,
                 'shop_id' => $shop->id,
                 'branch_id' => $this->branch_id,
@@ -249,11 +320,20 @@ class ManageEmployees extends Component
                 'is_active' => true,
             ]);
 
+            EmployeeActivity::create([
+                'employee_id' => $newEmployee->id,
+                'shop_id'     => $shop->id,
+                'action'      => 'employee_created',
+                'description' => Auth::user()->name . ' created account for ' . $user->name,
+            ]);
+
             session()->flash('message', 'Employee created successfully!');
         }
 
         $this->cancel();
         $this->loadEmployees();
+        // ✅ Refresh recent activities after save
+        $this->loadRecentEmployeeActivities();
     }
 
     public function toggleStatus($employeeId)

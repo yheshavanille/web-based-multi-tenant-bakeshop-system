@@ -19,7 +19,7 @@ class AdminDashboard extends Component
     public $pendingSellers;
     public $recentApplications;
 
-    // ✅ NEW: Best Selling Shops
+    // ✅ Best Selling Shops
     public $topShops = [];
     public $allShopsRanked = [];
 
@@ -35,13 +35,11 @@ class AdminDashboard extends Component
             ->limit(5)
             ->get();
 
-        // ✅ Load Best Selling Shops
         $this->loadBestSellingShops();
     }
 
     public function loadBestSellingShops()
     {
-        // Get all shops with their sales data
         $shops = Shop::with('user')
             ->withCount('orders')
             ->get();
@@ -49,25 +47,34 @@ class AdminDashboard extends Component
         $shopPerformance = [];
 
         foreach ($shops as $shop) {
-            // Get total sales from completed orders
-            $totalSales = Order::where('shop_id', $shop->id)
-                ->where('status', 'completed')
-                ->sum('total_amount');
 
-            $totalOrders = Order::where('shop_id', $shop->id)
+            // ✅ MATCH ShopDetails.php — item-level, net of VAT, includes partials
+            $totalSales = OrderItem::whereHas('order', function ($query) use ($shop) {
+                $query->where('shop_id', $shop->id)
+                    ->whereIn('status', ['completed', 'partially_completed']);
+            })
                 ->where('status', 'completed')
-                ->count();
+                ->sum(DB::raw('quantity * price'));
 
-            // Get average rating
+            $totalOrders = OrderItem::whereHas('order', function ($query) use ($shop) {
+                $query->where('shop_id', $shop->id)
+                    ->whereIn('status', ['completed', 'partially_completed']);
+            })
+                ->where('status', 'completed')
+                ->distinct('order_id')
+                ->count('order_id');
+
+            // Average rating
             $avgRating = DB::table('service_reviews')
                 ->where('shop_id', $shop->id)
                 ->avg('rating') ?? 0;
 
-            // Get top selling product for this shop
+            // ✅ MATCH ShopDetails.php — top product uses same filter as sales
             $topProduct = OrderItem::whereHas('order', function ($query) use ($shop) {
                 $query->where('shop_id', $shop->id)
-                    ->where('status', 'completed');
+                    ->whereIn('status', ['completed', 'partially_completed']);
             })
+                ->where('status', 'completed')
                 ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
                 ->groupBy('product_id')
                 ->orderBy('total_sold', 'desc')
@@ -90,10 +97,10 @@ class AdminDashboard extends Component
             return $b['total_sales'] <=> $a['total_sales'];
         });
 
-        // Get top 3 for banner
+        // Top 3 for banner
         $this->topShops = array_slice($shopPerformance, 0, 3);
 
-        // Get all for table (with rank)
+        // All for table (with rank)
         $this->allShopsRanked = $shopPerformance;
     }
 

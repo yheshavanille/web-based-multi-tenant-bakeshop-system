@@ -157,6 +157,81 @@
             @endif
         </div>
 
+        <!-- ✅ RECENT EMPLOYEE ACTIVITIES -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">👥 Recent Employee Activities</h3>
+                    <p class="text-sm text-gray-500">Last 5 activities from this shop's employees</p>
+                </div>
+                <a href="{{ route('livewire.admin.employee-activities', ['shop' => $shop->id]) }}"
+                    class="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition">
+                    View All →
+                </a>
+            </div>
+
+            @if($recentEmployeeActivities->count() > 0)
+            <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Employee</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Description</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">When</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @foreach($recentEmployeeActivities as $activity)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    @php
+                                    $pic = $activity->employee->user->profile_picture ?? null;
+                                    @endphp
+                                    @if($pic)
+                                    <img src="{{ asset('storage/' . $pic) }}"
+                                        class="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                                    @else
+                                    <div
+                                        class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                                        {{ strtoupper(substr($activity->employee->user->name ?? 'E', 0, 2)) }}
+                                    </div>
+                                    @endif
+                                    <p class="font-medium text-gray-800">{{ $activity->employee->user->name ?? 'N/A' }}
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-gray-600">
+                                {{ $activity->employee->branch->name ?? 'N/A' }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <span
+                                    class="text-xs px-2 py-1 rounded-full
+                                    {{ $activity->action === 'password_changed_self' ? 'bg-blue-100 text-blue-800' : '' }}
+                                    {{ $activity->action === 'password_changed_by_owner' ? 'bg-purple-100 text-purple-800' : '' }}
+                                    {{ $activity->action === 'profile_updated' ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $activity->action === 'employee_created' ? 'bg-amber-100 text-amber-800' : '' }}">
+                                    {{ $activity->action_label }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-600">{{ $activity->description }}</td>
+                            <td class="px-4 py-3 text-gray-400 text-xs">{{ $activity->created_at->diffForHumans() }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="text-center py-8 text-gray-500">
+                <span class="text-3xl block mb-2">📭</span>
+                <p class="text-sm">No employee activities for this shop yet.</p>
+            </div>
+            @endif
+        </div>
+
         <!-- Products Section -->
         <div id="products" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

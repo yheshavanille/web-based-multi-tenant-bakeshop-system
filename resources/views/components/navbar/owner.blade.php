@@ -44,7 +44,7 @@
 
                     <div x-show="open" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
 
                         <div class="px-4 py-3 border-b border-gray-100">
                             <div class="flex items-center gap-3">
@@ -116,6 +116,12 @@
                         <a href="{{ route('livewire.owner.stock-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <span class="text-lg">📦</span> Stock Update History
+                        </a>
+
+                        <!-- ✅ EMPLOYEE ACTIVITIES -->
+                        <a href="{{ route('livewire.owner.employee-activities') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">👥</span> Employee Activities
                         </a>
 
                         <div class="border-t border-gray-100 my-1"></div>

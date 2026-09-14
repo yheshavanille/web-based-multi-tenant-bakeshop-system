@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Pages\Shops;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Employee;
+use App\Models\EmployeeActivity;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -25,6 +26,9 @@ class ShopDetails extends Component
     public $totalOrders = 0;
     public $totalProducts = 0;
     public $totalEmployees = 0;
+
+    // ✅ Recent Employee Activities
+    public $recentEmployeeActivities = [];
 
     // Recent Orders properties
     public $recentOrders = [];
@@ -93,6 +97,19 @@ class ShopDetails extends Component
 
         // Load Recent Orders (last 5) — ALL orders now
         $this->loadRecentOrders();
+
+        // ✅ Load recent employee activities
+        $this->loadRecentEmployeeActivities();
+    }
+
+    // ✅ NEW: Recent Employee Activities for this shop
+    public function loadRecentEmployeeActivities()
+    {
+        $this->recentEmployeeActivities = EmployeeActivity::where('shop_id', $this->shop->id)
+            ->with(['employee.user', 'employee.branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
     }
 
     // ✅ FIX: Show ALL orders (not just completed)

@@ -4,6 +4,7 @@ namespace App\Livewire\Owner;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\EmployeeActivity;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -30,6 +31,9 @@ class Dashboard extends Component
     public $shopRatingCount = 0;
     public $recentReviews = [];
     public $recentOrders = [];
+
+    // ✅ NEW: Recent Employee Activities
+    public $recentEmployeeActivities = [];
 
     // Order Details Modal
     public $showOrderModal = false;
@@ -151,6 +155,21 @@ class Dashboard extends Component
             ->get();
 
         $this->loadRecentOrders();
+
+        // ✅ NEW: Load recent employee activities
+        $this->loadRecentEmployeeActivities();
+    }
+
+    // ✅ NEW: Recent Employee Activities
+    public function loadRecentEmployeeActivities()
+    {
+        $shop = Auth::user()->shop;
+
+        $this->recentEmployeeActivities = EmployeeActivity::where('shop_id', $shop->id)
+            ->with(['employee.user', 'employee.branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
     }
 
     public function loadRecentOrders()
@@ -257,7 +276,6 @@ class Dashboard extends Component
         $this->loadRecentOrders();
     }
 
-    // ✅ NEW: Calculate the 4-section breakdown with product lists
     public function getBreakdown()
     {
         if (!$this->selectedOrder) {
