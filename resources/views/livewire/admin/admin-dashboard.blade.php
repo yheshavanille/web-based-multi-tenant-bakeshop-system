@@ -91,7 +91,7 @@
                 </div>
                 <div class="mt-2 flex justify-center gap-6 text-sm">
                     <div>
-                        <p class="text-gray-500 text-xs">Total Sales</p>
+                        <p class="text-gray-500 text-xs">Total Revenue</p>
                         <p class="font-bold text-green-600">₱{{ number_format($data['total_sales'], 2) }}</p>
                     </div>
                     <div>

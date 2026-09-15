@@ -293,7 +293,7 @@
     <!-- ✅ Order Details Modal - Larger & Scrollable -->
     @if($showDetailsModal && $selectedOrderDetails)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" wire:click="closeDetailsModal"></div>
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDetailsModal"></div>
 
         <div class="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 92vh;">

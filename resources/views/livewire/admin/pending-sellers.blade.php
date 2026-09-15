@@ -138,7 +138,7 @@
 
         <!-- Details Modal -->
         @if($showDetails && $selectedApplication)
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="fixed inset-0 bg-gray-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div
                 class="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6">
 
