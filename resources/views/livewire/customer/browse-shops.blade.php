@@ -55,7 +55,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($shops as $shop)
             <div
-                class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
+                class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col">
                 <div
                     class="h-48 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center overflow-hidden">
                     @if($shop->shop_image)
@@ -65,10 +65,10 @@
                     <span class="text-6xl">🍰</span>
                     @endif
                 </div>
-                <div class="p-4">
+                <div class="p-4 flex flex-col flex-1">
                     <h3 class="font-semibold text-gray-900 text-lg">{{ $shop->shop_name }}</h3>
                     <p class="text-sm text-gray-500">{{ $shop->address ?? 'Victorias City' }}</p>
-                    <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ $shop->description ?? 'No description
+                    <p class="text-sm text-gray-600 mt-1 line-clamp-2 flex-1">{{ $shop->description ?? 'No description
                         available' }}</p>
                     <a href="{{ route('livewire.customer.view-products', $shop->id) }}"
                         class="mt-3 inline-block text-sm text-amber-600 hover:text-amber-700 font-medium">

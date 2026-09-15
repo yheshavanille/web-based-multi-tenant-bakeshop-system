@@ -33,6 +33,9 @@ class Checkout extends Component
     public $notes = '';
     public $isProcessing = false;
 
+    // ✅ Persistent stock warning
+    public $stockWarning = null;
+
     public function setPaymentDetail($value)
     {
         $this->payment_method_detail = $value;
@@ -45,6 +48,41 @@ class Checkout extends Component
         if (empty($this->cartItems)) {
             session()->flash('error', 'Your cart is empty.');
             return redirect()->route('livewire.customer.browse-shops');
+        }
+
+        // ✅ Safety net: auto-remove items that went out of stock since cart page
+        $removed = [];
+        foreach ($this->cartItems as $item) {
+            if (!$item->product) continue;
+
+            $hasStock = Branch::where('shop_id', $item->product->shop_id)
+                ->where('is_active', true)
+                ->whereHas('products', function ($q) use ($item) {
+                    $q->where('product_id', $item->product_id)
+                        ->where('branch_product.stock', '>=', $item->quantity);
+                })
+                ->exists();
+
+            if (!$hasStock) {
+                $removed[] = $item->product->name;
+                $item->delete();
+            }
+        }
+
+        if (!empty($removed)) {
+            $this->dispatch('cartUpdated');
+
+            // Reload cart after removal
+            $this->loadCart();
+
+            // ✅ Persistent warning
+            $this->stockWarning = '⚠️ ' . count($removed) . ' item(s) removed because they are out of stock: ' . implode(', ', $removed);
+
+            // If everything was removed, go back to browse
+            if (empty($this->cartItems)) {
+                session()->flash('error', 'Your cart is now empty.');
+                return redirect()->route('livewire.customer.browse-shops');
+            }
         }
 
         $firstItem = $this->cartItems->first();
@@ -70,6 +108,11 @@ class Checkout extends Component
         }
 
         $this->groupItemsByShop();
+    }
+
+    public function dismissStockWarning()
+    {
+        $this->stockWarning = null;
     }
 
     private function groupItemsByShop()
@@ -300,15 +343,11 @@ class Checkout extends Component
             }
 
             // ✅ DON'T delete cart yet — order isn't confirmed until payment succeeds.
-            //    Save the cart IDs to session so the payment.success route can clear them.
             session()->put('pending_cart_clear', $this->cartItems->pluck('id')->toArray());
 
             foreach ($createdOrders as $order) {
                 $this->notifyOrderManagers($order);
             }
-
-            // ✅ Keep checkout_items in session too — so back-button navigation
-            //    from PayMongo still shows only the selected items.
 
             $this->isProcessing = false;
             $this->dispatch('refreshNotifications');

@@ -14,6 +14,16 @@
         </div>
         @endif
 
+        {{-- ✅ Persistent stock warning (stays until dismissed) --}}
+        @if($stockWarning)
+        <div
+            class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-start justify-between gap-3">
+            <span>{{ $stockWarning }}</span>
+            <button wire:click="dismissStockWarning"
+                class="text-red-700 hover:text-red-900 font-bold text-lg leading-none flex-shrink-0">✕</button>
+        </div>
+        @endif
+
         @if($cartItems->count() > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="flex items-center gap-4 p-4 bg-gray-50 border-b border-gray-200">

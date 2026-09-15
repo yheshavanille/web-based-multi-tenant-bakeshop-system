@@ -15,6 +15,9 @@ class Cart extends Component
     public $selectedItems = [];
     public $selectAll = false;
 
+    // ✅ Persistent stock warning
+    public $stockWarning = null;
+
     protected $listeners = ['cartUpdated' => 'loadCart'];
 
     public function mount()
@@ -28,9 +31,45 @@ class Cart extends Component
             ->where('user_id', Auth::id())
             ->get();
 
+        // ✅ Auto-remove items that are out of stock at all branches
+        $removed = [];
+        foreach ($this->cartItems as $item) {
+            if (!$item->product) continue;
+
+            $hasStock = Branch::where('shop_id', $item->product->shop_id)
+                ->where('is_active', true)
+                ->whereHas('products', function ($q) use ($item) {
+                    $q->where('product_id', $item->product_id)
+                        ->where('branch_product.stock', '>=', $item->quantity);
+                })
+                ->exists();
+
+            if (!$hasStock) {
+                $removed[] = $item->product->name;
+                $item->delete();
+            }
+        }
+
+        // Reload cart after removing out-of-stock items
+        if (!empty($removed)) {
+            $this->cartItems = CartModel::with(['product.branches', 'branch'])
+                ->where('user_id', Auth::id())
+                ->get();
+
+            $this->dispatch('cartUpdated');
+
+            // ✅ Persistent warning — stays until dismissed
+            $this->stockWarning = '⚠️ ' . count($removed) . ' item(s) removed because they are out of stock: ' . implode(', ', $removed);
+        }
+
         // ✅ REMOVED AUTO-SELECT - Items will NOT be selected by default
 
         $this->calculateTotal();
+    }
+
+    public function dismissStockWarning()
+    {
+        $this->stockWarning = null;
     }
 
     public function calculateTotal()

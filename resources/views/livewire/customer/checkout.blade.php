@@ -17,6 +17,16 @@
         </div>
         @endif
 
+        {{-- ✅ Persistent stock warning (stays until dismissed) --}}
+        @if($stockWarning)
+        <div
+            class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start justify-between gap-3">
+            <span>{{ $stockWarning }}</span>
+            <button wire:click="dismissStockWarning"
+                class="text-red-700 hover:text-red-900 font-bold text-lg leading-none flex-shrink-0">✕</button>
+        </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- LEFT COLUMN -->
             <div class="lg:col-span-8 space-y-4">
@@ -202,7 +212,7 @@
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
                                 {{ $payment_method === 'paymongo' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
-                                <input type="radio" wire:model="payment_method" value="paymongo"
+                                <input type="radio" wire:model.live="payment_method" value="paymongo"
                                     class="text-amber-600 focus:ring-amber-500">
                                 💳 PayMongo
                             </label>
@@ -210,7 +220,7 @@
                             <label
                                 class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm
                                 {{ $payment_method === 'pickup_payment' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
-                                <input type="radio" wire:model="payment_method" value="pickup_payment"
+                                <input type="radio" wire:model.live="payment_method" value="pickup_payment"
                                     class="text-amber-600 focus:ring-amber-500">
                                 💵 Cash on Pickup
                             </label>

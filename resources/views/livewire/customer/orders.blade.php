@@ -86,7 +86,7 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Pickup Time</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 w-40">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
@@ -114,7 +114,7 @@
                             <td class="px-4 py-3 text-gray-500">
                                 {{ \Carbon\Carbon::parse($order->created_at)->format('M d, Y h:i A') }}
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="px-4 py-3 w-40">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <button wire:click="openDetailsModal({{ $order->id }})"
                                         class="text-xs text-blue-600 hover:text-blue-800 font-medium transition">
@@ -135,7 +135,7 @@
                                     @if($hasCompletedItem)
                                     <button wire:click="openReviewModal({{ $order->id }})"
                                         class="text-xs text-amber-600 hover:text-amber-800 font-medium transition">
-                                        ⭐ Leave Review
+                                        Leave Review
                                     </button>
                                     @endif
                                     @elseif(in_array($order->status, ['completed', 'partially_completed']) &&
@@ -153,15 +153,14 @@
                             <td colspan="7" class="px-4 py-3 bg-gray-50 border-t border-gray-200">
                                 <div class="flex flex-col space-y-2">
                                     <!-- Header -->
-                                    <div class="flex justify-between items-center px-4">
-                                        <span class="text-sm font-bold text-gray-800">Order Items</span>
-                                        <span class="text-sm font-bold text-gray-800">Status</span>
+                                    <div class="flex items-center px-4">
+                                        <span class="flex-1 text-sm font-bold text-gray-800">Order Items</span>
+                                        <span class="w-40 pl-4 text-sm font-bold text-gray-800">Status</span>
                                     </div>
                                     <!-- Items -->
                                     @foreach($order->items as $item)
-                                    <div
-                                        class="flex justify-between items-center border-b border-gray-200 pb-2 last:border-0 px-4">
-                                        <div>
+                                    <div class="flex items-center border-b border-gray-200 pb-2 last:border-0 px-4">
+                                        <div class="flex-1">
                                             <p class="text-sm font-bold text-gray-800">
                                                 @if($item->product)
                                                 {{ $item->product->name }}
@@ -185,7 +184,14 @@
                                                 @endif
                                             </p>
                                         </div>
-                                        <div class="flex items-center gap-2">
+                                        <div class="w-40 pl-4 flex items-center gap-2">
+                                            @if($item->status === 'pending')
+                                            <button wire:click="cancelItem({{ $item->id }})"
+                                                onclick="confirm('Cancel this item?') || event.stopImmediatePropagation()"
+                                                class="text-xs text-red-500 hover:text-red-700 font-medium transition">
+                                                ✕
+                                            </button>
+                                            @endif
                                             <span class="text-xs px-2.5 py-1 rounded-full
                                                 {{ $item->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
                                                 {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
@@ -195,13 +201,6 @@
                                                 {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
                                                 {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                             </span>
-                                            @if($item->status === 'pending')
-                                            <button wire:click="cancelItem({{ $item->id }})"
-                                                onclick="confirm('Cancel this item?') || event.stopImmediatePropagation()"
-                                                class="text-xs text-red-500 hover:text-red-700 font-medium transition">
-                                                ✕
-                                            </button>
-                                            @endif
                                         </div>
                                     </div>
                                     @endforeach
@@ -557,7 +556,8 @@
                     <button wire:click="closeReviewDetailsModal" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
+                                d="M6 18L18 6M6 6l12 12">
+                            </path>
                         </svg>
                     </button>
                 </div>
@@ -657,7 +657,7 @@
     @if($showReviewModal && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4"
         style="overscroll-behavior: contain;">
-        <div class="absolute inset-0 bg-gray-900 bg-opacity-70 backdrop-blur-lg" wire:click="closeReviewModal"></div>
+        <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-lg" wire:click="closeReviewModal"></div>
         <div
             class="relative z-10 flex w-full max-w-2xl max-h-[85vh] flex-col overflow-hidden text-left bg-white rounded-2xl shadow-2xl">
 
@@ -668,7 +668,7 @@
                             @if($selectedOrder->serviceReview)
                             ✏️ Edit Review
                             @else
-                            ✏️ Leave Review
+                            Leave Review
                             @endif
                         </h3>
                         <p class="text-sm text-gray-500">
@@ -683,7 +683,8 @@
                     <button wire:click="closeReviewModal" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
+                                d="M6 18L18 6M6 6l12 12">
+                            </path>
                         </svg>
                     </button>
                 </div>
