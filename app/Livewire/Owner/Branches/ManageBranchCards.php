@@ -16,6 +16,9 @@ class ManageBranchCards extends Component
     public $branches = [];
     public $search = '';
 
+    // ✅ Soft delete toggle
+    public $showDeleted = false;
+
     // Modal properties
     public $showDetailsModal = false;
     public $selectedBranch = null;
@@ -37,11 +40,47 @@ class ManageBranchCards extends Component
         $this->loadBranches();
     }
 
+    // ✅ Toggle between active and deleted branches
+    public function toggleDeleted()
+    {
+        $this->showDeleted = !$this->showDeleted;
+        $this->loadBranches();
+    }
+
+    // ✅ Soft delete a branch
+    public function delete($branchId)
+    {
+        $branch = Branch::findOrFail($branchId);
+        $branchName = $branch->name;
+
+        $branch->delete();
+
+        $this->loadBranches();
+        session()->flash('message', '🗑️ Branch "' . $branchName . '" moved to deleted records.');
+    }
+
+    // ✅ Restore a soft-deleted branch
+    public function restore($branchId)
+    {
+        $branch = Branch::withTrashed()->findOrFail($branchId);
+        $branch->restore();
+
+        $this->loadBranches();
+        session()->flash('message', '✅ Branch "' . $branch->name . '" restored successfully.');
+    }
+
     public function loadBranches()
     {
         $shop = Auth::user()->shop;
-        $query = Branch::where('shop_id', $shop->id)
-            ->withCount(['products', 'employees']);
+
+        if ($this->showDeleted) {
+            $query = Branch::onlyTrashed()
+                ->where('shop_id', $shop->id)
+                ->withCount(['products', 'employees']);
+        } else {
+            $query = Branch::where('shop_id', $shop->id)
+                ->withCount(['products', 'employees']);
+        }
 
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';

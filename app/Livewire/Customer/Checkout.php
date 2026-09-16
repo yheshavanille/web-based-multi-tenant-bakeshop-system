@@ -30,8 +30,10 @@ class Checkout extends Component
     public $pickupTimes = [];
     public $payment_method = 'pickup_payment';
     public $payment_method_detail = 'gcash';
-    public $notes = '';
     public $isProcessing = false;
+
+    // ✅ NEW: Per-item notes keyed by cart item ID
+    public $itemNotes = [];
 
     // ✅ Persistent stock warning
     public $stockWarning = null;
@@ -71,14 +73,10 @@ class Checkout extends Component
 
         if (!empty($removed)) {
             $this->dispatch('cartUpdated');
-
-            // Reload cart after removal
             $this->loadCart();
 
-            // ✅ Persistent warning
             $this->stockWarning = '⚠️ ' . count($removed) . ' item(s) removed because they are out of stock: ' . implode(', ', $removed);
 
-            // If everything was removed, go back to browse
             if (empty($this->cartItems)) {
                 session()->flash('error', 'Your cart is now empty.');
                 return redirect()->route('livewire.customer.browse-shops');
@@ -105,6 +103,9 @@ class Checkout extends Component
             }
 
             $this->pickupTimes[$item->id] = now()->addMinutes(30)->format('Y-m-d\TH:i');
+
+            // ✅ Pre-fill item notes from cart if saved
+            $this->itemNotes[$item->id] = $item->notes ?? '';
         }
 
         $this->groupItemsByShop();
@@ -131,8 +132,6 @@ class Checkout extends Component
 
             $this->shopGroups[$shopId]['items'][] = $item;
         }
-
-        \Log::info('Shop Groups:', ['shop_ids' => array_keys($this->shopGroups)]);
     }
 
     public function loadCart()
@@ -150,8 +149,6 @@ class Checkout extends Component
                 ->get();
         }
 
-        // ✅ Session is preserved here so the checkout selection survives
-        //    back-button navigation. It gets cleared after payment succeeds.
         $this->calculateTotal();
     }
 
@@ -196,6 +193,17 @@ class Checkout extends Component
     public function updatedBranchSelections()
     {
         // The view will automatically update via Livewire
+    }
+
+    // ✅ Save item notes to cart in real time
+    public function updatedItemNotes($value, $key)
+    {
+        $cartId = is_numeric($key) ? $key : null;
+        if ($cartId) {
+            Cart::where('id', $cartId)
+                ->where('user_id', Auth::id())
+                ->update(['notes' => $value]);
+        }
     }
 
     private function getShopIdFromBranch($branchId)
@@ -274,7 +282,7 @@ class Checkout extends Component
                 'payment_method_detail' => $this->payment_method_detail,
                 'payment_status' => 'pending',
                 'pickup_time' => now()->addMinutes(30),
-                'notes' => $this->notes,
+                'notes' => null, // ✅ parent has no notes now
                 'is_parent_order' => true,
             ]);
 
@@ -308,7 +316,7 @@ class Checkout extends Component
                     'payment_method_detail' => null,
                     'payment_status' => 'pending',
                     'pickup_time' => $pickupTime,
-                    'notes' => $this->notes,
+                    'notes' => null, // ✅ child orders no longer use global notes
                     'parent_order_id' => $parentOrder->id,
                 ]);
 
@@ -318,6 +326,7 @@ class Checkout extends Component
                     $originalPrice = $product->price;
                     $pickupTime = $this->pickupTimes[$item->id] ?? now()->addMinutes(30);
 
+                    // ✅ Save per-item notes
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $item->product_id,
@@ -327,6 +336,7 @@ class Checkout extends Component
                         'original_price' => $originalPrice,
                         'pickup_time' => $pickupTime,
                         'status' => 'pending',
+                        'notes' => $this->itemNotes[$item->id] ?? null,
                     ]);
 
                     $branch = Branch::find($branchId);
@@ -342,7 +352,6 @@ class Checkout extends Component
                 $createdOrders[] = $order;
             }
 
-            // ✅ DON'T delete cart yet — order isn't confirmed until payment succeeds.
             session()->put('pending_cart_clear', $this->cartItems->pluck('id')->toArray());
 
             foreach ($createdOrders as $order) {
@@ -386,7 +395,7 @@ class Checkout extends Component
                 'payment_method_detail' => null,
                 'payment_status' => 'pending',
                 'pickup_time' => $pickupTime,
-                'notes' => $this->notes,
+                'notes' => null,
             ]);
 
             foreach ($items as $item) {
@@ -404,6 +413,7 @@ class Checkout extends Component
                     'original_price' => $originalPrice,
                     'pickup_time' => $pickupTime,
                     'status' => 'pending',
+                    'notes' => $this->itemNotes[$item->id] ?? null,
                 ]);
 
                 $branch = Branch::find($branchId);
@@ -419,7 +429,6 @@ class Checkout extends Component
             $createdOrders[] = $order;
         }
 
-        // ✅ Cash on Pickup: order is confirmed immediately, so delete cart right away
         $cartIds = $this->cartItems->pluck('id')->toArray();
         Cart::where('user_id', Auth::id())->whereIn('id', $cartIds)->delete();
 
@@ -429,7 +438,6 @@ class Checkout extends Component
             $this->notifyOrderManagers($order);
         }
 
-        // ✅ Clear the checkout selection now that the order succeeded
         session()->forget('checkout_items');
 
         $this->isProcessing = false;
@@ -460,16 +468,9 @@ class Checkout extends Component
 
             $paymentMethodDetail = $order->payment_method_detail ?? 'gcash';
 
-            Log::info('Creating PayMongo payment for order', [
-                'order_id' => $order->id,
-                'amount' => $order->total_amount,
-                'payment_method_detail' => $paymentMethodDetail,
-            ]);
-
             $result = $payMongoService->createPaymentIntent($order);
 
             if (!isset($result['data']['attributes']['next_action']['redirect']['url'])) {
-                Log::error('PayMongo response missing redirect URL', ['response' => $result]);
                 throw new \Exception('Payment redirect URL not found.');
             }
 
@@ -478,8 +479,6 @@ class Checkout extends Component
             $order->update([
                 'payment_method_detail' => $paymentMethodDetail,
             ]);
-
-            Log::info('Redirecting to PayMongo', ['url' => $checkoutUrl]);
 
             $this->isProcessing = false;
 
@@ -497,33 +496,21 @@ class Checkout extends Component
 
     private function notifyOrderManagers($order)
     {
-        Log::info('🔔 Looking for order managers for shop: ' . $order->shop_id);
-
         $orderManagers = Employee::where('shop_id', $order->shop_id)
             ->where('role', 'order_manager')
             ->where('is_active', true)
             ->with('user')
             ->get();
 
-        Log::info('🔔 Found ' . $orderManagers->count() . ' order managers for shop ' . $order->shop_id);
-
-        foreach ($orderManagers as $manager) {
-            Log::info('🔔 Order manager: ' . ($manager->user->name ?? 'No user') . ' (active: ' . ($manager->is_active ? 'yes' : 'no') . ')');
-        }
-
         $users = $orderManagers->pluck('user')->filter();
 
         if ($users->count() > 0) {
             Notification::send($users, new OrderPlacedNotification($order));
-            Log::info('✅ Notification sent to ' . $users->count() . ' order managers');
-        } else {
-            Log::warning('⚠️ No active order managers found for shop ' . $order->shop_id);
         }
 
         $owner = $order->shop->user;
         if ($owner) {
             Notification::send($owner, new OrderPlacedNotification($order));
-            Log::info('✅ Notification sent to owner: ' . $owner->name);
         }
     }
 

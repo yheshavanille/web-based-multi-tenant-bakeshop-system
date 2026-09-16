@@ -17,7 +17,6 @@
         </div>
         @endif
 
-        {{-- ✅ Persistent stock warning (stays until dismissed) --}}
         @if($stockWarning)
         <div
             class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start justify-between gap-3">
@@ -31,10 +30,8 @@
             <!-- LEFT COLUMN -->
             <div class="lg:col-span-8 space-y-4">
 
-                <!-- ✅ GROUPED BY SHOP -->
                 @foreach($shopGroups as $shopId => $shopData)
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Shop Header with Shop Image -->
                     <div class="px-4 py-3 bg-amber-50 border-b border-gray-200">
                         <div class="flex items-center gap-3">
                             <div
@@ -56,7 +53,6 @@
                         </div>
                     </div>
 
-                    <!-- Shop Items -->
                     <div class="divide-y divide-gray-100">
                         @foreach($shopData['items'] as $item)
                         @php
@@ -67,7 +63,6 @@
                         $discountLabel = $isDiscounted ? $product->getDiscountLabel() : null;
                         @endphp
                         <div class="p-4">
-                            <!-- Product Row -->
                             <div class="flex items-start gap-4">
                                 <div
                                     class="w-16 h-16 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -153,21 +148,23 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <!-- ✅ Per-Item Note -->
+                            <div class="mt-3 pt-3 border-t border-gray-100">
+                                <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">
+                                    📝 Note for this item <span
+                                        class="text-gray-400 font-normal normal-case">(Optional)</span>
+                                </label>
+                                <textarea wire:model.live.debounce.500ms="itemNotes.{{ $item->id }}" rows="2"
+                                    class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm"
+                                    placeholder="Any special requests for {{ $product->name ?? 'this item' }}?"></textarea>
+                            </div>
                         </div>
                         @endforeach
                     </div>
                 </div>
                 @endforeach
 
-                <!-- Notes -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <label class="text-sm font-medium text-gray-700 flex items-center gap-2">
-                        📝 Order Notes <span class="text-xs text-gray-400 font-normal">(Optional)</span>
-                    </label>
-                    <textarea wire:model="notes" rows="2"
-                        class="mt-2 w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm"
-                        placeholder="Any special requests for the bakeshop?"></textarea>
-                </div>
             </div>
 
             <!-- RIGHT COLUMN -->
@@ -176,7 +173,6 @@
                     <h3 class="text-base font-semibold text-gray-800 border-b border-gray-200 pb-3 mb-4">Order Summary
                     </h3>
 
-                    <!-- Pickup Details -->
                     <div class="mb-4">
                         <p class="text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">Pickup Details</p>
                         <div class="space-y-2 max-h-48 overflow-y-auto">
@@ -198,6 +194,10 @@
                                         @endif
                                     </span>
                                 </div>
+                                @if(!empty($itemNotes[$item->id]))
+                                <p class="text-xs text-amber-600 mt-1 italic truncate">💬 {{ $itemNotes[$item->id] }}
+                                </p>
+                                @endif
                             </div>
                             @endforeach
                         </div>
@@ -205,7 +205,6 @@
 
                     <hr class="my-3">
 
-                    <!-- ✅ Payment - Option A (Only PayMongo + Cash on Pickup) -->
                     <div class="mb-4">
                         <p class="text-xs font-medium text-gray-600 uppercase tracking-wider mb-2">Payment Method</p>
                         <div class="space-y-1.5">
@@ -232,7 +231,6 @@
 
                     <hr class="my-3">
 
-                    <!-- Totals with VAT -->
                     <div class="space-y-1.5">
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-500">Subtotal</span>

@@ -9,7 +9,9 @@ use App\Models\EmployeeActivity;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductEditHistory;
 use App\Models\Shop;
+use App\Models\StockHistory;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -29,6 +31,21 @@ class ShopDetails extends Component
 
     // ✅ Recent Employee Activities
     public $recentEmployeeActivities = [];
+
+    // ✅ Recent Stock Updates
+    public $stockHistories = [];
+    public $showStockHistoryModal = false;
+    public $allStockHistories = [];
+
+    // ✅ Recent Product Updates
+    public $productEditHistories = [];
+    public $showProductHistoryModal = false;
+    public $allProductHistories = [];
+
+    // ✅ Product Details Modal
+    public $showProductModal = false;
+    public $selectedProduct = null;
+    public $productAnalytics = [];
 
     // Recent Orders properties
     public $recentOrders = [];
@@ -56,7 +73,7 @@ class ShopDetails extends Component
         $shopId = $this->shop->id;
         $branchId = $this->selectedBranch;
 
-        // ✅ FIX: Total Sales matches Owner — item-level, net revenue (excludes VAT & cancelled)
+        // Total Sales — item-level, net revenue (excludes VAT & cancelled)
         $this->totalSales = OrderItem::whereHas('order', function ($query) use ($shopId, $branchId) {
             $query->where('shop_id', $shopId)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -67,7 +84,7 @@ class ShopDetails extends Component
             ->where('status', 'completed')
             ->sum(DB::raw('quantity * price'));
 
-        // ✅ FIX: Total Orders matches Owner — distinct orders with completed items
+        // Total Orders — distinct orders with completed items
         $this->totalOrders = OrderItem::whereHas('order', function ($query) use ($shopId, $branchId) {
             $query->where('shop_id', $shopId)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -95,14 +112,20 @@ class ShopDetails extends Component
         }
         $this->totalEmployees = $employeesQuery->count();
 
-        // Load Recent Orders (last 5) — ALL orders now
+        // Load Recent Orders (last 5)
         $this->loadRecentOrders();
 
-        // ✅ Load recent employee activities
+        // Load recent employee activities
         $this->loadRecentEmployeeActivities();
+
+        // Load recent stock updates
+        $this->loadRecentStockHistories();
+
+        // Load recent product updates
+        $this->loadRecentProductHistories();
     }
 
-    // ✅ NEW: Recent Employee Activities for this shop
+    // ✅ Recent Employee Activities for this shop
     public function loadRecentEmployeeActivities()
     {
         $this->recentEmployeeActivities = EmployeeActivity::where('shop_id', $this->shop->id)
@@ -112,7 +135,115 @@ class ShopDetails extends Component
             ->get();
     }
 
-    // ✅ FIX: Show ALL orders (not just completed)
+    // ✅ Recent Stock Updates for this shop
+    public function loadRecentStockHistories()
+    {
+        $this->stockHistories = StockHistory::whereHas('product', function ($query) {
+            $query->where('shop_id', $this->shop->id);
+        })
+            ->with(['product', 'user', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    // ✅ Recent Product Updates for this shop
+    public function loadRecentProductHistories()
+    {
+        $this->productEditHistories = ProductEditHistory::whereHas('product', function ($query) {
+            $query->where('shop_id', $this->shop->id);
+        })
+            ->with(['product', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    // ✅ View all stock histories
+    public function viewAllStockHistory()
+    {
+        $this->allStockHistories = StockHistory::whereHas('product', function ($query) {
+            $query->where('shop_id', $this->shop->id);
+        })
+            ->with(['product', 'user', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $this->showStockHistoryModal = true;
+    }
+
+    public function closeStockHistoryModal()
+    {
+        $this->showStockHistoryModal = false;
+        $this->allStockHistories = [];
+    }
+
+    // ✅ View all product edit histories
+    public function viewAllProductHistory()
+    {
+        $this->allProductHistories = ProductEditHistory::whereHas('product', function ($query) {
+            $query->where('shop_id', $this->shop->id);
+        })
+            ->with(['product', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $this->showProductHistoryModal = true;
+    }
+
+    public function closeProductHistoryModal()
+    {
+        $this->showProductHistoryModal = false;
+        $this->allProductHistories = [];
+    }
+
+    // ✅ NEW: Product Details Modal
+    public function viewProductDetails($productId)
+    {
+        $this->selectedProduct = Product::with([
+            'branches' => function ($query) {
+                $query->withPivot('stock');
+            },
+            'category',
+            'productReviews' => function ($query) {
+                $query->with('customer')->latest();
+            }
+        ])->findOrFail($productId);
+
+        $branchIds = $this->selectedProduct->branches->pluck('id')->toArray();
+
+        if (!empty($branchIds)) {
+            $orderItems = OrderItem::where('product_id', $productId)
+                ->whereHas('order', function ($q) use ($branchIds) {
+                    $q->where('status', 'completed')
+                        ->whereIn('branch_id', $branchIds);
+                })
+                ->get();
+        } else {
+            $orderItems = OrderItem::where('product_id', $productId)
+                ->whereHas('order', function ($q) {
+                    $q->where('status', 'completed');
+                })
+                ->get();
+        }
+
+        $this->productAnalytics = [
+            'total_sold' => $orderItems->sum('quantity'),
+            'total_orders' => $orderItems->groupBy('order_id')->count(),
+            'total_revenue' => $orderItems->sum(function ($item) {
+                return $item->quantity * $item->price;
+            }),
+        ];
+
+        $this->showProductModal = true;
+    }
+
+    public function closeProductModal()
+    {
+        $this->showProductModal = false;
+        $this->selectedProduct = null;
+        $this->productAnalytics = [];
+    }
+
+    // ✅ Show ALL orders (not just completed)
     public function loadRecentOrders()
     {
         $shopId = $this->shop->id;
@@ -166,7 +297,6 @@ class ShopDetails extends Component
         $order->completed_count = $completedCount;
         $order->pending_count = $pendingCount;
 
-        // Adjusted total (excludes cancelled items)
         $adjustedTotal = $order->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {
@@ -191,7 +321,6 @@ class ShopDetails extends Component
         $this->loadRecentOrders();
     }
 
-    // ✅ FIX: Show ALL orders in modal
     public function openAllOrdersModal()
     {
         $shopId = $this->shop->id;
@@ -308,6 +437,7 @@ class ShopDetails extends Component
 
         $query = Product::with('category', 'branches')
             ->where('shop_id', $this->shop->id)
+            ->withCount('productReviews')
             ->withSum(['orderItems as total_sold' => function ($query) {
                 $query->whereHas('order', function ($q) {
                     $q->where('status', 'completed');
@@ -327,14 +457,36 @@ class ShopDetails extends Component
         $products = $query->get();
 
         foreach ($products as $product) {
-            $product->total_revenue = OrderItem::where('product_id', $product->id)
-                ->whereHas('order', function ($q) {
-                    $q->where('status', 'completed');
-                })
-                ->get()
-                ->sum(function ($item) {
-                    return $item->quantity * $item->price;
-                });
+            // ✅ Match modal logic — filter by branch IDs where this product exists
+            $branchIds = $product->branches->pluck('id')->toArray();
+
+            if (!empty($branchIds)) {
+                $orderItems = OrderItem::where('product_id', $product->id)
+                    ->whereHas('order', function ($q) use ($branchIds) {
+                        $q->where('status', 'completed')
+                            ->whereIn('branch_id', $branchIds);
+                    })
+                    ->get();
+            } else {
+                $orderItems = OrderItem::where('product_id', $product->id)
+                    ->whereHas('order', function ($q) {
+                        $q->where('status', 'completed');
+                    })
+                    ->get();
+            }
+
+            $product->total_sold = $orderItems->sum('quantity');
+            $product->total_revenue = $orderItems->sum(function ($item) {
+                return $item->quantity * $item->price;
+            });
+
+            // ✅ Stock calculation (respects branch filter)
+            if ($this->selectedBranch !== 'all') {
+                $branch = $product->branches->firstWhere('id', $this->selectedBranch);
+                $product->current_stock = $branch ? $branch->pivot->stock : 0;
+            } else {
+                $product->current_stock = $product->branches->sum('pivot.stock');
+            }
         }
 
         $employees = Employee::with('user')

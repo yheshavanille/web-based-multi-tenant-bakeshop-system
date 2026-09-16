@@ -320,13 +320,16 @@
                         @endif
                     </p>
 
-                    <!-- Stock Display -->
-                    <div class="mt-1">
+                    <!-- Stock + Reviews Display -->
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
                         <span class="text-xs font-medium px-2.5 py-1 rounded-full
                             {{ $stock > 10 ? 'bg-green-100 text-green-800' : '' }}
                             {{ $stock <= 10 && $stock > 0 ? 'bg-yellow-100 text-yellow-800' : '' }}
                             {{ $stock <= 0 ? 'bg-red-100 text-red-800' : '' }}">
                             📦 {{ $stock }} in stock
+                        </span>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
+                            ⭐ {{ $product->product_reviews_count ?? 0 }} reviews
                         </span>
                     </div>
 

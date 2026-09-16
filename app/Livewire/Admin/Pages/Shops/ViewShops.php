@@ -3,6 +3,9 @@
 namespace App\Livewire\Admin\Pages\Shops;
 
 use App\Models\Shop;
+use App\Notifications\ShopDeletedByAdminNotification;
+use App\Notifications\ShopRestoredByAdminNotification;
+use Illuminate\Support\Facades\Notification;
 use App\Models\User;
 use Livewire\Component;
 
@@ -10,6 +13,11 @@ class ViewShops extends Component
 {
     public $showDeleted = false;
     public $search = '';
+
+    // ✅ NEW: Delete reason modal state
+    public $showDeleteModal = false;
+    public $shopToDeleteId = null;
+    public $deleteReason = '';
 
     public function toggleDeleted()
     {
@@ -26,11 +34,45 @@ class ViewShops extends Component
         $this->search = '';
     }
 
-    public function delete(int $shopId)
+    // ✅ NEW: Open the delete confirmation modal
+    public function openDeleteModal(int $shopId)
     {
-        $shop = Shop::findOrFail($shopId);
+        $this->shopToDeleteId = $shopId;
+        $this->deleteReason = '';
+        $this->showDeleteModal = true;
+        $this->resetErrorBag();
+    }
+
+    // ✅ NEW: Close the modal
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+        $this->shopToDeleteId = null;
+        $this->deleteReason = '';
+        $this->resetErrorBag();
+    }
+
+    // ✅ UPDATED: Validate reason, pass it to the notification
+    // NOTE: The old delete(int $shopId) signature was replaced with delete() that
+    // reads $this->shopToDeleteId — the blade button was updated accordingly.
+    public function delete()
+    {
+        $this->validate([
+            'deleteReason' => 'required|string|min:10|max:500',
+        ], [
+            'deleteReason.required' => 'Please provide a reason for deleting this shop.',
+            'deleteReason.min' => 'Please provide at least 10 characters.',
+            'deleteReason.max' => 'Reason is too long (max 500 characters).',
+        ]);
+
+        $shop = Shop::findOrFail($this->shopToDeleteId);
         $shopName = $shop->shop_name;
         $user = $shop->user;
+
+        // ✅ Notify owner BEFORE deleting — pass reason
+        if ($user) {
+            Notification::send($user, new ShopDeletedByAdminNotification($shop, $this->deleteReason));
+        }
 
         // ✅ Remove owner role from the user when shop is deleted
         if ($user && $user->hasRole('owner')) {
@@ -38,6 +80,8 @@ class ViewShops extends Component
         }
 
         $shop->delete();
+
+        $this->closeDeleteModal();
 
         session()->flash('message', 'Shop "' . $shopName . '" deleted successfully. Owner role removed.');
     }
@@ -55,9 +99,15 @@ class ViewShops extends Component
             $user->assignRole('owner');
         }
 
+        // ✅ Notify owner about restoration
+        if ($user) {
+            Notification::send($user, new ShopRestoredByAdminNotification($shop));
+        }
+
         session()->flash('message', 'Shop "' . $shopName . '" restored successfully. Owner role restored.');
     }
 
+    // ✅ UNCHANGED: forceDelete stays reason-free (Q2 = 🅱️)
     public function forceDelete(int $shopId)
     {
         $shop = Shop::withTrashed()->findOrFail($shopId);

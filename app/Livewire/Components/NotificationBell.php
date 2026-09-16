@@ -92,7 +92,13 @@ class NotificationBell extends Component
                 return false;
             }
 
-            return in_array($type, ['seller_approved', 'seller_rejected']);
+            // ✅ Allow seller-related + shop-deleted notifications
+            return in_array($type, [
+                'seller_approved',
+                'seller_rejected',
+                'shop_deleted_by_admin',
+                'shop_restored_by_admin',
+            ]);
         }
 
         // ✅ OWNER VIEW
@@ -108,7 +114,13 @@ class NotificationBell extends Component
                 }
                 return false;
             }
-            return in_array($type, ['new_order', 'order_status_updated', 'seller_approved', 'seller_rejected']);
+            return in_array($type, [
+                'new_order',
+                'order_status_updated',
+                'seller_approved',
+                'seller_rejected',
+                'shop_restored_by_admin',
+            ]);
         }
 
         // ✅ EMPLOYEE VIEW

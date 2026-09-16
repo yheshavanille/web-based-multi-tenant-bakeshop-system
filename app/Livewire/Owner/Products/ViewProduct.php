@@ -387,7 +387,8 @@ class ViewProduct extends Component
 
         $query = $shop->products()->with(['branches' => function ($query) {
             $query->withPivot('stock');
-        }, 'category']);
+        }, 'category'])
+            ->withCount('productReviews');
 
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';

@@ -222,9 +222,10 @@
                         <span class="text-xs text-gray-400 ml-auto">Check all that are verified</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {{-- ✅ CHANGED: wire:model.live so the progress bar updates instantly --}}
                         <label
                             class="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
-                            <input type="checkbox" wire:model="requirements.valid_id"
+                            <input type="checkbox" wire:model.live="requirements.valid_id"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-700">🪪 Valid Government ID</p>
@@ -241,7 +242,7 @@
 
                         <label
                             class="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
-                            <input type="checkbox" wire:model="requirements.business_permit"
+                            <input type="checkbox" wire:model.live="requirements.business_permit"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-700">📄 Business Permit</p>
@@ -258,7 +259,7 @@
 
                         <label
                             class="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
-                            <input type="checkbox" wire:model="requirements.shop_name"
+                            <input type="checkbox" wire:model.live="requirements.shop_name"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-700">🏪 Shop Name</p>
@@ -269,7 +270,7 @@
 
                         <label
                             class="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
-                            <input type="checkbox" wire:model="requirements.shop_address"
+                            <input type="checkbox" wire:model.live="requirements.shop_address"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-700">📍 Shop Address</p>
@@ -280,7 +281,7 @@
 
                         <label
                             class="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition col-span-1 sm:col-span-2">
-                            <input type="checkbox" wire:model="requirements.contact_number"
+                            <input type="checkbox" wire:model.live="requirements.contact_number"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-700">📞 Contact Number</p>

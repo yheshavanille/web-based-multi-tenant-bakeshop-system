@@ -4,6 +4,9 @@
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">🏪 Manage Branches</h1>
                 <p class="text-sm text-gray-500">View and manage your bakeshop branches</p>
+                @if($showDeleted)
+                <p class="text-sm text-red-600 mt-1">Showing deleted branches</p>
+                @endif
             </div>
             <div class="flex items-center gap-3">
                 <a href="{{ route('livewire.owner.dashboard') }}"
@@ -14,6 +17,11 @@
                     </svg>
                     Dashboard
                 </a>
+                <!-- ✅ Show Deleted Toggle -->
+                <button wire:click="toggleDeleted"
+                    class="px-4 py-2 text-sm rounded-lg {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} hover:bg-amber-700 transition">
+                    {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
+                </button>
                 <a href="{{ route('livewire.owner.branches.manage-branches') }}"
                     class="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition text-sm font-medium shadow-sm hover:shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,6 +31,22 @@
                 </a>
             </div>
         </div>
+
+        <!-- ✅ Flash Messages -->
+        @if (session()->has('message'))
+        <div
+            class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center justify-between">
+            <span>{{ session('message') }}</span>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">✕</button>
+        </div>
+        @endif
+
+        @if (session()->has('error'))
+        <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center justify-between">
+            <span>{{ session('error') }}</span>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">✕</button>
+        </div>
+        @endif
 
         <!-- Search Bar -->
         <div class="mb-4">
@@ -58,8 +82,11 @@
         @if($branches->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($branches as $branch)
+            @php
+            $isDeleted = $branch->trashed();
+            @endphp
             <div
-                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 flex flex-col h-full">
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 flex flex-col h-full {{ $isDeleted ? 'opacity-70 border-red-200' : '' }}">
 
                 <!-- Header - Fixed height -->
                 <div class="p-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50 flex-shrink-0">
@@ -68,11 +95,18 @@
                             <h3 class="text-lg font-semibold text-gray-800 truncate">{{ $branch->name }}</h3>
                             <p class="text-sm text-gray-500 truncate">{{ $branch->address }}</p>
                         </div>
+                        @if($isDeleted)
+                        <span
+                            class="px-2.5 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-2 bg-gray-100 text-gray-800">
+                            🗑️ Deleted
+                        </span>
+                        @else
                         <span
                             class="px-2.5 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-2
                                     {{ $branch->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $branch->is_active ? 'Active' : 'Inactive' }}
                         </span>
+                        @endif
                     </div>
                 </div>
 
@@ -86,6 +120,14 @@
 
                     <!-- Actions - Pushed to bottom with margin-top auto -->
                     <div class="flex flex-col gap-2 pt-2 mt-auto">
+                        @if($isDeleted)
+                        <!-- Restore button for deleted branches -->
+                        <button wire:click="restore({{ $branch->id }})"
+                            class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium text-center">
+                            🔄 Restore Branch
+                        </button>
+                        @else
+                        <!-- Normal actions for active branches -->
                         <button wire:click="viewBranchDetails({{ $branch->id }})"
                             class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium text-center">
                             📊 View Branch Details
@@ -100,6 +142,12 @@
                                 📦 Manage Products
                             </a>
                         </div>
+                        <button wire:click="delete({{ $branch->id }})"
+                            onclick="confirm('Delete this branch? You can restore it later.') || event.stopImmediatePropagation()"
+                            class="w-full px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition text-xs font-medium">
+                            🗑️ Delete Branch
+                        </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -112,6 +160,9 @@
             <p class="text-lg">No branches found matching "<span class="font-medium text-amber-600">{{ $search
                     }}</span>"</p>
             <p class="text-sm text-gray-400">Try adjusting your search.</p>
+            @elseif($showDeleted)
+            <p class="text-lg">No deleted branches.</p>
+            <p class="text-sm text-gray-400">Deleted branches will appear here.</p>
             @else
             <p class="text-lg">No branches yet.</p>
             <p class="text-sm text-gray-400">Create your first branch to start managing your bakeshop.</p>

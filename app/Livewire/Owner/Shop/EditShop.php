@@ -18,6 +18,10 @@ class EditShop extends Component
     public $address;
     public $description;
 
+    // ✅ NEW: Delete reason modal state
+    public $showDeleteModal = false;
+    public $deleteReason = '';
+
     public function updatedImage()
     {
         if ($this->image) {
@@ -83,11 +87,49 @@ class EditShop extends Component
         return redirect()->route('livewire.owner.dashboard');
     }
 
+    // ✅ NEW: Open the delete confirmation modal
+    public function openDeleteModal()
+    {
+        $this->deleteReason = '';
+        $this->showDeleteModal = true;
+        $this->resetErrorBag();
+    }
+
+    // ✅ NEW: Close the modal
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+        $this->deleteReason = '';
+        $this->resetErrorBag();
+    }
+
+    // ✅ UPDATED: Validate reason, pass it to the notification
     public function deleteShop()
     {
+        $this->validate([
+            'deleteReason' => 'required|string|min:10|max:500',
+        ], [
+            'deleteReason.required' => 'Please tell us why you are deleting your shop.',
+            'deleteReason.min' => 'Please provide at least 10 characters.',
+            'deleteReason.max' => 'Reason is too long (max 500 characters).',
+        ]);
+
         $shop = Auth::user()->shop;
         $shopName = $shop->shop_name;
+
+        // ✅ Notify all super admins BEFORE deleting — pass reason
+        $superAdmins = \App\Models\User::role('super_admin')->get();
+        if ($superAdmins->count() > 0) {
+            \Illuminate\Support\Facades\Notification::send(
+                $superAdmins,
+                new \App\Notifications\ShopDeletedByOwnerNotification($shop, $this->deleteReason)
+            );
+        }
+
         $shop->delete();
+
+        $this->showDeleteModal = false;
+        $this->deleteReason = '';
 
         session()->flash('message', 'Shop "' . $shopName . '" has been deleted.');
         return redirect()->route('livewire.customer.dashboard');

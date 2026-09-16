@@ -6,12 +6,20 @@
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">🏷️ Categories</h1>
                 <p class="text-sm text-gray-500">Manage your shop categories</p>
+                @if($showDeleted)
+                <p class="text-sm text-red-600 mt-1">Showing deleted categories</p>
+                @endif
             </div>
             <div class="flex gap-3">
                 <a href="{{ route('livewire.owner.dashboard') }}"
                     class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-amber-700 transition">
                     ← Dashboard
                 </a>
+                <!-- ✅ Show Deleted Toggle -->
+                <button wire:click="toggleDeleted"
+                    class="px-4 py-2 text-sm rounded-lg {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} hover:bg-amber-700 transition">
+                    {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
+                </button>
                 <a href="{{ route('livewire.owner.category.create-category') }}"
                     class="px-4 py-2 text-sm bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
                     + Add Category
@@ -63,20 +71,37 @@
         @if($categories->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($categories as $category)
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition">
+            @php
+            $isDeleted = $category->trashed();
+            @endphp
+            <div
+                class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition {{ $isDeleted ? 'opacity-70 border-red-200' : '' }}">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <h3 class="font-semibold text-gray-800 text-lg">{{ $category->name }}</h3>
                         <div class="flex items-center gap-2 mt-1">
+                            @if($isDeleted)
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                                🗑️ Deleted
+                            </span>
+                            @else
                             <span class="text-xs px-2 py-0.5 rounded-full
                                 {{ $category->shop_id ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600' }}">
                                 {{ $category->shop_id ? 'Custom' : 'Default' }}
                             </span>
+                            @endif
                             <span class="text-xs text-gray-400">{{ $category->created_at->diffForHumans() }}</span>
                         </div>
                         <p class="text-xs text-gray-500 mt-2">{{ $category->products->count() }} products</p>
                     </div>
-                    @if($category->shop_id)
+                    @if($isDeleted)
+                    <div class="flex-shrink-0">
+                        <button wire:click="restore({{ $category->id }})"
+                            class="text-green-600 hover:text-green-800 text-sm font-medium transition">
+                            🔄 Restore
+                        </button>
+                    </div>
+                    @elseif($category->shop_id)
                     <div class="flex gap-2 flex-shrink-0">
                         <a href="{{ route('livewire.owner.category.edit-category', $category->id) }}"
                             class="text-blue-600 hover:text-blue-800 text-sm font-medium transition">
@@ -102,6 +127,9 @@
             <p class="text-gray-500 text-lg">No categories found matching "<span class="font-medium text-amber-600">{{
                     $search }}</span>"</p>
             <p class="text-sm text-gray-400">Try adjusting your search.</p>
+            @elseif($showDeleted)
+            <p class="text-gray-500 text-lg">No deleted categories</p>
+            <p class="text-sm text-gray-400">Deleted categories will appear here.</p>
             @else
             <p class="text-gray-500 text-lg">No categories yet</p>
             <p class="text-sm text-gray-400">Create your first category to organize your products.</p>
