@@ -31,7 +31,6 @@
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <span class="text-4xl">🏪</span>
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800">You're already selling!</h3>
                     <p class="text-sm text-gray-600">Manage your shop, products, and orders.</p>

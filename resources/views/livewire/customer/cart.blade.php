@@ -45,24 +45,50 @@
                 $displayPrice = $isDiscounted ? $product->getDiscountedPrice() : ($product->price ?? 0);
                 $originalPrice = $product->price ?? 0;
                 $discountLabel = $isDiscounted ? $product->getDiscountLabel() : null;
+
+                // ✅ Build the product page URL + anchor to scroll to that product
+                $productUrl = $product
+                ? route('livewire.customer.view-products', [
+                'shopId' => $product->shop_id,
+                'branch' => $item->branch_id,
+                ]) . '#product-' . $product->id
+                : null;
                 @endphp
                 <div class="flex items-center gap-4 p-4 hover:bg-gray-50 transition"
                     wire:key="cart-item-{{ $item->id }}">
                     <input type="checkbox" wire:model.live="selectedItems" value="{{ $item->id }}"
                         class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
 
-                    <div
-                        class="w-20 h-20 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                        @if($product && $product->image_url)
+                    {{-- ✅ Product image now clickable --}}
+                    @if($productUrl)
+                    <a href="{{ $productUrl }}"
+                        class="w-20 h-20 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-amber-400 transition"
+                        title="View {{ $product->name }}">
+                        @if($product->image_url)
                         <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}"
                             class="w-full h-full object-cover">
                         @else
                         <span class="text-3xl">🍰</span>
                         @endif
+                    </a>
+                    @else
+                    <div
+                        class="w-20 h-20 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <span class="text-3xl">🍰</span>
                     </div>
+                    @endif
 
                     <div class="flex-1">
-                        <h3 class="font-semibold text-gray-800">{{ $product?->name ?? 'Product Unavailable' }}</h3>
+                        {{-- ✅ Product name now clickable --}}
+                        @if($productUrl)
+                        <a href="{{ $productUrl }}"
+                            class="font-semibold text-gray-800 hover:text-amber-600 hover:underline transition"
+                            title="View {{ $product->name }}">
+                            {{ $product->name }}
+                        </a>
+                        @else
+                        <h3 class="font-semibold text-gray-800">Product Unavailable</h3>
+                        @endif
 
                         <!-- ✅ Price with Discount -->
                         <div class="flex items-center gap-2 mt-1">

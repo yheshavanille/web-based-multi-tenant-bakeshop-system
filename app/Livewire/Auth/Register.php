@@ -3,7 +3,10 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
+use App\Notifications\AccountOtpNotification;
 use App\Rules\PersonName;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
@@ -22,7 +25,6 @@ class Register extends Component
         if (request()->has('start_selling') && request()->get('start_selling') === 'true') {
             session()->put('redirect_after_register', route('livewire.guest.start-selling'));
         } else {
-            // ✅ Clear any existing redirect if no start_selling parameter
             session()->forget('redirect_after_register');
         }
     }
@@ -39,38 +41,85 @@ class Register extends Component
             return;
         }
 
+        // ✅ Custom email rule: block ONLY if email belongs to a verified account
+        //    (unverified accounts can be overwritten by re-registering)
         $this->validate([
             'name' => ['required', 'string', 'max:255', new PersonName],
-            'email' => 'required|email:rfc,dns|unique:users,email',
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                function ($attribute, $value, $fail) {
+                    $existing = User::where('email', $value)->first();
+                    if ($existing && $existing->is_active) {
+                        $fail('This email is already registered.');
+                    }
+                },
+            ],
             'password' => 'required|min:8|same:password_confirmation',
         ], [
             'name.required' => 'Please enter your full name.',
             'email.required' => 'Email address is required.',
             'email.email' => 'Please enter a valid email address.',
             'email.dns' => 'The email domain does not appear to exist. Please check your email.',
-            'email.unique' => 'This email is already registered.',
             'password.required' => 'Password is required.',
             'password.min' => 'Password must be at least 8 characters.',
             'password.same' => 'Passwords do not match.',
         ]);
 
-        // ✅ Count the attempt (whether it succeeds or fails)
+        // ✅ Count the attempt
         RateLimiter::hit($key, $this->decaySeconds);
 
-        $user = User::create([
-            'name' => trim($this->name),
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-        ]);
+        // ✅ Handle existing unverified account (overwrite it)
+        $existingUnverified = User::where('email', $this->email)
+            ->where('is_active', false)
+            ->first();
 
-        $user->assignRole('customer');
+        if ($existingUnverified) {
+            // Overwrite the previous unverified registration with the new info
+            $existingUnverified->update([
+                'name' => trim($this->name),
+                'password' => Hash::make($this->password),
+            ]);
+            $user = $existingUnverified;
+        } else {
+            $user = User::create([
+                'name' => trim($this->name),
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'is_active' => false, // ✅ Unverified until OTP confirmed
+            ]);
 
-        // ✅ Check if user came from "Start Selling" flow
-        if (session()->has('redirect_after_register')) {
-            return redirect()->to(route('livewire.auth.login', ['start_selling' => 'true']));
+            $user->assignRole('customer');
         }
 
-        return redirect()->to(route('livewire.auth.login'));
+        // ✅ Generate + save OTP
+        $this->generateAndSendOtp($user);
+
+        // ✅ Redirect to OTP verification page
+        return redirect()->route('livewire.auth.verify-registration-otp', ['email' => $user->email]);
+    }
+
+    /**
+     * ✅ Generate a 6-digit code, store it, and email it.
+     */
+    private function generateAndSendOtp(User $user): void
+    {
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Delete any old codes for this email
+        DB::table('password_otps')->where('email', $user->email)->delete();
+
+        // Save the new code with 10-minute expiry
+        DB::table('password_otps')->insert([
+            'email'      => $user->email,
+            'code'       => $code,
+            'expires_at' => Carbon::now()->addMinutes(10),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Send the email
+        $user->notify(new AccountOtpNotification($code));
     }
 
     public function render()

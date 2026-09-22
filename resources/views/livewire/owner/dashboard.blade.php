@@ -72,15 +72,77 @@
         </div>
     </div>
 
-    <!-- Recent Order Updates -->
+    <!-- ✅ RECENT PENDING ORDERS (NEW) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">📋</span>
+                <h2 class="text-lg font-semibold text-gray-800">Recent Pending Orders</h2>
+                <span class="text-sm text-gray-500">Last 5 pending orders</span>
+            </div>
+            <a href="{{ route('livewire.owner.orders', ['status' => 'pending']) }}"
+                class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                View All →
+            </a>
+        </div>
+
+        @if($recentPendingOrders->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Order #</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Customer</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Placed</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    @foreach($recentPendingOrders as $order)
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $order->customer?->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $order->branch?->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-3 text-gray-600">
+                            {{ $order->item_count }} items
+                            @if($order->pending_count > 0)
+                            <span class="text-xs text-yellow-600 font-medium">({{ $order->pending_count }}
+                                pending)</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 font-medium text-amber-600">
+                            ₱{{ number_format($order->display_total ?? $order->total_amount, 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $order->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-3">
+                            <button wire:click="viewOrderDetails({{ $order->id }})"
+                                class="text-xs text-blue-600 hover:text-blue-800 font-medium transition">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="text-center py-8 text-gray-500">
+            <span class="text-3xl block mb-2">✅</span>
+            <p class="text-sm">No pending orders right now.</p>
+        </div>
+        @endif
+    </div>
+
+    <!-- Recent Order Updates (existing section, unchanged) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
                 <h2 class="text-lg font-semibold text-gray-800">Recent Order Updates</h2>
                 <span class="text-sm text-gray-500">Last 10 orders</span>
             </div>
-            <a href="{{ route('livewire.owner.branches.branch-orders', ['branchId' => $branches->first()?->id ?? 0]) }}"
+            <a href="{{ route('livewire.owner.orders') }}"
                 class="text-sm text-amber-600 hover:text-amber-700 font-medium">
                 View All →
             </a>
@@ -129,11 +191,10 @@
         @endif
     </div>
 
-    <!-- ✅ RECENT EMPLOYEE ACTIVITIES (FIXED) -->
+    <!-- ✅ RECENT EMPLOYEE ACTIVITIES -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">👥</span>
                 <h2 class="text-lg font-semibold text-gray-800">Recent Employee Activities</h2>
                 <span class="text-sm text-gray-500">Last 5 activities</span>
             </div>
@@ -147,7 +208,6 @@
         <div class="space-y-3">
             @foreach($recentEmployeeActivities as $activity)
             @php
-            // ✅ Safe accessors — handles soft-deleted / force-deleted employees & users
             $empUser = $activity->employee?->user;
             $pic = $empUser?->profile_picture;
             $empName = $empUser?->name ?? 'Deleted User';
@@ -194,7 +254,6 @@
     @if($bestSellers->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center gap-2 mb-4">
-            <span class="text-xl">🏆</span>
             <h2 class="text-lg font-semibold text-gray-800">Best Selling Products</h2>
             <span class="text-xs text-gray-500 ml-auto">Top 5 products</span>
         </div>
@@ -277,12 +336,11 @@
     </div>
     @endif
 
-    <!-- ✅ RECENT PRODUCT UPDATES (SAFE NAVIGATION) -->
+    <!-- ✅ RECENT PRODUCT UPDATES -->
     @if(isset($productEditHistories) && $productEditHistories->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">✏️</span>
                 <h2 class="text-lg font-semibold text-gray-800">Recent Product Updates</h2>
                 <span class="text-sm text-gray-500">Last 10 updates</span>
             </div>
@@ -368,7 +426,6 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <a href="{{ route('livewire.owner.branches.manage-branches') }}"
             class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center hover:bg-blue-100 transition">
-            <div class="text-2xl mb-1">📍</div>
             <p class="text-sm font-medium text-blue-700">Manage Branches</p>
         </a>
         <a href="{{ route('livewire.owner.employees.manage') }}"
@@ -386,7 +443,7 @@
     <!-- Your Branches -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">📍 Your Branches</h2>
+            <h2 class="text-lg font-semibold text-gray-800">Your Branches</h2>
             <a href="{{ route('livewire.owner.branches.manage-branches') }}"
                 class="text-sm text-amber-600 hover:text-amber-700">
                 View All →
@@ -422,7 +479,7 @@
         @endif
     </div>
 
-    <!-- Order Details Modal -->
+    <!-- Order Details Modal (unchanged) -->
     @if($showOrderModal && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeOrderModal"></div>
@@ -485,9 +542,8 @@
                     </div>
                 </div>
 
-                <!-- Order Items -->
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Items</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
@@ -684,7 +740,6 @@
                     </div>
                 </div>
 
-                <!-- ✅ Customer Review Section -->
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3">⭐ Customer Review</h4>
                     @php
@@ -712,7 +767,6 @@
                     @endif
                 </div>
 
-                <!-- ✅ Product Reviews Section -->
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Product Reviews</h4>
                     @php
@@ -759,11 +813,10 @@
     </div>
     @endif
 
-    <!-- Stock History (SAFE NAVIGATION) -->
+    <!-- Stock History -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">📋</span>
                 <h2 class="text-lg font-semibold text-gray-800">Recent Stock Updates</h2>
                 <span class="text-sm text-gray-500">Last 10 updates</span>
             </div>
@@ -815,7 +868,7 @@
         @endif
     </div>
 
-    <!-- ✅ PRODUCT HISTORY MODAL (SAFE NAVIGATION) -->
+    <!-- Product History Modal -->
     @if($showProductHistoryModal && $allProductHistories)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeProductHistoryModal"></div>
@@ -920,7 +973,7 @@
     </div>
     @endif
 
-    <!-- ✅ STOCK HISTORY MODAL (SAFE NAVIGATION) -->
+    <!-- Stock History Modal -->
     @if($showStockHistoryModal && $allStockHistories)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeStockHistoryModal"></div>

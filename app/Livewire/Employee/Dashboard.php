@@ -19,6 +19,10 @@ class Dashboard extends Component
     public $branch;
     public $role;
     public $orders = [];
+
+    // ✅ NEW: Recent Pending Orders (last 5)
+    public $recentPendingOrders = [];
+
     public $products = [];
     public $orderStats = [];
     public $totalProducts = 0;
@@ -57,11 +61,47 @@ class Dashboard extends Component
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
+
+        // ✅ NEW: Load recent pending orders
+        $this->loadRecentPendingOrders();
+    }
+
+    // ✅ NEW: Recent Pending Orders for this branch
+    public function loadRecentPendingOrders()
+    {
+        $this->recentPendingOrders = Order::where('branch_id', $this->branch->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
+            ->where('status', 'pending')
+            ->with(['customer', 'items', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($order) {
+                $itemCount = $order->items->count();
+                $pendingCount = $order->items->where('status', 'pending')->count();
+
+                // ✅ Total with VAT (matches other pages)
+                $adjustedSubtotal = $order->items
+                    ->where('status', '!=', 'cancelled')
+                    ->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    });
+
+                $adjustedTax = round($adjustedSubtotal * 0.12, 2);
+
+                $order->item_count = $itemCount;
+                $order->pending_count = $pendingCount;
+                $order->display_total = $adjustedSubtotal + $adjustedTax;
+
+                return $order;
+            });
     }
 
     public function loadInventoryData()
     {
-        // ✅ FIX: Load products with their pivot stock for this branch
         $this->products = Product::where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id);
@@ -74,7 +114,6 @@ class Dashboard extends Component
             ])
             ->get()
             ->map(function ($product) {
-                // ✅ Add stock as a property from the pivot table
                 $product->stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
                 return $product;
             });
@@ -89,7 +128,6 @@ class Dashboard extends Component
             return $product->stock > 0 && $product->stock <= 5;
         })->count();
 
-        // Restock Suggestions
         $lowStockProducts = Product::where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id)
@@ -120,7 +158,6 @@ class Dashboard extends Component
         })->sortByDesc('orders_last_7_days');
     }
 
-    // ✅ Load Stock Histories for Inventory Manager Dashboard
     public function loadStockHistories()
     {
         $this->stockHistories = StockHistory::where('branch_id', $this->branch->id)
@@ -130,10 +167,8 @@ class Dashboard extends Component
             ->get();
     }
 
-    // ✅ Check stock and send notifications (ONLY for stocks <= 5)
     public function checkAndSendStockNotifications()
     {
-        // Get all products with their stock for this branch
         $products = Product::where('shop_id', $this->shop->id)
             ->whereHas('branches', function ($query) {
                 $query->where('branch_id', $this->branch->id);
@@ -152,12 +187,10 @@ class Dashboard extends Component
         foreach ($products as $product) {
             $stock = $product->stock;
 
-            // ✅ SKIP if stock is greater than 5 (not low stock)
             if ($stock > 5) {
                 continue;
             }
 
-            // Check if notification already exists for this product (within last 24 hours)
             $existingNotification = $inventoryManager->user->notifications()
                 ->where('data->product_id', $product->id)
                 ->where('data->type', 'low_stock')
@@ -165,17 +198,15 @@ class Dashboard extends Component
                 ->exists();
 
             if ($existingNotification) {
-                continue; // Skip if already notified recently
+                continue;
             }
 
             if ($stock <= 0) {
-                // Out of Stock
                 Notification::send(
                     $inventoryManager->user,
                     new OutOfStockNotification($product, $this->branch)
                 );
             } elseif ($stock <= 5) {
-                // Low Stock (1-5)
                 Notification::send(
                     $inventoryManager->user,
                     new LowStockNotification($product, $this->branch, $stock)

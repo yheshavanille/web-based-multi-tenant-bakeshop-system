@@ -86,9 +86,9 @@
                             <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $order->customer->name ?? 'N/A' }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $order->item_count }} items</td>
-                            <td class="px-4 py-3 font-semibold text-green-600">₱{{
-                                number_format($order->adjusted_total
-                                ?? $order->total_amount, 2) }}</td>
+                            <td class="px-4 py-3 font-semibold text-green-600" title="Includes VAT">
+                                ₱{{ number_format($order->adjusted_total ?? $order->total_amount, 2) }}
+                            </td>
                             <td class="px-4 py-3 text-gray-500">{{ $order->created_at->format('M d, Y h:i A') }}
                             </td>
                             <td class="px-4 py-3">

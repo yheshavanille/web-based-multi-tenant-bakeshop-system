@@ -14,6 +14,8 @@ use Livewire\Component;
 
 class Orders extends Component
 {
+    public const MAX_EDITS = 2;
+
     public $orders = [];
     public $selectedStatus = 'all';
     public $search = '';
@@ -24,6 +26,9 @@ class Orders extends Component
     public $serviceReviewText = '';
     public $productRatings = [];
     public $productReviews = [];
+
+    // ✅ NEW: read-only mode when the customer has hit the edit limit
+    public bool $reviewReadOnly = false;
 
     public $showDetailsModal = false;
     public $selectedOrderDetails = null;
@@ -104,7 +109,6 @@ class Orders extends Component
         $this->loadOrders();
     }
 
-    // ✅ Notify inventory managers + owner that stock may need review
     private function notifyStockReview(Order $order, OrderItem $item, string $reason): void
     {
         $inventoryManagers = \App\Models\Employee::where('shop_id', $order->shop_id)
@@ -146,7 +150,6 @@ class Orders extends Component
         foreach ($order->items as $item) {
             if ($item->status === 'pending') {
                 $item->update(['status' => 'cancelled']);
-                // ✅ Notify inventory manager + owner
                 $this->notifyStockReview($order, $item, 'cancelled_by_customer');
             }
         }
@@ -173,7 +176,6 @@ class Orders extends Component
 
         $item->update(['status' => 'cancelled']);
 
-        // ✅ Notify inventory manager + owner
         $this->notifyStockReview($item->order, $item, 'cancelled_by_customer');
 
         $order = $item->order;
@@ -252,6 +254,7 @@ class Orders extends Component
         }
 
         $this->showReviewModal = true;
+        $this->reviewReadOnly = false; // ✅ Reset
         $this->serviceRating = 0;
         $this->employeeRating = 0;
         $this->serviceReviewText = '';
@@ -273,6 +276,11 @@ class Orders extends Component
 
         $serviceReview = $this->selectedOrder->serviceReview;
         if ($serviceReview) {
+            if ($serviceReview->edit_count >= self::MAX_EDITS) {
+                session()->flash('error', 'You have reached the maximum number of edits for this review (' . self::MAX_EDITS . ' edits).');
+                return;
+            }
+
             $this->serviceRating = $serviceReview->rating;
             $this->employeeRating = $serviceReview->employee_rating;
             $this->serviceReviewText = $serviceReview->review;
@@ -285,12 +293,47 @@ class Orders extends Component
         }
 
         $this->showReviewModal = true;
+        $this->reviewReadOnly = false; // ✅ Editable mode
+    }
+
+    // ✅ NEW: open the review modal in read-only mode
+    public function viewLockedReview($orderId)
+    {
+        $this->selectedOrder = Order::with(['items.product', 'serviceReview'])
+            ->where('customer_id', Auth::id())
+            ->where('id', $orderId)
+            ->first();
+
+        if (!$this->selectedOrder) {
+            session()->flash('error', 'Order not found.');
+            return;
+        }
+
+        $serviceReview = $this->selectedOrder->serviceReview;
+        if (!$serviceReview) {
+            session()->flash('error', 'No review found for this order.');
+            return;
+        }
+
+        $this->serviceRating = $serviceReview->rating;
+        $this->employeeRating = $serviceReview->employee_rating;
+        $this->serviceReviewText = $serviceReview->review;
+
+        $existingProductReviews = ProductReview::where('order_id', $orderId)->get();
+        foreach ($existingProductReviews as $review) {
+            $this->productRatings[$review->product_id] = $review->rating;
+            $this->productReviews[$review->product_id] = $review->review;
+        }
+
+        $this->showReviewModal = true;
+        $this->reviewReadOnly = true; // ✅ Read-only
     }
 
     public function closeReviewModal()
     {
         $this->showReviewModal = false;
         $this->selectedOrder = null;
+        $this->reviewReadOnly = false;
     }
 
     public function openDetailsModal($orderId)
@@ -341,6 +384,7 @@ class Orders extends Component
 
     public function setRating($type, $rating)
     {
+        if ($this->reviewReadOnly) return; // ✅ Block in read-only
         if ($type === 'service') {
             $this->serviceRating = $rating;
         } elseif ($type === 'employee') {
@@ -350,11 +394,17 @@ class Orders extends Component
 
     public function setProductRating($productId, $rating)
     {
+        if ($this->reviewReadOnly) return;
         $this->productRatings[$productId] = $rating;
     }
 
     public function submitReview()
     {
+        if ($this->reviewReadOnly) {
+            session()->flash('error', 'This review is locked and cannot be edited.');
+            return;
+        }
+
         if ($this->serviceRating < 1) {
             session()->flash('error', 'Please rate the service quality.');
             return;
@@ -366,39 +416,78 @@ class Orders extends Component
         }
 
         try {
-            $serviceReview = ServiceReview::updateOrCreate(
-                [
+            $existingServiceReview = ServiceReview::where('order_id', $this->selectedOrder->id)
+                ->where('customer_id', Auth::id())
+                ->first();
+
+            $isEdit = $existingServiceReview !== null;
+
+            if ($isEdit && $existingServiceReview->edit_count >= self::MAX_EDITS) {
+                session()->flash('error', 'You have reached the maximum number of edits for this review (' . self::MAX_EDITS . ' edits).');
+                $this->closeReviewModal();
+                $this->loadOrders();
+                return;
+            }
+
+            if ($isEdit) {
+                $existingServiceReview->update([
+                    'rating' => $this->serviceRating,
+                    'employee_rating' => $this->employeeRating,
+                    'review' => $this->serviceReviewText,
+                    'edit_count' => $existingServiceReview->edit_count + 1,
+                ]);
+                $serviceReview = $existingServiceReview;
+            } else {
+                $serviceReview = ServiceReview::create([
                     'order_id' => $this->selectedOrder->id,
-                    'customer_id' => Auth::id()
-                ],
-                [
+                    'customer_id' => Auth::id(),
                     'shop_id' => $this->selectedOrder->shop_id,
                     'branch_id' => $this->selectedOrder->branch_id,
                     'rating' => $this->serviceRating,
                     'employee_rating' => $this->employeeRating,
                     'review' => $this->serviceReviewText,
-                ]
-            );
+                    'edit_count' => 0,
+                ]);
+            }
 
-            Log::info('Service review saved', ['service_review' => $serviceReview]);
+            Log::info('Service review saved', ['service_review' => $serviceReview, 'is_edit' => $isEdit]);
 
             foreach ($this->productRatings as $productId => $rating) {
                 if ($rating > 0) {
-                    $productReview = ProductReview::updateOrCreate(
-                        [
+                    $existingProductReview = ProductReview::where('order_id', $this->selectedOrder->id)
+                        ->where('customer_id', Auth::id())
+                        ->where('product_id', $productId)
+                        ->first();
+
+                    $isProductEdit = $existingProductReview !== null;
+
+                    if ($isProductEdit && $existingProductReview->edit_count >= self::MAX_EDITS) {
+                        continue;
+                    }
+
+                    if ($isProductEdit) {
+                        $existingProductReview->update([
+                            'rating' => $rating,
+                            'review' => $this->productReviews[$productId] ?? null,
+                            'edit_count' => $existingProductReview->edit_count + 1,
+                        ]);
+                        $productReview = $existingProductReview;
+                    } else {
+                        $productReview = ProductReview::create([
                             'order_id' => $this->selectedOrder->id,
                             'customer_id' => Auth::id(),
                             'product_id' => $productId,
-                        ],
-                        [
                             'shop_id' => $this->selectedOrder->shop_id,
                             'rating' => $rating,
                             'review' => $this->productReviews[$productId] ?? null,
-                        ]
-                    );
+                            'edit_count' => 0,
+                        ]);
+                    }
+
                     Log::info('Product review saved', [
                         'product_id' => $productId,
                         'product_review' => $productReview,
+                        'is_edit' => $isProductEdit,
                     ]);
                 }
             }
@@ -407,7 +496,11 @@ class Orders extends Component
                 'service_review' => true,
             ]);
 
-            session()->flash('message', 'Review updated successfully! ⭐');
+            $message = $isEdit
+                ? 'Review updated successfully! ⭐'
+                : 'Review submitted successfully! ⭐';
+
+            session()->flash('message', $message);
             $this->closeReviewModal();
             $this->loadOrders();
         } catch (\Exception $e) {

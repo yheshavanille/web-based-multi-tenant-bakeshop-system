@@ -17,10 +17,66 @@
     </div>
 
     @if($role === 'order_manager')
-    <!-- Order Manager Dashboard -->
+
+    <!-- ✅ NEW: Recent Pending Orders -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+
+                <h2 class="text-lg font-semibold text-gray-800">Recent Pending Orders</h2>
+                <span class="text-sm text-gray-500">Last 5 pending orders</span>
+            </div>
+            <a href="{{ route('livewire.employee.orders', ['status' => 'pending']) }}"
+                class="text-sm text-amber-600 hover:text-amber-800 font-medium">
+                View All →
+            </a>
+        </div>
+
+        @if($recentPendingOrders->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Order #</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Customer</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Placed</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    @foreach($recentPendingOrders as $order)
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $order->customer?->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-3 text-gray-600">
+                            {{ $order->item_count }} items
+                            @if($order->pending_count > 0)
+                            <span class="text-xs text-yellow-600 font-medium">({{ $order->pending_count }}
+                                pending)</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 font-medium text-amber-600">
+                            ₱{{ number_format($order->display_total ?? $order->total_amount, 2) }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $order->created_at->diffForHumans() }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="text-center py-8 text-gray-500">
+            <span class="text-3xl block mb-2">✅</span>
+            <p class="text-sm">No pending orders right now.</p>
+        </div>
+        @endif
+    </div>
+
+    <!-- Existing Recent Orders section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">📋 Recent Orders</h2>
+            <h2 class="text-lg font-semibold text-gray-800">Recent Orders</h2>
             <a href="{{ route('livewire.employee.orders') }}"
                 class="text-sm text-amber-600 hover:text-amber-800 font-medium">
                 View All →

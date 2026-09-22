@@ -1,4 +1,34 @@
-<div>
+<div x-data="productScroller()" x-init="init()">
+    {{-- ✅ Auto-scroll to the product if URL has #product-{id} --}}
+    <script>
+        function productScroller() {
+            return {
+                init() {
+                    // Small delay so Livewire finishes rendering first
+                    setTimeout(() => {
+                        const hash = window.location.hash;
+                        if (!hash || !hash.startsWith('#product-')) return;
+
+                        const el = document.querySelector(hash);
+                        if (!el) return;
+
+                        // Smooth scroll so it lands on the product
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // ✅ Flash a highlight ring so the customer notices it
+                        el.classList.add('ring-4', 'ring-amber-400', 'ring-offset-2');
+                        setTimeout(() => {
+                            el.classList.remove('ring-4', 'ring-amber-400', 'ring-offset-2');
+                        }, 2500);
+
+                        // Clean the URL (removes #product-123 from the address bar)
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                    }, 300);
+                }
+            }
+        }
+    </script>
+
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
         <!-- Back Button with Background -->
@@ -179,7 +209,9 @@
                 @php
                 $stock = $product->branches->firstWhere('id', $selectedBranchId)?->pivot->stock ?? 0;
                 @endphp
-                <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col"
+                {{-- ✅ Added id="product-{id}" for anchor scroll target --}}
+                <div id="product-{{ $product->id }}"
+                    class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col transition-all duration-500"
                     wire:click="openReviewModal({{ $product->id }})">
 
                     @if($product->image_url)

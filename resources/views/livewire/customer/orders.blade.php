@@ -139,10 +139,29 @@
                                     @endif
                                     @elseif(in_array($order->status, ['completed', 'partially_completed']) &&
                                     $order->serviceReview)
+                                    @php
+                                    $editCount = $order->serviceReview->edit_count ?? 0;
+                                    $maxEdits = \App\Livewire\Customer\Orders::MAX_EDITS;
+                                    $remaining = max(0, $maxEdits - $editCount);
+                                    @endphp
+
+                                    @if($remaining > 0)
                                     <button wire:click="openEditReviewModal({{ $order->id }})"
-                                        class="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                        ✏️ Edit Review
+                                        class="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        title="{{ $remaining }} edit(s) remaining">
+                                        Edit Review
+                                        <span
+                                            class="text-[10px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded-full">{{
+                                            $remaining }} left</span>
                                     </button>
+                                    @else
+                                    {{-- ✅ Changed from "Review Locked" span to a "View Review" button --}}
+                                    <button wire:click="viewLockedReview({{ $order->id }})"
+                                        class="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        title="View your submitted review">
+                                        View Review
+                                    </button>
+                                    @endif
                                     @endif
                                 </div>
                             </td>
@@ -360,7 +379,6 @@
                                 <tfoot class="bg-gray-50">
                                     @php $b = $this->getBreakdown(); @endphp
 
-                                    {{-- 📦 ORIGINAL ORDER --}}
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1">
                                             <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">📦
@@ -387,7 +405,6 @@
                                             number_format($b['original_total'], 2) }}</td>
                                     </tr>
 
-                                    {{-- ✅ CHARGED TO CUSTOMER --}}
                                     @if($b['amount_charged'] > 0)
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
@@ -427,7 +444,6 @@
                                     </tr>
                                     @endif
 
-                                    {{-- ❌ NOT CHARGED --}}
                                     @if($b['amount_not_charged'] > 0)
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
@@ -466,7 +482,6 @@
                                     </tr>
                                     @endif
 
-                                    {{-- ⏳ OUTSTANDING --}}
                                     @if($b['amount_outstanding'] > 0)
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
@@ -537,7 +552,7 @@
         </div>
     </div>
 
-    <!-- ✅ Review Details Modal -->
+    <!-- ✅ Review Details Modal (unchanged) -->
     @if($showReviewDetailsModal && $selectedReviewOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeReviewDetailsModal"></div>
@@ -654,7 +669,7 @@
     </div>
     @endif
 
-    <!-- ✅ Review Modal -->
+    <!-- ✅ Review Modal (with read-only mode) -->
     @if($showReviewModal && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4"
         style="overscroll-behavior: contain;">
@@ -666,7 +681,9 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-xl font-bold text-gray-800">
-                            @if($selectedOrder->serviceReview)
+                            @if($reviewReadOnly)
+                            Your Review
+                            @elseif($selectedOrder->serviceReview)
                             ✏️ Edit Review
                             @else
                             Leave Review
@@ -692,16 +709,26 @@
             </div>
 
             <div class="min-h-0 flex-1 px-6 py-4 space-y-6 overflow-y-auto">
-                <!-- Service Quality Section -->
+
+                {{-- ✅ Read-only info banner --}}
+                @if($reviewReadOnly)
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                    <p class="text-xs text-amber-800">
+                        You've reached the edit limit for this review. You can view it but no longer edit it.
+                    </p>
+                </div>
+                @endif
+
                 <div>
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3">🌟 Service Quality</h4>
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Service Quality</h4>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">How was your overall experience?</label>
                             <div class="flex gap-2" x-data="{ rating: @entangle('serviceRating') }">
-                                @for($i = 1; $i <= 5; $i++) <button @click="rating = {{ $i }}"
-                                    wire:key="service-star-{{ $i }}-{{ $selectedOrder->id }}"
-                                    class="text-3xl transition hover:scale-110 focus:outline-none">
+                                @for($i = 1; $i <= 5; $i++) <button
+                                    @click="{{ $reviewReadOnly ? '' : 'rating = ' . $i }}" {{ $reviewReadOnly
+                                    ? 'disabled' : '' }} wire:key="service-star-{{ $i }}-{{ $selectedOrder->id }}"
+                                    class="text-3xl focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
                                     <span x-show="rating >= {{ $i }}">⭐</span>
                                     <span x-show="rating < {{ $i }}">☆</span>
                                     </button>
@@ -712,9 +739,10 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">How was the employee's service?</label>
                             <div class="flex gap-2" x-data="{ rating: @entangle('employeeRating') }">
-                                @for($i = 1; $i <= 5; $i++) <button @click="rating = {{ $i }}"
-                                    wire:key="employee-star-{{ $i }}-{{ $selectedOrder->id }}"
-                                    class="text-3xl transition hover:scale-110 focus:outline-none">
+                                @for($i = 1; $i <= 5; $i++) <button
+                                    @click="{{ $reviewReadOnly ? '' : 'rating = ' . $i }}" {{ $reviewReadOnly
+                                    ? 'disabled' : '' }} wire:key="employee-star-{{ $i }}-{{ $selectedOrder->id }}"
+                                    class="text-3xl focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
                                     <span x-show="rating >= {{ $i }}">⭐</span>
                                     <span x-show="rating < {{ $i }}">☆</span>
                                     </button>
@@ -724,16 +752,15 @@
 
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Additional comments (optional)</label>
-                            <textarea wire:model="serviceReviewText" rows="2"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            <textarea wire:model="serviceReviewText" rows="2" @disabled($reviewReadOnly)
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @if($reviewReadOnly) bg-gray-50 text-gray-600 @endif"
                                 placeholder="Share your experience..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- ✅ Product Reviews - ONLY SHOW COMPLETED ITEMS -->
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3">📦 Product Reviews (Optional)</h4>
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Product Reviews (Optional)</h4>
 
                     @php
                     $completedItems = $selectedOrder->items->filter(function ($item) {
@@ -780,18 +807,20 @@
                                 </div>
                                 <div>
                                     <div class="flex gap-1" x-data="{ rating: {{ $currentRating }} }"
-                                        x-init="$watch('rating', value => $wire.set('productRatings.{{ $productId }}', value))">
-                                        @for($i = 1; $i <= 5; $i++) <button @click="rating = {{ $i }}"
+                                        x-init="{{ $reviewReadOnly ? '' : '$watch(\'rating\', value => $wire.set(\'productRatings.' . $productId . '\', value))' }}">
+                                        @for($i = 1; $i <= 5; $i++) <button
+                                            @click="{{ $reviewReadOnly ? '' : 'rating = ' . $i }}" {{ $reviewReadOnly
+                                            ? 'disabled' : '' }}
                                             wire:key="product-star-{{ $productId }}-{{ $i }}-{{ $selectedOrder->id }}"
-                                            class="text-xl transition hover:scale-110 focus:outline-none">
+                                            class="text-xl focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
                                             <span x-show="rating >= {{ $i }}">⭐</span>
                                             <span x-show="rating < {{ $i }}">☆</span>
                                             </button>
                                             @endfor
                                     </div>
                                     <input type="text" wire:model="productReviews.{{ $productId }}"
-                                        placeholder="Optional review..."
-                                        class="w-full mt-1 px-2 py-1 text-xs border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                        @disabled($reviewReadOnly) placeholder="Optional review..."
+                                        class="w-full mt-1 px-2 py-1 text-xs border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 @if($reviewReadOnly) bg-gray-50 text-gray-600 @endif">
                                 </div>
                             </div>
                         </div>
@@ -806,6 +835,14 @@
             </div>
 
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3 flex-shrink-0">
+                @if($reviewReadOnly)
+                {{-- ✅ Read-only: only Close --}}
+                <button wire:click="closeReviewModal"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    Close
+                </button>
+                @else
+                {{-- Editable: Skip + Submit/Update --}}
                 <button wire:click="closeReviewModal"
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                     Skip
@@ -818,6 +855,7 @@
                     Submit Review ⭐
                     @endif
                 </button>
+                @endif
             </div>
         </div>
     </div>

@@ -31,6 +31,12 @@ class Orders extends Component
     {
         $employee = Auth::user()->employee;
         $this->branch = $employee->branch;
+
+        // ✅ NEW: Read ?status= from URL so "View All" pre-filter works
+        if (request()->has('status')) {
+            $this->selectedStatus = request()->get('status');
+        }
+
         $this->loadOrders();
     }
 
@@ -206,7 +212,7 @@ class Orders extends Component
         $this->recalculateOrderStatus($order);
         $order->refresh();
 
-        // ✅ NEW: Notify inventory managers + owner when item is cancelled or no-show
+        // ✅ Notify inventory managers + owner when item is cancelled or no-show
         if ($oldStatus !== $status && in_array($status, ['cancelled', 'no_show'])) {
             $reason = $status === 'no_show' ? 'no_show' : 'cancelled_by_staff';
             $this->notifyStockReview($order, $item, $reason);

@@ -1,27 +1,34 @@
 <?php
 
-namespace App\Livewire\Owner\Branches;
+namespace App\Livewire\Owner;
 
 use App\Models\Branch;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-class BranchOrders extends Component
+class Orders extends Component
 {
-    public $branch;
+    public $branches = [];
     public $orders = [];
+    public $selectedBranch = 'all';
+    public $selectedStatus = 'all';
+    public $search = '';
+
+    // Order Details Modal
     public $showOrderDetails = false;
     public $selectedOrder = null;
-    public $search = '';
-    public $selectedStatus = 'all';
 
-    public function mount($branchId)
+    public function mount()
     {
-        $this->branch = Branch::with('shop')->findOrFail($branchId);
+        $shop = Auth::user()->shop;
+        $this->branches = Branch::where('shop_id', $shop->id)
+            ->orderBy('name')
+            ->get();
 
-        if ($this->branch->shop->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized access.');
+        // ✅ Allow deep-linking: /owner/orders?status=pending
+        if (request()->has('status')) {
+            $this->selectedStatus = request()->get('status');
         }
 
         $this->loadOrders();
@@ -29,10 +36,22 @@ class BranchOrders extends Component
 
     public function loadOrders()
     {
-        $query = Order::where('branch_id', $this->branch->id)
-            ->with(['customer', 'items.product'])
+        $shop = Auth::user()->shop;
+
+        $query = Order::where('shop_id', $shop->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
+            ->with(['customer', 'branch', 'items.product'])
             ->orderBy('created_at', 'desc');
 
+        // ✅ Branch filter
+        if ($this->selectedBranch !== 'all') {
+            $query->where('branch_id', $this->selectedBranch);
+        }
+
+        // ✅ Status filter — reuse the same logic as BranchOrders
         if ($this->selectedStatus !== 'all') {
             if ($this->selectedStatus === 'no_show') {
                 $query->whereHas('items', function ($q) {
@@ -71,6 +90,7 @@ class BranchOrders extends Component
             }
         }
 
+        // ✅ Search
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
@@ -113,7 +133,7 @@ class BranchOrders extends Component
                 $order->pending_count = $pendingCount;
                 $order->no_show_count = $noShowCount;
 
-                // ✅ FIX: Compute subtotal, VAT, and total (with VAT) to match dashboard
+                // ✅ Total-with-VAT to match dashboard and BranchOrders
                 $adjustedSubtotal = $order->items
                     ->where('status', '!=', 'cancelled')
                     ->sum(function ($item) {
@@ -126,6 +146,11 @@ class BranchOrders extends Component
 
                 return $order;
             });
+    }
+
+    public function updatedSelectedBranch()
+    {
+        $this->loadOrders();
     }
 
     public function updatedSelectedStatus()
@@ -144,12 +169,23 @@ class BranchOrders extends Component
         $this->loadOrders();
     }
 
+    public function resetFilters()
+    {
+        $this->selectedBranch = 'all';
+        $this->selectedStatus = 'all';
+        $this->search = '';
+        $this->loadOrders();
+    }
+
     public function viewOrderDetails($orderId)
     {
+        $shop = Auth::user()->shop;
+
         $this->selectedOrder = Order::with(['customer', 'items.product', 'branch'])
+            ->where('shop_id', $shop->id)
             ->findOrFail($orderId);
 
-        // ✅ FIX: Same total-with-VAT logic for consistency
+        // ✅ Same total-with-VAT logic as the table
         $adjustedSubtotal = $this->selectedOrder->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {
@@ -229,7 +265,7 @@ class BranchOrders extends Component
 
     public function render()
     {
-        return view('livewire.owner.branches.branch-orders')
+        return view('livewire.owner.orders')
             ->layout('components.layouts.owner');
     }
 }

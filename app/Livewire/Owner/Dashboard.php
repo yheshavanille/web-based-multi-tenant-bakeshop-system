@@ -32,26 +32,23 @@ class Dashboard extends Component
     public $recentReviews = [];
     public $recentOrders = [];
 
-    // ✅ NEW: Recent Employee Activities
+    // ✅ NEW: Recent Pending Orders
+    public $recentPendingOrders = [];
+
     public $recentEmployeeActivities = [];
 
-    // Order Details Modal
     public $showOrderModal = false;
     public $selectedOrder = null;
 
-    // Product Edit Details Modal
     public $showProductEditModal = false;
     public $selectedProductEdit = null;
 
-    // ✅ Stock History Modal
     public $showStockHistoryModal = false;
     public $allStockHistories = [];
 
-    // ✅ Product Edit History Modal
     public $showProductHistoryModal = false;
     public $allProductHistories = [];
 
-    // Employee Modal properties
     public $showAllEmployeesModal = false;
     public $allEmployees = [];
     public $employeeBranchFilter = 'all';
@@ -155,12 +152,45 @@ class Dashboard extends Component
             ->get();
 
         $this->loadRecentOrders();
-
-        // ✅ NEW: Load recent employee activities
+        $this->loadRecentPendingOrders(); // ✅ NEW
         $this->loadRecentEmployeeActivities();
     }
 
-    // ✅ NEW: Recent Employee Activities
+    // ✅ NEW: Recent Pending Orders (last 5)
+    public function loadRecentPendingOrders()
+    {
+        $shop = Auth::user()->shop;
+
+        $this->recentPendingOrders = Order::where('shop_id', $shop->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
+            ->where('status', 'pending')
+            ->with(['customer', 'branch', 'items', 'serviceReview'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($order) {
+                $itemCount = $order->items->count();
+                $pendingCount = $order->items->where('status', 'pending')->count();
+
+                $adjustedTotal = $order->items
+                    ->where('status', '!=', 'cancelled')
+                    ->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    });
+
+                $adjustedTax = round($adjustedTotal * 0.12, 2);
+
+                $order->item_count = $itemCount;
+                $order->pending_count = $pendingCount;
+                $order->display_total = $adjustedTotal + $adjustedTax;
+
+                return $order;
+            });
+    }
+
     public function loadRecentEmployeeActivities()
     {
         $shop = Auth::user()->shop;
@@ -274,6 +304,7 @@ class Dashboard extends Component
         $this->showOrderModal = false;
         $this->selectedOrder = null;
         $this->loadRecentOrders();
+        $this->loadRecentPendingOrders(); // ✅ Refresh pending too
     }
 
     public function getBreakdown()

@@ -4,7 +4,7 @@
         <!-- ✅ HERO SECTION FOR GUESTS -->
         <div
             class="bg-gradient-to-br from-amber-50 to-white rounded-xl p-5 sm:p-8 mb-6 sm:mb-8 border border-amber-100">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Welcome to Web-based Multi-tenant Bakeshop 🍰</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Welcome to Web-based Multi-tenant Bakeshop</h1>
             <p class="text-gray-600 mt-2 max-w-2xl">
                 Discover delicious baked goods from the best bakeshops in Victorias City.
                 Every bread, cake, and pastry is made fresh with love and quality ingredients.

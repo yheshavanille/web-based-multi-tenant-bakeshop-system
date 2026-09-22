@@ -34,7 +34,7 @@
             </button>
             <button wire:click="setTab('soft_deleted')"
                 class="px-4 py-2 text-sm font-medium {{ $activeTab === 'soft_deleted' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
-                Soft Deleted
+                Archived
             </button>
             <button wire:click="setTab('permanently_deleted')"
                 class="px-4 py-2 text-sm font-medium {{ $activeTab === 'permanently_deleted' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
@@ -213,7 +213,7 @@
                                     <button wire:click="deleteUser({{ $user->id }})"
                                         onclick="confirm('Soft delete this user?') || event.stopImmediatePropagation()"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
-                                        Delete
+                                        Archive
                                     </button>
                                     @else
                                     <span class="text-xs text-gray-400">You</span>

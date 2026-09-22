@@ -13,10 +13,12 @@ class ProductReview extends Model
         'product_id',
         'rating',
         'review',
+        'edit_count', // ✅ Added — same fix
     ];
 
     protected $casts = [
         'rating' => 'integer',
+        'edit_count' => 'integer',
     ];
 
     public function customer()

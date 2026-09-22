@@ -32,6 +32,7 @@ use App\Livewire\Owner\Category\EditCategory;
 use App\Livewire\Owner\Category\ViewCategory;
 use App\Livewire\Owner\Dashboard as OwnerDashboard;
 use App\Livewire\Owner\Employees\ManageEmployees;
+use App\Livewire\Owner\Orders as OwnerOrders; // ✅ NEW
 use App\Livewire\Owner\ProductHistory;
 use App\Livewire\Owner\Products\CreateProduct;
 use App\Livewire\Owner\Products\EditProduct;
@@ -54,8 +55,9 @@ Route::get('/guest/seller-registration', \App\Livewire\Guest\SellerRegistration:
 Route::get('/login', Login::class)->name('livewire.auth.login');
 Route::get('/register', Register::class)->name('livewire.auth.register');
 Route::get('/logout', Logout::class)->name('livewire.auth.logout');
+Route::get('/verify-registration-otp', \App\Livewire\Auth\VerifyRegistrationOtp::class)
+    ->name('livewire.auth.verify-registration-otp');
 
-// ✅ Forgot / Reset Password (OTP flow)
 Route::get('/forgot-password', ForgotPassword::class)->name('livewire.auth.forgot-password');
 Route::get('/verify-otp', VerifyOtp::class)->name('livewire.auth.verify-otp');
 
@@ -66,7 +68,6 @@ Route::post('/logout', function () {
     return redirect()->route('livewire.guest.browse-shops');
 })->name('logout.post')->middleware('auth');
 
-// ✅ Webhook Routes (No auth required - PayMongo calls this)
 Route::post('/api/paymongo/webhook', [App\Http\Controllers\PaymentWebhookController::class, 'handle'])
     ->name('paymongo.webhook');
 
@@ -79,11 +80,7 @@ Route::prefix('admin')
         Route::get('/shops/shopdetails/{shopId}', ShopDetails::class)->name('livewire.admin.pages.shops.shop-details');
         Route::get('/users', ManageUsers::class)->name('livewire.admin.pages.users.manage-users');
         Route::get('/pending-sellers', \App\Livewire\Admin\PendingSellers::class)->name('livewire.admin.pending-sellers');
-
-        // ✅ NEW: Employee Activities (all shops)
         Route::get('/employee-activities', \App\Livewire\Admin\EmployeeActivities::class)->name('livewire.admin.employee-activities');
-
-        // ✅ NEW: Super Admin Profile
         Route::get('/profile', \App\Livewire\Admin\Profile::class)->name('livewire.admin.profile');
     });
 
@@ -92,6 +89,10 @@ Route::prefix('owner')
     ->middleware(['auth', 'role:owner'])
     ->group(function () {
         Route::get('/dashboard', OwnerDashboard::class)->name('livewire.owner.dashboard');
+
+        // ✅ NEW: Shop-wide All Orders page
+        Route::get('/orders', OwnerOrders::class)->name('livewire.owner.orders');
+
         Route::get('/products/{branch?}', ViewProduct::class)->name('livewire.owner.products.view-product');
         Route::get('/products/create', CreateProduct::class)->name('livewire.owner.products.create-product');
         Route::get('/products/edit/{productId}', EditProduct::class)->name('livewire.owner.products.edit-product');
@@ -134,8 +135,6 @@ Route::prefix('employee')
     ->middleware(['auth', 'employee'])
     ->group(function () {
         Route::get('/dashboard', \App\Livewire\Employee\Dashboard::class)->name('livewire.employee.dashboard');
-
-        // ✅ Employee Profile
         Route::get('/profile', \App\Livewire\Employee\Profile::class)->name('livewire.employee.profile');
         Route::get('/orders', \App\Livewire\Employee\Orders::class)
             ->name('livewire.employee.orders')
@@ -151,9 +150,7 @@ Route::prefix('employee')
             ->middleware('employee.role:inventory_manager');
     });
 
-// ✅ Payment success — NOW ALSO CLEARS THE CART (post-payment)
 Route::get('/payment/success', function () {
-    // ✅ Delete the cart items that were just paid for
     $pendingCartIds = session()->pull('pending_cart_clear', []);
 
     if (!empty($pendingCartIds) && auth()->check()) {
@@ -162,14 +159,12 @@ Route::get('/payment/success', function () {
             ->delete();
     }
 
-    // ✅ Clear the checkout selection
     session()->forget('checkout_items');
 
     session()->flash('order_success', 'Payment successful! Your order is now being prepared.');
     return redirect()->route('livewire.customer.orders');
 })->name('payment.success');
 
-// ✅ Payment cancel — keep cart intact, but clear the checkout selection
 Route::get('/payment/cancel', function () {
     session()->forget('checkout_items');
     session()->forget('pending_cart_clear');

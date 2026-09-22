@@ -14,11 +14,13 @@ class ServiceReview extends Model
         'rating',
         'employee_rating',
         'review',
+        'edit_count', // ✅ Added — was missing, caused edit count not to persist
     ];
 
     protected $casts = [
         'rating' => 'integer',
         'employee_rating' => 'integer',
+        'edit_count' => 'integer',
     ];
 
     public function customer()

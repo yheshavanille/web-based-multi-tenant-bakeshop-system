@@ -87,6 +87,13 @@
                             <span class="text-sm"></span> Branch Lists
                         </a>
 
+                        {{-- ✅ NEW: Shop-wide All Orders page --}}
+                        <a href="{{ route('livewire.owner.orders') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg">📋</span> All Orders
+                        </a>
+
+                        {{-- Branch-scoped orders (existing) --}}
                         @php
                         $firstBranch = auth()->user()->shop?->branches->first();
                         @endphp
