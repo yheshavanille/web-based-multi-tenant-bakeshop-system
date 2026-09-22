@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">📋 Seller Applications</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Seller Applications</h1>
                 <p class="text-sm text-gray-500">Review and approve/reject seller registrations</p>
             </div>
             <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium shadow-sm">

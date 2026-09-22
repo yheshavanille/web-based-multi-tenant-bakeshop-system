@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.admin.admin-dashboard') }}" class="flex items-center gap-2">
-                    <span class="text-2xl">🍞</span>
+
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                     <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Admin</span>
                 </a>
@@ -61,15 +61,15 @@
 
                         <a href="{{ route('livewire.admin.admin-dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏠</span> Dashboard
+                            <span class="text-lg"></span> Dashboard
                         </a>
                         <a href="{{ route('livewire.admin.pages.shops.view-shops') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏪</span> View Shops
+                            <span class="text-lg"></span> View Shops
                         </a>
                         <a href="{{ route('livewire.admin.pending-sellers') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📋</span> Pending Sellers
+                            <span class="text-lg"></span> Pending Sellers
                             @if(\App\Models\SellerRegistration::where('status', 'pending')->count() > 0)
                             <span class="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
                                 {{ \App\Models\SellerRegistration::where('status', 'pending')->count() }}
@@ -78,13 +78,13 @@
                         </a>
                         <a href="{{ route('livewire.admin.pages.users.manage-users') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">👥</span> Manage Users
+                            <span class="text-lg"></span> Manage Users
                         </a>
 
                         <!-- ✅ NEW: My Profile -->
                         <a href="{{ route('livewire.admin.profile') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">👤</span> My Profile
+                            <span class="text-lg"></span> My Profile
                         </a>
 
                         <div class="border-t border-gray-100 my-1"></div>
@@ -93,7 +93,7 @@
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg">🚪</span> Logout
+                                <span class="text-lg"></span> Logout
                             </button>
                         </form>
                     </div>

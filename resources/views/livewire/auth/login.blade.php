@@ -76,6 +76,14 @@
                     </div>
                     @endif
 
+                    @if ($errors->has('email') && str_contains($errors->first('email'), 'Too many login attempts'))
+                    <div
+                        class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-2">
+                        <span class="text-lg flex-shrink-0">🚫</span>
+                        <span>{{ $errors->first('email') }}</span>
+                    </div>
+                    @endif
+
                     <form wire:submit.prevent="login">
                         <div class="mb-5"> <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email
                                 Address</label> <input type="email" id="email" wire:model="email"

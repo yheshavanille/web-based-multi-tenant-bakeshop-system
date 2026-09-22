@@ -16,10 +16,6 @@ class NotificationBell extends Component
     public $orderDetails = null;
     public $sellerRegistration = null;
 
-    /**
-     * Which "view" this bell is mounted in.
-     * Possible values: 'customer', 'owner', 'employee', 'admin'
-     */
     public $context = 'customer';
 
     protected $listeners = [
@@ -62,7 +58,6 @@ class NotificationBell extends Component
 
         $type = $notification->data['type'] ?? '';
 
-        // ✅ Use $this->context instead of Route::currentRouteName()
         $isCustomerView = $this->context === 'customer';
         $isOwnerView    = $this->context === 'owner';
         $isEmployeeView = $this->context === 'employee';
@@ -75,11 +70,9 @@ class NotificationBell extends Component
                 if ($orderId) {
                     $order = Order::with('shop')->find($orderId);
                     if ($order) {
-                        // If user is the OWNER of this shop, hide it in customer view
                         if ($order->shop && $order->shop->user_id === $user->id) {
                             return false;
                         }
-                        // If user is the CUSTOMER, show it
                         if ($order->customer_id === $user->id) {
                             return true;
                         }
@@ -92,7 +85,6 @@ class NotificationBell extends Component
                 return false;
             }
 
-            // ✅ Allow seller-related + shop-deleted notifications
             return in_array($type, [
                 'seller_approved',
                 'seller_rejected',
@@ -103,7 +95,6 @@ class NotificationBell extends Component
 
         // ✅ OWNER VIEW
         if ($isOwnerView) {
-            // ✅ Get the user's owned shop ID via the relationship
             $ownedShopId = $user->shop?->id;
 
             $orderId = $notification->data['order_id'] ?? null;
@@ -114,12 +105,16 @@ class NotificationBell extends Component
                 }
                 return false;
             }
+
+            // ✅ Added stock_review_needed and low_stock for owner
             return in_array($type, [
                 'new_order',
                 'order_status_updated',
                 'seller_approved',
                 'seller_rejected',
                 'shop_restored_by_admin',
+                'low_stock',
+                'stock_review_needed',
             ]);
         }
 
@@ -136,11 +131,19 @@ class NotificationBell extends Component
                         return in_array($type, ['new_order', 'order_status_updated']);
                     }
                     if ($employee->role === 'inventory_manager') {
-                        return $type === 'low_stock';
+                        // ✅ Added stock_review_needed for inventory manager
+                        return in_array($type, ['low_stock', 'stock_review_needed']);
                     }
                 }
                 return false;
             }
+
+            // ✅ Handle low_stock / stock_review_needed that don't carry order_id
+            //    (e.g. out-of-stock alerts triggered without an order)
+            if ($employee->role === 'inventory_manager') {
+                return in_array($type, ['low_stock', 'stock_review_needed']);
+            }
+
             return false;
         }
 

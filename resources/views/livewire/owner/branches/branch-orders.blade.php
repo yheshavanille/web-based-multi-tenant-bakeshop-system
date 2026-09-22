@@ -11,7 +11,7 @@
                         </svg>
                     </a>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">📋 All Orders</h1>
+                        <h1 class="text-2xl font-bold text-gray-800">All Orders</h1>
                         <p class="text-sm text-gray-500">
                             {{ $branch->name }} • {{ $orders->count() }} total orders
                         </p>
@@ -127,7 +127,7 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">📋 Order Details</h3>
+                        <h3 class="text-xl font-bold text-gray-800">Order Details</h3>
                         <p class="text-sm text-gray-500">
                             #{{ $selectedOrder->order_number }} •
                             {{ $selectedOrder->branch->name ?? 'N/A' }} •
@@ -181,7 +181,7 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3"> Order Items</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">

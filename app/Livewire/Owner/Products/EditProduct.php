@@ -18,8 +18,10 @@ class EditProduct extends Component
     public $name;
     public $price;
     public $category_id;
-    public $selectedBranches = [];
-    public $stock_per_branch = null;
+    public array $selectedBranches = [];
+    // ✅ NEW: per-branch stock keyed by branch id
+    public array $branch_stocks = [];
+
     public $image_url;
     public $image;
     public $description;
@@ -62,12 +64,6 @@ class EditProduct extends Component
         $this->discount_start = $product->discount_start ? $product->discount_start->format('Y-m-d\TH:i') : null;
         $this->discount_end = $product->discount_end ? $product->discount_end->format('Y-m-d\TH:i') : null;
 
-        $this->selectedBranches = $product->branches->pluck('id')->toArray();
-
-        if ($product->branches->isNotEmpty()) {
-            $this->stock_per_branch = $product->branches->first()->pivot->stock ?? null;
-        }
-
         $shop = $user->shop;
 
         $this->categories = Category::whereNull('shop_id')
@@ -77,6 +73,17 @@ class EditProduct extends Component
         $this->branches = Branch::where('shop_id', $shop->id)
             ->orderBy('name')
             ->get();
+
+        // ✅ Initialize per-branch stocks to 0
+        foreach ($this->branches as $branch) {
+            $this->branch_stocks[$branch->id] = 0;
+        }
+
+        // ✅ Selected branches + their existing pivot stocks
+        foreach ($product->branches as $branch) {
+            $this->selectedBranches[] = $branch->id;
+            $this->branch_stocks[$branch->id] = (int) ($branch->pivot->stock ?? 0);
+        }
     }
 
     public function messages()
@@ -86,6 +93,7 @@ class EditProduct extends Component
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
             'selectedBranches.required' => 'Please select at least one branch.',
+            'selectedBranches.min' => 'Please select at least one branch.',
             'discount_value.min' => 'Discount value must be greater than 0.',
         ];
     }
@@ -98,6 +106,8 @@ class EditProduct extends Component
             'category_id' => 'required|exists:categories,id',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
+            'branch_stocks' => 'array',
+            'branch_stocks.*' => 'nullable|integer|min:0',
             'image_url' => 'nullable',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
@@ -143,9 +153,12 @@ class EditProduct extends Component
             'discount_end' => $this->discount_end,
         ]);
 
+        // ✅ Sync per-branch stock
         $syncData = [];
         foreach ($this->selectedBranches as $branchId) {
-            $syncData[$branchId] = ['stock' => $this->stock_per_branch ?? 0];
+            $syncData[$branchId] = [
+                'stock' => (int) ($this->branch_stocks[$branchId] ?? 0),
+            ];
         }
         $product->branches()->sync($syncData);
 

@@ -65,7 +65,7 @@
                 <div class="space-y-3">
                     @foreach($order->items as $item)
                     <div class="flex justify-between items-start border-b border-gray-100 pb-3 last:border-0 last:pb-0">
-                        <div>
+                        <div class="flex-1 min-w-0">
                             <p class="font-medium text-gray-800">{{ $item->product->name }}</p>
                             <p class="text-sm text-gray-500">₱{{ number_format($item->price, 2) }} x {{ $item->quantity
                                 }}</p>
@@ -76,9 +76,21 @@
                                     \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i A') }}</span>
                                 @endif
                             </div>
+
+                            {{-- ✅ PER-ITEM NOTES --}}
+                            @if(!empty($item->notes))
+                            <div class="mt-2">
+                                <div
+                                    class="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1.5 max-w-full">
+                                    <span class="text-xs font-medium text-gray-700 flex-shrink-0">Order Note:</span>
+                                    <p class="text-xs text-gray-700 italic leading-snug break-words">{{ $item->notes }}
+                                    </p>
+                                </div>
+                            </div>
+                            @endif
                         </div>
-                        <p class="font-medium text-amber-600">₱{{ number_format($item->price * $item->quantity, 2) }}
-                        </p>
+                        <p class="font-medium text-amber-600 ml-3 flex-shrink-0">₱{{ number_format($item->price *
+                            $item->quantity, 2) }}</p>
                     </div>
                     @endforeach
                 </div>

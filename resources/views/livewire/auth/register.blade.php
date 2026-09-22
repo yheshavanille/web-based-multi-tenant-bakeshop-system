@@ -65,7 +65,7 @@
                         <form wire:submit.prevent="register">
                             <div class="mb-4">
                                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input type="text" id="name" wire:model="name"
+                                <input type="text" id="name" wire:model="name" maxlength="255" autocomplete="name"
                                     class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('name') border-red-500 @enderror"
                                     placeholder="Juan Dela Cruz">
                                 @error('name')

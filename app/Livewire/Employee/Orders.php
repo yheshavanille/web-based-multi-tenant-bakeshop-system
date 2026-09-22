@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\StockHistory;
 use App\Models\ProductEditHistory;
 use App\Notifications\OrderStatusUpdatedNotification;
+use App\Notifications\StockReviewNeededNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,6 @@ class Orders extends Component
     public $showItems = [];
     public $search = '';
 
-    // ✅ Order Details Modal
     public $showDetailsModal = false;
     public $selectedOrderDetails = null;
 
@@ -34,7 +34,6 @@ class Orders extends Component
         $this->loadOrders();
     }
 
-    // ✅ UPDATED: Exclude parent orders from employee view
     public function loadOrders()
     {
         $query = Order::where('branch_id', $this->branch->id)
@@ -45,7 +44,6 @@ class Orders extends Component
             ->with(['customer', 'items.product'])
             ->orderBy('created_at', 'desc');
 
-        // ✅ FIX: Filter by item statuses, not just main order status
         if ($this->selectedStatus !== 'all') {
             if ($this->selectedStatus === 'no_show') {
                 $query->whereHas('items', function ($q) {
@@ -99,7 +97,6 @@ class Orders extends Component
         $this->orders = $query->get();
     }
 
-    // ✅ Open Order Details Modal
     public function openDetailsModal($orderId)
     {
         $this->selectedOrderDetails = Order::with(['customer', 'items.product', 'branch'])
@@ -119,7 +116,6 @@ class Orders extends Component
         $this->showDetailsModal = true;
     }
 
-    // ✅ Close Order Details Modal
     public function closeDetailsModal()
     {
         $this->showDetailsModal = false;
@@ -142,6 +138,29 @@ class Orders extends Component
         $this->loadOrders();
     }
 
+    // ✅ Notify inventory managers + owner that stock may need review
+    private function notifyStockReview(Order $order, OrderItem $item, string $reason): void
+    {
+        $inventoryManagers = \App\Models\Employee::where('shop_id', $order->shop_id)
+            ->where('role', 'inventory_manager')
+            ->where('is_active', true)
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        $owner = $order->shop->user ?? null;
+
+        $recipients = $inventoryManagers;
+        if ($owner) {
+            $recipients = $recipients->push($owner);
+        }
+
+        if ($recipients->count() > 0) {
+            Notification::send($recipients, new StockReviewNeededNotification($order, $item, $reason));
+        }
+    }
+
     public function updateItemStatus($itemId, $status)
     {
         $item = OrderItem::whereHas('order', function ($query) {
@@ -152,7 +171,6 @@ class Orders extends Component
                 });
         })->findOrFail($itemId);
 
-        // ✅ BLOCK: If the item was cancelled by customer
         if ($item->status === 'cancelled') {
             if ($item->order->status === 'pending' || ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer')) {
                 session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
@@ -170,7 +188,6 @@ class Orders extends Component
         $oldStatus = $item->status;
         $item->update(['status' => $status]);
 
-        // ✅ LOG TO PRODUCT EDIT HISTORY for order status changes
         if ($oldStatus !== $status) {
             ProductEditHistory::create([
                 'product_id' => $item->product_id,
@@ -189,7 +206,12 @@ class Orders extends Component
         $this->recalculateOrderStatus($order);
         $order->refresh();
 
-        // ✅ FIX: Pass product name and item ID when sending notifications
+        // ✅ NEW: Notify inventory managers + owner when item is cancelled or no-show
+        if ($oldStatus !== $status && in_array($status, ['cancelled', 'no_show'])) {
+            $reason = $status === 'no_show' ? 'no_show' : 'cancelled_by_staff';
+            $this->notifyStockReview($order, $item, $reason);
+        }
+
         if ($oldStatus !== $status) {
             $productName = $item->product->name ?? 'Product';
 
@@ -267,7 +289,6 @@ class Orders extends Component
         ]);
     }
 
-    // ✅ UPDATED: Handles mixed statuses properly
     private function recalculateOrderStatus($order)
     {
         $itemStatuses = $order->items()->pluck('status')->toArray();
@@ -314,7 +335,6 @@ class Orders extends Component
         $order->update(['status' => 'preparing', 'payment_status' => 'pending']);
     }
 
-    // ✅ Calculate the 4-section breakdown with product lists
     public function getBreakdown()
     {
         if (!$this->selectedOrderDetails) {

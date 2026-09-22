@@ -3,6 +3,7 @@
 namespace App\Livewire\Customer;
 
 use App\Models\User;
+use App\Rules\PersonName;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -52,7 +53,7 @@ class Profile extends Component
     public function updateProfile()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', new PersonName],
             'email' => 'required|email:rfc,dns|max:255|unique:users,email,' . $this->user->id,
             'phone' => [
                 'required',
@@ -70,7 +71,7 @@ class Profile extends Component
         ]);
 
         $updateData = [
-            'name' => $this->name,
+            'name' => trim($this->name),
             'email' => $this->email,
             'phone' => $this->phone,
         ];
@@ -132,7 +133,7 @@ class Profile extends Component
     {
         $this->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:6|confirmed',
+            'new_password' => 'required|string|min:8|confirmed',
         ]);
 
         if (!Hash::check($this->current_password, $this->user->password)) {

@@ -29,6 +29,9 @@ class ShopDetails extends Component
     public $totalProducts = 0;
     public $totalEmployees = 0;
 
+    // ✅ Best Sellers
+    public $bestSellers = [];
+
     // ✅ Recent Employee Activities
     public $recentEmployeeActivities = [];
 
@@ -112,6 +115,9 @@ class ShopDetails extends Component
         }
         $this->totalEmployees = $employeesQuery->count();
 
+        // ✅ Best Sellers (respects branch filter)
+        $this->loadBestSellers();
+
         // Load Recent Orders (last 5)
         $this->loadRecentOrders();
 
@@ -123,6 +129,33 @@ class ShopDetails extends Component
 
         // Load recent product updates
         $this->loadRecentProductHistories();
+    }
+
+    // ✅ NEW: Best Selling Products for this shop
+    public function loadBestSellers()
+    {
+        $shopId = $this->shop->id;
+        $branchId = $this->selectedBranch;
+
+        $query = OrderItem::whereHas('order', function ($q) use ($shopId, $branchId) {
+            $q->where('shop_id', $shopId)
+                ->whereIn('status', ['completed', 'partially_completed']);
+            if ($branchId !== 'all') {
+                $q->where('branch_id', $branchId);
+            }
+        })
+            ->where('status', 'completed')
+            ->select(
+                'product_id',
+                DB::raw('SUM(quantity) as total_sold'),
+                DB::raw('SUM(quantity * price) as total_revenue')
+            )
+            ->with('product')
+            ->groupBy('product_id')
+            ->orderBy('total_sold', 'desc')
+            ->limit(5);
+
+        $this->bestSellers = $query->get();
     }
 
     // ✅ Recent Employee Activities for this shop
@@ -195,7 +228,7 @@ class ShopDetails extends Component
         $this->allProductHistories = [];
     }
 
-    // ✅ NEW: Product Details Modal
+    // ✅ Product Details Modal
     public function viewProductDetails($productId)
     {
         $this->selectedProduct = Product::with([

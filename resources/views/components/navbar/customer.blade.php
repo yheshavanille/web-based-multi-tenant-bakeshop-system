@@ -4,11 +4,14 @@
             <!-- Logo -->
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.customer.dashboard') }}" class="flex items-center gap-2">
-                    <span class="text-2xl">🍞</span>
+                    <span class="text-2xl"></span>
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                 </a>
+            </div>
 
-                <!-- Cart Icon with Count -->
+            <!-- Right Side - Cart + Notification Bell + Profile Dropdown -->
+            <div class="flex items-center gap-3">
+                <!-- ✅ CART ICON (moved here, before the notification bell) -->
                 <a href="{{ route('livewire.customer.cart') }}"
                     class="relative p-2 text-gray-600 hover:text-amber-600 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,10 +29,7 @@
                     </span>
                     @endif
                 </a>
-            </div>
 
-            <!-- Right Side - Notification Bell + Profile Dropdown -->
-            <div class="flex items-center gap-3">
                 <!-- ✅ NOTIFICATION BELL -->
                 @livewire('components.notification-bell', ['context' => 'customer'])
 
@@ -82,26 +82,26 @@
 
                         <a href="{{ route('livewire.customer.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏠</span> Dashboard
+                            <span class="text-lg"></span> Dashboard
                         </a>
                         <a href="{{ route('livewire.customer.browse-shops') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏪</span> Browse Shops
+                            <span class="text-lg"></span> Browse Shops
                         </a>
                         <a href="{{ route('livewire.customer.orders') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📋</span> My Orders & Transaction History
+                            <span class="text-lg"></span> My Orders & Transaction History
                         </a>
                         <a href="{{ route('livewire.customer.profile') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">👤</span> My Profile
+                            <span class="text-lg"></span> My Profile
                         </a>
 
                         @if(auth()->user()->hasRole('owner') && auth()->user()->shop &&
                         !auth()->user()->shop->trashed())
                         <a href="{{ route('livewire.owner.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏪</span> My Shop Dashboard
+                            <span class="text-lg"></span> My Shop Dashboard
                         </a>
                         @endif
 
@@ -111,7 +111,7 @@
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg">🚪</span> Logout
+                                <span class="text-lg"></span> Logout
                             </button>
                         </form>
                     </div>

@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.employee.dashboard') }}" class="flex items-center gap-2">
-                    <span class="text-2xl">🍞</span>
+                    <span class="text-2xl"></span>
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                     <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Employee</span>
                 </a>
@@ -68,27 +68,27 @@
 
                         <a href="{{ route('livewire.employee.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏠</span> Dashboard
+                            <span class="text-lg"></span> Dashboard
                         </a>
 
                         @if($employee?->role === 'order_manager')
                         <a href="{{ route('livewire.employee.products') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📦</span> Manage Products
+                            <span class="text-lg"></span> Manage Products
                         </a>
                         @endif
 
                         @if($employee?->role === 'inventory_manager')
                         <a href="{{ route('livewire.employee.inventory') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📊</span> Manage Stock
+                            <span class="text-lg"></span> Manage Stock
                         </a>
                         @endif
 
                         @if($employee?->role === 'order_manager')
                         <a href="{{ route('livewire.employee.orders') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📋</span> Orders
+                            <span class="text-lg"></span> Orders
                         </a>
                         @endif
 
@@ -96,14 +96,14 @@
                         @if($employee?->role === 'inventory_manager')
                         <a href="{{ route('livewire.employee.stock-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📋</span> Stock Edit History
+                            <span class="text-lg"></span> Stock Edit History
                         </a>
                         @endif
 
                         <!-- ✅ My Profile -->
                         <a href="{{ route('livewire.employee.profile') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">👤</span> My Profile
+                            <span class="text-lg"></span> My Profile
                         </a>
 
                         <div class="border-t border-gray-100 my-1"></div>
@@ -112,7 +112,7 @@
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg">🚪</span> Logout
+                                <span class="text-lg"></span> Logout
                             </button>
                         </form>
                     </div>

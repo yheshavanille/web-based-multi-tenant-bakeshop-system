@@ -20,12 +20,13 @@ class EmployeeActivity extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        // ✅ withTrashed so activity log still works when employee was soft-deleted
+        return $this->belongsTo(Employee::class)->withTrashed();
     }
 
     public function shop()
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Shop::class)->withTrashed();
     }
 
     /**

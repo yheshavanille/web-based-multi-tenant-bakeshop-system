@@ -5,7 +5,7 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">
-                    📋 Orders Dashboard
+                    Orders Dashboard
                 </h1>
 
                 <p class="text-sm text-gray-500">
@@ -155,7 +155,7 @@
                                     <div class="flex items-center justify-between px-4 mb-4">
 
                                         <span class="text-sm font-semibold text-gray-700">
-                                            📦 Order Items
+                                            Order Items
                                         </span>
 
                                         <div class="w-[245px] flex justify-center">

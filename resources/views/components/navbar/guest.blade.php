@@ -4,7 +4,7 @@
             <!-- Logo -->
             <div class="min-w-0 flex-1">
                 <a href="{{ route('livewire.guest.browse-shops') }}" class="flex min-w-0 items-center gap-2">
-                    <span class="text-xl sm:text-2xl">🍞</span>
+
                     <span class="min-w-0 break-words text-lg font-bold leading-tight text-gray-900 sm:text-xl">Web-based
                         Multi-Tenant Bakeshop System</span>
                 </a>

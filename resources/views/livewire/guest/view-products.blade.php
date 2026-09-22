@@ -289,7 +289,7 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">📦 Product Details</h3>
+                        <h3 class="text-xl font-bold text-gray-800">Product Details</h3>
                         <p class="text-sm text-gray-500">{{ $selectedProduct->name }}</p>
                     </div>
                     <button wire:click="closeReviewModal" class="text-gray-400 hover:text-gray-600 transition">

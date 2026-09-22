@@ -3,7 +3,7 @@
         <!-- Header with Back Button -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">👥 Manage Employees</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Manage Employees</h1>
                 <p class="text-sm text-gray-500">View and manage your shop employees</p>
             </div>
             <div class="flex items-center gap-3">
@@ -87,7 +87,6 @@
                     <div class="flex items-center gap-6">
                         <div class="relative flex-shrink-0">
                             @if($temp_profile_picture_preview)
-                            {{-- Preview of newly uploaded image --}}
                             <img src="{{ $temp_profile_picture_preview }}" alt="Preview"
                                 class="w-20 h-20 rounded-full object-cover border-2 border-amber-400 shadow-md flex-shrink-0">
                             <div
@@ -95,12 +94,10 @@
                                 New
                             </div>
                             @elseif($existing_profile_picture && !$removeImage)
-                            {{-- Existing profile picture --}}
                             <img src="{{ asset('storage/' . $existing_profile_picture) }}?v={{ time() }}"
                                 alt="Profile Picture"
                                 class="w-20 h-20 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">
                             @else
-                            {{-- Fallback initials --}}
                             <div
                                 class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center text-3xl text-amber-600 border-2 border-gray-200 flex-shrink-0">
                                 {{ strtoupper(substr($name ?: 'E', 0, 1)) }}
@@ -393,10 +390,21 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($employees as $employee)
                         @php
+                        // ✅ SINGLE SOURCE OF TRUTH — use the model's methods
                         $isDeleted = $employee->trashed();
-                        $isSuspendedByAdmin = !$employee->user->is_active && $employee->is_active && !$isDeleted;
-                        $isDeactivatedByOwner = !$employee->is_active && !$isDeleted && !$isSuspendedByAdmin;
-                        $isActive = $employee->is_active && $employee->user->is_active && !$isDeleted;
+                        $statusLabel = $employee->getStatusLabel();
+                        $statusColor = $employee->getStatusColor();
+
+                        // For action buttons, we still need to know which bucket
+                        $isSuspendedByAdmin = !$isDeleted
+                        && !$employee->user?->is_active
+                        && $employee->deactivated_by === 'super_admin';
+                        $isDeactivatedByOwner = !$isDeleted
+                        && !$employee->is_active
+                        && $employee->deactivated_by === 'owner';
+                        $isActive = !$isDeleted
+                        && $employee->is_active
+                        && ($employee->user?->is_active ?? false);
                         @endphp
                         <tr class="{{ $isDeleted ? 'opacity-60' : '' }}">
                             <td class="px-4 py-3 font-medium text-gray-800">
@@ -417,15 +425,13 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
+                                {{-- ✅ Status badge driven by model's getStatusColor() --}}
                                 <span class="px-2 py-1 text-xs rounded-full
-                                    {{ $isDeleted ? 'bg-gray-100 text-gray-800' : '' }}
-                                    {{ $isSuspendedByAdmin ? 'bg-red-100 text-red-800' : '' }}
-                                    {{ $isDeactivatedByOwner ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                    {{ $isActive ? 'bg-green-100 text-green-800' : '' }}">
-                                    {{ $isDeleted ? 'Deleted' :
-                                    ($isSuspendedByAdmin ? 'Suspended by Admin' :
-                                    ($isDeactivatedByOwner ? 'Deactivated by Owner' :
-                                    ($isActive ? 'Active' : 'Inactive'))) }}
+                                    @if($statusColor === 'red') bg-red-100 text-red-800
+                                    @elseif($statusColor === 'yellow') bg-yellow-100 text-yellow-800
+                                    @elseif($statusColor === 'green') bg-green-100 text-green-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                    {{ $statusLabel }}
                                 </span>
                             </td>
                             <td class="px-4 py-3">

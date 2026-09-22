@@ -11,7 +11,7 @@
                         </svg>
                     </a>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">📋 Stock Edit History</h1>
+                        <h1 class="text-2xl font-bold text-gray-800">Stock Edit History</h1>
                         <p class="text-sm text-gray-500">
                             {{ $branch->name }} • {{ $stockHistories->count() }} total updates
                         </p>

@@ -6,8 +6,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ServiceReview;
 use App\Models\ProductReview;
+use App\Notifications\StockReviewNeededNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class Orders extends Component
@@ -102,6 +104,29 @@ class Orders extends Component
         $this->loadOrders();
     }
 
+    // ✅ Notify inventory managers + owner that stock may need review
+    private function notifyStockReview(Order $order, OrderItem $item, string $reason): void
+    {
+        $inventoryManagers = \App\Models\Employee::where('shop_id', $order->shop_id)
+            ->where('role', 'inventory_manager')
+            ->where('is_active', true)
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        $owner = $order->shop->user ?? null;
+
+        $recipients = $inventoryManagers;
+        if ($owner) {
+            $recipients = $recipients->push($owner);
+        }
+
+        if ($recipients->count() > 0) {
+            Notification::send($recipients, new StockReviewNeededNotification($order, $item, $reason));
+        }
+    }
+
     public function cancelOrder($orderId)
     {
         $order = Order::where('customer_id', Auth::id())
@@ -119,7 +144,11 @@ class Orders extends Component
         }
 
         foreach ($order->items as $item) {
-            $item->update(['status' => 'cancelled']);
+            if ($item->status === 'pending') {
+                $item->update(['status' => 'cancelled']);
+                // ✅ Notify inventory manager + owner
+                $this->notifyStockReview($order, $item, 'cancelled_by_customer');
+            }
         }
 
         $order->update([
@@ -143,6 +172,9 @@ class Orders extends Component
         }
 
         $item->update(['status' => 'cancelled']);
+
+        // ✅ Notify inventory manager + owner
+        $this->notifyStockReview($item->order, $item, 'cancelled_by_customer');
 
         $order = $item->order;
         $this->recalculateOrderStatus($order);
@@ -387,7 +419,6 @@ class Orders extends Component
         }
     }
 
-    // ✅ Calculate the 4-section breakdown with product lists
     public function getBreakdown()
     {
         if (!$this->selectedOrderDetails) {

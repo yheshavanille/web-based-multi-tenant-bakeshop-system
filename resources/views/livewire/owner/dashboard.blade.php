@@ -129,7 +129,7 @@
         @endif
     </div>
 
-    <!-- ✅ RECENT EMPLOYEE ACTIVITIES -->
+    <!-- ✅ RECENT EMPLOYEE ACTIVITIES (FIXED) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -146,22 +146,26 @@
         @if($recentEmployeeActivities->count() > 0)
         <div class="space-y-3">
             @foreach($recentEmployeeActivities as $activity)
+            @php
+            // ✅ Safe accessors — handles soft-deleted / force-deleted employees & users
+            $empUser = $activity->employee?->user;
+            $pic = $empUser?->profile_picture;
+            $empName = $empUser?->name ?? 'Deleted User';
+            $empInitials = strtoupper(substr($empName, 0, 2));
+            @endphp
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                @php
-                $pic = $activity->employee->user->profile_picture ?? null;
-                @endphp
                 @if($pic)
                 <img src="{{ asset('storage/' . $pic) }}"
                     class="w-10 h-10 rounded-full object-cover border border-gray-200 flex-shrink-0">
                 @else
                 <div
                     class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                    {{ strtoupper(substr($activity->employee->user->name ?? 'E', 0, 2)) }}
+                    {{ $empInitials }}
                 </div>
                 @endif
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-800 truncate">
-                        {{ $activity->employee->user->name ?? 'N/A' }}
+                        {{ $empName }}
                     </p>
                     <p class="text-xs text-gray-600 truncate">{{ $activity->description }}</p>
                 </div>
@@ -273,7 +277,7 @@
     </div>
     @endif
 
-    <!-- ✅ RECENT PRODUCT UPDATES -->
+    <!-- ✅ RECENT PRODUCT UPDATES (SAFE NAVIGATION) -->
     @if(isset($productEditHistories) && $productEditHistories->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
@@ -303,10 +307,11 @@
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach($productEditHistories as $history)
                     @php
-                    $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                    $branchName = $history->product?->branches->first()?->name ?? 'N/A';
                     @endphp
                     <tr>
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product?->name ?? 'Product Deleted'
+                            }}</td>
                         <td class="px-4 py-3 text-gray-600">{{ $branchName }}</td>
                         <td class="px-4 py-3 text-gray-600">
                             <span class="px-2 py-0.5 text-xs rounded-full
@@ -349,7 +354,7 @@
                             {{ $history->new_value ?? '-' }}
                             @endif
                         </td>
-                        <td class="px-4 py-3 text-gray-600">{{ $history->user->name ?? 'System' }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->user?->name ?? 'System' }}</td>
                         <td class="px-4 py-3 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
                     </tr>
                     @endforeach
@@ -499,7 +504,7 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @foreach($selectedOrder->items as $item)
                                 <tr>
-                                    <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}
+                                    <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product?->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-4 py-2 text-gray-600">{{ $item->quantity }}</td>
                                     <td class="px-4 py-2">
@@ -719,7 +724,7 @@
                         <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-800">{{ $productReview->product->name ??
+                                    <p class="text-sm font-medium text-gray-800">{{ $productReview->product?->name ??
                                         'N/A' }}</p>
                                     <div class="flex items-center gap-1 mt-1">
                                         <span class="text-amber-500 text-sm">{{ str_repeat('⭐', $productReview->rating)
@@ -754,7 +759,7 @@
     </div>
     @endif
 
-    <!-- Stock History -->
+    <!-- Stock History (SAFE NAVIGATION) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -784,8 +789,8 @@
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach($stockHistories as $history)
                     <tr>
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ $history->branch->name }}</td>
+                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product?->name ?? 'N/A' }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->branch?->name ?? 'N/A' }}</td>
                         <td class="px-4 py-3 text-gray-600">{{ $history->old_stock }}</td>
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 text-xs font-medium rounded-full
@@ -795,7 +800,7 @@
                                 {{ $history->new_stock }}
                             </span>
                         </td>
-                        <td class="px-4 py-3 text-gray-600">{{ $history->user->name }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $history->user?->name ?? 'System' }}</td>
                         <td class="px-4 py-3 text-gray-500">{{ $history->notes ?? '-' }}</td>
                         <td class="px-4 py-3 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
                     </tr>
@@ -810,7 +815,7 @@
         @endif
     </div>
 
-    <!-- ✅ PRODUCT HISTORY MODAL -->
+    <!-- ✅ PRODUCT HISTORY MODAL (SAFE NAVIGATION) -->
     @if($showProductHistoryModal && $allProductHistories)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeProductHistoryModal"></div>
@@ -848,10 +853,11 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($allProductHistories as $history)
                         @php
-                        $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                        $branchName = $history->product?->branches->first()?->name ?? 'N/A';
                         @endphp
                         <tr>
-                            <td class="px-4 py-2 font-medium text-gray-800">{{ $history->product->name }}</td>
+                            <td class="px-4 py-2 font-medium text-gray-800">{{ $history->product?->name ?? 'Product
+                                Deleted' }}</td>
                             <td class="px-4 py-2 text-gray-600">{{ $branchName }}</td>
                             <td class="px-4 py-2">
                                 <span class="px-2 py-0.5 text-xs rounded-full
@@ -896,7 +902,7 @@
                                 {{ $history->new_value ?? '-' }}
                                 @endif
                             </td>
-                            <td class="px-4 py-2 text-gray-600">{{ $history->user->name ?? 'System' }}</td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->user?->name ?? 'System' }}</td>
                             <td class="px-4 py-2 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
@@ -914,7 +920,7 @@
     </div>
     @endif
 
-    <!-- ✅ STOCK HISTORY MODAL -->
+    <!-- ✅ STOCK HISTORY MODAL (SAFE NAVIGATION) -->
     @if($showStockHistoryModal && $allStockHistories)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeStockHistoryModal"></div>
@@ -952,8 +958,8 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($allStockHistories as $history)
                         <tr>
-                            <td class="px-4 py-2 font-medium text-gray-800">{{ $history->product->name }}</td>
-                            <td class="px-4 py-2 text-gray-600">{{ $history->branch->name }}</td>
+                            <td class="px-4 py-2 font-medium text-gray-800">{{ $history->product?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->branch?->name ?? 'N/A' }}</td>
                             <td class="px-4 py-2 text-gray-600">{{ $history->old_stock }}</td>
                             <td class="px-4 py-2">
                                 <span
@@ -964,7 +970,7 @@
                                     {{ $history->new_stock }}
                                 </span>
                             </td>
-                            <td class="px-4 py-2 text-gray-600">{{ $history->user->name }}</td>
+                            <td class="px-4 py-2 text-gray-600">{{ $history->user?->name ?? 'System' }}</td>
                             <td class="px-4 py-2 text-gray-500">{{ $history->notes ?? '-' }}</td>
                             <td class="px-4 py-2 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
                         </tr>

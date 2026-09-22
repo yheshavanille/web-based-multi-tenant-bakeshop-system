@@ -5,7 +5,11 @@ namespace App\Livewire\Employee;
 use App\Models\Product;
 use App\Models\StockHistory;
 use App\Models\ProductEditHistory;
+use App\Models\Employee;
+use App\Notifications\LowStockNotification;
+use App\Notifications\OutOfStockNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class ManageStock extends Component
@@ -23,7 +27,6 @@ class ManageStock extends Component
         $this->branch = $employee->branch;
         $this->shop = $employee->shop;
 
-        // ✅ Only inventory managers can access this page
         if ($employee->role !== 'inventory_manager') {
             return redirect()->route('livewire.employee.dashboard')
                 ->with('error', 'You do not have permission to manage stock.');
@@ -40,7 +43,6 @@ class ManageStock extends Component
             })
             ->with('category');
 
-        // Apply search filter
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->where(function ($q) use ($searchTerm) {
@@ -72,6 +74,49 @@ class ManageStock extends Component
         $this->loadProducts();
     }
 
+    // ✅ Notify inventory managers + owner about low/out-of-stock
+    private function notifyLowOrOutOfStock(Product $product, int $newStock): void
+    {
+        // Low stock threshold
+        $threshold = 5;
+
+        $isOutOfStock = $newStock <= 0;
+        $isLowStock = $newStock > 0 && $newStock <= $threshold;
+
+        if (!$isOutOfStock && !$isLowStock) {
+            return;
+        }
+
+        // Recipients: inventory managers of this shop + owner
+        $inventoryManagers = Employee::where('shop_id', $this->shop->id)
+            ->where('role', 'inventory_manager')
+            ->where('is_active', true)
+            ->with('user')
+            ->get()
+            ->pluck('user')
+            ->filter();
+
+        $owner = $this->shop->user ?? null;
+
+        $recipients = $inventoryManagers;
+        if ($owner) {
+            $recipients = $recipients->push($owner);
+        }
+
+        // Deduplicate (in case owner is somehow also an inventory manager)
+        $recipients = $recipients->unique('id');
+
+        if ($recipients->count() === 0) {
+            return;
+        }
+
+        if ($isOutOfStock) {
+            Notification::send($recipients, new OutOfStockNotification($product, $this->branch));
+        } else {
+            Notification::send($recipients, new LowStockNotification($product, $this->branch, $newStock));
+        }
+    }
+
     public function updateStock($productId)
     {
         $product = Product::findOrFail($productId);
@@ -86,12 +131,10 @@ class ManageStock extends Component
 
         $oldStock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
 
-        // ✅ Update stock
         $product->branches()->syncWithoutDetaching([
             $this->branch->id => ['stock' => $newStock]
         ]);
 
-        // ✅ Log to StockHistory
         StockHistory::create([
             'product_id' => $product->id,
             'user_id' => Auth::id(),
@@ -101,16 +144,16 @@ class ManageStock extends Component
             'notes' => $note,
         ]);
 
-        // ✅ LOG TO PRODUCT EDIT HISTORY with better notes
-        $notesText = !empty($note) ? "Stock updated from {$oldStock} to {$newStock}. Note: {$note}" : "Stock updated from {$oldStock} to {$newStock}";
-
         ProductEditHistory::create([
             'product_id' => $product->id,
             'user_id' => Auth::id(),
             'field' => 'stock',
-            'old_value' => (string)$oldStock,
-            'new_value' => (string)$newStock,
+            'old_value' => (string) $oldStock,
+            'new_value' => (string) $newStock,
         ]);
+
+        // ✅ NEW: Notify inventory managers + owner if stock is low or out
+        $this->notifyLowOrOutOfStock($product, $newStock);
 
         $this->notes[$productId] = '';
 

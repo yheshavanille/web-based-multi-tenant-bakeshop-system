@@ -13,7 +13,7 @@
         <!-- HEADER -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">📦 Products</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Products</h1>
                 <p class="text-sm text-gray-500">View product listings and details</p>
                 @if($selectedBranchId)
                 @php
@@ -115,27 +115,59 @@
                     @enderror
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
-                    <select wire:model="form_branch_id"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select Branch</option>
-                        @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('form_branch_id')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                <!-- ✅ BRANCH CHECKBOXES WITH PER-BRANCH STOCK — FULL WIDTH -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Available Branches</label>
+                    <p class="text-xs text-gray-500 mb-3">
+                        Select which branches this product is available at, and set the stock for each branch.
+                    </p>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Initial Stock</label>
-                    <input type="number" wire:model="stock"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                    @error('stock')
+                    @if($branches->count() > 0)
+                    <div class="grid grid-cols-1 gap-3">
+                        @foreach($branches as $branch)
+                        <div
+                            class="border border-gray-200 rounded-lg overflow-hidden transition
+                                {{ in_array($branch->id, $selectedBranches) ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
+
+                            {{-- Checkbox header --}}
+                            <label class="flex items-start gap-3 p-3 cursor-pointer">
+                                <input type="checkbox" wire:model.live="selectedBranches" value="{{ $branch->id }}"
+                                    class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-800">{{ $branch->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $branch->address }}</p>
+                                    <p class="text-xs text-gray-400">
+                                        Status: {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                    </p>
+                                </div>
+                            </label>
+
+                            {{-- Per-branch stock input — only shows when checked --}}
+                            @if(in_array($branch->id, $selectedBranches))
+                            <div class="px-3 pb-3 pt-1 border-t border-amber-200/50">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">
+                                    Stock for {{ $branch->name }}
+                                </label>
+                                <input type="number" min="0" wire:model="branch_stocks.{{ $branch->id }}"
+                                    class="py-2 px-3 w-full sm:w-48 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
+                                    placeholder="0">
+                                @error("branch_stocks.{$branch->id}")
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                    @error('selectedBranches')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
+                    @else
+                    <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                        <p>⚠️ No branches found. Please <a href="{{ route('livewire.owner.branches.manage-branches') }}"
+                                class="text-amber-600 hover:underline">create a branch</a> first.</p>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="md:col-span-2">
@@ -253,10 +285,8 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             @forelse($products as $product)
             @php
-            // ✅ Get branch IDs where product exists
             $branchIds = $product->branches->pluck('id')->toArray();
 
-            // ✅ EXACT SAME LOGIC AS BEST SELLERS - SHOW 16
             if (!empty($branchIds)) {
             $orderItems = \App\Models\OrderItem::where('product_id', $product->id)
             ->whereHas('order', function ($q) use ($branchIds) {
@@ -307,7 +337,6 @@
 
                     <p class="text-sm text-gray-500 mt-0.5">{{ $product->category->name ?? 'No Category' }}</p>
 
-                    <!-- ✅ FIXED: Show discounted price if active -->
                     <p class="text-lg font-bold mt-1">
                         @if($product->isDiscounted())
                         <span class="text-red-600">₱{{ number_format($product->getDiscountedPrice(), 2) }}</span>
@@ -320,7 +349,6 @@
                         @endif
                     </p>
 
-                    <!-- Stock + Reviews Display -->
                     <div class="mt-1 flex flex-wrap items-center gap-2">
                         <span class="text-xs font-medium px-2.5 py-1 rounded-full
                             {{ $stock > 10 ? 'bg-green-100 text-green-800' : '' }}
@@ -333,7 +361,6 @@
                         </span>
                     </div>
 
-                    <!-- Sales Summary - NOW SHOWS 16 -->
                     <div class="mt-2 flex items-center gap-3 flex-wrap">
                         <span class="text-xs text-gray-500">📊 Sold:</span>
                         <span class="text-xs font-semibold text-green-600">{{ $totalSold }}</span>
@@ -341,7 +368,6 @@
                         <span class="text-xs font-semibold text-amber-600">₱{{ number_format($totalRevenue, 2) }}</span>
                     </div>
 
-                    <!-- Branches -->
                     <div class="mt-3">
                         <p class="text-xs font-medium text-gray-700">Available at:</p>
                         <div class="flex flex-wrap gap-1 mt-1">
@@ -425,7 +451,6 @@
         <div class="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 90vh;">
 
-            <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -444,10 +469,8 @@
                 </div>
             </div>
 
-            <!-- Modal Body -->
             <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
-                <!-- Product Image & Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div class="h-48 bg-gray-100 rounded-lg overflow-hidden">
                         @if($selectedProduct->image_url)
@@ -464,7 +487,6 @@
                         <h2 class="text-xl font-bold text-gray-800">{{ $selectedProduct->name }}</h2>
                         <p class="text-sm text-gray-500"> {{ $selectedProduct->category->name ?? 'Uncategorized' }}
                         </p>
-                        <!-- ✅ FIXED: Show discounted price in modal too -->
                         <p class="text-2xl font-bold">
                             @if($selectedProduct->isDiscounted())
                             <span class="text-red-600">₱{{ number_format($selectedProduct->getDiscountedPrice(), 2)
@@ -489,7 +511,6 @@
                     </div>
                 </div>
 
-                <!-- Analytics Cards - NOW SHOWS 16 -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-blue-50 rounded-xl p-4 border border-blue-200 text-center">
                         <p class="text-xs text-gray-500 uppercase tracking-wider">Total Sold</p>
@@ -506,7 +527,6 @@
                     </div>
                 </div>
 
-                <!-- Stock by Branch -->
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-800 mb-3">📍 Stock by Branch</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -524,7 +544,6 @@
                     </div>
                 </div>
 
-                <!-- Reviews Section -->
                 <div class="border-t border-gray-200 pt-4">
                     <div class="flex items-center justify-between mb-3">
                         <h4 class="text-sm font-semibold text-gray-700">⭐ Customer Reviews</h4>
@@ -562,7 +581,6 @@
 
             </div>
 
-            <!-- Modal Footer -->
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
                 <button wire:click="closeProductModal"
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">

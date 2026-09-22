@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">✏️ Product Edit History</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Product Edit History</h1>
                 <p class="text-sm text-gray-500">View all product edit history</p>
             </div>
             <a href="{{ route('livewire.owner.dashboard') }}"

@@ -87,38 +87,51 @@
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                     @enderror
                                 </div>
-
-                                <div>
-                                    <label class="block mb-2 text-sm font-medium text-gray-700">Stock per Branch</label>
-                                    <input type="number" wire:model="stock_per_branch" min="0"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                                    <p class="text-xs text-gray-500 mt-1">Stock quantity for selected branches</p>
-                                    @error('stock_per_branch')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
-                                    @enderror
-                                </div>
                             </div>
 
-                            <!-- BRANCH CHECKBOXES -->
+                            <!-- ✅ BRANCH CHECKBOXES WITH PER-BRANCH STOCK -->
                             <div>
                                 <label class="block mb-2 text-sm font-medium text-gray-700">Available Branches</label>
-                                <p class="text-sm text-gray-500 mb-3">Select which branches this product is available
-                                    at.</p>
+                                <p class="text-sm text-gray-500 mb-3">
+                                    Update which branches this product is available at, and adjust stock per branch.
+                                </p>
 
                                 @if($branches->count() > 0)
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 gap-3">
                                     @foreach($branches as $branch)
-                                    <label
-                                        class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-amber-50 cursor-pointer transition">
-                                        <input type="checkbox" wire:model="selectedBranches" value="{{ $branch->id }}"
-                                            class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-800">{{ $branch->name }}</p>
-                                            <p class="text-xs text-gray-500">{{ $branch->address }}</p>
-                                            <p class="text-xs text-gray-400">Status: {{ $branch->is_active ? 'Active' :
-                                                'Inactive' }}</p>
+                                    <div
+                                        class="border border-gray-200 rounded-lg overflow-hidden transition
+                                            {{ in_array($branch->id, $selectedBranches) ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
+
+                                        {{-- Checkbox header --}}
+                                        <label class="flex items-start gap-3 p-3 cursor-pointer">
+                                            <input type="checkbox" wire:model.live="selectedBranches"
+                                                value="{{ $branch->id }}"
+                                                class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-gray-800">{{ $branch->name }}</p>
+                                                <p class="text-xs text-gray-500">{{ $branch->address }}</p>
+                                                <p class="text-xs text-gray-400">
+                                                    Status: {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        {{-- ✅ Per-branch stock input — only shows when checked --}}
+                                        @if(in_array($branch->id, $selectedBranches))
+                                        <div class="px-3 pb-3 pt-1 border-t border-amber-200/50">
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                Stock for {{ $branch->name }}
+                                            </label>
+                                            <input type="number" min="0" wire:model="branch_stocks.{{ $branch->id }}"
+                                                class="py-2 px-3 w-full sm:w-48 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
+                                                placeholder="0">
+                                            @error("branch_stocks.{$branch->id}")
+                                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            @enderror
                                         </div>
-                                    </label>
+                                        @endif
+                                    </div>
                                     @endforeach
                                 </div>
                                 @error('selectedBranches')

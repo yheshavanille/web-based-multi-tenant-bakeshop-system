@@ -13,7 +13,7 @@
         @if(!Auth::check())
         <div class="mb-6 p-6 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl shadow-sm">
             <div class="flex flex-col items-center gap-2 text-center">
-                <span class="text-2xl">🔐</span>
+
                 <div>
                     <p class="font-semibold text-gray-800">Please Login or Register First</p>
                     <p class="text-sm text-gray-600">You need to be logged in to start selling.</p>

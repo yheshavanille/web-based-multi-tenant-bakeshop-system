@@ -4,7 +4,7 @@
             <!-- Logo -->
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.owner.dashboard') }}" class="flex items-center gap-2">
-                    <span class="text-2xl">🍞</span>
+
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                     <span
                         class="ml-2 text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
@@ -60,31 +60,31 @@
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
                                     <p class="text-xs text-gray-500">{{ $user->email }}</p>
-                                    <p class="text-xs text-gray-400">🛒 Shop Owner</p>
+                                    <p class="text-xs text-gray-400"> Shop Owner</p>
                                 </div>
                             </div>
                         </div>
 
                         <a href="{{ route('livewire.owner.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏠</span> Dashboard
+                            <span class="text-lg"></span> Dashboard
                         </a>
                         <a href="{{ route('livewire.owner.products.view-product') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📦</span> Products
+                            <span class="text-lg"></span> Products
                         </a>
                         <a href="{{ route('livewire.owner.category.view-category') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏷️</span> Categories
+                            <span class="text-lg"></span> Categories
                         </a>
 
                         <a href="{{ route('livewire.owner.branches.manage-cards') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🏪</span> View Branches
+                            <span class="text-lg"></span> View Branches
                         </a>
                         <a href="{{ route('livewire.owner.branches.manage-branches') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition pl-10">
-                            <span class="text-sm">📍</span> Branch Lists
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-sm"></span> Branch Lists
                         </a>
 
                         @php
@@ -93,42 +93,42 @@
                         @if($firstBranch)
                         <a href="{{ route('livewire.owner.branches.branch-orders', ['branchId' => $firstBranch->id]) }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📋</span> Order & Transaction History
+                            <span class="text-lg"></span> Order & Transaction History
                         </a>
                         @endif
 
                         <a href="{{ route('livewire.owner.employees.manage') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">👥</span> Employees
+                            <span class="text-lg"></span> Employees
                         </a>
                         <a href="{{ route('livewire.owner.shop.edit-shop') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">⚙️</span> Shop Settings
+                            <span class="text-lg"></span> Shop Settings
                         </a>
 
                         <!-- ✅ PRODUCT EDIT HISTORY -->
                         <a href="{{ route('livewire.owner.product-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">✏️</span> Product Update & Edit History
+                            <span class="text-lg"></span> Product Update & Edit History
                         </a>
 
                         <!-- ✅ STOCK UPDATE HISTORY -->
                         <a href="{{ route('livewire.owner.stock-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">📦</span> Stock Update History
+                            <span class="text-lg"></span> Stock Update History
                         </a>
 
                         <!-- ✅ EMPLOYEE ACTIVITIES -->
                         <a href="{{ route('livewire.owner.employee-activities') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">👥</span> Employee Activities
+                            <span class="text-lg"></span> Employee Activities
                         </a>
 
                         <div class="border-t border-gray-100 my-1"></div>
 
                         <a href="{{ route('livewire.customer.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg">🛒</span> Customer View
+                            <span class="text-lg"></span> Customer View
                         </a>
 
                         <div class="border-t border-gray-100 my-1"></div>
@@ -137,7 +137,7 @@
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg">🚪</span> Logout
+                                <span class="text-lg"></span> Logout
                             </button>
                         </form>
                     </div>

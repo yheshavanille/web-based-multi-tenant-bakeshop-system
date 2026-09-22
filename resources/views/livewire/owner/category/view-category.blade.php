@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">🏷️ Categories</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Categories</h1>
                 <p class="text-sm text-gray-500">Manage your shop categories</p>
                 @if($showDeleted)
                 <p class="text-sm text-red-600 mt-1">Showing deleted categories</p>

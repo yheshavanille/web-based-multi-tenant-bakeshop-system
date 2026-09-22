@@ -5,6 +5,7 @@ namespace App\Livewire\Owner\Products;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Product;
+use App\Rules\UniqueProductName;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +20,8 @@ class CreateProduct extends Component
     public float $price = 0;
     public string $category_id = '';
     public array $selectedBranches = [];
-    public $stock_per_branch = null;
+    public array $branch_stocks = [];
+
     public Collection $categories;
     public $branches;
 
@@ -71,6 +73,10 @@ class CreateProduct extends Component
         $this->branches = Branch::where('shop_id', $shop->id)
             ->orderBy('name')
             ->get();
+
+        foreach ($this->branches as $branch) {
+            $this->branch_stocks[$branch->id] = 0;
+        }
     }
 
     public function messages()
@@ -80,6 +86,7 @@ class CreateProduct extends Component
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
             'selectedBranches.required' => 'Please select at least one branch.',
+            'selectedBranches.min' => 'Please select at least one branch.',
             'image_url.url' => 'Image URL must be valid.',
             'discount_value.min' => 'Discount value must be greater than 0.',
         ];
@@ -87,12 +94,22 @@ class CreateProduct extends Component
 
     public function rules()
     {
+        $shop = Auth::user()?->shop;
+
         return [
-            'name' => 'required|string|min:3',
+            'name' => [
+                'required',
+                'string',
+                'min:3',
+                // ✅ Duplicate check: block same name in same shop
+                $shop ? new UniqueProductName($shop->id) : 'string',
+            ],
             'price' => 'required|numeric|min:1',
             'category_id' => 'required|exists:categories,id',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
+            'branch_stocks' => 'array',
+            'branch_stocks.*' => 'nullable|integer|min:0',
             'image_url' => 'nullable|url',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
@@ -123,7 +140,7 @@ class CreateProduct extends Component
         }
 
         $product = Product::create([
-            'name' => $this->name,
+            'name' => trim($this->name), // ✅ trim to keep consistency
             'price' => $this->price,
             'category_id' => $this->category_id,
             'image_url' => $imagePath,
@@ -136,7 +153,8 @@ class CreateProduct extends Component
         ]);
 
         foreach ($this->selectedBranches as $branchId) {
-            $product->branches()->attach($branchId, ['stock' => $this->stock_per_branch ?? 0]);
+            $stock = (int) ($this->branch_stocks[$branchId] ?? 0);
+            $product->branches()->attach($branchId, ['stock' => $stock]);
         }
 
         session()->flash('message', '✅ Product created successfully!');

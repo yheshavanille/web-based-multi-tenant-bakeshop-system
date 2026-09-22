@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">📦 Manage Products</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Manage Products</h1>
                 <p class="text-sm text-gray-500">
                     Manage products for <span class="font-medium text-amber-600">{{ $branch->name }}</span>
                 </p>

@@ -2,7 +2,7 @@
     <div class="mb-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">📊 Manage Stock</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Manage Stock</h1>
                 <p class="text-sm text-gray-500">
                     Update inventory for <span class="font-medium text-amber-600">{{ $branch->name }}</span>
                 </p>

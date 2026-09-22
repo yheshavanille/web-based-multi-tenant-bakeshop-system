@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">👥 Manage Users</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Manage Users</h1>
                 <p class="text-sm text-gray-500">View and manage all registered users</p>
             </div>
             <a href="{{ route('livewire.admin.admin-dashboard') }}"
@@ -30,15 +30,15 @@
         <div class="flex border-b border-gray-200 mb-6">
             <button wire:click="setTab('active')"
                 class="px-4 py-2 text-sm font-medium {{ $activeTab === 'active' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
-                🟢 Active Users
+                Active Users
             </button>
             <button wire:click="setTab('soft_deleted')"
                 class="px-4 py-2 text-sm font-medium {{ $activeTab === 'soft_deleted' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
-                🗑️ Soft Deleted
+                Soft Deleted
             </button>
             <button wire:click="setTab('permanently_deleted')"
                 class="px-4 py-2 text-sm font-medium {{ $activeTab === 'permanently_deleted' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
-                💀 Permanently Deleted
+                Permanently Deleted
             </button>
         </div>
 
@@ -192,18 +192,18 @@
                                     <!-- ✅ VIEW DETAILS BUTTON -->
                                     <button wire:click="viewUserDetails({{ $user->id }})"
                                         class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                        👁️ View
+                                        View
                                     </button>
 
                                     @if($user->trashed())
                                     <button wire:click="restoreUser({{ $user->id }})"
                                         class="text-xs text-green-600 hover:text-green-800 font-medium">
-                                        🔄 Restore
+                                        Restore
                                     </button>
                                     <button wire:click="forceDeleteUser({{ $user->id }})"
                                         onclick="confirm('Permanently delete this user? This cannot be undone.') || event.stopImmediatePropagation()"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
-                                        💀 Permanently Delete
+                                        Permanently Delete
                                     </button>
                                     @elseif($user->id !== auth()->id())
                                     <button wire:click="toggleUserStatus({{ $user->id }})"
@@ -213,7 +213,7 @@
                                     <button wire:click="deleteUser({{ $user->id }})"
                                         onclick="confirm('Soft delete this user?') || event.stopImmediatePropagation()"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
-                                        🗑️ Delete
+                                        Delete
                                     </button>
                                     @else
                                     <span class="text-xs text-gray-400">You</span>

@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductEditHistory;
+use App\Rules\UniqueProductName;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -36,13 +37,31 @@ class Products extends Component
 
     public $originalValues = [];
 
-    protected $rules = [
-        'name' => 'required|string|min:3|max:255',
-        'price' => 'required|numeric|min:0',
-        'category_id' => 'required|exists:categories,id',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|max:2048',
-    ];
+    /**
+     * ✅ Dynamic rules — the name rule depends on whether we're editing
+     *    (must skip the current product) or creating a new one.
+     */
+    protected function rules()
+    {
+        $shopId = $this->shop?->id;
+        $ignoreId = $this->editing ? $this->productId : null;
+
+        return [
+            'name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                $shopId
+                    ? new UniqueProductName($shopId, $ignoreId)
+                    : 'string',
+            ],
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
+        ];
+    }
 
     public function mount()
     {
@@ -102,13 +121,11 @@ class Products extends Component
         foreach ($this->products as $product) {
             $owner = $product->shop?->user;
 
-            // ✅ Get the latest history entry using DB::table directly
             $latestHistory = DB::table('product_edit_histories')
                 ->where('product_id', $product->id)
                 ->orderBy('created_at', 'desc')
                 ->first();
 
-            // ✅ Get the first created entry
             $createdEntry = DB::table('product_edit_histories')
                 ->where('product_id', $product->id)
                 ->where('field', 'created')
@@ -154,10 +171,6 @@ class Products extends Component
 
     public function createNew()
     {
-        \Log::info('=== CREATE NEW FORM OPENED ===');
-        \Log::info('Current user ID: ' . Auth::id());
-        \Log::info('Current user name: ' . Auth::user()->name);
-
         $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'originalValues']);
         $this->editing = false;
         $this->showForm = true;
@@ -176,18 +189,18 @@ class Products extends Component
 
         $this->originalValues = [
             'name' => $product->name,
-            'price' => (string)$product->price,
-            'category_id' => (string)$product->category_id,
-            'description' => (string)$product->description,
-            'image_url' => (string)$product->image_url,
+            'price' => (string) $product->price,
+            'category_id' => (string) $product->category_id,
+            'description' => (string) $product->description,
+            'image_url' => (string) $product->image_url,
         ];
 
         $this->productId = $product->id;
         $this->name = $product->name;
-        $this->price = (string)$product->price;
-        $this->category_id = (string)$product->category_id;
-        $this->description = (string)$product->description;
-        $this->image_url = (string)$product->image_url;
+        $this->price = (string) $product->price;
+        $this->category_id = (string) $product->category_id;
+        $this->description = (string) $product->description;
+        $this->image_url = (string) $product->image_url;
 
         $this->editing = true;
         $this->showForm = true;
@@ -203,11 +216,6 @@ class Products extends Component
 
     public function save()
     {
-        \Log::info('=== SAVE METHOD DEBUG ===');
-        \Log::info('Current user ID: ' . Auth::id());
-        \Log::info('Current user name: ' . Auth::user()->name);
-        \Log::info('Current user email: ' . Auth::user()->email);
-
         $this->validate();
 
         $imagePath = null;
@@ -227,7 +235,7 @@ class Products extends Component
 
             foreach ($fields as $field) {
                 $oldValue = $this->originalValues[$field] ?? null;
-                $newValue = (string)($this->$field ?? '');
+                $newValue = (string) ($this->$field ?? '');
 
                 if ($oldValue !== null && $oldValue !== $newValue) {
                     ProductEditHistory::create([
@@ -254,7 +262,7 @@ class Products extends Component
             }
 
             $product->update([
-                'name' => $this->name,
+                'name' => trim($this->name),
                 'price' => $this->price,
                 'category_id' => $this->category_id,
                 'description' => $this->description,
@@ -264,7 +272,7 @@ class Products extends Component
             session()->flash('message', 'Product updated successfully!');
         } else {
             $product = Product::create([
-                'name' => $this->name,
+                'name' => trim($this->name),
                 'price' => $this->price,
                 'category_id' => $this->category_id,
                 'description' => $this->description,
@@ -281,8 +289,6 @@ class Products extends Component
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-
-            \Log::info('✅ History created with ID: ' . $historyId . ' for product: ' . $product->id . ' by user: ' . Auth::id());
 
             DB::table('branch_product')->insert([
                 'branch_id' => $this->branch->id,
