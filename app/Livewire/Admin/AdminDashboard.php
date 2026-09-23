@@ -48,7 +48,6 @@ class AdminDashboard extends Component
 
         foreach ($shops as $shop) {
 
-            // ✅ MATCH ShopDetails.php — item-level, net of VAT, includes partials
             $totalSales = OrderItem::whereHas('order', function ($query) use ($shop) {
                 $query->where('shop_id', $shop->id)
                     ->whereIn('status', ['completed', 'partially_completed']);
@@ -64,12 +63,12 @@ class AdminDashboard extends Component
                 ->distinct('order_id')
                 ->count('order_id');
 
-            // Average rating
+            // ✅ UPDATED: only count visible/kept reviews in the rating average
             $avgRating = DB::table('service_reviews')
                 ->where('shop_id', $shop->id)
+                ->whereIn('moderation_status', ['visible', 'kept'])
                 ->avg('rating') ?? 0;
 
-            // ✅ MATCH ShopDetails.php — top product uses same filter as sales
             $topProduct = OrderItem::whereHas('order', function ($query) use ($shop) {
                 $query->where('shop_id', $shop->id)
                     ->whereIn('status', ['completed', 'partially_completed']);
@@ -92,15 +91,11 @@ class AdminDashboard extends Component
             ];
         }
 
-        // Sort by total sales (descending)
         usort($shopPerformance, function ($a, $b) {
             return $b['total_sales'] <=> $a['total_sales'];
         });
 
-        // Top 3 for banner
         $this->topShops = array_slice($shopPerformance, 0, 3);
-
-        // All for table (with rank)
         $this->allShopsRanked = $shopPerformance;
     }
 

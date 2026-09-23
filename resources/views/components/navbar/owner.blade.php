@@ -118,6 +118,11 @@
                             <span class="text-lg"></span> Shop Settings
                         </a>
 
+                        <!-- ✅ REVIEWS & RATINGS HISTORY -->
+                        <a href="{{ route('livewire.owner.reviews-history') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg"></span> Reviews & Ratings History
+                        </a>
                         <!-- ✅ PRODUCT EDIT HISTORY -->
                         <a href="{{ route('livewire.owner.product-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">

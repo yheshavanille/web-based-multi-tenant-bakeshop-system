@@ -19,11 +19,14 @@ class User extends Authenticatable
         'password',
         'phone',
         'profile_picture',
-        'is_active', // ✅ Already exists
+        'is_active',
+        'review_banned_at',     // ✅ NEW
+        'review_ban_reason',    // ✅ NEW
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'review_banned_at' => 'datetime', // ✅ NEW
     ];
 
     public function shop()
@@ -39,5 +42,11 @@ class User extends Authenticatable
     public function employee()
     {
         return $this->hasOne(Employee::class);
+    }
+
+    // ✅ NEW: helper to check if the user is banned from reviewing
+    public function isReviewBanned(): bool
+    {
+        return !is_null($this->review_banned_at);
     }
 }

@@ -76,6 +76,20 @@
                             </span>
                             @endif
                         </a>
+                        <a href="{{ route('livewire.admin.flagged-reviews') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <span class="text-lg"></span> Flagged Reviews
+                            @php
+                            $flaggedCount = \App\Models\ServiceReview::where('moderation_status',
+                            'pending_review')->count()
+                            + \App\Models\ProductReview::where('moderation_status', 'pending_review')->count();
+                            @endphp
+                            @if($flaggedCount > 0)
+                            <span class="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                {{ $flaggedCount }}
+                            </span>
+                            @endif
+                        </a>
                         <a href="{{ route('livewire.admin.pages.users.manage-users') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                             <span class="text-lg"></span> Manage Users

@@ -86,7 +86,10 @@ class ViewProducts extends Component
                     ->where('stock', '>', 0);
             })
             ->with(['category', 'branches'])
-            ->withAvg('productReviews', 'rating');
+            // ✅ NEW: only average reviews that are visible/kept
+            ->withAvg(['productReviews' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }], 'rating');
 
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
@@ -158,7 +161,6 @@ class ViewProducts extends Component
         return $pivot ? $pivot->pivot->stock : 0;
     }
 
-    // ✅ FIXED: Added $this->loadBestSellers() to reload best sellers after adding to cart
     public function addToCart($productId)
     {
         $product = Product::findOrFail($productId);
@@ -203,7 +205,6 @@ class ViewProducts extends Component
             $message = $product->name . ' added to cart! 🛒';
         }
 
-        // ✅ FIX: Reload BOTH products AND best sellers
         $this->loadProducts();
         $this->loadBestSellers();
 
@@ -214,8 +215,11 @@ class ViewProducts extends Component
     public function openReviewModal($productId)
     {
         $this->selectedProduct = Product::with([
+            // ✅ NEW: only load reviews that are visible/kept
             'productReviews' => function ($query) {
-                $query->with('customer')->latest();
+                $query->whereIn('moderation_status', ['visible', 'kept'])
+                    ->with('customer')
+                    ->latest();
             }
         ])->findOrFail($productId);
 
@@ -237,13 +241,17 @@ class ViewProducts extends Component
 
     public function getShopRating()
     {
+        // ✅ NEW: only count visible/kept reviews
         return ServiceReview::where('shop_id', $this->shopId)
+            ->whereIn('moderation_status', ['visible', 'kept'])
             ->avg('rating') ?? 0;
     }
 
     public function getShopRatingCount()
     {
-        return ServiceReview::where('shop_id', $this->shopId)->count();
+        return ServiceReview::where('shop_id', $this->shopId)
+            ->whereIn('moderation_status', ['visible', 'kept'])
+            ->count();
     }
 
     public function render()

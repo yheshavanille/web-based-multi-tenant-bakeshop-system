@@ -118,10 +118,17 @@ class Dashboard extends Component
             ->limit(5)
             ->get();
 
-        $this->shopRating = ServiceReview::where('shop_id', $shop->id)->avg('rating') ?? 0;
-        $this->shopRatingCount = ServiceReview::where('shop_id', $shop->id)->count();
+        $this->shopRating = ServiceReview::where('shop_id', $shop->id)
+            ->whereIn('moderation_status', ['visible', 'kept'])
+            ->avg('rating') ?? 0;
 
+        $this->shopRatingCount = ServiceReview::where('shop_id', $shop->id)
+            ->whereIn('moderation_status', ['visible', 'kept'])
+            ->count();
+
+        // ✅ UPDATED: only load visible/kept reviews for the recent reviews widget
         $this->recentReviews = ServiceReview::where('shop_id', $shop->id)
+            ->whereIn('moderation_status', ['visible', 'kept'])
             ->with(['customer', 'branch'])
             ->orderBy('created_at', 'desc')
             ->limit(5)

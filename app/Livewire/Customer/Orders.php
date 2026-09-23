@@ -27,7 +27,6 @@ class Orders extends Component
     public $productRatings = [];
     public $productReviews = [];
 
-    // ✅ NEW: read-only mode when the customer has hit the edit limit
     public bool $reviewReadOnly = false;
 
     public $showDetailsModal = false;
@@ -107,6 +106,24 @@ class Orders extends Component
     {
         $this->search = '';
         $this->loadOrders();
+    }
+
+    // ✅ NEW: reusable ban check
+    private function bannedFromReviewing(): bool
+    {
+        $user = Auth::user();
+
+        if ($user && $user->isReviewBanned()) {
+            session()->flash(
+                'error',
+                'Your ability to leave reviews has been revoked. Reason: '
+                    . ($user->review_ban_reason ?: 'Violation of community guidelines')
+                    . '. Please contact support if you believe this was a mistake.'
+            );
+            return true;
+        }
+
+        return false;
     }
 
     private function notifyStockReview(Order $order, OrderItem $item, string $reason): void
@@ -229,6 +246,11 @@ class Orders extends Component
 
     public function openReviewModal($orderId)
     {
+        // ✅ NEW: block banned users
+        if ($this->bannedFromReviewing()) {
+            return;
+        }
+
         $this->selectedOrder = Order::with(['items.product', 'shop', 'serviceReview'])
             ->where('customer_id', Auth::id())
             ->where('id', $orderId)
@@ -254,7 +276,7 @@ class Orders extends Component
         }
 
         $this->showReviewModal = true;
-        $this->reviewReadOnly = false; // ✅ Reset
+        $this->reviewReadOnly = false;
         $this->serviceRating = 0;
         $this->employeeRating = 0;
         $this->serviceReviewText = '';
@@ -264,6 +286,11 @@ class Orders extends Component
 
     public function openEditReviewModal($orderId)
     {
+        // ✅ NEW: block banned users
+        if ($this->bannedFromReviewing()) {
+            return;
+        }
+
         $this->selectedOrder = Order::with(['items.product', 'serviceReview'])
             ->where('customer_id', Auth::id())
             ->where('id', $orderId)
@@ -293,10 +320,9 @@ class Orders extends Component
         }
 
         $this->showReviewModal = true;
-        $this->reviewReadOnly = false; // ✅ Editable mode
+        $this->reviewReadOnly = false;
     }
 
-    // ✅ NEW: open the review modal in read-only mode
     public function viewLockedReview($orderId)
     {
         $this->selectedOrder = Order::with(['items.product', 'serviceReview'])
@@ -326,7 +352,7 @@ class Orders extends Component
         }
 
         $this->showReviewModal = true;
-        $this->reviewReadOnly = true; // ✅ Read-only
+        $this->reviewReadOnly = true;
     }
 
     public function closeReviewModal()
@@ -384,7 +410,7 @@ class Orders extends Component
 
     public function setRating($type, $rating)
     {
-        if ($this->reviewReadOnly) return; // ✅ Block in read-only
+        if ($this->reviewReadOnly) return;
         if ($type === 'service') {
             $this->serviceRating = $rating;
         } elseif ($type === 'employee') {
@@ -400,6 +426,11 @@ class Orders extends Component
 
     public function submitReview()
     {
+        // ✅ NEW: block banned users
+        if ($this->bannedFromReviewing()) {
+            return;
+        }
+
         if ($this->reviewReadOnly) {
             session()->flash('error', 'This review is locked and cannot be edited.');
             return;
@@ -497,8 +528,8 @@ class Orders extends Component
             ]);
 
             $message = $isEdit
-                ? 'Review updated successfully! ⭐'
-                : 'Review submitted successfully! ⭐';
+                ? 'Review updated successfully!'
+                : 'Review submitted successfully!';
 
             session()->flash('message', $message);
             $this->closeReviewModal();

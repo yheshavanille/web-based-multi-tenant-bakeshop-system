@@ -137,6 +137,7 @@ class ViewProduct extends Component
         session()->flash('message', '✅ Product restored successfully.');
     }
 
+    // ✅ UPDATED: only load visible/kept reviews (removed ones are hidden)
     public function viewProductDetails($productId)
     {
         $this->selectedProduct = Product::with([
@@ -145,7 +146,9 @@ class ViewProduct extends Component
             },
             'category',
             'productReviews' => function ($query) {
-                $query->with('customer')->latest();
+                $query->whereIn('moderation_status', ['visible', 'kept'])
+                    ->with('customer')
+                    ->latest();
             }
         ])->findOrFail($productId);
 
@@ -427,7 +430,9 @@ class ViewProduct extends Component
         $query = $shop->products()->with(['branches' => function ($query) {
             $query->withPivot('stock');
         }, 'category'])
-            ->withCount('productReviews');
+            ->withCount(['productReviews as product_reviews_count' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }]);
 
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';

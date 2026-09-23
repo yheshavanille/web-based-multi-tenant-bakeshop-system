@@ -143,9 +143,25 @@
                                     $editCount = $order->serviceReview->edit_count ?? 0;
                                     $maxEdits = \App\Livewire\Customer\Orders::MAX_EDITS;
                                     $remaining = max(0, $maxEdits - $editCount);
+                                    $isRemoved = $order->serviceReview->moderation_status === 'removed';
+                                    $isFlagged = $order->serviceReview->moderation_status === 'pending_review';
                                     @endphp
 
-                                    @if($remaining > 0)
+                                    @if($isRemoved)
+                                    {{-- ✅ Review removed by Super Admin — read-only --}}
+                                    <button wire:click="viewLockedReview({{ $order->id }})"
+                                        class="text-xs bg-red-100 text-red-700 hover:bg-red-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        title="This review was removed by the Super Admin">
+                                        Removed — View
+                                    </button>
+                                    @elseif($isFlagged)
+                                    {{-- ✅ Flagged, awaiting Super Admin — read-only --}}
+                                    <button wire:click="viewLockedReview({{ $order->id }})"
+                                        class="text-xs bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        title="This review is under review by the Super Admin">
+                                        Under Review — View
+                                    </button>
+                                    @elseif($remaining > 0)
                                     <button wire:click="openEditReviewModal({{ $order->id }})"
                                         class="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
                                         title="{{ $remaining }} edit(s) remaining">
@@ -155,10 +171,9 @@
                                             $remaining }} left</span>
                                     </button>
                                     @else
-                                    {{-- ✅ Changed from "Review Locked" span to a "View Review" button --}}
                                     <button wire:click="viewLockedReview({{ $order->id }})"
                                         class="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
-                                        title="View your submitted review">
+                                        title="You have reached the edit limit">
                                         View Review
                                     </button>
                                     @endif
@@ -580,10 +595,25 @@
             </div>
 
             <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+
+                {{-- ✅ NEW: Show a banner if this review was removed by the Super Admin --}}
+                @if($selectedReviewOrder->serviceReview->moderation_status === 'removed')
+                <div class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                    <span class="text-base leading-none mt-0.5">❌</span>
+                    <div>
+                        <p class="text-sm font-semibold text-red-800">This review was removed by the Super Admin</p>
+                        <p class="text-xs text-red-700 mt-0.5">
+                            It is no longer visible to other customers. If you believe this was a mistake, please
+                            contact support.
+                        </p>
+                    </div>
+                </div>
+                @endif
+
                 <div class="bg-gray-50 rounded-lg p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-700">🌟 Service Quality</p>
+                            <p class="text-sm font-medium text-gray-700">Service Quality</p>
                             <div class="flex items-center gap-1 mt-1">
                                 @for($i = 1; $i <= 5; $i++) @if($i <=$selectedReviewOrder->serviceReview->rating)
                                     <span class="text-2xl text-amber-500">⭐</span>
@@ -711,12 +741,48 @@
             <div class="min-h-0 flex-1 px-6 py-4 space-y-6 overflow-y-auto">
 
                 {{-- ✅ Read-only info banner --}}
+                {{-- ✅ Conditional banner based on WHY the review is read-only --}}
                 @if($reviewReadOnly)
-                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-                    <p class="text-xs text-amber-800">
-                        You've reached the edit limit for this review. You can view it but no longer edit it.
-                    </p>
+                @php
+                $status = $selectedOrder->serviceReview->moderation_status ?? 'visible';
+                $editCount = $selectedOrder->serviceReview->edit_count ?? 0;
+                $maxEdits = \App\Livewire\Customer\Orders::MAX_EDITS;
+                @endphp
+
+                @if($status === 'removed')
+                <div class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                    <span class="text-base leading-none mt-0.5">❌</span>
+                    <div>
+                        <p class="text-sm font-semibold text-red-800">This review was removed by the Super Admin</p>
+                        <p class="text-xs text-red-700 mt-0.5">
+                            It is no longer visible to other customers and can no longer be edited.
+                            If you believe this was a mistake, please contact support.
+                        </p>
+                    </div>
                 </div>
+                @elseif($status === 'pending_review')
+                <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
+                    <span class="text-base leading-none mt-0.5">⏳</span>
+                    <div>
+                        <p class="text-sm font-semibold text-yellow-800">This review is under review by the Super Admin
+                        </p>
+                        <p class="text-xs text-yellow-700 mt-0.5">
+                            It has been flagged for moderation. You can view it, but it can't be edited until the
+                            decision is final.
+                        </p>
+                    </div>
+                </div>
+                @elseif($editCount >= $maxEdits)
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                    <span class="text-base leading-none mt-0.5">🔒</span>
+                    <div>
+                        <p class="text-sm font-semibold text-amber-800">You've reached the edit limit</p>
+                        <p class="text-xs text-amber-700 mt-0.5">
+                            You've edited this review {{ $editCount }} times. You can view it, but no longer edit it.
+                        </p>
+                    </div>
+                </div>
+                @endif
                 @endif
 
                 <div>

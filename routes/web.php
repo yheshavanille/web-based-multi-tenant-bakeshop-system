@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Admin\FlaggedReviews;
 use App\Livewire\Admin\Pages\Role\CreateRole;
 use App\Livewire\Admin\Pages\Role\EditRole;
 use App\Livewire\Admin\Pages\Role\ViewRole;
@@ -82,10 +83,11 @@ Route::prefix('admin')
         Route::get('/users', ManageUsers::class)->name('livewire.admin.pages.users.manage-users');
         Route::get('/pending-sellers', \App\Livewire\Admin\PendingSellers::class)->name('livewire.admin.pending-sellers');
         Route::get('/employee-activities', \App\Livewire\Admin\EmployeeActivities::class)->name('livewire.admin.employee-activities');
+        Route::get('/flagged-reviews', FlaggedReviews::class)->name('livewire.admin.flagged-reviews'); // ✅ NEW
         Route::get('/profile', \App\Livewire\Admin\Profile::class)->name('livewire.admin.profile');
     });
 
-// ==================== OWNER ROUTES ====================
+
 // ==================== OWNER ROUTES ====================
 Route::prefix('owner')
     ->middleware(['auth', 'role:owner'])

@@ -56,6 +56,12 @@
                 <span class="text-lg">❌</span>
                 @elseif($notification->data['type'] === 'shop_restored_by_admin')
                 <span class="text-lg">🎉</span>
+                @elseif($notification->data['type'] === 'review_moderation_kept')
+                <span class="text-lg">✅</span>
+                @elseif($notification->data['type'] === 'review_moderation_removed')
+                <span class="text-lg">❌</span>
+                @elseif($notification->data['type'] === 'review_moderation_banned')
+                <span class="text-lg">🚫</span>
                 @else
                 <span class="text-lg">🔔</span>
                 @endif
@@ -251,7 +257,6 @@
                                         @endif
                                     </p>
 
-                                    {{-- ✅ PER-ITEM ORDER NOTE --}}
                                     @if(!empty($item->notes))
                                     <div class="mt-1.5">
                                         <div
@@ -722,6 +727,136 @@
                 @else
                 <p class="text-xs text-gray-500 italic">
                     The inventory manager has been notified to review this product's stock.
+                </p>
+                @endif
+                @endif
+
+                {{-- ✅ REVIEW MODERATION KEPT --}}
+                @if($selectedNotification->data['type'] === 'review_moderation_kept')
+                <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                    <p class="text-sm font-semibold text-green-800">✅ Flag Reviewed — Review Kept</p>
+                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Reviewer</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['customer_name'] ??
+                            'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Shop</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['shop_name'] ??
+                            'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Rating</p>
+                        <p class="text-amber-500 text-sm">{{ str_repeat('⭐', $selectedNotification->data['rating'] ?? 0)
+                            }} ({{ $selectedNotification->data['rating'] ?? 0 }}/5)</p>
+                    </div>
+                </div>
+
+                @if(!empty($selectedNotification->data['moderator_notes']))
+                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Note from Super Admin
+                    </p>
+                    <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['moderator_notes'] }}"</p>
+                </div>
+                @endif
+
+                <a href="{{ route('livewire.owner.reviews-history') }}"
+                    class="block w-full text-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm">
+                    View Reviews History →
+                </a>
+                @endif
+
+                {{-- ✅ REVIEW MODERATION REMOVED --}}
+                @if($selectedNotification->data['type'] === 'review_moderation_removed')
+                <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+                    <p class="text-sm font-semibold text-red-800">❌ Flag Reviewed — Review Removed</p>
+                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    @if(isset($selectedNotification->data['is_customer']) &&
+                    !$selectedNotification->data['is_customer'])
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Reviewer</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['customer_name'] ??
+                            'N/A' }}</p>
+                    </div>
+                    @endif
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Shop</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['shop_name'] ??
+                            'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Rating</p>
+                        <p class="text-amber-500 text-sm">{{ str_repeat('⭐', $selectedNotification->data['rating'] ?? 0)
+                            }} ({{ $selectedNotification->data['rating'] ?? 0 }}/5)</p>
+                    </div>
+                </div>
+
+                @if(!empty($selectedNotification->data['moderator_notes']))
+                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason from Super Admin
+                    </p>
+                    <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['moderator_notes'] }}"</p>
+                </div>
+                @endif
+
+                @if(isset($selectedNotification->data['is_customer']) && $selectedNotification->data['is_customer'])
+                <a href="{{ route('livewire.customer.orders') }}"
+                    class="block w-full text-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm">
+                    View My Orders →
+                </a>
+                @else
+                <a href="{{ route('livewire.owner.reviews-history') }}"
+                    class="block w-full text-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm">
+                    View Reviews History →
+                </a>
+                @endif
+                @endif
+
+                {{-- ✅ REVIEW MODERATION BANNED --}}
+                @if($selectedNotification->data['type'] === 'review_moderation_banned')
+                <div class="bg-red-50 rounded-lg p-3 border-2 border-red-300">
+                    <p class="text-sm font-semibold text-red-800">🚫 Review Removed & Reviewer Banned</p>
+                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    @if(isset($selectedNotification->data['is_customer']) &&
+                    !$selectedNotification->data['is_customer'])
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Reviewer (now banned)</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['customer_name'] ??
+                            'N/A' }}</p>
+                    </div>
+                    @endif
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Shop</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['shop_name'] ??
+                            'N/A' }}</p>
+                    </div>
+                </div>
+
+                @if(!empty($selectedNotification->data['moderator_notes']))
+                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason from Super Admin
+                    </p>
+                    <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['moderator_notes'] }}"</p>
+                </div>
+                @endif
+
+                @if(isset($selectedNotification->data['is_customer']) && $selectedNotification->data['is_customer'])
+                <p class="text-xs text-gray-500 italic">
+                    If you believe this was a mistake, please contact support.
+                </p>
+                @else
+                <p class="text-xs text-gray-500 italic">
+                    Thank you for helping keep the platform trustworthy.
                 </p>
                 @endif
                 @endif

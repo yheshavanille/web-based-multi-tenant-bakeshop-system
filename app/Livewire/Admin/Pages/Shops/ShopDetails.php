@@ -229,6 +229,7 @@ class ShopDetails extends Component
     }
 
     // ✅ Product Details Modal
+    // ✅ UPDATED: only load visible/kept reviews
     public function viewProductDetails($productId)
     {
         $this->selectedProduct = Product::with([
@@ -237,7 +238,9 @@ class ShopDetails extends Component
             },
             'category',
             'productReviews' => function ($query) {
-                $query->with('customer')->latest();
+                $query->whereIn('moderation_status', ['visible', 'kept'])
+                    ->with('customer')
+                    ->latest();
             }
         ])->findOrFail($productId);
 
@@ -470,7 +473,9 @@ class ShopDetails extends Component
 
         $query = Product::with('category', 'branches')
             ->where('shop_id', $this->shop->id)
-            ->withCount('productReviews')
+            ->withCount(['productReviews as product_reviews_count' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }])
             ->withSum(['orderItems as total_sold' => function ($query) {
                 $query->whereHas('order', function ($q) {
                     $q->where('status', 'completed');

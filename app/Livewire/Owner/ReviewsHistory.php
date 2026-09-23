@@ -16,6 +16,13 @@ class ReviewsHistory extends Component
     public $ratingFilter = 'all';
     public $branches = [];
 
+    // ✅ NEW: Flag modal state
+    public $showFlagModal = false;
+    public $flaggingReviewId = null;
+    public $flaggingReviewType = null; // 'service' | 'product'
+    public $flag_reason = '';
+    public $flag_notes = '';
+
     public function mount()
     {
         $shop = Auth::user()->shop;
@@ -27,7 +34,7 @@ class ReviewsHistory extends Component
     {
         // Service reviews
         $serviceQuery = ServiceReview::where('shop_id', Auth::user()->shop->id)
-            ->with(['customer', 'branch']);
+            ->with(['customer', 'branch', 'flaggedBy', 'moderatedBy']);
 
         if ($this->branchFilter !== 'all') {
             $serviceQuery->where('branch_id', $this->branchFilter);
@@ -40,9 +47,8 @@ class ReviewsHistory extends Component
 
         // Product reviews
         $productQuery = ProductReview::where('shop_id', Auth::user()->shop->id)
-            ->with(['customer', 'product', 'order']);
+            ->with(['customer', 'product', 'order', 'flaggedBy', 'moderatedBy']);
 
-        // Apply branch filter (via order branch)
         if ($this->branchFilter !== 'all') {
             $productQuery->whereHas('order', function ($q) {
                 $q->where('branch_id', $this->branchFilter);
@@ -68,6 +74,69 @@ class ReviewsHistory extends Component
     public function updatedRatingFilter()
     {
         $this->loadReviews();
+    }
+
+    // ✅ NEW: Open the flag modal
+    public function openFlagModal(int $reviewId, string $type)
+    {
+        $this->flaggingReviewId = $reviewId;
+        $this->flaggingReviewType = $type;
+        $this->flag_reason = '';
+        $this->flag_notes = '';
+        $this->showFlagModal = true;
+        $this->resetErrorBag();
+    }
+
+    // ✅ NEW: Close the modal
+    public function closeFlagModal()
+    {
+        $this->showFlagModal = false;
+        $this->flaggingReviewId = null;
+        $this->flaggingReviewType = null;
+        $this->flag_reason = '';
+        $this->flag_notes = '';
+        $this->resetErrorBag();
+    }
+
+    // ✅ NEW: Submit the flag
+    public function submitFlag()
+    {
+        $this->validate([
+            'flag_reason' => 'required|string|in:Spam,Fake review,Inappropriate language,Competitor attack,Other',
+            'flag_notes' => 'nullable|string|max:500',
+        ], [
+            'flag_reason.required' => 'Please select a reason for flagging.',
+            'flag_reason.in' => 'Please select a valid reason.',
+        ]);
+
+        // Load the right review
+        if ($this->flaggingReviewType === 'service') {
+            $review = ServiceReview::where('shop_id', Auth::user()->shop->id)
+                ->findOrFail($this->flaggingReviewId);
+        } else {
+            $review = ProductReview::where('shop_id', Auth::user()->shop->id)
+                ->findOrFail($this->flaggingReviewId);
+        }
+
+        // Prevent flagging twice
+        if ($review->moderation_status !== 'visible') {
+            session()->flash('error', 'This review is already under review or has been moderated.');
+            $this->closeFlagModal();
+            return;
+        }
+
+        $review->update([
+            'moderation_status' => 'pending_review',
+            'flagged_by' => Auth::id(),
+            'flag_reason' => $this->flag_reason,
+            'flag_notes' => $this->flag_notes,
+            'flagged_at' => now(),
+        ]);
+
+        $this->closeFlagModal();
+        $this->loadReviews();
+
+        session()->flash('message', 'Review flagged. The Super Admin will review it.');
     }
 
     public function render()
