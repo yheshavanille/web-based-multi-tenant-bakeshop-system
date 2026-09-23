@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\SellerRegistration;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class SellerRejectedNotification extends Notification
@@ -25,7 +26,8 @@ class SellerRejectedNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        // ✅ Send to both database (bell) and email
+        return ['database', 'mail'];
     }
 
     public function toDatabase($notifiable)
@@ -67,5 +69,32 @@ class SellerRejectedNotification extends Notification
         }
 
         return $data;
+    }
+
+    // ✅ NEW: send the same content as an email
+    public function toMail($notifiable)
+    {
+        $mail = (new MailMessage)
+            ->subject('Update on Your Seller Application — ' . $this->application->shop_name)
+            ->greeting('Hello, ' . ($notifiable->name ?? 'Applicant') . '.')
+            ->line('Thank you for your interest in becoming a seller on our platform.')
+            ->line('After careful review, we regret to inform you that your application for **' . $this->application->shop_name . '** has not been approved at this time.')
+            ->line('**Reason for rejection:**')
+            ->line($this->rejectionReason);
+
+        // ✅ Append the custom note if the Super Admin wrote one
+        if (!empty($this->customNote)) {
+            $mail->line('---')
+                ->line('**Additional note from the Super Admin:**')
+                ->line('"' . $this->customNote . '"');
+        }
+
+        $mail->line('---')
+            ->line('You are welcome to review our requirements and reapply whenever you are ready.')
+            ->action('Reapply as a Seller', route('livewire.customer.start-selling'))
+            ->line('If you believe this was a mistake, please contact our support team.')
+            ->salutation('— Web-based Multi-Tenant Bakeshop System');
+
+        return $mail;
     }
 }

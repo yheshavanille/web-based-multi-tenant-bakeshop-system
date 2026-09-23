@@ -145,7 +145,8 @@
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
                     <h2 class="text-lg font-bold text-gray-800">📄 Application Details</h2>
-                    <button wire:click="closeDetails" class="text-gray-400 hover:text-gray-600 transition">
+                    <button wire:click="closeDetails" wire:loading.attr="disabled"
+                        class="text-gray-400 hover:text-gray-600 transition disabled:opacity-40">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -348,29 +349,43 @@
                         @enderror
                     </div>
                     <div class="flex gap-3">
-                        <button wire:click="reject({{ $selectedApplication->id }})"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg">
-                            ❌ Confirm Reject
+                        {{-- ✅ Confirm Reject — disabled during processing --}}
+                        <button wire:click="reject({{ $selectedApplication->id }})" wire:loading.attr="disabled"
+                            wire:target="reject({{ $selectedApplication->id }})"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span wire:loading.remove wire:target="reject({{ $selectedApplication->id }})">❌ Confirm
+                                Reject</span>
+                            <span wire:loading wire:target="reject({{ $selectedApplication->id }})">Rejecting...</span>
                         </button>
-                        <button wire:click="closeDetails"
-                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+
+                        <button wire:click="closeDetails" wire:loading.attr="disabled"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium disabled:opacity-60">
                             Cancel
                         </button>
                     </div>
                     @else
                     <div class="flex gap-3">
-                        <button wire:click="approve({{ $selectedApplication->id }})"
-                            class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2 {{ !$allChecked ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        {{-- ✅ Approve — disabled during processing --}}
+                        <button wire:click="approve({{ $selectedApplication->id }})" wire:loading.attr="disabled"
+                            wire:target="approve({{ $selectedApplication->id }})"
+                            class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed {{ !$allChecked ? 'opacity-50 cursor-not-allowed' : '' }}"
                             {{ !$allChecked ? 'disabled' : '' }}>
                             <span class="text-lg">✅</span>
-                            Approve
-                            @if(!$allChecked)
-                            <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Check all requirements
-                                first</span>
-                            @endif
+                            <span wire:loading.remove wire:target="approve({{ $selectedApplication->id }})">
+                                Approve
+                                @if(!$allChecked)
+                                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Check all requirements
+                                    first</span>
+                                @endif
+                            </span>
+                            <span wire:loading wire:target="approve({{ $selectedApplication->id }})">
+                                Approving...
+                            </span>
                         </button>
-                        <button wire:click="startReject"
-                            class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+
+                        {{-- ✅ Reject (start form) — disabled during processing --}}
+                        <button wire:click="startReject" wire:loading.attr="disabled"
+                            class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60">
                             <span class="text-lg">❌</span>
                             Reject
                         </button>

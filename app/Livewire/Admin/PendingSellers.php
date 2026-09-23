@@ -21,10 +21,8 @@ class PendingSellers extends Component
     public $search = '';
     public $statusFilter = 'all';
 
-    // ✅ CUSTOM NOTE FOR APPROVE/REJECT
     public $custom_note = '';
 
-    // Requirements Checklist
     public $requirements = [
         'valid_id' => false,
         'business_permit' => false,
@@ -89,7 +87,6 @@ class PendingSellers extends Component
         $this->selectedApplication = SellerRegistration::with('user')
             ->findOrFail($id);
 
-        // Auto-check requirements based on application data
         $this->requirements['valid_id'] = !empty($this->selectedApplication->valid_id_path);
         $this->requirements['business_permit'] = !empty($this->selectedApplication->business_permit);
         $this->requirements['shop_name'] = !empty($this->selectedApplication->shop_name);
@@ -122,9 +119,26 @@ class PendingSellers extends Component
 
     public function approve($id)
     {
-        // Check if all requirements are checked
+        // ✅ GUARD 1: Block if already approved (prevents duplicate shop on double-click)
+        $application = SellerRegistration::findOrFail($id);
+
+        if ($application->status === 'approved') {
+            session()->flash('error', 'This application has already been approved.');
+            $this->closeDetails();
+            $this->loadApplications();
+            return;
+        }
+
+        if ($application->status === 'rejected') {
+            session()->flash('error', 'This application has already been rejected.');
+            $this->closeDetails();
+            $this->loadApplications();
+            return;
+        }
+
+        // ✅ GUARD 2: Require all checklist items ticked
         $allChecked = true;
-        foreach ($this->requirements as $key => $value) {
+        foreach ($this->requirements as $value) {
             if (!$value) {
                 $allChecked = false;
                 break;
@@ -136,9 +150,21 @@ class PendingSellers extends Component
             return;
         }
 
-        $application = SellerRegistration::findOrFail($id);
         $user = User::find($application->user_id);
 
+        // ✅ GUARD 3: Safety net — check if a shop already exists for this user
+        //    (protects against race conditions from double-clicks)
+        $existingShop = Shop::where('user_id', $user->id)->first();
+
+        if ($existingShop) {
+            session()->flash('error', 'A shop already exists for this user.');
+            $application->update(['status' => 'approved', 'reviewed_at' => now()]);
+            $this->closeDetails();
+            $this->loadApplications();
+            return;
+        }
+
+        // ✅ All guards passed — proceed
         $application->update([
             'status' => 'approved',
             'reviewed_at' => now(),
@@ -153,7 +179,6 @@ class PendingSellers extends Component
             'user_id' => $user->id,
         ]);
 
-        // ✅ SEND APPROVAL NOTIFICATION WITH CUSTOM NOTE
         Notification::send($user, new SellerApprovedNotification($application, $this->requirements, $this->custom_note));
 
         $this->loadApplications();
@@ -168,7 +193,23 @@ class PendingSellers extends Component
             'rejection_reason' => 'required|string|min:10',
         ]);
 
+        // ✅ GUARD: Block if already approved or rejected
         $application = SellerRegistration::findOrFail($id);
+
+        if ($application->status === 'approved') {
+            session()->flash('error', 'This application has already been approved.');
+            $this->closeDetails();
+            $this->loadApplications();
+            return;
+        }
+
+        if ($application->status === 'rejected') {
+            session()->flash('error', 'This application has already been rejected.');
+            $this->closeDetails();
+            $this->loadApplications();
+            return;
+        }
+
         $user = User::find($application->user_id);
 
         $application->update([
@@ -177,7 +218,6 @@ class PendingSellers extends Component
             'reviewed_at' => now(),
         ]);
 
-        // ✅ SEND REJECTION NOTIFICATION WITH CUSTOM NOTE
         Notification::send($user, new SellerRejectedNotification($application, $this->requirements, $this->rejection_reason, $this->custom_note));
 
         $this->loadApplications();
