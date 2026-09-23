@@ -40,6 +40,7 @@ use App\Livewire\Owner\Products\ViewProduct;
 use App\Livewire\Owner\PublicPages\OwnerAboutUs;
 use App\Livewire\Owner\PublicPages\OwnerTeams;
 use App\Livewire\Owner\ReviewsHistory;
+use App\Livewire\Owner\SalesReport;
 use App\Livewire\Owner\Shop\EditShop;
 use App\Livewire\Owner\StockUpdateHistory;
 use Illuminate\Support\Facades\Auth;
@@ -85,13 +86,13 @@ Route::prefix('admin')
     });
 
 // ==================== OWNER ROUTES ====================
+// ==================== OWNER ROUTES ====================
 Route::prefix('owner')
     ->middleware(['auth', 'role:owner'])
     ->group(function () {
         Route::get('/dashboard', OwnerDashboard::class)->name('livewire.owner.dashboard');
-
-        // ✅ NEW: Shop-wide All Orders page
         Route::get('/orders', OwnerOrders::class)->name('livewire.owner.orders');
+        Route::get('/sales-report', SalesReport::class)->name('livewire.owner.sales-report'); // ✅ NEW
 
         Route::get('/products/{branch?}', ViewProduct::class)->name('livewire.owner.products.view-product');
         Route::get('/products/create', CreateProduct::class)->name('livewire.owner.products.create-product');
