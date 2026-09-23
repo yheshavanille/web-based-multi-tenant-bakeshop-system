@@ -38,7 +38,7 @@ class ReviewModerationRemovedNotification extends Notification
 
         if ($this->banned) {
             $message = $isCustomer
-                ? '🚫 Your review has been removed and you have been banned from submitting future reviews.'
+                ? 'Your review has been removed and you have been banned from submitting future reviews.'
                 : '🚫 Your flag on ' . $customerName . '\'s review was reviewed. The review was removed and the reviewer was banned.';
         } else {
             $message = $isCustomer

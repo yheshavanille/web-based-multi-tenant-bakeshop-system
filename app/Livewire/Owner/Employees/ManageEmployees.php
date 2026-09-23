@@ -32,19 +32,21 @@ class ManageEmployees extends Component
     public $showDeleted = false;
     public $search = '';
 
-    // ✅ NEW: Recent activities preview
     public $recentEmployeeActivities = [];
 
-    // Profile Picture Properties
     public $new_profile_picture;
     public $temp_profile_picture_preview = null;
     public $existing_profile_picture = null;
     public $removeImage = false;
 
-    // Password Reset Properties (for editing employees)
     public $showResetPassword = false;
     public $new_password = '';
     public $new_password_confirmation = '';
+
+    // ✅ NEW: Employee Details Modal
+    public $showDetailsModal = false;
+    public $selectedEmployee = null;
+    public $moderationInfo = null; // array|null — reason, by, when, type
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -64,12 +66,9 @@ class ManageEmployees extends Component
 
         $this->selectedBranchId = $branch;
         $this->loadEmployees();
-
-        // ✅ NEW: Load recent activities
         $this->loadRecentEmployeeActivities();
     }
 
-    // ✅ NEW: Recent Activities
     public function loadRecentEmployeeActivities()
     {
         $shop = Auth::user()->shop;
@@ -309,7 +308,6 @@ class ManageEmployees extends Component
             }
 
             $user = User::create($userData);
-
             $user->assignRole('employee');
 
             $newEmployee = Employee::create([
@@ -332,7 +330,6 @@ class ManageEmployees extends Component
 
         $this->cancel();
         $this->loadEmployees();
-        // ✅ Refresh recent activities after save
         $this->loadRecentEmployeeActivities();
     }
 
@@ -393,6 +390,52 @@ class ManageEmployees extends Component
 
         $this->loadEmployees();
         session()->flash('message', 'Employee "' . $employee->user->name . '" restored successfully.');
+    }
+
+    // ✅ NEW: Open the Employee Details modal
+    public function viewDetails($employeeId)
+    {
+        $employee = Employee::with(['user', 'branch'])
+            ->withTrashed()
+            ->findOrFail($employeeId);
+
+        // Security: only show employees of this shop
+        if ($employee->shop_id !== Auth::user()->shop->id) {
+            abort(403);
+        }
+
+        $this->selectedEmployee = $employee;
+        $this->moderationInfo = null;
+
+        // ✅ Try to pull the most recent moderation notification for this user
+        $user = $employee->user;
+
+        if ($user) {
+            $modNotification = $user->notifications()
+                ->whereIn('data->type', ['user_suspended', 'user_archived', 'user_restored'])
+                ->latest()
+                ->first();
+
+            if ($modNotification) {
+                $data = $modNotification->data;
+
+                $this->moderationInfo = [
+                    'type' => $data['type'] ?? 'unknown',
+                    'reason' => $data['reason'] ?? null,
+                    'by' => $data['by'] ?? 'Super Admin',
+                    'when' => $modNotification->created_at,
+                ];
+            }
+        }
+
+        $this->showDetailsModal = true;
+    }
+
+    public function closeDetailsModal()
+    {
+        $this->showDetailsModal = false;
+        $this->selectedEmployee = null;
+        $this->moderationInfo = null;
     }
 
     public function render()

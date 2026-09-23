@@ -13,7 +13,6 @@
             </a>
         </div>
 
-        <!-- Flash Messages -->
         @if (session()->has('message'))
         <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
             {{ session('message') }}
@@ -65,10 +64,10 @@
                     <select wire:model.live="statusFilter"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                         <option value="all">All Status</option>
-                        <option value="active">🟢 Active</option>
-                        <option value="suspended">🔴 Suspended</option>
-                        <option value="deactivated_by_owner">🟡 Deactivated by Owner</option>
-                        <option value="suspended_by_admin">🔴 Suspended by Super Admin</option>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="deactivated_by_owner">Deactivated by Owner</option>
+                        <option value="suspended_by_admin">Suspended by Super Admin</option>
                     </select>
                 </div>
                 @endif
@@ -100,6 +99,7 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Shop</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Role(s)</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Last Login</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Joined</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
                         </tr>
@@ -114,9 +114,9 @@
                         $employeeStatus = '🗑️ Deleted by Employer';
                         } elseif (!$employee->is_active) {
                         if ($employee->deactivated_by === 'super_admin') {
-                        $employeeStatus = '🔴 Suspended by Super Admin';
+                        $employeeStatus = 'Suspended by Super Admin';
                         } else {
-                        $employeeStatus = '🟡 Deactivated by Owner';
+                        $employeeStatus = 'Deactivated by Owner';
                         }
                         }
                         }
@@ -175,12 +175,23 @@
                                 </span>
                                 @elseif(isset($user->is_active) && $user->is_active)
                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                    🟢 Active
+                                    Active
                                 </span>
                                 @else
                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-                                    🔴 Suspended
+                                    Suspended
                                 </span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($user->last_login_at)
+                                <div>
+                                    <p class="text-xs text-gray-700">{{ $user->last_login_at->diffForHumans() }}</p>
+                                    <p class="text-[10px] text-gray-400">{{ $user->last_login_at->format('M d, Y h:i A')
+                                        }}</p>
+                                </div>
+                                @else
+                                <span class="text-xs text-gray-400 italic">Never</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-gray-500">
@@ -189,7 +200,6 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <!-- ✅ VIEW DETAILS BUTTON -->
                                     <button wire:click="viewUserDetails({{ $user->id }})"
                                         class="text-xs text-blue-600 hover:text-blue-800 font-medium">
                                         View
@@ -206,12 +216,21 @@
                                         Permanently Delete
                                     </button>
                                     @elseif($user->id !== auth()->id())
-                                    <button wire:click="toggleUserStatus({{ $user->id }})"
-                                        class="text-xs {{ isset($user->is_active) && $user->is_active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800' }} font-medium">
-                                        {{ isset($user->is_active) && $user->is_active ? 'Suspend' : 'Activate' }}
+                                    @if(isset($user->is_active) && $user->is_active)
+                                    {{-- ✅ NEW: opens reason modal --}}
+                                    <button wire:click="openSuspendModal({{ $user->id }})"
+                                        class="text-xs text-red-600 hover:text-red-800 font-medium">
+                                        Suspend
                                     </button>
-                                    <button wire:click="deleteUser({{ $user->id }})"
-                                        onclick="confirm('Soft delete this user?') || event.stopImmediatePropagation()"
+                                    @else
+                                    <button wire:click="activateUser({{ $user->id }})"
+                                        class="text-xs text-green-600 hover:text-green-800 font-medium">
+                                        Activate
+                                    </button>
+                                    @endif
+
+                                    {{-- ✅ NEW: opens archive reason modal --}}
+                                    <button wire:click="openArchiveModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Archive
                                     </button>
@@ -282,7 +301,7 @@
         </div>
         @endif
 
-        <!-- ✅ USER DETAILS MODAL -->
+        <!-- ✅ USER DETAILS MODAL (unchanged from before) -->
         @if($showUserModal && $selectedUser)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeUserModal"></div>
@@ -290,7 +309,6 @@
             <div
                 class="relative z-10 w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
-                <!-- Modal Header -->
                 <div
                     class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
                     <div class="flex items-center justify-between">
@@ -313,10 +331,7 @@
                     </div>
                 </div>
 
-                <!-- Modal Body -->
                 <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-
-                    <!-- User Info Grid -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-lg p-3">
                             <p class="text-xs text-gray-500">Full Name</p>
@@ -399,6 +414,21 @@
                         </div>
                         @endif
 
+                        <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                            <p class="text-xs text-gray-500">Last Login</p>
+                            @if($selectedUser->last_login_at)
+                            <div class="flex items-center justify-between mt-1">
+                                <p class="text-sm font-medium text-gray-800">{{ $selectedUser->last_login_at->format('M
+                                    d, Y h:i A') }}</p>
+                                <span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                                    {{ $selectedUser->last_login_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            @else
+                            <p class="text-sm text-gray-400 italic mt-1">This user has never logged in.</p>
+                            @endif
+                        </div>
+
                         <div class="bg-gray-50 rounded-lg p-3">
                             <p class="text-xs text-gray-500">Account Created</p>
                             <p class="font-medium text-gray-800">{{ $selectedUser->created_at->format('M d, Y h:i A') }}
@@ -412,17 +442,98 @@
                         </div>
                         @endif
                     </div>
-
                 </div>
 
-                <!-- Modal Footer -->
                 <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
                     <button wire:click="closeUserModal"
                         class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                         Close
                     </button>
                 </div>
+            </div>
+        </div>
+        @endif
 
+        <!-- ✅ SUSPEND REASON MODAL -->
+        @if($showSuspendModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeSuspendModal"></div>
+
+            <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
+                    <h3 class="text-lg font-bold text-red-800">Suspend User</h3>
+                    <p class="text-xs text-red-600 mt-0.5">Suspending "{{ $actionUserName }}". They will be notified
+                        with this reason.</p>
+                </div>
+
+                <div class="px-6 py-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Reason for suspension <span class="text-red-500">*</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mb-2">
+                        This will be sent to the user via notification and email.
+                    </p>
+                    <textarea wire:model="actionReason" rows="4" maxlength="500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('actionReason') border-red-500 @enderror"
+                        placeholder="e.g. Violation of platform policy, suspicious activity..."></textarea>
+                    @error('actionReason')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-400 text-right">{{ strlen($actionReason) }}/500</p>
+                </div>
+
+                <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex justify-end gap-2">
+                    <button wire:click="closeSuspendModal"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button wire:click="confirmSuspend" wire:loading.attr="disabled"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-60">
+                        Confirm Suspend
+                    </button>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- ✅ ARCHIVE REASON MODAL -->
+        @if($showArchiveModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeArchiveModal"></div>
+
+            <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
+                    <h3 class="text-lg font-bold text-red-800">Archive User</h3>
+                    <p class="text-xs text-red-600 mt-0.5">Archiving "{{ $actionUserName }}". They will be notified with
+                        this reason.</p>
+                </div>
+
+                <div class="px-6 py-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Reason for archiving <span class="text-red-500">*</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mb-2">
+                        This will be sent to the user via notification and email. Their data will be preserved.
+                    </p>
+                    <textarea wire:model="actionReason" rows="4" maxlength="500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('actionReason') border-red-500 @enderror"
+                        placeholder="e.g. Duplicate account, inactive for a long time..."></textarea>
+                    @error('actionReason')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-400 text-right">{{ strlen($actionReason) }}/500</p>
+                </div>
+
+                <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex justify-end gap-2">
+                    <button wire:click="closeArchiveModal"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button wire:click="confirmArchive" wire:loading.attr="disabled"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-60">
+                        Confirm Archive
+                    </button>
+                </div>
             </div>
         </div>
         @endif

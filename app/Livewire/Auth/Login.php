@@ -50,15 +50,12 @@ class Login extends Component
         $user = User::where('email', $this->email)->first();
 
         if ($user) {
-            // ✅ Check if user is soft-deleted
             if ($user->trashed()) {
                 RateLimiter::hit($key, $this->decaySeconds);
                 $this->addError('email', 'Your account has been deactivated. Please contact support.');
                 return;
             }
 
-            // ✅ NEW: Check if user is unverified (is_active = false AND has a pending OTP)
-            //    We distinguish from suspended users by checking if there's a recent OTP row.
             if (isset($user->is_active) && !$user->is_active) {
                 $hasPendingOtp = \DB::table('password_otps')
                     ->where('email', $user->email)
@@ -72,7 +69,6 @@ class Login extends Component
                     return;
                 }
 
-                // Otherwise, they're suspended
                 RateLimiter::hit($key, $this->decaySeconds);
                 $this->addError('email', 'Your account has been suspended. Please contact support.');
                 return;
@@ -107,6 +103,9 @@ class Login extends Component
             $this->addError('email', 'Your account has been suspended. Please contact support.');
             return;
         }
+
+        // ✅ NEW: Record the last login timestamp
+        $user->update(['last_login_at' => now()]);
 
         if (session()->has('redirect_after_login')) {
             $redirectUrl = session()->pull('redirect_after_login');

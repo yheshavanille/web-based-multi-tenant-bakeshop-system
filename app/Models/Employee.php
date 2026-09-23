@@ -83,7 +83,7 @@ class Employee extends Model
             return 'Account Deleted by Super Admin';
         }
         if ($this->isUserSuspended()) {
-            return 'Account Suspended by Admin';
+            return 'Suspended by Admin';
         }
         if ($this->trashed()) {
             return 'Deleted';

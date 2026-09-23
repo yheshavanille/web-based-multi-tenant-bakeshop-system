@@ -46,7 +46,6 @@
                 $originalPrice = $product->price ?? 0;
                 $discountLabel = $isDiscounted ? $product->getDiscountLabel() : null;
 
-                // ✅ Build the product page URL + anchor to scroll to that product
                 $productUrl = $product
                 ? route('livewire.customer.view-products', [
                 'shopId' => $product->shop_id,
@@ -59,9 +58,9 @@
                     <input type="checkbox" wire:model.live="selectedItems" value="{{ $item->id }}"
                         class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
 
-                    {{-- ✅ Product image now clickable --}}
+                    {{-- ✅ Product image — now with wire:navigate --}}
                     @if($productUrl)
-                    <a href="{{ $productUrl }}"
+                    <a href="{{ $productUrl }}" wire:navigate
                         class="w-20 h-20 bg-amber-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-amber-400 transition"
                         title="View {{ $product->name }}">
                         @if($product->image_url)
@@ -79,9 +78,9 @@
                     @endif
 
                     <div class="flex-1">
-                        {{-- ✅ Product name now clickable --}}
+                        {{-- ✅ Product name — now with wire:navigate --}}
                         @if($productUrl)
-                        <a href="{{ $productUrl }}"
+                        <a href="{{ $productUrl }}" wire:navigate
                             class="font-semibold text-gray-800 hover:text-amber-600 hover:underline transition"
                             title="View {{ $product->name }}">
                             {{ $product->name }}

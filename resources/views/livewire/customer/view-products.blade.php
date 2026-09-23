@@ -4,18 +4,15 @@
         function productScroller() {
             return {
                 init() {
-                    // Small delay so Livewire finishes rendering first
-                    setTimeout(() => {
+                    const scrollToHash = () => {
                         const hash = window.location.hash;
                         if (!hash || !hash.startsWith('#product-')) return;
 
                         const el = document.querySelector(hash);
                         if (!el) return;
 
-                        // Smooth scroll so it lands on the product
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                        // ✅ Flash a highlight ring so the customer notices it
                         el.classList.add('ring-4', 'ring-amber-400', 'ring-offset-2');
                         setTimeout(() => {
                             el.classList.remove('ring-4', 'ring-amber-400', 'ring-offset-2');
@@ -23,7 +20,15 @@
 
                         // Clean the URL (removes #product-123 from the address bar)
                         history.replaceState(null, '', window.location.pathname + window.location.search);
-                    }, 300);
+                    };
+
+                    // ✅ Initial page load (regular navigation)
+                    setTimeout(scrollToHash, 300);
+
+                    // ✅ Livewire SPA navigation (wire:navigate)
+                    document.addEventListener('livewire:navigated', () => {
+                        setTimeout(scrollToHash, 300);
+                    });
                 }
             }
         }
@@ -209,7 +214,6 @@
                 @php
                 $stock = $product->branches->firstWhere('id', $selectedBranchId)?->pivot->stock ?? 0;
                 @endphp
-                {{-- ✅ Added id="product-{id}" for anchor scroll target --}}
                 <div id="product-{{ $product->id }}"
                     class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col transition-all duration-500"
                     wire:click="openReviewModal({{ $product->id }})">
@@ -367,7 +371,6 @@
                     </div>
                 </div>
 
-                <!-- ✅ TOTAL SOLD - USING THE SAME QUERY AS BEST SELLERS -->
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                     <div class="flex items-center gap-2">
                         <span class="text-lg">📦</span>
@@ -389,7 +392,6 @@
                     </div>
                 </div>
 
-                <!-- Description -->
                 @if($selectedProduct->description)
                 <div class="border-t border-gray-100 pt-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-2">📝 Description</h4>
@@ -397,7 +399,6 @@
                 </div>
                 @endif
 
-                <!-- Stock -->
                 <div class="border-t border-gray-100 pt-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-2">📦 Stock Availability</h4>
                     @php
@@ -424,7 +425,6 @@
                     </div>
                 </div>
 
-                <!-- Reviews Section -->
                 <div class="border-t border-gray-100 pt-4">
                     <div class="flex items-center justify-between mb-3">
                         <h4 class="text-sm font-semibold text-gray-700">⭐ Customer Reviews</h4>

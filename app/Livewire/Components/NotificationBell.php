@@ -65,6 +65,7 @@ class NotificationBell extends Component
 
         // ✅ CUSTOMER VIEW
         if ($isCustomerView) {
+            // Handle order-related checks first
             if ($type === 'order_status_updated') {
                 $orderId = $notification->data['order_id'] ?? null;
                 if ($orderId) {
@@ -85,6 +86,19 @@ class NotificationBell extends Component
                 return false;
             }
 
+            // ✅ Review moderation: only show if the customer is the recipient
+            //    (i.e., the reviewer whose review was moderated)
+            if (in_array($type, ['review_moderation_removed', 'review_moderation_banned'])) {
+                return isset($notification->data['is_customer'])
+                    && $notification->data['is_customer'] === true;
+            }
+
+            // ✅ User lifecycle: only show if the notification is about THIS user
+            if (in_array($type, ['user_suspended', 'user_archived', 'user_restored'])) {
+                return ($notification->data['user_id'] ?? null) === $user->id;
+            }
+
+            // Other customer-safe notifications
             return in_array($type, [
                 'seller_approved',
                 'seller_rejected',
@@ -106,7 +120,18 @@ class NotificationBell extends Component
                 return false;
             }
 
-            // ✅ Added stock_review_needed and low_stock for owner
+            // ✅ Owner gets review moderation notifications (they flagged it)
+            //    but NOT customer-specific review bans/reviews they didn't write
+            if ($type === 'review_moderation_kept') {
+                return true; // only sent to owners anyway
+            }
+
+            if (in_array($type, ['review_moderation_removed', 'review_moderation_banned'])) {
+                // Show only if this owner was the flagger (not the reviewer)
+                return !isset($notification->data['is_customer'])
+                    || $notification->data['is_customer'] === false;
+            }
+
             return in_array($type, [
                 'new_order',
                 'order_status_updated',
@@ -115,6 +140,9 @@ class NotificationBell extends Component
                 'shop_restored_by_admin',
                 'low_stock',
                 'stock_review_needed',
+                'user_suspended',
+                'user_archived',
+                'user_restored',
             ]);
         }
 
@@ -131,15 +159,12 @@ class NotificationBell extends Component
                         return in_array($type, ['new_order', 'order_status_updated']);
                     }
                     if ($employee->role === 'inventory_manager') {
-                        // ✅ Added stock_review_needed for inventory manager
                         return in_array($type, ['low_stock', 'stock_review_needed']);
                     }
                 }
                 return false;
             }
 
-            // ✅ Handle low_stock / stock_review_needed that don't carry order_id
-            //    (e.g. out-of-stock alerts triggered without an order)
             if ($employee->role === 'inventory_manager') {
                 return in_array($type, ['low_stock', 'stock_review_needed']);
             }

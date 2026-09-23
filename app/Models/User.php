@@ -20,13 +20,15 @@ class User extends Authenticatable
         'phone',
         'profile_picture',
         'is_active',
-        'review_banned_at',     // ✅ NEW
-        'review_ban_reason',    // ✅ NEW
+        'review_banned_at',
+        'review_ban_reason',
+        'last_login_at', // ✅ NEW
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'review_banned_at' => 'datetime', // ✅ NEW
+        'review_banned_at' => 'datetime',
+        'last_login_at' => 'datetime', // ✅ NEW
     ];
 
     public function shop()
@@ -44,9 +46,18 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
-    // ✅ NEW: helper to check if the user is banned from reviewing
     public function isReviewBanned(): bool
     {
         return !is_null($this->review_banned_at);
+    }
+
+    // ✅ NEW: helper for the "Last login" display
+    public function getLastLoginLabelAttribute(): string
+    {
+        if (!$this->last_login_at) {
+            return 'Never';
+        }
+
+        return $this->last_login_at->diffForHumans() . ' (' . $this->last_login_at->format('M d, Y h:i A') . ')';
     }
 }

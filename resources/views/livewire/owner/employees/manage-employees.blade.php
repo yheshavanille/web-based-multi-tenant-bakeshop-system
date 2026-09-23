@@ -22,7 +22,6 @@
             </div>
         </div>
 
-        <!-- Flash Messages -->
         @if (session()->has('message'))
         <div
             class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center justify-between">
@@ -62,7 +61,6 @@
                 @endif
             </div>
 
-            <!-- Branch Filter Dropdown -->
             <div class="sm:w-48">
                 <select wire:model.live="selectedBranchId"
                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white">
@@ -78,10 +76,9 @@
         @if($showForm)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                {{ $editing ? '✏️ Edit Employee' : '➕ Add New Employee' }}
+                {{ $editing ? 'Edit Employee' : 'Add New Employee' }}
             </h2>
             <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- ✅ Profile Picture Section (Full Width) -->
                 <div class="md:col-span-2 pb-4 border-b border-gray-200">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Profile Picture</label>
                     <div class="flex items-center gap-6">
@@ -126,7 +123,7 @@
                             @enderror
                             @if($new_profile_picture && !$errors->has('new_profile_picture'))
                             <p class="mt-1 text-xs text-green-600">✓ New photo selected</p>
-                            <p class="mt-0.5 text-xs text-amber-600">⚠️ Click "{{ $editing ? 'Update Employee' : 'Save
+                            <p class="mt-0.5 text-xs text-amber-600">Click "{{ $editing ? 'Update Employee' : 'Save
                                 Employee' }}" to save</p>
                             @endif
                             @if($removeImage)
@@ -137,7 +134,6 @@
                     </div>
                 </div>
 
-                <!-- Name -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                     <input type="text" wire:model="name"
@@ -145,7 +141,6 @@
                     @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Email -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input type="email" wire:model="email"
@@ -153,7 +148,6 @@
                     @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Phone -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                     <input type="text" wire:model="phone" maxlength="11"
@@ -162,7 +156,6 @@
                     @error('phone') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Role -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                     <select wire:model="role"
@@ -174,7 +167,6 @@
                     @error('role') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Branch -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
                     <select wire:model="branch_id"
@@ -187,7 +179,6 @@
                     @error('branch_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Password Fields (For new employees) -->
                 @if(!$editing)
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
@@ -236,12 +227,11 @@
                 </div>
                 @endif
 
-                <!-- Password Reset Section (For editing employees) -->
                 @if($editing)
                 <div class="md:col-span-2 border-t border-gray-200 pt-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-sm font-medium text-gray-700">🔒 Password</span>
+                            <span class="text-sm font-medium text-gray-700">Password</span>
                         </div>
                         <button type="button" wire:click="toggleResetPassword"
                             class="px-3 py-1.5 text-xs bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition">
@@ -256,7 +246,6 @@
                             Leave these fields blank to keep the current password.
                         </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- New Password -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                                 <div class="relative" style="position: relative; height: 42px;"
@@ -284,7 +273,6 @@
                                 @error('new_password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                             </div>
 
-                            <!-- Confirm New Password -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
                                 <div class="relative" style="position: relative; height: 42px;"
@@ -316,7 +304,6 @@
                 </div>
                 @endif
 
-                <!-- Submit Buttons -->
                 <div class="md:col-span-2 flex gap-3 pt-2">
                     <button type="submit"
                         class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
@@ -336,7 +323,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                    <span class="text-lg">🕐</span>
+                    <span class="text-lg"></span>
                     <h2 class="text-base font-semibold text-gray-800">Recent Employee Activities</h2>
                     <span class="text-xs text-gray-500">Last 5</span>
                 </div>
@@ -390,12 +377,10 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($employees as $employee)
                         @php
-                        // ✅ SINGLE SOURCE OF TRUTH — use the model's methods
                         $isDeleted = $employee->trashed();
                         $statusLabel = $employee->getStatusLabel();
                         $statusColor = $employee->getStatusColor();
 
-                        // For action buttons, we still need to know which bucket
                         $isSuspendedByAdmin = !$isDeleted
                         && !$employee->user?->is_active
                         && $employee->deactivated_by === 'super_admin';
@@ -425,7 +410,6 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                {{-- ✅ Status badge driven by model's getStatusColor() --}}
                                 <span class="px-2 py-1 text-xs rounded-full
                                     @if($statusColor === 'red') bg-red-100 text-red-800
                                     @elseif($statusColor === 'yellow') bg-yellow-100 text-yellow-800
@@ -435,16 +419,22 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
+                                {{-- ✅ NEW: View Details button — always visible --}}
+                                <button wire:click="viewDetails({{ $employee->id }})"
+                                    class="text-gray-600 hover:text-gray-800 text-xs font-medium">
+                                    View Details
+                                </button>
+
                                 @if($isDeleted)
                                 <button wire:click="restore({{ $employee->id }})"
-                                    class="text-green-600 hover:text-green-800 text-xs">
+                                    class="text-green-600 hover:text-green-800 text-xs ml-2">
                                     Restore
                                 </button>
                                 @elseif($isSuspendedByAdmin)
-                                <span class="text-xs text-red-500 font-medium">Suspended by Admin</span>
+                                <span class="text-xs text-red-500 font-medium ml-2">Suspended by Admin</span>
                                 @else
                                 <button wire:click="edit({{ $employee->id }})"
-                                    class="text-blue-600 hover:text-blue-800 text-xs">
+                                    class="text-blue-600 hover:text-blue-800 text-xs ml-2">
                                     Edit
                                 </button>
                                 <button wire:click="toggleStatus({{ $employee->id }})"
@@ -465,10 +455,186 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
-                <span class="text-4xl block mb-2">👥</span>
+                <span class="text-4xl block mb-2"></span>
                 <p>No employees found.</p>
             </div>
             @endif
         </div>
     </div>
+
+    {{-- ✅ NEW: EMPLOYEE DETAILS MODAL --}}
+    @if($showDetailsModal && $selectedEmployee)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDetailsModal"></div>
+
+        <div
+            class="relative z-10 w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        @php
+                        $modalPic = $selectedEmployee->user->profile_picture ?? null;
+                        $modalName = $selectedEmployee->user->name ?? 'Unknown Employee';
+                        @endphp
+
+                        @if($modalPic)
+                        <img src="{{ asset('storage/' . $modalPic) }}?v={{ time() }}" alt="{{ $modalName }}"
+                            class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm flex-shrink-0">
+                        @else
+                        <div
+                            class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                            {{ strtoupper(substr($modalName, 0, 2)) }}
+                        </div>
+                        @endif
+
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">{{ $modalName }}</h3>
+                            <p class="text-sm text-gray-500">{{ $selectedEmployee->user->email ?? 'N/A' }}</p>
+                        </div>
+                    </div>
+                    <button wire:click="closeDetailsModal" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+
+                <!-- Basic Info Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs text-gray-500">Full Name</p>
+                        <p class="font-medium text-gray-800">{{ $selectedEmployee->user->name ?? 'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs text-gray-500">Email</p>
+                        <p class="font-medium text-gray-800">{{ $selectedEmployee->user->email ?? 'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs text-gray-500">Phone</p>
+                        <p class="font-medium text-gray-800">{{ $selectedEmployee->user->phone ?? 'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-xs text-gray-500">Role</p>
+                        <p class="font-medium text-gray-800">{{ ucfirst(str_replace('_', ' ', $selectedEmployee->role))
+                            }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Branch</p>
+                        <p class="font-medium text-gray-800">{{ $selectedEmployee->branch->name ?? 'N/A' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Status</p>
+                        @php
+                        $modalStatusLabel = $selectedEmployee->getStatusLabel();
+                        $modalStatusColor = $selectedEmployee->getStatusColor();
+                        @endphp
+                        <span class="inline-flex px-2.5 py-1 text-xs font-medium rounded-full
+                            @if($modalStatusColor === 'red') bg-red-100 text-red-800
+                            @elseif($modalStatusColor === 'yellow') bg-yellow-100 text-yellow-800
+                            @elseif($modalStatusColor === 'green') bg-green-100 text-green-800
+                            @else bg-gray-100 text-gray-800 @endif">
+                            {{ $modalStatusLabel }}
+                        </span>
+                    </div>
+                </div>
+
+                {{-- ✅ Moderation Info — reason card if Super Admin suspended or archived --}}
+                @if($moderationInfo)
+                @if($moderationInfo['type'] === 'user_suspended')
+                <div class="bg-red-50 rounded-lg p-4 border-2 border-red-200">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl flex-shrink-0"></span>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-red-800">Suspended by Super Admin</p>
+                            <p class="text-xs text-red-600 mt-0.5">
+                                {{ $moderationInfo['when']->format('M d, Y h:i A') }} ({{
+                                $moderationInfo['when']->diffForHumans() }})
+                            </p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                <span class="font-medium">By:</span> {{ $moderationInfo['by'] }}
+                            </p>
+                        </div>
+                    </div>
+
+                    @if(!empty($moderationInfo['reason']))
+                    <div class="mt-3 pt-3 border-t border-red-200">
+                        <p class="text-xs font-bold text-red-700 uppercase tracking-wider mb-1">Reason</p>
+                        <p class="text-sm text-gray-800 italic">"{{ $moderationInfo['reason'] }}"</p>
+                    </div>
+                    @endif
+                </div>
+                @elseif($moderationInfo['type'] === 'user_archived')
+                <div class="bg-red-50 rounded-lg p-4 border-2 border-red-200">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl flex-shrink-0"></span>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-red-800">Archived by Super Admin</p>
+                            <p class="text-xs text-red-600 mt-0.5">
+                                {{ $moderationInfo['when']->format('M d, Y h:i A') }} ({{
+                                $moderationInfo['when']->diffForHumans() }})
+                            </p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                <span class="font-medium">By:</span> {{ $moderationInfo['by'] }}
+                            </p>
+                        </div>
+                    </div>
+
+                    @if(!empty($moderationInfo['reason']))
+                    <div class="mt-3 pt-3 border-t border-red-200">
+                        <p class="text-xs font-bold text-red-700 uppercase tracking-wider mb-1">💬 Reason</p>
+                        <p class="text-sm text-gray-800 italic">"{{ $moderationInfo['reason'] }}"</p>
+                    </div>
+                    @endif
+                </div>
+                @elseif($moderationInfo['type'] === 'user_restored')
+                <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl flex-shrink-0"></span>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-green-800">Account Restored</p>
+                            <p class="text-xs text-green-600 mt-0.5">
+                                {{ $moderationInfo['when']->format('M d, Y h:i A') }} ({{
+                                $moderationInfo['when']->diffForHumans() }})
+                            </p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                <span class="font-medium">By:</span> {{ $moderationInfo['by'] }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                @elseif($selectedEmployee->deactivated_by === 'owner' && !$selectedEmployee->is_active)
+                <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl flex-shrink-0"></span>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-yellow-800">Deactivated by You</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                You deactivated this employee from your shop. You can reactivate them anytime.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
+                <button wire:click="closeDetailsModal"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+    @endif
 </div>

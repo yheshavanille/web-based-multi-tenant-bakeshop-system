@@ -33,37 +33,43 @@
             class="w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0 {{ $notification->read_at ? 'opacity-75' : 'bg-amber-50' }}">
             <div class="flex-shrink-0 mt-0.5">
                 @if($notification->data['type'] === 'new_order')
-                <span class="text-lg">📦</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'order_status_updated')
-                <span class="text-lg">🔄</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'low_stock')
                 @if(isset($notification->data['is_out_of_stock']) && $notification->data['is_out_of_stock'])
-                <span class="text-lg">🚫</span>
+                <span class="text-lg"></span>
                 @else
-                <span class="text-lg">⚠️</span>
+                <span class="text-lg"></span>
                 @endif
                 @elseif($notification->data['type'] === 'stock_review_needed')
-                <span class="text-lg">📉</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'seller_approved')
-                <span class="text-lg">🎉</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'seller_rejected')
-                <span class="text-lg">❌</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'new_seller_registration')
-                <span class="text-lg">📋</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'shop_deleted_by_owner')
-                <span class="text-lg">🏪</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'shop_deleted_by_admin')
-                <span class="text-lg">❌</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'shop_restored_by_admin')
-                <span class="text-lg">🎉</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'review_moderation_kept')
-                <span class="text-lg">✅</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'review_moderation_removed')
-                <span class="text-lg">❌</span>
+                <span class="text-lg"></span>
                 @elseif($notification->data['type'] === 'review_moderation_banned')
-                <span class="text-lg">🚫</span>
+                <span class="text-lg"></span>
+                @elseif($notification->data['type'] === 'user_suspended')
+                <span class="text-lg"></span>
+                @elseif($notification->data['type'] === 'user_archived')
+                <span class="text-lg"></span>
+                @elseif($notification->data['type'] === 'user_restored')
+                <span class="text-lg"></span>
                 @else
-                <span class="text-lg">🔔</span>
+                <span class="text-lg"></span>
                 @endif
             </div>
             <div class="flex-1 min-w-0">
@@ -71,7 +77,7 @@
                     {{ $notification->data['message'] }}
                 </p>
                 @if(isset($notification->data['custom_note']))
-                <p class="text-xs text-amber-600 mt-0.5 italic">💬 "{{ $notification->data['custom_note'] }}"</p>
+                <p class="text-xs text-amber-600 mt-0.5 italic"> "{{ $notification->data['custom_note'] }}"</p>
                 @endif
                 <p class="text-xs text-gray-400 mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
             </div>
@@ -82,7 +88,7 @@
         @endforeach
         @else
         <div class="px-4 py-6 text-center text-gray-500 text-sm">
-            <span class="text-3xl block mb-2">📭</span>
+            <span class="text-3xl block mb-2"></span>
             No notifications yet
         </div>
         @endif
@@ -154,7 +160,7 @@
 
                 @if($selectedNotification->data['type'] === 'seller_approved')
                 <div class="bg-green-50 rounded-lg p-3 border border-green-200">
-                    <p class="text-sm font-semibold text-green-800">✅ Seller Application Approved!</p>
+                    <p class="text-sm font-semibold text-green-800">Seller Application Approved!</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 @if(isset($selectedNotification->data['custom_note']))
@@ -171,18 +177,18 @@
 
                 @if($selectedNotification->data['type'] === 'seller_rejected')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">❌ Seller Application Rejected</p>
+                    <p class="text-sm font-semibold text-red-800">Seller Application Rejected</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 @if(isset($selectedNotification->data['rejection_reason']))
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-xs text-red-600 font-medium">📝 Rejection Reason:</p>
+                    <p class="text-xs text-red-600 font-medium">Rejection Reason:</p>
                     <p class="text-sm text-gray-700">{{ $selectedNotification->data['rejection_reason'] }}</p>
                 </div>
                 @endif
                 @if(isset($selectedNotification->data['custom_note']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs text-amber-600 font-medium">💬 Custom Note:</p>
+                    <p class="text-xs text-amber-600 font-medium">Custom Note:</p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['custom_note'] }}"</p>
                 </div>
                 @endif
@@ -194,7 +200,7 @@
 
                 @if($selectedNotification->data['type'] === 'new_order')
                 <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                    <p class="text-sm font-semibold text-blue-800">📦 New Order!</p>
+                    <p class="text-sm font-semibold text-blue-800">New Order!</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -324,14 +330,14 @@
 
                 @if($selectedNotification->data['type'] === 'order_status_updated')
                 <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                    <p class="text-sm font-semibold text-blue-800">🔄 Order Status Updated</p>
+                    <p class="text-sm font-semibold text-blue-800">Order Status Updated</p>
                     <p class="text-sm text-gray-700 mt-1">Order #{{ $selectedNotification->data['order_number'] ?? 'N/A'
                         }}</p>
                 </div>
 
                 @if(isset($selectedNotification->data['product_name']) && $selectedNotification->data['product_name'])
                 <div class="bg-amber-50 rounded-lg p-4 border-2 border-amber-300">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">⚠️ Item Status Changed</p>
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Item Status Changed</p>
                     <p class="text-base font-bold text-gray-800 mb-2">{{ $selectedNotification->data['product_name'] }}
                     </p>
                     <div class="flex items-center gap-2 text-sm">
@@ -416,7 +422,7 @@
                 @endphp
 
                 <div class="border-t border-gray-200 pt-3">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Summary</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Summary</h4>
 
                     <div class="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-200">
                         <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">📦 Original Order</p>
@@ -561,7 +567,7 @@
 
                 @if($selectedNotification->data['type'] === 'shop_deleted_by_owner')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">🏪 Shop Deleted by Owner</p>
+                    <p class="text-sm font-semibold text-red-800">Shop Deleted by Owner</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -581,7 +587,7 @@
 
                 @if(!empty($selectedNotification->data['reason']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason from Owner</p>
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Reason from Owner</p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['reason'] }}"</p>
                 </div>
                 @endif
@@ -606,7 +612,7 @@
 
                 @if(!empty($selectedNotification->data['reason']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason from Super Admin
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Reason from Super Admin
                     </p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['reason'] }}"</p>
                 </div>
@@ -624,7 +630,7 @@
 
                 @if($selectedNotification->data['type'] === 'shop_restored_by_admin')
                 <div class="bg-green-50 rounded-lg p-3 border border-green-200">
-                    <p class="text-sm font-semibold text-green-800">🎉 Shop Restored!</p>
+                    <p class="text-sm font-semibold text-green-800">Shop Restored!</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -644,12 +650,12 @@
                 @if(isset($selectedNotification->data['is_out_of_stock']) &&
                 $selectedNotification->data['is_out_of_stock'])
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">🚫 Out of Stock!</p>
+                    <p class="text-sm font-semibold text-red-800">Out of Stock!</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 @else
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">⚠️ Low Stock Alert</p>
+                    <p class="text-sm font-semibold text-red-800">Low Stock Alert</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 @endif
@@ -686,7 +692,7 @@
 
                 @if($selectedNotification->data['type'] === 'stock_review_needed')
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-sm font-semibold text-amber-800">📉 Stock Review Needed</p>
+                    <p class="text-sm font-semibold text-amber-800">Stock Review Needed</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -758,7 +764,7 @@
 
                 @if(!empty($selectedNotification->data['moderator_notes']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Note from Super Admin
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Note from Super Admin
                     </p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['moderator_notes'] }}"</p>
                 </div>
@@ -773,7 +779,7 @@
                 {{-- ✅ REVIEW MODERATION REMOVED --}}
                 @if($selectedNotification->data['type'] === 'review_moderation_removed')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">❌ Flag Reviewed — Review Removed</p>
+                    <p class="text-sm font-semibold text-red-800">Flag Reviewed — Review Removed</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -822,7 +828,7 @@
                 {{-- ✅ REVIEW MODERATION BANNED --}}
                 @if($selectedNotification->data['type'] === 'review_moderation_banned')
                 <div class="bg-red-50 rounded-lg p-3 border-2 border-red-300">
-                    <p class="text-sm font-semibold text-red-800">🚫 Review Removed & Reviewer Banned</p>
+                    <p class="text-sm font-semibold text-red-800">Review Removed & Reviewer Banned</p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -844,7 +850,7 @@
 
                 @if(!empty($selectedNotification->data['moderator_notes']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason from Super Admin
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Reason from Super Admin
                     </p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['moderator_notes'] }}"</p>
                 </div>
@@ -859,6 +865,93 @@
                     Thank you for helping keep the platform trustworthy.
                 </p>
                 @endif
+                @endif
+
+                {{-- ✅ USER SUSPENDED --}}
+                @if($selectedNotification->data['type'] === 'user_suspended')
+                <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+                    <p class="text-sm font-semibold text-red-800">Account Suspended</p>
+                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Account</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['user_name'] ??
+                            'N/A' }}</p>
+                        <p class="text-xs text-gray-400">{{ $selectedNotification->data['user_email'] ?? '' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Suspended By</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['by'] ?? 'Super
+                            Admin' }}</p>
+                    </div>
+                </div>
+
+                @if(!empty($selectedNotification->data['reason']))
+                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">Reason for Suspension</p>
+                    <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['reason'] }}"</p>
+                </div>
+                @endif
+
+                <p class="text-xs text-gray-500 italic">
+                    If you believe this was a mistake, please contact support.
+                </p>
+                @endif
+
+                {{-- ✅ USER ARCHIVED --}}
+                @if($selectedNotification->data['type'] === 'user_archived')
+                <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+                    <p class="text-sm font-semibold text-red-800">Account Archived</p>
+                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Account</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['user_name'] ??
+                            'N/A' }}</p>
+                        <p class="text-xs text-gray-400">{{ $selectedNotification->data['user_email'] ?? '' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 col-span-2">
+                        <p class="text-xs text-gray-500">Archived By</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['by'] ?? 'Super
+                            Admin' }}</p>
+                    </div>
+                </div>
+
+                @if(!empty($selectedNotification->data['reason']))
+                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason for Archiving
+                    </p>
+                    <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['reason'] }}"</p>
+                </div>
+                @endif
+
+                <p class="text-xs text-gray-500 italic">
+                    If you believe this was a mistake, please contact support.
+                </p>
+                @endif
+
+                {{-- ✅ USER RESTORED --}}
+                @if($selectedNotification->data['type'] === 'user_restored')
+                <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                    <p class="text-sm font-semibold text-green-800">🎉 Account Restored</p>
+                    <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-xs text-gray-500">Account</p>
+                    <p class="text-sm font-medium text-gray-800">{{ $selectedNotification->data['user_name'] ?? 'N/A' }}
+                    </p>
+                    <p class="text-xs text-gray-400">{{ $selectedNotification->data['user_email'] ?? '' }}</p>
+                </div>
+
+                <a href="{{ route('livewire.auth.login') }}"
+                    class="block w-full text-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm">
+                    Log In →
+                </a>
                 @endif
 
             </div>
