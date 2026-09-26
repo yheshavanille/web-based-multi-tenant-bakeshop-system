@@ -3,11 +3,13 @@
 namespace App\Livewire\Employee;
 
 use App\Models\User;
+use App\Models\EmployeeActivity;
+use App\Notifications\PasswordChangedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use App\Models\EmployeeActivity;
 use Livewire\WithFileUploads;
 
 class Profile extends Component
@@ -105,7 +107,7 @@ class Profile extends Component
         $this->user = Auth::user();
         $this->profile_picture = $this->user->profile_picture;
 
-        // ✅ Log activity
+        //  Log activity
         if ($this->user->employee) {
             EmployeeActivity::create([
                 'employee_id' => $this->user->employee->id,
@@ -152,7 +154,7 @@ class Profile extends Component
             'password' => Hash::make($this->new_password),
         ]);
 
-        // ✅ Log activity
+        //  Log activity
         if ($this->user->employee) {
             EmployeeActivity::create([
                 'employee_id' => $this->user->employee->id,
@@ -160,6 +162,17 @@ class Profile extends Component
                 'action'      => 'password_changed_self',
                 'description' => $this->user->name . ' changed their own password',
             ]);
+        }
+
+        //  Send bell + email notification about the password change
+        try {
+            Notification::send($this->user, new PasswordChangedNotification(
+                now(),
+                request()->ip(),
+                request()->userAgent()
+            ));
+        } catch (\Throwable $e) {
+            \Log::warning('PasswordChangedNotification failed: ' . $e->getMessage());
         }
 
         session()->flash('message', 'Password updated successfully!');

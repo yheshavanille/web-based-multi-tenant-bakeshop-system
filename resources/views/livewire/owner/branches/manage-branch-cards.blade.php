@@ -98,7 +98,7 @@
                         @if($isDeleted)
                         <span
                             class="px-2.5 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-2 bg-gray-100 text-gray-800">
-                            🗑️ Deleted
+                            Deleted
                         </span>
                         @else
                         <span
@@ -124,28 +124,28 @@
                         <!-- Restore button for deleted branches -->
                         <button wire:click="restore({{ $branch->id }})"
                             class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium text-center">
-                            🔄 Restore Branch
+                            Restore Branch
                         </button>
                         @else
                         <!-- Normal actions for active branches -->
                         <button wire:click="viewBranchDetails({{ $branch->id }})"
                             class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium text-center">
-                            📊 View Branch Details
+                            View Branch Details
                         </button>
                         <div class="flex gap-2">
                             <a href="{{ route('livewire.owner.employees.manage', ['branch' => $branch->id]) }}"
                                 class="flex-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-xs text-center">
-                                👥 Manage Employees
+                                Manage Employees
                             </a>
                             <a href="{{ route('livewire.owner.products.view-product', ['branch' => $branch->id]) }}"
                                 class="flex-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-xs text-center">
-                                📦 Manage Products
+                                Manage Products
                             </a>
                         </div>
                         <button wire:click="delete({{ $branch->id }})"
                             onclick="confirm('Delete this branch? You can restore it later.') || event.stopImmediatePropagation()"
                             class="w-full px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition text-xs font-medium">
-                            🗑️ Delete Branch
+                            Delete Branch
                         </button>
                         @endif
                     </div>
@@ -155,7 +155,7 @@
         </div>
         @else
         <div class="text-center py-12 text-gray-500">
-            <div class="text-4xl mb-2">🏪</div>
+
             @if(!empty($search))
             <p class="text-lg">No branches found matching "<span class="font-medium text-amber-600">{{ $search
                     }}</span>"</p>

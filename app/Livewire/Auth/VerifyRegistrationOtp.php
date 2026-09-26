@@ -48,17 +48,17 @@ class VerifyRegistrationOtp extends Component
             return;
         }
 
-        // ✅ Activate the account
+        //  Activate the account
         $user->update(['is_active' => true]);
 
-        // ✅ Mark the OTP as used
+        //  Mark the OTP as used
         DB::table('password_otps')
             ->where('id', $otp->id)
             ->update(['used_at' => Carbon::now()]);
 
         session()->flash('status', 'Email verified! You can now log in.');
 
-        // ✅ Preserve the "start selling" flow if it was set
+        //  Preserve the "start selling" flow if it was set
         if (session()->has('redirect_after_register')) {
             return redirect()->route('livewire.auth.login', ['start_selling' => 'true']);
         }
@@ -67,7 +67,7 @@ class VerifyRegistrationOtp extends Component
     }
 
     /**
-     * ✅ Resend the OTP (rate-limited: 1 per 60 seconds)
+     *  Resend the OTP (rate-limited: 1 per 60 seconds)
      */
     public function resend()
     {

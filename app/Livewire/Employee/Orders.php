@@ -3,15 +3,14 @@
 namespace App\Livewire\Employee;
 
 use App\Models\Order;
+use App\Models\OrderHistory;
 use App\Models\OrderItem;
 use App\Models\BranchProduct;
 use App\Models\Product;
-use App\Models\StockHistory;
 use App\Models\ProductEditHistory;
 use App\Notifications\OrderStatusUpdatedNotification;
 use App\Notifications\StockReviewNeededNotification;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
@@ -32,7 +31,6 @@ class Orders extends Component
         $employee = Auth::user()->employee;
         $this->branch = $employee->branch;
 
-        // ✅ NEW: Read ?status= from URL so "View All" pre-filter works
         if (request()->has('status')) {
             $this->selectedStatus = request()->get('status');
         }
@@ -144,7 +142,6 @@ class Orders extends Component
         $this->loadOrders();
     }
 
-    // ✅ Notify inventory managers + owner that stock may need review
     private function notifyStockReview(Order $order, OrderItem $item, string $reason): void
     {
         $inventoryManagers = \App\Models\Employee::where('shop_id', $order->shop_id)
@@ -165,6 +162,40 @@ class Orders extends Component
         if ($recipients->count() > 0) {
             Notification::send($recipients, new StockReviewNeededNotification($order, $item, $reason));
         }
+    }
+
+    // ✅ NEW: Restore stock and log the movement
+    private function restoreStockForItem(OrderItem $item, string $newStatus): void
+    {
+        $branchProduct = DB::table('branch_product')
+            ->where('branch_id', $item->branch_id)
+            ->where('product_id', $item->product_id)
+            ->first();
+
+        if (!$branchProduct) {
+            return;
+        }
+
+        $oldStock = (int) $branchProduct->stock;
+        $newStock = $oldStock + (int) $item->quantity;
+
+        DB::table('branch_product')
+            ->where('branch_id', $item->branch_id)
+            ->where('product_id', $item->product_id)
+            ->update(['stock' => $newStock]);
+
+        OrderHistory::create([
+            'order_id' => $item->order_id,
+            'order_item_id' => $item->id,
+            'product_id' => $item->product_id,
+            'branch_id' => $item->branch_id,
+            'user_id' => Auth::id(),
+            'status' => $newStatus,
+            'quantity' => (int) $item->quantity,
+            'old_stock' => $oldStock,
+            'new_stock' => $newStock,
+            'notes' => 'Order #' . $item->order->order_number . ' — ' . $newStatus . ', stock restored',
+        ]);
     }
 
     public function updateItemStatus($itemId, $status)
@@ -204,15 +235,18 @@ class Orders extends Component
             ]);
         }
 
-        if ($status === 'completed' && $oldStatus !== 'completed') {
-            $this->reduceStock($item);
+        // ✅ NEW: If moving INTO cancelled/no_show AND it wasn't already there, restore stock
+        $wasAlreadyFinal = in_array($oldStatus, ['cancelled', 'no_show']);
+        $isNowFinal = in_array($status, ['cancelled', 'no_show']);
+
+        if (!$wasAlreadyFinal && $isNowFinal) {
+            $this->restoreStockForItem($item, $status);
         }
 
         $order = $item->order;
         $this->recalculateOrderStatus($order);
         $order->refresh();
 
-        // ✅ Notify inventory managers + owner when item is cancelled or no-show
         if ($oldStatus !== $status && in_array($status, ['cancelled', 'no_show'])) {
             $reason = $status === 'no_show' ? 'no_show' : 'cancelled_by_staff';
             $this->notifyStockReview($order, $item, $reason);
@@ -246,53 +280,6 @@ class Orders extends Component
 
         $this->loadOrders();
         session()->flash('message', 'Item status updated successfully!');
-    }
-
-    private function reduceStock($orderItem)
-    {
-        Log::info('reduceStock called', [
-            'branch_id' => $this->branch->id,
-            'product_id' => $orderItem->product_id,
-            'quantity' => $orderItem->quantity,
-        ]);
-
-        $branchProduct = DB::table('branch_product')
-            ->where('branch_id', $this->branch->id)
-            ->where('product_id', $orderItem->product_id)
-            ->first();
-
-        if (!$branchProduct) {
-            Log::error('BranchProduct not found', [
-                'branch_id' => $this->branch->id,
-                'product_id' => $orderItem->product_id,
-            ]);
-            session()->flash('error', 'Stock record not found!');
-            return;
-        }
-
-        $oldStock = $branchProduct->stock;
-        $newStock = max(0, $oldStock - $orderItem->quantity);
-
-        DB::table('branch_product')
-            ->where('branch_id', $this->branch->id)
-            ->where('product_id', $orderItem->product_id)
-            ->update(['stock' => $newStock]);
-
-        StockHistory::create([
-            'product_id' => $orderItem->product_id,
-            'branch_id' => $this->branch->id,
-            'user_id' => Auth::id(),
-            'old_stock' => $oldStock,
-            'new_stock' => $newStock,
-            'notes' => 'Order #' . $orderItem->order->order_number . ' - Item marked as completed',
-        ]);
-
-        Log::info('Stock reduced and history created', [
-            'product_id' => $orderItem->product_id,
-            'old_stock' => $oldStock,
-            'new_stock' => $newStock,
-            'order_number' => $orderItem->order->order_number,
-        ]);
     }
 
     private function recalculateOrderStatus($order)

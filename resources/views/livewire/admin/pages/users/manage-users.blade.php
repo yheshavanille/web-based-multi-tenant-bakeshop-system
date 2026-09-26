@@ -124,10 +124,16 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
+                                    @if($user->profile_picture)
+                                    <img src="{{ asset('storage/' . $user->profile_picture) }}?v={{ $user->updated_at?->timestamp }}"
+                                        alt="{{ $user->name }}"
+                                        class="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                                    @else
                                     <div
-                                        class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700">
+                                        class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0">
                                         {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
                                     </div>
+                                    @endif
                                     <span
                                         class="font-medium text-gray-800 {{ $user->trashed() ? 'line-through text-gray-400' : '' }}">
                                         {{ $user->name }}
@@ -217,7 +223,7 @@
                                     </button>
                                     @elseif($user->id !== auth()->id())
                                     @if(isset($user->is_active) && $user->is_active)
-                                    {{-- ✅ NEW: opens reason modal --}}
+                                    {{-- ✅ opens reason modal --}}
                                     <button wire:click="openSuspendModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Suspend
@@ -229,7 +235,7 @@
                                     </button>
                                     @endif
 
-                                    {{-- ✅ NEW: opens archive reason modal --}}
+                                    {{-- ✅ opens archive reason modal --}}
                                     <button wire:click="openArchiveModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Archive
@@ -301,7 +307,7 @@
         </div>
         @endif
 
-        <!-- ✅ USER DETAILS MODAL (unchanged from before) -->
+        <!-- ✅ USER DETAILS MODAL -->
         @if($showUserModal && $selectedUser)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeUserModal"></div>
@@ -311,18 +317,25 @@
 
                 <div
                     class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-xl font-bold text-amber-700">
-                                {{ strtoupper(substr($selectedUser->name ?? 'U', 0, 2)) }}
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800">{{ $selectedUser->name }}</h3>
-                                <p class="text-sm text-gray-500">{{ $selectedUser->email }}</p>
-                            </div>
+                    <div class="flex items-center gap-3">
+                        @if($selectedUser->profile_picture)
+                        <img src="{{ asset('storage/' . $selectedUser->profile_picture) }}?v={{ $selectedUser->updated_at?->timestamp }}"
+                            alt="{{ $selectedUser->name }}"
+                            class="w-12 h-12 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                        @else
+                        <div
+                            class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-xl font-bold text-amber-700 flex-shrink-0">
+                            {{ strtoupper(substr($selectedUser->name ?? 'U', 0, 2)) }}
                         </div>
-                        <button wire:click="closeUserModal" class="text-gray-400 hover:text-gray-600 transition">
+                        @endif
+
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-bold text-gray-800 truncate">{{ $selectedUser->name }}</h3>
+                            <p class="text-sm text-gray-500 truncate">{{ $selectedUser->email }}</p>
+                        </div>
+
+                        <button wire:click="closeUserModal"
+                            class="text-gray-400 hover:text-gray-600 transition flex-shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12"></path>

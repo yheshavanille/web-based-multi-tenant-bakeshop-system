@@ -4,6 +4,7 @@ namespace App\Livewire\Owner\Products;
 
 use App\Models\Branch;
 use App\Models\Category;
+use App\Models\InventoryHistory;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductEditHistory;
@@ -41,7 +42,8 @@ class ViewProduct extends Component
     public $image_url = '';
 
     public array $selectedBranches = [];
-    public array $branch_stocks = [];
+    public array $branch_stocks = [];     //  now holds DELTAS in edit mode
+    public array $branch_notes = [];      //  per-branch notes
 
     public $discount_type = 'none';
     public $discount_value = 0;
@@ -53,10 +55,6 @@ class ViewProduct extends Component
         'selectedBranches.min' => 'Please select at least one branch.',
     ];
 
-    /**
-     * ✅ Dynamic rules — the name rule depends on whether we're editing
-     *    (must skip the current product) or creating.
-     */
     protected function rules()
     {
         $shop = Auth::user()->shop;
@@ -77,7 +75,7 @@ class ViewProduct extends Component
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
             'branch_stocks' => 'array',
-            'branch_stocks.*' => 'nullable|integer|min:0',
+            'branch_notes' => 'array',
             'discount_type' => 'required|in:none,percentage,fixed',
             'discount_value' => 'nullable|numeric|min:0',
         ];
@@ -95,20 +93,31 @@ class ViewProduct extends Component
             ->get();
 
         foreach ($this->branches as $b) {
-            $this->branch_stocks[$b->id] = 0;
+            $this->branch_stocks[$b->id] = '';
+            $this->branch_notes[$b->id] = '';
         }
     }
 
     public function toggleDeleted()
     {
         $this->showDeleted = !$this->showDeleted;
+
+        // Close any open form when toggling deleted view
+        $this->showForm = false;
+        $this->editing = false;
+        $this->productId = null;
+        $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'discount_type', 'discount_value']);
+        $this->selectedBranches = [];
+        $this->branch_stocks = [];
+        $this->branch_notes = [];
+        foreach ($this->branches as $b) {
+            $this->branch_stocks[$b->id] = '';
+            $this->branch_notes[$b->id] = '';
+        }
+        $this->originalValues = [];
     }
 
-    public function updatedSearch()
-    {
-        //
-    }
-
+    public function updatedSearch() {}
     public function clearSearch()
     {
         $this->search = '';
@@ -125,19 +134,16 @@ class ViewProduct extends Component
     {
         $product = Product::findOrFail($productId);
         $product->delete();
-
-        session()->flash('message', '🗑️ Product moved to deleted records.');
+        session()->flash('message', 'Product moved to deleted records.');
     }
 
     public function restore(int $productId)
     {
         $product = Product::withTrashed()->findOrFail($productId);
         $product->restore();
-
-        session()->flash('message', '✅ Product restored successfully.');
+        session()->flash('message', 'Product restored successfully.');
     }
 
-    // ✅ UPDATED: only load visible/kept reviews (removed ones are hidden)
     public function viewProductDetails($productId)
     {
         $this->selectedProduct = Product::with([
@@ -193,9 +199,11 @@ class ViewProduct extends Component
         $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'discount_type', 'discount_value']);
         $this->selectedBranches = [];
         $this->branch_stocks = [];
+        $this->branch_notes = [];
 
         foreach ($this->branches as $b) {
-            $this->branch_stocks[$b->id] = 0;
+            $this->branch_stocks[$b->id] = '';
+            $this->branch_notes[$b->id] = '';
         }
 
         $this->editing = false;
@@ -203,6 +211,9 @@ class ViewProduct extends Component
         $this->originalValues = [];
         $this->discount_type = 'none';
         $this->discount_value = 0;
+
+        // Auto-scroll to the form
+        $this->dispatch('scroll-to-product-form');
     }
 
     public function editProduct($productId)
@@ -211,14 +222,17 @@ class ViewProduct extends Component
 
         $this->selectedBranches = [];
         $this->branch_stocks = [];
+        $this->branch_notes = [];
 
         foreach ($this->branches as $b) {
-            $this->branch_stocks[$b->id] = 0;
+            $this->branch_stocks[$b->id] = '';
+            $this->branch_notes[$b->id] = '';
         }
 
         foreach ($product->branches as $branch) {
             $this->selectedBranches[] = $branch->id;
-            $this->branch_stocks[$branch->id] = (int) ($branch->pivot->stock ?? 0);
+            //  In edit mode, the input holds a DELTA, so start at empty
+            $this->branch_stocks[$branch->id] = '';
         }
 
         $this->originalValues = [
@@ -249,6 +263,9 @@ class ViewProduct extends Component
         $this->editing = true;
         $this->showForm = true;
         $this->showProductModal = false;
+
+        // Auto-scroll to the form
+        $this->dispatch('scroll-to-product-form');
     }
 
     public function cancelForm()
@@ -258,8 +275,10 @@ class ViewProduct extends Component
         $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'discount_type', 'discount_value']);
         $this->selectedBranches = [];
         $this->branch_stocks = [];
+        $this->branch_notes = [];
         foreach ($this->branches as $b) {
-            $this->branch_stocks[$b->id] = 0;
+            $this->branch_stocks[$b->id] = '';
+            $this->branch_notes[$b->id] = '';
         }
         $this->originalValues = [];
     }
@@ -282,6 +301,7 @@ class ViewProduct extends Component
             $oldImageUrl = $this->originalValues['image_url'] ?? null;
             $newImageUrl = $imagePath ?? $product->image_url;
 
+            //  Product metadata history
             $fields = ['name', 'price', 'category_id', 'description'];
             foreach ($fields as $field) {
                 $oldValue = $this->originalValues[$field] ?? null;
@@ -311,19 +331,38 @@ class ViewProduct extends Component
             $oldBranchStocks = $this->originalValues['branch_stocks'] ?? [];
             $oldBranchNames = $this->originalValues['branch_names'] ?? [];
 
+            //  Branch additions
             foreach ($this->selectedBranches as $branchId) {
                 if (!array_key_exists($branchId, $oldBranchStocks)) {
                     $branch = Branch::find($branchId);
+                    $delta = (int) ($this->branch_stocks[$branchId] ?? 0);
                     ProductEditHistory::create([
                         'product_id' => $product->id,
                         'user_id' => Auth::id(),
                         'field' => 'branch',
                         'old_value' => 'Not assigned',
-                        'new_value' => ($branch?->name ?? 'Unknown') . ' (stock: ' . ($this->branch_stocks[$branchId] ?? 0) . ')',
+                        'new_value' => ($branch?->name ?? 'Unknown') . ' (stock: ' . $delta . ')',
                     ]);
+
+                    // Log the initial stock for the new branch
+                    if ($delta > 0) {
+                        InventoryHistory::create([
+                            'product_id' => $product->id,
+                            'branch_id' => $branchId,
+                            'user_id' => Auth::id(),
+                            'type' => 'stock_in',
+                            'quantity' => $delta,
+                            'old_stock' => 0,
+                            'new_stock' => $delta,
+                            'notes' => !empty(trim($this->branch_notes[$branchId] ?? ''))
+                                ? $this->branch_notes[$branchId]
+                                : ('Initial stock for ' . ($branch?->name ?? 'branch') . ' (added during product edit)'),
+                        ]);
+                    }
                 }
             }
 
+            //  Branch removals
             foreach ($oldBranchStocks as $oldBranchId => $oldStock) {
                 if (!in_array($oldBranchId, $this->selectedBranches)) {
                     ProductEditHistory::create([
@@ -336,21 +375,48 @@ class ViewProduct extends Component
                 }
             }
 
-            foreach ($oldBranchStocks as $oldBranchId => $oldStock) {
-                if (in_array($oldBranchId, $this->selectedBranches)) {
-                    $newStock = (int) ($this->branch_stocks[$oldBranchId] ?? 0);
-                    if ((int) $oldStock !== $newStock) {
-                        ProductEditHistory::create([
-                            'product_id' => $product->id,
-                            'user_id' => Auth::id(),
-                            'field' => 'stock',
-                            'old_value' => ($oldBranchNames[$oldBranchId] ?? 'Branch') . ': ' . $oldStock,
-                            'new_value' => ($oldBranchNames[$oldBranchId] ?? 'Branch') . ': ' . $newStock,
-                        ]);
-                    }
+            //  Existing branch stock deltas
+            $syncData = [];
+            foreach ($this->selectedBranches as $branchId) {
+                $oldStock = (int) ($oldBranchStocks[$branchId] ?? 0);
+                $deltaRaw = $this->branch_stocks[$branchId] ?? '';
+                $delta = ($deltaRaw === '' || $deltaRaw === null) ? 0 : (int) $deltaRaw;
+                $newStock = max(0, $oldStock + $delta);
+
+                // Prevent going below 0 — reject if user tries too much
+                if ($oldStock + $delta < 0) {
+                    session()->flash('error', 'Stock for ' . ($oldBranchNames[$branchId] ?? 'branch') . ' cannot go below 0.');
+                    return;
                 }
+
+                // Log if this is an existing branch AND delta is non-zero
+                if (array_key_exists($branchId, $oldBranchStocks) && $delta !== 0) {
+                    ProductEditHistory::create([
+                        'product_id' => $product->id,
+                        'user_id' => Auth::id(),
+                        'field' => 'stock',
+                        'old_value' => ($oldBranchNames[$branchId] ?? 'Branch') . ': ' . $oldStock,
+                        'new_value' => ($oldBranchNames[$branchId] ?? 'Branch') . ': ' . $newStock,
+                    ]);
+
+                    InventoryHistory::create([
+                        'product_id' => $product->id,
+                        'branch_id' => $branchId,
+                        'user_id' => Auth::id(),
+                        'type' => $delta > 0 ? 'stock_in' : 'stock_out',
+                        'quantity' => $delta,
+                        'old_stock' => $oldStock,
+                        'new_stock' => $newStock,
+                        'notes' => !empty(trim($this->branch_notes[$branchId] ?? ''))
+                            ? $this->branch_notes[$branchId]
+                            : ('Stock adjusted during product edit (' . ($oldBranchNames[$branchId] ?? 'Branch') . ')'),
+                    ]);
+                }
+
+                $syncData[$branchId] = ['stock' => $newStock];
             }
 
+            //  Discount history (unchanged)
             $oldDiscountType = $this->originalValues['discount_type'] ?? 'none';
             $newDiscountType = $this->discount_type ?? 'none';
             $oldDiscountValue = $this->originalValues['discount_value'] ?? 0;
@@ -376,14 +442,11 @@ class ViewProduct extends Component
                 'discount_value' => $this->discount_type !== 'none' ? $this->discount_value : 0,
             ]);
 
-            $syncData = [];
-            foreach ($this->selectedBranches as $branchId) {
-                $syncData[$branchId] = ['stock' => (int) ($this->branch_stocks[$branchId] ?? 0)];
-            }
             $product->branches()->sync($syncData);
 
-            session()->flash('message', '✅ Product updated successfully!');
+            session()->flash('message', 'Product updated successfully!');
         } else {
+            //  CREATE MODE
             $product = Product::create([
                 'name' => trim($this->name),
                 'price' => $this->price,
@@ -404,12 +467,29 @@ class ViewProduct extends Component
             ]);
 
             foreach ($this->selectedBranches as $branchId) {
-                $product->branches()->attach($branchId, [
-                    'stock' => (int) ($this->branch_stocks[$branchId] ?? 0),
-                ]);
+                //  In create mode, the input holds the INITIAL stock
+                $initialStock = (int) ($this->branch_stocks[$branchId] ?? 0);
+                $branch = Branch::find($branchId);
+
+                $product->branches()->attach($branchId, ['stock' => $initialStock]);
+
+                if ($initialStock > 0) {
+                    InventoryHistory::create([
+                        'product_id' => $product->id,
+                        'branch_id' => $branchId,
+                        'user_id' => Auth::id(),
+                        'type' => 'stock_in',
+                        'quantity' => $initialStock,
+                        'old_stock' => 0,
+                        'new_stock' => $initialStock,
+                        'notes' => !empty(trim($this->branch_notes[$branchId] ?? ''))
+                            ? $this->branch_notes[$branchId]
+                            : ('Initial stock on product creation (' . ($branch?->name ?? 'branch') . ')'),
+                    ]);
+                }
             }
 
-            session()->flash('message', '✅ Product created successfully!');
+            session()->flash('message', 'Product created successfully!');
         }
 
         $this->showForm = false;
@@ -417,8 +497,10 @@ class ViewProduct extends Component
         $this->reset(['name', 'price', 'category_id', 'description', 'image', 'image_url', 'productId', 'discount_type', 'discount_value']);
         $this->selectedBranches = [];
         $this->branch_stocks = [];
+        $this->branch_notes = [];
         foreach ($this->branches as $b) {
-            $this->branch_stocks[$b->id] = 0;
+            $this->branch_stocks[$b->id] = '';
+            $this->branch_notes[$b->id] = '';
         }
         $this->originalValues = [];
     }

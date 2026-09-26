@@ -10,6 +10,12 @@
         </div>
         @endif
 
+        @if (session()->has('error'))
+        <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            {{ session('error') }}
+        </div>
+        @endif
+
         <!-- HEADER -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
@@ -30,10 +36,12 @@
                 @endif
             </div>
             <div class="flex items-center gap-3">
+                @if(!$showDeleted)
                 <button wire:click="showCreateForm"
                     class="px-4 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
                     + Add Product
                 </button>
+                @endif
                 <button wire:click="toggleDeleted"
                     class="px-4 py-2 text-sm rounded-lg {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} hover:bg-amber-700 transition">
                     {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
@@ -45,29 +53,43 @@
             </div>
         </div>
 
-        <!-- SEARCH BAR -->
+        <!-- SEARCH BAR + BRANCH DROPDOWN -->
         <div class="mb-4">
-            <div class="relative">
-                <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
-                    style="position: absolute;">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
+                        style="position: absolute;">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
+                        class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                    @if(!empty($search))
+                    <button wire:click="clearSearch" type="button"
+                        class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
+                        style="position: absolute;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                    </button>
+                    @endif
                 </div>
-                <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
-                    class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                @if(!empty($search))
-                <button wire:click="clearSearch" type="button"
-                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
-                    style="position: absolute;">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
-                </button>
-                @endif
+
+                <div class="sm:w-64">
+                    <select wire:model.live="selectedBranchId"
+                        class="w-full h-10 px-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white">
+                        <option value="">All Branches</option>
+                        @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
+
             @if(!empty($search))
             <p class="mt-1 text-xs text-gray-500">
                 Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
@@ -78,9 +100,9 @@
 
         <!-- PRODUCT FORM -->
         @if($showForm)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div id="product-form" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 scroll-mt-20">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                {{ $editing ? '✏️ Edit Product' : '➕ Add New Product' }}
+                {{ $editing ? 'Edit Product' : 'Add New Product' }}
             </h2>
             <form wire:submit.prevent="saveProduct" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -115,21 +137,32 @@
                     @enderror
                 </div>
 
-                <!-- ✅ BRANCH CHECKBOXES WITH PER-BRANCH STOCK — FULL WIDTH -->
+                <!-- ✅ BRANCH CHECKBOXES WITH DELTA INPUT -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Available Branches</label>
                     <p class="text-xs text-gray-500 mb-3">
-                        Select which branches this product is available at, and set the stock for each branch.
+                        @if($editing)
+                        Enter the amount to add (positive) or remove (negative). Current stock is shown on the right.
+                        @else
+                        Select which branches this product is available at, and set the initial stock for each.
+                        @endif
                     </p>
 
                     @if($branches->count() > 0)
                     <div class="grid grid-cols-1 gap-3">
                         @foreach($branches as $branch)
-                        <div
-                            class="border border-gray-200 rounded-lg overflow-hidden transition
-                                {{ in_array($branch->id, $selectedBranches) ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
+                        @php
+                        $isChecked = in_array($branch->id, $selectedBranches);
+                        $currentStock = $editing
+                        ? (int) ($originalValues['branch_stocks'][$branch->id] ?? 0)
+                        : 0;
+                        $deltaRaw = $this->branch_stocks[$branch->id] ?? '';
+                        $delta = ($deltaRaw === '' || $deltaRaw === null) ? 0 : (int) $deltaRaw;
+                        $preview = max(0, $currentStock + $delta);
+                        @endphp
+                        <div class="border border-gray-200 rounded-lg overflow-hidden transition
+                                {{ $isChecked ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
 
-                            {{-- Checkbox header --}}
                             <label class="flex items-start gap-3 p-3 cursor-pointer">
                                 <input type="checkbox" wire:model.live="selectedBranches" value="{{ $branch->id }}"
                                     class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
@@ -142,18 +175,58 @@
                                 </div>
                             </label>
 
-                            {{-- Per-branch stock input — only shows when checked --}}
-                            @if(in_array($branch->id, $selectedBranches))
-                            <div class="px-3 pb-3 pt-1 border-t border-amber-200/50">
-                                <label class="block text-xs font-medium text-gray-600 mb-1">
-                                    Stock for {{ $branch->name }}
-                                </label>
-                                <input type="number" min="0" wire:model="branch_stocks.{{ $branch->id }}"
-                                    class="py-2 px-3 w-full sm:w-48 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
-                                    placeholder="0">
-                                @error("branch_stocks.{$branch->id}")
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
+                            @if($isChecked)
+                            <div class="px-3 pb-3 pt-1 border-t border-amber-200/50 space-y-3">
+
+                                {{-- ✅ Current stock — always visible --}}
+                                @if($editing)
+                                <div class="bg-white border border-amber-200 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500 mb-0.5">Current Stock</p>
+                                    <p class="text-2xl font-bold text-gray-800">{{ $currentStock }}</p>
+                                </div>
+                                @endif
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">
+                                            @if($editing)
+                                            Add / Remove
+                                            @else
+                                            Initial Stock
+                                            @endif
+                                        </label>
+                                        <input type="number" wire:model.live="branch_stocks.{{ $branch->id }}"
+                                            class="py-2 px-3 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
+                                            placeholder="{{ $editing ? '+2 or -3' : '0' }}">
+                                    </div>
+
+                                    @if($editing)
+                                    <div class="flex flex-col justify-end">
+                                        <p class="text-xs text-gray-500 mb-1">After Change</p>
+                                        <p class="text-sm font-medium text-gray-800">
+                                            @if($delta !== 0)
+                                            <span class="text-gray-500">{{ $currentStock }}</span>
+                                            <span class="{{ $delta > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                {{ $delta > 0 ? '+' : '' }}{{ $delta }}
+                                            </span>
+                                            <span class="text-gray-400">=</span>
+                                            <span class="text-2xl font-bold text-amber-600">{{ $preview }}</span>
+                                            @else
+                                            <span class="text-gray-400 italic">Enter a value above</span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">
+                                        Notes <span class="text-gray-400 font-normal">(optional)</span>
+                                    </label>
+                                    <input type="text" wire:model="branch_notes.{{ $branch->id }}"
+                                        placeholder="e.g. freshly made"
+                                        class="w-full py-2 px-3 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white">
+                                </div>
                             </div>
                             @endif
                         </div>
@@ -164,7 +237,7 @@
                     @enderror
                     @else
                     <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                        <p>⚠️ No branches found. Please <a href="{{ route('livewire.owner.branches.manage-branches') }}"
+                        <p>No branches found. Please <a href="{{ route('livewire.owner.branches.manage-branches') }}"
                                 class="text-amber-600 hover:underline">create a branch</a> first.</p>
                     </div>
                     @endif
@@ -179,9 +252,9 @@
                     @enderror
                 </div>
 
-                <!-- ✅ DISCOUNT SECTION -->
+                <!-- DISCOUNT SECTION -->
                 <div class="border-t border-gray-200 pt-4 mt-4 md:col-span-2">
-                    <h3 class="text-md font-semibold text-gray-800 mb-3">🏷️ Discount Settings</h3>
+                    <h3 class="text-md font-semibold text-gray-800 mb-3">Discount Settings</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
@@ -206,7 +279,6 @@
                         </div>
                     </div>
 
-                    <!-- ✅ REAL-TIME DISCOUNT PREVIEW -->
                     @if($discount_type !== 'none' && $discount_value > 0 && $price > 0)
                     @php
                     $discountedPrice = $price;
@@ -312,7 +384,6 @@
             <div
                 class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col h-full {{ $product->trashed() ? 'opacity-75 border-red-200' : '' }}">
 
-                <!-- Image -->
                 <div class="h-48 bg-gray-100 overflow-hidden flex-shrink-0">
                     @if($product->image_url)
                     <img src="{{ asset($product->image_url) }}" class="w-full h-full object-cover">
@@ -325,7 +396,6 @@
                     @endif
                 </div>
 
-                <!-- Content -->
                 <div class="p-4 flex-1 flex flex-col">
                     <div class="flex items-start justify-between gap-2">
                         <h3 class="font-semibold text-gray-800 text-lg leading-tight">{{ $product->name }}</h3>
@@ -354,15 +424,15 @@
                             {{ $stock > 10 ? 'bg-green-100 text-green-800' : '' }}
                             {{ $stock <= 10 && $stock > 0 ? 'bg-yellow-100 text-yellow-800' : '' }}
                             {{ $stock <= 0 ? 'bg-red-100 text-red-800' : '' }}">
-                            📦 {{ $stock }} in stock
+                            {{ $stock }} in stock
                         </span>
                         <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
-                            ⭐ {{ $product->product_reviews_count ?? 0 }} reviews
+                            {{ $product->product_reviews_count ?? 0 }} reviews
                         </span>
                     </div>
 
                     <div class="mt-2 flex items-center gap-3 flex-wrap">
-                        <span class="text-xs text-gray-500">📊 Sold:</span>
+                        <span class="text-xs text-gray-500">Sold:</span>
                         <span class="text-xs font-semibold text-green-600">{{ $totalSold }}</span>
                         <span class="text-xs text-gray-300">|</span>
                         <span class="text-xs font-semibold text-amber-600">₱{{ number_format($totalRevenue, 2) }}</span>
@@ -386,34 +456,33 @@
                     @endif
                 </div>
 
-                <!-- Actions -->
                 <div class="border-t border-gray-100 flex-shrink-0">
                     @if($product->trashed())
                     <div class="flex divide-x divide-gray-200">
                         <button wire:click="restore({{ $product->id }})"
                             class="flex-1 py-3 text-sm font-medium text-green-600 hover:bg-green-50 transition">
-                            🔄 Restore
+                            Restore
                         </button>
                         <button wire:click="delete({{ $product->id }})"
                             onclick="confirm('Permanently delete this product?') || event.stopImmediatePropagation()"
                             class="flex-1 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition">
-                            🗑️ Delete
+                            Delete
                         </button>
                     </div>
                     @else
                     <div class="flex divide-x divide-gray-200">
                         <button wire:click="viewProductDetails({{ $product->id }})"
                             class="flex-1 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition">
-                            📊 View Details
+                            View Details
                         </button>
                         <button wire:click="editProduct({{ $product->id }})"
                             class="flex-1 py-3 text-sm font-medium text-amber-600 hover:bg-amber-50 transition">
-                            ✏️ Edit
+                            Edit
                         </button>
                         <button wire:click="delete({{ $product->id }})"
                             onclick="confirm('Delete this product?') || event.stopImmediatePropagation()"
                             class="flex-1 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition">
-                            🗑️ Delete
+                            Delete
                         </button>
                     </div>
                     @endif
@@ -456,7 +525,7 @@
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">🍰</span>
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800">📦 Product Details</h3>
+                            <h3 class="text-xl font-bold text-gray-800">Product Details</h3>
                             <p class="text-sm text-gray-500">{{ $selectedProduct->name }}</p>
                         </div>
                     </div>
@@ -502,7 +571,7 @@
                         @php
                         $totalStock = $selectedProduct->branches->sum('pivot.stock');
                         @endphp
-                        <p class="text-sm text-gray-600">📦 Stock: <span class="font-medium">{{ $totalStock }}</span>
+                        <p class="text-sm text-gray-600">Stock: <span class="font-medium">{{ $totalStock }}</span>
                             units available</p>
                         @if($selectedProduct->description)
                         <p class="text-sm text-gray-600 mt-2 border-t border-gray-100 pt-2">{{
@@ -528,7 +597,7 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3">📍 Stock by Branch</h4>
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Stock by Branch</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         @forelse($selectedProduct->branches as $branch)
                         <div class="border border-gray-100 rounded-lg p-3 bg-gray-50 flex justify-between items-center">
@@ -546,7 +615,7 @@
 
                 <div class="border-t border-gray-200 pt-4">
                     <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-semibold text-gray-700">⭐ Customer Reviews</h4>
+                        <h4 class="text-sm font-semibold text-gray-700">Customer Reviews</h4>
                         <span class="text-xs text-gray-500">{{ $selectedProduct->productReviews->count() }}
                             reviews</span>
                     </div>
@@ -591,4 +660,17 @@
         </div>
     </div>
     @endif
+    {{-- ✅ Auto-scroll to form on create/edit --}}
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('scroll-to-product-form', () => {
+                setTimeout(() => {
+                    const el = document.getElementById('product-form');
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 50);
+            });
+        });
+    </script>
 </div>

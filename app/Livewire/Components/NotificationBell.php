@@ -51,7 +51,7 @@ class NotificationBell extends Component
 
     private function shouldShowNotification($user, $notification)
     {
-        // ✅ SUPER ADMIN - SHOW EVERYTHING
+        //  SUPER ADMIN - SHOW EVERYTHING
         if ($user->hasRole('super_admin')) {
             return true;
         }
@@ -63,9 +63,8 @@ class NotificationBell extends Component
         $isEmployeeView = $this->context === 'employee';
         $isAdminView    = $this->context === 'admin';
 
-        // ✅ CUSTOMER VIEW
+        //  CUSTOMER VIEW
         if ($isCustomerView) {
-            // Handle order-related checks first
             if ($type === 'order_status_updated') {
                 $orderId = $notification->data['order_id'] ?? null;
                 if ($orderId) {
@@ -86,14 +85,11 @@ class NotificationBell extends Component
                 return false;
             }
 
-            // ✅ Review moderation: only show if the customer is the recipient
-            //    (i.e., the reviewer whose review was moderated)
             if (in_array($type, ['review_moderation_removed', 'review_moderation_banned'])) {
                 return isset($notification->data['is_customer'])
                     && $notification->data['is_customer'] === true;
             }
 
-            // ✅ User lifecycle: only show if the notification is about THIS user
             if (in_array($type, ['user_suspended', 'user_archived', 'user_restored'])) {
                 return ($notification->data['user_id'] ?? null) === $user->id;
             }
@@ -104,10 +100,12 @@ class NotificationBell extends Component
                 'seller_rejected',
                 'shop_deleted_by_admin',
                 'shop_restored_by_admin',
+                'password_changed',
+                'review_ban_lifted',   //  NEW
             ]);
         }
 
-        // ✅ OWNER VIEW
+        //  OWNER VIEW
         if ($isOwnerView) {
             $ownedShopId = $user->shop?->id;
 
@@ -120,14 +118,11 @@ class NotificationBell extends Component
                 return false;
             }
 
-            // ✅ Owner gets review moderation notifications (they flagged it)
-            //    but NOT customer-specific review bans/reviews they didn't write
             if ($type === 'review_moderation_kept') {
-                return true; // only sent to owners anyway
+                return true;
             }
 
             if (in_array($type, ['review_moderation_removed', 'review_moderation_banned'])) {
-                // Show only if this owner was the flagger (not the reviewer)
                 return !isset($notification->data['is_customer'])
                     || $notification->data['is_customer'] === false;
             }
@@ -146,10 +141,15 @@ class NotificationBell extends Component
             ]);
         }
 
-        // ✅ EMPLOYEE VIEW
+        //  EMPLOYEE VIEW
         if ($isEmployeeView) {
             $employee = $user->employee;
             if (!$employee) return false;
+
+            //  NEW: Password change alert — always show to the employee themselves
+            if ($type === 'password_changed') {
+                return true;
+            }
 
             $orderId = $notification->data['order_id'] ?? null;
             if ($orderId) {
@@ -172,7 +172,7 @@ class NotificationBell extends Component
             return false;
         }
 
-        // ✅ ADMIN VIEW
+        //  ADMIN VIEW
         if ($isAdminView) {
             return true;
         }

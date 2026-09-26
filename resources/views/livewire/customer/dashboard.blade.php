@@ -54,8 +54,7 @@
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </div>
-            <input type="text" wire:model.live="search"
-                placeholder="Search bakeshops by name, address, or description..."
+            <input type="text" wire:model.live.debounce.500ms="search" placeholder="Search bakeshops or products..."
                 class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
             @if(!empty($search))
             <button wire:click="clearSearch" type="button"
@@ -71,14 +70,15 @@
         @if(!empty($search))
         <p class="mt-1 text-xs text-gray-500">
             Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-            <span class="text-gray-400">({{ $featuredShops->count() }} found)</span>
+            <span class="text-gray-400">({{ $featuredShops->count() }} shops, {{ $products->count() }} products
+                found)</span>
         </p>
         @endif
     </div>
 
     <!-- Featured Shops -->
     @if($featuredShops->count() > 0)
-    <div class="mb-8">
+    <div class="mb-8" wire:loading.class="opacity-50" wire:target="search">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold text-gray-900"> Featured Bakeshops</h2>
             <a href="{{ route('livewire.customer.browse-shops') }}"
@@ -111,11 +111,13 @@
             @endforeach
         </div>
     </div>
-    @else
+    @elseif(empty($search) || $products->count() === 0)
+    {{-- ✅ Empty state: only show if there's no search OR no products found either --}}
     <div class="text-center py-12 bg-white rounded-xl border border-gray-200">
         <span class="text-6xl block mb-4">🏪</span>
         @if(!empty($search))
-        <p class="text-gray-500 text-lg">No bakeshops found matching "<span class="font-medium text-amber-600">{{
+        <p class="text-gray-500 text-lg">No bakeshops or products found matching "<span
+                class="font-medium text-amber-600">{{
                 $search }}</span>"</p>
         <p class="text-sm text-gray-400">Try adjusting your search or explore all shops.</p>
         <a href="{{ route('livewire.customer.browse-shops') }}"
@@ -126,6 +128,64 @@
         <p class="text-gray-500 text-lg">No bakeshops available yet</p>
         <p class="text-sm text-gray-400">Check back later for new bakeshops.</p>
         @endif
+    </div>
+    @endif
+
+    <!-- ✅ Product Search Results -->
+    @if(!empty($search) && $products->count() > 0)
+    <div class="mb-8" wire:loading.class="opacity-50" wire:target="search">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">🛒 Products</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            @foreach($products as $product)
+            @php
+            $displayPrice = $product->isDiscounted()
+            ? $product->getDiscountedPrice()
+            : $product->price;
+            $totalStock = $product->branches->sum('pivot.stock');
+            @endphp
+            <a href="{{ route('livewire.customer.view-products', ['shopId' => $product->shop_id]) }}#product-{{ $product->id }}"
+                class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-amber-300 transition flex flex-col">
+                <div class="w-full h-32 bg-gray-100 overflow-hidden flex-shrink-0">
+                    @if($product->image_url)
+                    <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}"
+                        class="w-full h-full object-cover">
+                    @else
+                    <div
+                        class="w-full h-full flex items-center justify-center text-3xl bg-gradient-to-br from-amber-50 to-orange-50">
+                        🍰
+                    </div>
+                    @endif
+                </div>
+                <div class="p-3 flex-1 flex flex-col">
+                    <h3 class="font-semibold text-gray-800 text-sm truncate">{{ $product->name }}</h3>
+                    <p class="text-xs text-gray-500 mt-0.5 truncate">
+                        🏪 {{ $product->shop->shop_name ?? 'Unknown Shop' }}
+                    </p>
+                    <div class="mt-2">
+                        @if($product->isDiscounted())
+                        <span class="text-xs text-gray-400 line-through">
+                            ₱{{ number_format($product->price, 2) }}
+                        </span>
+                        <span class="text-base font-bold text-green-600 ml-1">
+                            ₱{{ number_format($displayPrice, 2) }}
+                        </span>
+                        @else
+                        <span class="text-base font-bold text-amber-600">
+                            ₱{{ number_format($displayPrice, 2) }}
+                        </span>
+                        @endif
+                    </div>
+                    <div class="mt-1">
+                        @if($totalStock <= 5) <span class="text-[10px] text-orange-500 font-medium">⚠️ Only {{
+                            $totalStock }} left</span>
+                            @else
+                            <span class="text-[10px] text-green-500">✅ In stock</span>
+                            @endif
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
     </div>
     @endif
 

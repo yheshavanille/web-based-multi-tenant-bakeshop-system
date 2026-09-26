@@ -70,15 +70,22 @@
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Category</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Current Stock</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">New Stock</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Notes</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">
+                            Add / Remove <span class="text-gray-400 font-normal">(+ or −)</span>
+                        </th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">
+                            Notes <span class="text-red-500">*</span>
+                        </th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach($products as $product)
                     @php
-                    $currentStock = $product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0;
+                    $currentStock = (int) ($product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0);
+                    $deltaRaw = $this->stockUpdates[$product->id] ?? '';
+                    $delta = ($deltaRaw === '' || $deltaRaw === null) ? 0 : (int) $deltaRaw;
+                    $preview = max(0, $currentStock + $delta);
                     @endphp
                     <tr>
                         <td class="px-4 py-3 font-medium text-gray-800">{{ $product->name }}</td>
@@ -92,11 +99,25 @@
                             </span>
                         </td>
                         <td class="px-4 py-3">
-                            <input type="number" wire:model="stockUpdates.{{ $product->id }}" min="0"
-                                class="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                            <div class="flex items-center gap-2">
+                                <input type="text" wire:model.live="stockUpdates.{{ $product->id }}"
+                                    placeholder="+2 or -3"
+                                    class="w-24 px-2 py-1 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                                @if($delta !== 0)
+                                <span class="text-xs text-gray-500 whitespace-nowrap">
+                                    {{ $currentStock }}
+                                    <span class="{{ $delta > 0 ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $delta > 0 ? '+' : '' }}{{ $delta }}
+                                    </span>
+                                    =
+                                    <span class="font-semibold text-amber-600">{{ $preview }}</span>
+                                </span>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-4 py-3">
-                            <input type="text" wire:model="notes.{{ $product->id }}" placeholder="Optional note"
+                            <input type="text" wire:model="notes.{{ $product->id }}"
+                                placeholder="Reason for change (required)"
                                 class="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                         </td>
                         <td class="px-4 py-3">

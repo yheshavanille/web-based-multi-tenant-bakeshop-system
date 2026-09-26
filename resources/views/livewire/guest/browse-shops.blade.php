@@ -1,7 +1,7 @@
 <div>
     <div class="max-w-[85rem] px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-14 mx-auto">
 
-        <!-- ✅ HERO SECTION FOR GUESTS -->
+        <!-- HERO SECTION FOR GUESTS -->
         <div
             class="bg-gradient-to-br from-amber-50 to-white rounded-xl p-5 sm:p-8 mb-6 sm:mb-8 border border-amber-100">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Welcome to Web-based Multi-tenant Bakeshop</h1>
@@ -20,20 +20,18 @@
         <!-- Search Bar -->
         <div class="mb-6">
             <div class="relative" style="height: 2.5rem;">
-                <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
-                    style="position: absolute;">
+                <div
+                    class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
-                <input type="text" wire:model.live="search"
-                    placeholder="Search bakeshops by name, address, or description..."
+                <input type="text" wire:model.live.debounce.500ms="search" placeholder="Search bakeshops or products..."
                     class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                 @if(!empty($search))
                 <button wire:click="clearSearch" type="button"
-                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
-                    style="position: absolute;">
+                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                         </path>
@@ -44,19 +42,21 @@
             @if(!empty($search))
             <p class="mt-1 text-xs text-gray-500">
                 Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-                <span class="text-gray-400">({{ $shops->count() }} found)</span>
+                <span class="text-gray-400">({{ $shops->count() }} shops, {{ $products->count() }} products
+                    found)</span>
             </p>
             @endif
         </div>
 
+        {{-- Featured Bakeshops section --}}
+        @if($shops->count() > 0)
+
         <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">Featured Bakeshops</h2>
 
-        <!-- GRID - 2 columns on medium screens -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            @forelse($shops as $shop)
+            @foreach($shops as $shop)
             <div
                 class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition">
-                <!-- Shop Header -->
                 <div class="p-4 border-b border-gray-100">
                     <div class="flex items-start gap-3 sm:gap-4">
                         <div
@@ -90,15 +90,14 @@
                     </div>
                 </div>
 
-                <!-- Products Grid -->
                 <div class="p-4">
                     @php
-                    $products = $shopProducts[$shop->id] ?? collect();
+                    $shopProductsList = $shopProducts[$shop->id] ?? collect();
                     @endphp
 
-                    @if($products && $products->count() > 0)
+                    @if($shopProductsList && $shopProductsList->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                        @foreach($products as $product)
+                        @foreach($shopProductsList as $product)
                         <div
                             class="bg-gray-50 rounded-lg p-2 sm:p-3 text-center hover:shadow-sm transition border border-transparent hover:border-amber-200">
                             @if($product->image_url)
@@ -135,18 +134,85 @@
                     </div>
                 </div>
             </div>
-            @empty
-            <div class="col-span-1 md:col-span-2 text-center py-12 text-gray-500">
-                @if(!empty($search))
-                <p class="text-lg">No bakeshops found matching "<span class="font-medium text-amber-600">{{ $search
-                        }}</span>"</p>
-                <p class="text-sm text-gray-400">Try adjusting your search.</p>
-                @else
-                <p class="text-lg">No bakeshops available yet.</p>
-                @endif
-            </div>
-            @endforelse
+            @endforeach
         </div>
+
+        @elseif(empty($search))
+
+        {{-- Initial page load — no shops exist at all --}}
+        <div class="text-center py-12 text-gray-500">
+            <p class="text-lg">No bakeshops available yet.</p>
+        </div>
+
+        @endif
+
+        {{-- Product Search Results --}}
+        @if(!empty($search) && $products->count() > 0)
+        <div class="mt-8" wire:loading.class="opacity-50" wire:target="search">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">🛒 Products</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                @foreach($products as $product)
+                @php
+                $displayPrice = $product->isDiscounted()
+                ? $product->getDiscountedPrice()
+                : $product->price;
+                $totalStock = $product->branches->sum('pivot.stock');
+                @endphp
+                <a href="{{ route('livewire.guest.view-products', ['shopId' => $product->shop_id]) }}#product-{{ $product->id }}"
+                    class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-amber-300 transition flex flex-col">
+                    <div class="w-full h-32 bg-gray-100 overflow-hidden flex-shrink-0">
+                        @if($product->image_url)
+                        <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}"
+                            class="w-full h-full object-cover">
+                        @else
+                        <div
+                            class="w-full h-full flex items-center justify-center text-3xl bg-gradient-to-br from-amber-50 to-orange-50">
+                            🍰
+                        </div>
+                        @endif
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col">
+                        <h3 class="font-semibold text-gray-800 text-sm truncate">{{ $product->name }}</h3>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">
+                            🏪 {{ $product->shop->shop_name ?? 'Unknown Shop' }}
+                        </p>
+                        <div class="mt-2">
+                            @if($product->isDiscounted())
+                            <span class="text-xs text-gray-400 line-through">
+                                ₱{{ number_format($product->price, 2) }}
+                            </span>
+                            <span class="text-base font-bold text-green-600 ml-1">
+                                ₱{{ number_format($displayPrice, 2) }}
+                            </span>
+                            @else
+                            <span class="text-base font-bold text-amber-600">
+                                ₱{{ number_format($displayPrice, 2) }}
+                            </span>
+                            @endif
+                        </div>
+                        <div class="mt-1">
+                            @if($totalStock <= 5) <span class="text-[10px] text-orange-500 font-medium">⚠️ Only {{
+                                $totalStock }} left</span>
+                                @else
+                                <span class="text-[10px] text-green-500">✅ In stock</span>
+                                @endif
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        {{-- No results fallback --}}
+        @if(!empty($search) && $shops->count() === 0 && $products->count() === 0)
+        <div class="text-center py-12 text-gray-500">
+            <span class="text-5xl block mb-3">🔍</span>
+            <p class="text-lg">No bakeshops or products found matching "<span class="font-medium text-amber-600">{{
+                    $search }}</span>"</p>
+            <p class="text-sm text-gray-400 mt-1">Try adjusting your search.</p>
+        </div>
+        @endif
 
     </div>
 </div>

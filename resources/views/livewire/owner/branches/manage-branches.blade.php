@@ -139,7 +139,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-6 sm:p-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                    {{ $editing ? '✏️ Edit Branch' : '➕ Create New Branch' }}
+                    {{ $editing ? 'Edit Branch' : 'Create New Branch' }}
                 </h3>
 
                 <form wire:submit.prevent="saveBranch" class="grid grid-cols-1 md:grid-cols-2 gap-5">

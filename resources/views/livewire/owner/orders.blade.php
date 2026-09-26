@@ -47,7 +47,7 @@
                 class="px-4 py-2 pr-10 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat min-w-[180px]">
                 <option value="all">All Branches</option>
                 @foreach($branches as $branch)
-                <option value="{{ $branch->id }}">📍 {{ $branch->name }}</option>
+                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                 @endforeach
             </select>
 
@@ -102,13 +102,35 @@
                             <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $order->customer->name ?? 'N/A' }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $order->branch->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $order->item_count }} items</td>
+                            @php
+                            $items = $order->items ?? collect();
+                            $completedCount = $items->where('status', 'completed')->count();
+                            $cancelledCount = $items->where('status', 'cancelled')->count();
+                            $pendingCount = $items->where('status', 'pending')->count();
+                            $preparingCount = $items->where('status', 'preparing')->count();
+                            $readyCount = $items->where('status', 'ready_for_pickup')->count();
+                            $noShowCount = $items->where('status', 'no_show')->count();
+
+                            $statusParts = [];
+                            if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
+                            if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
+                            if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
+                            if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
+                            if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+                            if ($noShowCount > 0) $statusParts[] = $noShowCount . ' no show';
+
+                            $statusSummary = !empty($statusParts)
+                            ? implode(', ', $statusParts)
+                            : ucfirst(str_replace('_', ' ', $order->status));
+                            @endphp
+
+                            <td class="px-4 py-3 text-gray-600">{{ $items->count() }} items</td>
                             <td class="px-4 py-3">
                                 <span class="text-xs font-medium text-gray-700">
-                                    {{ $order->status_summary }}
+                                    {{ $statusSummary }}
                                 </span>
-                                @if($order->cancelled_count > 0)
-                                <span class="text-xs text-red-500">⚠️</span>
+                                @if($cancelledCount > 0)
+
                                 @endif
                             </td>
                             <td class="px-4 py-3 font-semibold text-green-600" title="Includes VAT">
@@ -128,7 +150,7 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
-                <span class="text-3xl block mb-2">📭</span>
+
                 @if(!empty($search))
                 <p>No orders found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
                 <p class="text-xs text-gray-400">Try adjusting your search or filters.</p>

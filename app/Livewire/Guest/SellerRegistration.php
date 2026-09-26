@@ -40,7 +40,7 @@ class SellerRegistration extends Component
 
     public function mount()
     {
-        // ✅ Check if user is logged in - don't redirect, blade will show message
+        //  Check if user is logged in - don't redirect, blade will show message
         if (!Auth::check()) {
             return;
         }
@@ -87,7 +87,7 @@ class SellerRegistration extends Component
 
     public function submit()
     {
-        // ✅ Check if user is logged in before submitting
+        //  Check if user is logged in before submitting
         if (!Auth::check()) {
             session()->flash('error', 'Please login first.');
             return redirect()->route('livewire.auth.login', ['start_selling' => 'true']);

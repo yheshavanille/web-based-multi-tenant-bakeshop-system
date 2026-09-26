@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\BranchProduct;
-use App\Models\StockHistory;
 use App\Notifications\OrderStatusUpdatedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -91,15 +90,13 @@ class PaymentWebhookController extends Controller
                 'payment_method_detail' => $paymentMethodType,
             ]);
 
-            // Process stock reduction for each child order
+            // Process notifications for each child order
             $childOrders = Order::where('parent_order_id', $order->id)->get();
             foreach ($childOrders as $childOrder) {
-                $this->reduceStockForOrder($childOrder);
                 $this->notifyOrderManagers($childOrder);
             }
         } else {
-            // Regular order - reduce stock and notify
-            $this->reduceStockForOrder($order);
+            // Regular order - notify
             $this->notifyOrderManagers($order);
         }
 
@@ -121,29 +118,8 @@ class PaymentWebhookController extends Controller
         ]);
     }
 
-    private function reduceStockForOrder($order)
-    {
-        $orderItems = OrderItem::where('order_id', $order->id)->get();
-        foreach ($orderItems as $item) {
-            $branchProduct = BranchProduct::where('branch_id', $item->branch_id)
-                ->where('product_id', $item->product_id)
-                ->first();
-
-            if ($branchProduct) {
-                $oldStock = $branchProduct->stock;
-                $branchProduct->decrement('stock', $item->quantity);
-
-                StockHistory::create([
-                    'product_id' => $item->product_id,
-                    'branch_id' => $item->branch_id,
-                    'user_id' => $order->customer_id,
-                    'old_stock' => $oldStock,
-                    'new_stock' => $branchProduct->stock,
-                    'notes' => 'Order #' . $order->order_number . ' - Payment confirmed, stock reduced',
-                ]);
-            }
-        }
-    }
+    // ✅ DELETED: reduceStockForOrder() — stock is reduced once at checkout.
+    //    Reducing here caused double-deduction for PayMongo orders.
 
     private function notifyOrderManagers($order)
     {

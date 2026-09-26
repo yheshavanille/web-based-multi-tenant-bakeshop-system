@@ -3,24 +3,25 @@
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.employee.dashboard') }}" class="flex items-center gap-2">
-                    <span class="text-2xl"></span>
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                     <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Employee</span>
                 </a>
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- ✅ NOTIFICATION BELL -->
+                @php
+                $user = auth()->user();
+                $profilePic = $user->profile_picture;
+                $employee = $user->employee;
+                $hasWorkspace = $employee && in_array($employee->role, ['order_manager', 'inventory_manager']);
+                @endphp
+
+                <!-- NOTIFICATION BELL -->
                 @livewire('components.notification-bell', ['context' => 'employee'])
 
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" @click.away="open = false"
                         class="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition">
-                        @php
-                        $user = auth()->user();
-                        $profilePic = $user->profile_picture;
-                        @endphp
-
                         @if($profilePic)
                         <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
                             class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 flex-shrink-0">
@@ -39,8 +40,9 @@
 
                     <div x-show="open" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
 
+                        {{-- Profile Header --}}
                         <div class="px-4 py-3 border-b border-gray-100">
                             <div class="flex items-center gap-3">
                                 @if($profilePic)
@@ -55,7 +57,6 @@
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
                                     <p class="text-xs text-gray-500">{{ $user->email }}</p>
-                                    @php($employee = $user->employee)
                                     <p class="text-xs text-gray-400">
                                         {{ $employee?->role_label ?? 'Employee' }}
                                         @if($employee?->branch)
@@ -66,53 +67,64 @@
                             </div>
                         </div>
 
+                        {{-- ============ OVERVIEW ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Overview
+                        </p>
+
                         <a href="{{ route('livewire.employee.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Dashboard
+                            Dashboard
                         </a>
+
+                        {{-- ============ WORKSPACE ============ --}}
+                        @if($hasWorkspace)
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Workspace
+                        </p>
+                        @endif
 
                         @if($employee?->role === 'order_manager')
                         <a href="{{ route('livewire.employee.products') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Manage Products
+                            Manage Products
+                        </a>
+                        <a href="{{ route('livewire.employee.orders') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            Orders
                         </a>
                         @endif
 
                         @if($employee?->role === 'inventory_manager')
                         <a href="{{ route('livewire.employee.inventory') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Manage Stock
+                            Manage Stock
                         </a>
-                        @endif
-
-                        @if($employee?->role === 'order_manager')
-                        <a href="{{ route('livewire.employee.orders') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Orders
-                        </a>
-                        @endif
-
-                        {{-- ✅ Stock Edit History - Only for Inventory Manager --}}
-                        @if($employee?->role === 'inventory_manager')
                         <a href="{{ route('livewire.employee.stock-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Stock Edit History
+                            Stock Edit History
                         </a>
                         @endif
 
-                        <!-- ✅ My Profile -->
+                        {{-- ============ ACCOUNT ============ --}}
+                        <div class="border-t border-gray-100 my-2"></div>
+
+                        <p class="px-4 pt-1 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Account
+                        </p>
+
                         <a href="{{ route('livewire.employee.profile') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> My Profile
+                            My Profile
                         </a>
 
-                        <div class="border-t border-gray-100 my-1"></div>
+                        <div class="border-t border-gray-100 my-2"></div>
 
                         <form method="POST" action="{{ route('logout.post') }}" class="block">
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg"></span> Logout
+                                Logout
                             </button>
                         </form>
                     </div>

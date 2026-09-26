@@ -128,7 +128,7 @@ class SellerRegistration extends Component
             'submitted_at' => now(),
         ]);
 
-        // ✅ SEND NOTIFICATION TO ALL SUPER ADMINS
+        //  SEND NOTIFICATION TO ALL SUPER ADMINS
         $superAdmins = User::role('super_admin')->get();
         Notification::send($superAdmins, new NewSellerRegistrationNotification($registration));
 

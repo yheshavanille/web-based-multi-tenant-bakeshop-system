@@ -44,4 +44,11 @@ class Shop extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    // public function scopeGetData($data)
+    // {
+    //     return $data->with('user')
+    //         ->withCount('orders')
+    //         ->get();;
+    // }
 }

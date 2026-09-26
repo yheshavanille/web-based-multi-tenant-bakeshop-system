@@ -46,7 +46,7 @@ class VerifyOtp extends Component
             return;
         }
 
-        // ✅ Code is correct — show the password fields
+        //  Code is correct — show the password fields
         $this->codeVerified = true;
     }
 
@@ -79,17 +79,17 @@ class VerifyOtp extends Component
             return;
         }
 
-        // ✅ Update the password
+        //  Update the password
         $user->forceFill([
             'password' => Hash::make($this->password),
         ])->save();
 
-        // ✅ Mark the OTP as used
+        //  Mark the OTP as used
         DB::table('password_otps')
             ->where('id', $otp->id)
             ->update(['used_at' => Carbon::now()]);
 
-        // ✅ Redirect to login with a success message
+        //  Redirect to login with a success message
         session()->flash('status', 'Password reset successfully! You can now log in with your new password.');
         return redirect()->route('livewire.auth.login');
     }

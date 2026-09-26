@@ -38,7 +38,7 @@ class Products extends Component
     public $originalValues = [];
 
     /**
-     * ✅ Dynamic rules — the name rule depends on whether we're editing
+     *  Dynamic rules — the name rule depends on whether we're editing
      *    (must skip the current product) or creating a new one.
      */
     protected function rules()

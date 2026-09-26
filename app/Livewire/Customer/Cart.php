@@ -15,7 +15,7 @@ class Cart extends Component
     public $selectedItems = [];
     public $selectAll = false;
 
-    // ✅ Persistent stock warning
+    //  Persistent stock warning
     public $stockWarning = null;
 
     protected $listeners = ['cartUpdated' => 'loadCart'];
@@ -31,7 +31,7 @@ class Cart extends Component
             ->where('user_id', Auth::id())
             ->get();
 
-        // ✅ Auto-remove items that are out of stock at all branches
+        //  Auto-remove items that are out of stock at all branches
         $removed = [];
         foreach ($this->cartItems as $item) {
             if (!$item->product) continue;
@@ -58,11 +58,11 @@ class Cart extends Component
 
             $this->dispatch('cartUpdated');
 
-            // ✅ Persistent warning — stays until dismissed
+            //  Persistent warning — stays until dismissed
             $this->stockWarning = '⚠️ ' . count($removed) . ' item(s) removed because they are out of stock: ' . implode(', ', $removed);
         }
 
-        // ✅ REMOVED AUTO-SELECT - Items will NOT be selected by default
+        //  REMOVED AUTO-SELECT - Items will NOT be selected by default
 
         $this->calculateTotal();
     }
@@ -78,7 +78,7 @@ class Cart extends Component
             $product = $item->product;
             if (!$product) return 0;
 
-            // ✅ Use discounted price if available
+            //  Use discounted price if available
             $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
             return $price * $item->quantity;
         });
@@ -92,7 +92,7 @@ class Cart extends Component
                 $product = $item->product;
                 if (!$product) continue;
 
-                // ✅ Use discounted price if available
+                //  Use discounted price if available
                 $price = $product->isDiscounted() ? $product->getDiscountedPrice() : $product->price;
                 $total += $price * $item->quantity;
             }

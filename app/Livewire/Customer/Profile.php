@@ -3,9 +3,11 @@
 namespace App\Livewire\Customer;
 
 use App\Models\User;
+use App\Notifications\PasswordChangedNotification;
 use App\Rules\PersonName;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
@@ -78,7 +80,6 @@ class Profile extends Component
 
         $message = 'Profile updated successfully!';
 
-        // Handle profile picture removal
         if ($this->removeImage) {
             if ($this->user->profile_picture) {
                 Storage::disk('public')->delete($this->user->profile_picture);
@@ -89,7 +90,6 @@ class Profile extends Component
             $message = 'Profile picture removed successfully!';
         }
 
-        // Handle profile picture upload
         if ($this->new_profile_picture) {
             if ($this->user->profile_picture) {
                 Storage::disk('public')->delete($this->user->profile_picture);
@@ -144,6 +144,17 @@ class Profile extends Component
         $this->user->update([
             'password' => Hash::make($this->new_password),
         ]);
+
+        //  Send bell + email notification about the password change
+        try {
+            Notification::send($this->user, new PasswordChangedNotification(
+                now(),
+                request()->ip(),
+                request()->userAgent()
+            ));
+        } catch (\Throwable $e) {
+            \Log::warning('PasswordChangedNotification failed: ' . $e->getMessage());
+        }
 
         session()->flash('message', 'Password updated successfully!');
         $this->togglePasswordForm();

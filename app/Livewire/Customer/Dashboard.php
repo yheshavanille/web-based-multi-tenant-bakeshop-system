@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Customer;
 
+use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -9,6 +10,7 @@ use Livewire\Component;
 class Dashboard extends Component
 {
     public $featuredShops;
+    public $products = [];   // ✅ NEW
     public $user;
     public $search = '';
 
@@ -22,16 +24,37 @@ class Dashboard extends Component
 
     public function loadShops()
     {
+        // ✅ Shop search (existing, unchanged)
         $query = Shop::with('user')->latest();
 
-        // Apply search filter
+        // ✅ Product search (new)
+        $productQuery = Product::with(['shop', 'category', 'branches']);
+
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
+
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('shop_name', 'like', $searchTerm)
                     ->orWhere('address', 'like', $searchTerm)
                     ->orWhere('description', 'like', $searchTerm);
             });
+
+            // ✅ Product matches: name or description
+            $productQuery->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            })
+                ->whereHas('shop', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->whereHas('branches', function ($q) {
+                    $q->where('branch_product.stock', '>', 0)
+                        ->where('branches.is_active', true);
+                });
+
+            $this->products = $productQuery->limit(8)->get();
+        } else {
+            $this->products = collect();
         }
 
         $this->featuredShops = $query->limit(3)->get();
@@ -45,6 +68,7 @@ class Dashboard extends Component
     public function clearSearch()
     {
         $this->search = '';
+        $this->products = collect();
         $this->loadShops();
     }
 
@@ -55,9 +79,6 @@ class Dashboard extends Component
         $this->user->phone = $data['phone'];
     }
 
-    /**
-     * Check if user has an active shop (not soft-deleted)
-     */
     public function hasActiveShop()
     {
         return Shop::where('user_id', Auth::id())
@@ -65,21 +86,16 @@ class Dashboard extends Component
             ->exists();
     }
 
-    /**
-     * Check if user can apply as a seller
-     */
     public function canApplyAsSeller()
     {
         $hasOwnerRole = auth()->user()->hasRole('owner');
         $hasActiveShop = $this->hasActiveShop();
 
-        // If user has owner role but no active shop, remove the role
         if ($hasOwnerRole && !$hasActiveShop) {
             auth()->user()->removeRole('owner');
             return true;
         }
 
-        // Can apply if: no owner role OR (has owner role but no active shop)
         return !$hasOwnerRole || !$hasActiveShop;
     }
 

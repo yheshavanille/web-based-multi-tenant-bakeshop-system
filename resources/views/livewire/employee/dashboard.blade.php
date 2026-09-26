@@ -18,11 +18,10 @@
 
     @if($role === 'order_manager')
 
-    <!-- ✅ NEW: Recent Pending Orders -->
+    <!-- Recent Pending Orders -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-
                 <h2 class="text-lg font-semibold text-gray-800">Recent Pending Orders</h2>
                 <span class="text-sm text-gray-500">Last 5 pending orders</span>
             </div>
@@ -73,7 +72,7 @@
         @endif
     </div>
 
-    <!-- Existing Recent Orders section -->
+    <!-- Recent Orders -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-800">Recent Orders</h2>
@@ -124,7 +123,7 @@
     <!-- Products List -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">📦 Products</h2>
+            <h2 class="text-lg font-semibold text-gray-800">Products</h2>
         </div>
         @if($products->count() > 0)
         <div class="overflow-x-auto">
@@ -171,13 +170,12 @@
         @endif
     </div>
 
-    <!-- ✅ Recent Stock Updates - Inventory Manager Only -->
+    <!-- Recent Stock Updates -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <span class="text-xl">📋</span>
                 <h2 class="text-lg font-semibold text-gray-800">Recent Stock Updates</h2>
-                <span class="text-sm text-gray-500">Last 10 updates</span>
+                <span class="text-sm text-gray-500">Last 10 movements</span>
             </div>
             <a href="{{ route('livewire.employee.stock-history') }}"
                 class="text-sm text-amber-600 hover:text-amber-700 font-medium transition">
@@ -190,32 +188,79 @@
             <table class="w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Type</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Old</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">New</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Changed By</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Notes</th>
+                        <th class="px-4 py-3 text-right font-medium text-gray-700">Old</th>
+                        <th class="px-4 py-3 text-right font-medium text-gray-700">Change</th>
+                        <th class="px-4 py-3 text-right font-medium text-gray-700">After</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">Reason</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700">By</th>
                         <th class="px-4 py-3 text-left font-medium text-gray-700">Time</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
-                    @foreach($stockHistories as $history)
-                    <tr>
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ $history->branch->name }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ $history->old_stock }}</td>
+                    @foreach($stockHistories as $row)
+                    @php
+                    $typeLabels = [
+                    'stock_in' => ['label' => 'Stock In', 'color' => 'green'],
+                    'stock_out' => ['label' => 'Stock Out', 'color' => 'red'],
+                    'adjustment' => ['label' => 'Adjustment', 'color' => 'yellow'],
+                    'out' => ['label' => 'Customer Order', 'color' => 'blue'],
+                    'cancelled' => ['label' => 'Order Cancelled', 'color' => 'orange'],
+                    'no_show' => ['label' => 'Not Picked Up', 'color' => 'orange'],
+                    ];
+                    $info = $typeLabels[$row->type] ?? ['label' => ucfirst($row->type), 'color' => 'gray'];
+                    $badgeClasses = match ($info['color']) {
+                    'green' => 'bg-green-100 text-green-800',
+                    'red' => 'bg-red-100 text-red-800',
+                    'yellow' => 'bg-yellow-100 text-yellow-800',
+                    'blue' => 'bg-blue-100 text-blue-800',
+                    'orange' => 'bg-orange-100 text-orange-800',
+                    default => 'bg-gray-100 text-gray-800',
+                    };
+                    $qty = (int) $row->quantity;
+
+                    // Clean up order row reasons
+                    $reason = $row->notes ?? '';
+                    if ($row->kind === 'order') {
+                    if (preg_match('/Order #(ORD-[A-Z0-9]+)/', $reason, $m)) {
+                    $orderNo = $m[1];
+                    } else {
+                    $orderNo = null;
+                    }
+                    $reason = match ($row->type) {
+                    'out' => $orderNo ? "Customer order — {$orderNo}" : 'Customer order',
+                    'cancelled' => $orderNo ? "Order {$orderNo} was cancelled" : 'Order cancelled',
+                    'no_show' => $orderNo ? "Order {$orderNo} was not picked up" : 'Order not picked up',
+                    default => $reason,
+                    };
+                    }
+                    @endphp
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full
-                                {{ $history->new_stock > $history->old_stock ? 'bg-green-100 text-green-800' : '' }}
-                                {{ $history->new_stock < $history->old_stock ? 'bg-red-100 text-red-800' : '' }}
-                                {{ $history->new_stock == $history->old_stock ? 'bg-gray-100 text-gray-800' : '' }}">
-                                {{ $history->new_stock }}
+                            <span
+                                class="text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap {{ $badgeClasses }}">
+                                {{ $info['label'] }}
                             </span>
                         </td>
-                        <td class="px-4 py-3 text-gray-600">{{ $history->user->name }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ $history->notes ?? '-' }}</td>
-                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-3 font-medium text-gray-800">
+                            {{ $row->product->name ?? 'Deleted product' }}
+                        </td>
+                        <td class="px-4 py-3 text-right text-gray-500">{{ $row->old_stock }}</td>
+                        <td class="px-4 py-3 text-right font-semibold
+                            {{ $qty > 0 ? 'text-green-600' : ($qty < 0 ? 'text-red-600' : 'text-gray-500') }}">
+                            {{ $qty > 0 ? '+' : '' }}{{ $qty }}
+                        </td>
+                        <td class="px-4 py-3 text-right font-medium text-gray-800">{{ $row->new_stock }}</td>
+                        <td class="px-4 py-3 text-gray-500 max-w-xs truncate" title="{{ $reason }}">
+                            {{ $reason ?: '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-600 text-xs">
+                            {{ $row->user->name ?? 'System' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
+                            {{ $row->created_at->diffForHumans() }}
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -223,7 +268,7 @@
         </div>
         @else
         <div class="text-center py-8 text-gray-500">
-            <p>No stock updates yet.</p>
+            <p>No stock movements yet.</p>
         </div>
         @endif
     </div>

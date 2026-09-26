@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\ProductReview;
 use App\Models\ServiceReview;
 use App\Models\User;
+use App\Notifications\ReviewBanLiftedNotification;
 use App\Notifications\ReviewModerationKeptNotification;
 use App\Notifications\ReviewModerationRemovedNotification;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,7 @@ class FlaggedReviews extends Component
     public $activeTab = 'service';
     public $serviceReviews = [];
     public $productReviews = [];
+    public $bannedReviewers = [];
     public $search = '';
 
     public $showModerationModal = false;
@@ -39,6 +41,11 @@ class FlaggedReviews extends Component
         $this->productReviews = ProductReview::where('moderation_status', 'pending_review')
             ->with(['customer', 'shop', 'product', 'flaggedBy'])
             ->orderBy('flagged_at', 'desc')
+            ->get();
+
+        //  NEW: load banned reviewers
+        $this->bannedReviewers = User::whereNotNull('review_banned_at')
+            ->orderBy('review_banned_at', 'desc')
             ->get();
     }
 
@@ -84,9 +91,8 @@ class FlaggedReviews extends Component
         }
 
         $customer = $review->customer;
-        $owner = $review->flaggedBy; // the shop owner who flagged the review
+        $owner = $review->flaggedBy;
 
-        // ✅ Apply decision
         if ($action === 'keep') {
             $review->update([
                 'moderation_status' => 'kept',
@@ -95,7 +101,6 @@ class FlaggedReviews extends Component
                 'moderated_at' => now(),
             ]);
 
-            // ✅ Notify owner — flag was reviewed, review stays
             if ($owner) {
                 Notification::send(
                     $owner,
@@ -110,7 +115,6 @@ class FlaggedReviews extends Component
                 'moderated_at' => now(),
             ]);
 
-            // ✅ Notify owner + customer
             $recipients = collect();
             if ($owner) $recipients->push($owner);
             if ($customer) $recipients->push($customer);
@@ -122,7 +126,6 @@ class FlaggedReviews extends Component
                 );
             }
         } elseif ($action === 'ban') {
-            // Remove the review
             $review->update([
                 'moderation_status' => 'removed',
                 'moderated_by' => Auth::id(),
@@ -130,7 +133,6 @@ class FlaggedReviews extends Component
                 'moderated_at' => now(),
             ]);
 
-            // Ban the customer
             if ($customer) {
                 $customer->update([
                     'review_banned_at' => now(),
@@ -138,7 +140,6 @@ class FlaggedReviews extends Component
                 ]);
             }
 
-            // ✅ Notify owner + customer (with banned flag)
             $recipients = collect();
             if ($owner) $recipients->push($owner);
             if ($customer) $recipients->push($customer);
@@ -159,6 +160,33 @@ class FlaggedReviews extends Component
             'remove' => 'Review removed. The owner and customer have been notified.',
             'ban' => 'Review removed and the customer has been banned. Both parties have been notified.',
         });
+    }
+
+    //  NEW: unban a reviewer
+    public function unbanReviewer(int $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        if (!$user->isReviewBanned()) {
+            session()->flash('message', 'This user is not currently banned.');
+            $this->loadFlagged();
+            return;
+        }
+
+        $user->update([
+            'review_banned_at' => null,
+            'review_ban_reason' => null,
+        ]);
+
+        //  Notify the user (bell + email)
+        try {
+            Notification::send($user, new ReviewBanLiftedNotification());
+        } catch (\Throwable $e) {
+            \Log::warning('ReviewBanLiftedNotification failed: ' . $e->getMessage());
+        }
+
+        $this->loadFlagged();
+        session()->flash('message', $user->name . ' has been unbanned and can now leave reviews again.');
     }
 
     public function render()

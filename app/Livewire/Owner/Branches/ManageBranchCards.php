@@ -16,7 +16,7 @@ class ManageBranchCards extends Component
     public $branches = [];
     public $search = '';
 
-    // ✅ Soft delete toggle
+    //  Soft delete toggle
     public $showDeleted = false;
 
     // Modal properties
@@ -40,14 +40,14 @@ class ManageBranchCards extends Component
         $this->loadBranches();
     }
 
-    // ✅ Toggle between active and deleted branches
+    //  Toggle between active and deleted branches
     public function toggleDeleted()
     {
         $this->showDeleted = !$this->showDeleted;
         $this->loadBranches();
     }
 
-    // ✅ Soft delete a branch
+    //  Soft delete a branch
     public function delete($branchId)
     {
         $branch = Branch::findOrFail($branchId);
@@ -59,7 +59,7 @@ class ManageBranchCards extends Component
         session()->flash('message', '🗑️ Branch "' . $branchName . '" moved to deleted records.');
     }
 
-    // ✅ Restore a soft-deleted branch
+    //  Restore a soft-deleted branch
     public function restore($branchId)
     {
         $branch = Branch::withTrashed()->findOrFail($branchId);
@@ -189,14 +189,14 @@ class ManageBranchCards extends Component
             ->limit(5)
             ->get()
             ->map(function ($order) {
-                // ✅ Calculate adjusted total (exclude cancelled items)
+                //  Calculate adjusted total (exclude cancelled items)
                 $adjustedTotal = $order->items
                     ->where('status', '!=', 'cancelled')
                     ->sum(function ($item) {
                         return $item->price * $item->quantity;
                     });
 
-                // ✅ Calculate adjusted tax and grand total
+                //  Calculate adjusted tax and grand total
                 $adjustedTax = round($adjustedTotal * 0.12, 2);
                 $adjustedGrandTotal = $adjustedTotal + $adjustedTax;
 

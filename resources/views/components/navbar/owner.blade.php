@@ -4,7 +4,6 @@
             <!-- Logo -->
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.owner.dashboard') }}" class="flex items-center gap-2">
-
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                     <span
                         class="ml-2 text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
@@ -15,7 +14,6 @@
 
             <!-- Right Side - Notification Bell + Profile Dropdown -->
             <div class="flex items-center gap-3">
-                <!-- ✅ NOTIFICATION BELL -->
                 @livewire('components.notification-bell', ['context' => 'owner'])
 
                 <div class="relative" x-data="{ open: false }">
@@ -46,6 +44,7 @@
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                         class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
 
+                        {{-- Profile Header --}}
                         <div class="px-4 py-3 border-b border-gray-100">
                             <div class="flex items-center gap-3">
                                 @if($profilePic)
@@ -60,101 +59,134 @@
                                 <div>
                                     <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
                                     <p class="text-xs text-gray-500">{{ $user->email }}</p>
-                                    <p class="text-xs text-gray-400"> Shop Owner</p>
+                                    <p class="text-xs text-gray-400">Shop Owner</p>
                                 </div>
                             </div>
                         </div>
 
+                        {{-- ============ OVERVIEW ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Overview
+                        </p>
+
                         <a href="{{ route('livewire.owner.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Dashboard
+                            Dashboard
                         </a>
+
+                        {{-- ============ CATALOG ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Catalog
+                        </p>
+
                         <a href="{{ route('livewire.owner.products.view-product') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Products
+                            Products
                         </a>
                         <a href="{{ route('livewire.owner.category.view-category') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Categories
+                            Categories
                         </a>
+
+                        {{-- ============ BRANCHES ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Branches
+                        </p>
 
                         <a href="{{ route('livewire.owner.branches.manage-cards') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> View Branches
+                            View Branches
                         </a>
                         <a href="{{ route('livewire.owner.branches.manage-branches') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-sm"></span> Branch Lists
+                            Branch Lists
                         </a>
 
-                        {{-- ✅ NEW: Shop-wide All Orders page --}}
+                        {{-- ============ ORDERS ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Orders
+                        </p>
+
                         <a href="{{ route('livewire.owner.orders') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> All Orders
+                            All Orders
                         </a>
 
-                        {{-- Branch-scoped orders (existing) --}}
                         @php
                         $firstBranch = auth()->user()->shop?->branches->first();
                         @endphp
                         @if($firstBranch)
                         <a href="{{ route('livewire.owner.branches.branch-orders', ['branchId' => $firstBranch->id]) }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Order & Transaction History
+                            Order & Transaction History
                         </a>
                         @endif
 
-                        <a href="{{ route('livewire.owner.employees.manage') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Employees
-                        </a>
+                        {{-- ============ SALES & REPORTS ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Sales & Reports
+                        </p>
 
                         <a href="{{ route('livewire.owner.sales-report') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Sales Report
+                            Sales Report
                         </a>
-                        <a href="{{ route('livewire.owner.shop.edit-shop') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Shop Settings
-                        </a>
-
-                        <!-- ✅ REVIEWS & RATINGS HISTORY -->
                         <a href="{{ route('livewire.owner.reviews-history') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Reviews & Ratings History
-                        </a>
-                        <!-- ✅ PRODUCT EDIT HISTORY -->
-                        <a href="{{ route('livewire.owner.product-history') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Product Update & Edit History
+                            Reviews & Ratings History
                         </a>
 
-                        <!-- ✅ STOCK UPDATE HISTORY -->
-                        <a href="{{ route('livewire.owner.stock-history') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Stock Update History
-                        </a>
+                        {{-- ============ TEAM ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Team
+                        </p>
 
-                        <!-- ✅ EMPLOYEE ACTIVITIES -->
+                        <a href="{{ route('livewire.owner.employees.manage') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            Employees
+                        </a>
                         <a href="{{ route('livewire.owner.employee-activities') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Employee Activities
+                            Employee Activities
                         </a>
 
-                        <div class="border-t border-gray-100 my-1"></div>
+                        {{-- ============ HISTORY & AUDIT ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            History & Audit
+                        </p>
 
+                        <a href="{{ route('livewire.owner.product-history') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            Product Update & Edit History
+                        </a>
+                        <a href="{{ route('livewire.owner.stock-history') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            Stock Update History
+                        </a>
+
+                        {{-- ============ ACCOUNT ============ --}}
+                        <div class="border-t border-gray-100 my-2"></div>
+
+                        <p class="px-4 pt-1 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Account
+                        </p>
+
+                        <a href="{{ route('livewire.owner.shop.edit-shop') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            Shop Settings
+                        </a>
                         <a href="{{ route('livewire.customer.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Customer View
+                            Customer View
                         </a>
 
-                        <div class="border-t border-gray-100 my-1"></div>
+                        <div class="border-t border-gray-100 my-2"></div>
 
                         <form method="POST" action="{{ route('logout.post') }}" class="block">
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg"></span> Logout
+                                Logout
                             </button>
                         </form>
                     </div>

@@ -22,11 +22,11 @@ class ManageUsers extends Component
     public $search = '';
     public $activeTab = 'active';
 
-    // ✅ User Details Modal
+    //  User Details Modal
     public $showUserModal = false;
     public $selectedUser = null;
 
-    // ✅ NEW: Suspend / Archive reason modals
+    //  NEW: Suspend / Archive reason modals
     public $showSuspendModal = false;
     public $showArchiveModal = false;
     public $actionUserId = null;
@@ -129,7 +129,7 @@ class ManageUsers extends Component
         $this->selectedUser = null;
     }
 
-    // ✅ NEW: Open the suspend reason modal
+    //  NEW: Open the suspend reason modal
     public function openSuspendModal($userId)
     {
         $user = User::findOrFail($userId);
@@ -155,7 +155,7 @@ class ManageUsers extends Component
         $this->resetErrorBag();
     }
 
-    // ✅ NEW: Open the archive reason modal
+    //  NEW: Open the archive reason modal
     public function openArchiveModal($userId)
     {
         $user = User::findOrFail($userId);
@@ -181,7 +181,7 @@ class ManageUsers extends Component
         $this->resetErrorBag();
     }
 
-    // ✅ NEW: Confirm suspend with reason
+    //  NEW: Confirm suspend with reason
     public function confirmSuspend()
     {
         $this->validate([
@@ -200,7 +200,7 @@ class ManageUsers extends Component
             return;
         }
 
-        // ✅ Suspend the user
+        //  Suspend the user
         $user->is_active = false;
         $user->save();
 
@@ -210,7 +210,7 @@ class ManageUsers extends Component
             $user->employee->save();
         }
 
-        // ✅ Send notification with reason
+        //  Send notification with reason
         Notification::send($user, new UserSuspendedNotification($user, $this->actionReason, Auth::user()->name));
 
         $userName = $user->name;
@@ -219,7 +219,7 @@ class ManageUsers extends Component
         session()->flash('message', "User \"{$userName}\" suspended successfully. They have been notified with the reason.");
     }
 
-    // ✅ NEW: Confirm archive with reason
+    //  NEW: Confirm archive with reason
     public function confirmArchive()
     {
         $this->validate([
@@ -238,16 +238,16 @@ class ManageUsers extends Component
             return;
         }
 
-        // ✅ Send notification BEFORE deleting
+        //  Send notification BEFORE deleting
         Notification::send($user, new UserArchivedNotification($user, $this->actionReason, Auth::user()->name));
 
-        // ✅ Soft-delete the employee record (if any)
+        //  Soft-delete the employee record (if any)
         $employee = Employee::where('user_id', $user->id)->first();
         if ($employee) {
             $employee->delete();
         }
 
-        // ✅ Soft-delete the user
+        //  Soft-delete the user
         $user->delete();
 
         $userName = $user->name;
@@ -256,7 +256,7 @@ class ManageUsers extends Component
         session()->flash('message', "User \"{$userName}\" archived successfully. They have been notified with the reason.");
     }
 
-    // ✅ Restore user + notify them
+    //  Restore user + notify them
     public function restoreUser($userId)
     {
         $user = User::withTrashed()->findOrFail($userId);
@@ -273,7 +273,7 @@ class ManageUsers extends Component
             ]);
         }
 
-        // ✅ Notify user
+        //  Notify user
         Notification::send($user, new UserRestoredNotification($user));
 
         session()->flash('message', 'User record restored successfully. They have been notified.');
@@ -308,7 +308,7 @@ class ManageUsers extends Component
         session()->flash('message', 'User permanently deleted. Record saved to log.');
     }
 
-    // ✅ REMOVED: direct toggleUserStatus (replaced by modal-driven suspend/activate)
+    //  REMOVED: direct toggleUserStatus (replaced by modal-driven suspend/activate)
     // But keep an "activate" shortcut for suspended users
     public function activateUser($userId)
     {
@@ -328,7 +328,7 @@ class ManageUsers extends Component
             $user->employee->save();
         }
 
-        // ✅ Notify user
+        //  Notify user
         Notification::send($user, new UserRestoredNotification($user));
 
         session()->flash('message', 'User activated successfully. They have been notified.');

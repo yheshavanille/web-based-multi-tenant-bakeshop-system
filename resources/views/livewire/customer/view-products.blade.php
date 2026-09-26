@@ -165,7 +165,7 @@
                         @endif
                     </div>
                     <div class="mt-3 flex items-center gap-3 text-sm text-gray-500">
-                        <span>📦 {{ $branch->products()->wherePivot('stock', '>', 0)->count() }} products</span>
+                        <span> {{ $branch->products()->wherePivot('stock', '>', 0)->count() }} products</span>
                     </div>
                     @if($selectedBranchId == $branch->id)
                     <div class="mt-2 text-xs text-amber-600">Viewing this branch</div>

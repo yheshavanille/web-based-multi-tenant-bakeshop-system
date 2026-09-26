@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-gray-900">My Profile</h1>
             <span
                 class="text-xs font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                👑 Super Admin
+                Super Admin
             </span>
         </div>
 
@@ -70,7 +70,7 @@
                         @enderror
                         @if($new_profile_picture && !$errors->has('new_profile_picture'))
                         <p class="mt-1 text-xs text-green-600">✓ New photo selected</p>
-                        <p class="mt-0.5 text-xs text-amber-600">⚠️ Click "Update Profile" to save permanently</p>
+                        <p class="mt-0.5 text-xs text-amber-600">Click "Update Profile" to save permanently</p>
                         @endif
                         @if($uploadSuccess)
                         <p class="mt-1 text-xs text-green-600">✓ Profile picture updated successfully!</p>

@@ -63,7 +63,7 @@
                         @enderror
                         @if($new_profile_picture && !$errors->has('new_profile_picture'))
                         <p class="mt-1 text-xs text-green-600">✓ New photo selected</p>
-                        <p class="mt-0.5 text-xs text-amber-600">⚠️ Click "Update Profile" to save permanently</p>
+                        <p class="mt-0.5 text-xs text-amber-600">Click "Update Profile" to save permanently</p>
                         @endif
                         @if($uploadSuccess)
                         <p class="mt-1 text-xs text-green-600">✓ Profile picture updated successfully!</p>

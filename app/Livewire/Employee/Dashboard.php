@@ -5,7 +5,8 @@ namespace App\Livewire\Employee;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\StockHistory;
+use App\Models\InventoryHistory;
+use App\Models\OrderHistory;
 use App\Notifications\LowStockNotification;
 use App\Notifications\OutOfStockNotification;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,6 @@ class Dashboard extends Component
     public $role;
     public $orders = [];
 
-    // ✅ NEW: Recent Pending Orders (last 5)
     public $recentPendingOrders = [];
 
     public $products = [];
@@ -57,16 +57,18 @@ class Dashboard extends Component
     public function loadOrderData()
     {
         $this->orders = Order::where('branch_id', $this->branch->id)
+            ->where(function ($q) {
+                $q->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
             ->with(['customer', 'items.product'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
-        // ✅ NEW: Load recent pending orders
         $this->loadRecentPendingOrders();
     }
 
-    // ✅ NEW: Recent Pending Orders for this branch
     public function loadRecentPendingOrders()
     {
         $this->recentPendingOrders = Order::where('branch_id', $this->branch->id)
@@ -83,7 +85,6 @@ class Dashboard extends Component
                 $itemCount = $order->items->count();
                 $pendingCount = $order->items->where('status', 'pending')->count();
 
-                // ✅ Total with VAT (matches other pages)
                 $adjustedSubtotal = $order->items
                     ->where('status', '!=', 'cancelled')
                     ->sum(function ($item) {
@@ -158,13 +159,53 @@ class Dashboard extends Component
         })->sortByDesc('orders_last_7_days');
     }
 
+    // ✅ UPDATED: Load BOTH manual + order movements for the branch
     public function loadStockHistories()
     {
-        $this->stockHistories = StockHistory::where('branch_id', $this->branch->id)
+        // Manual movements
+        $inventory = InventoryHistory::where('branch_id', $this->branch->id)
             ->with(['product', 'user', 'branch'])
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($row) {
+                return (object) [
+                    'kind' => 'inventory',
+                    'type' => $row->type,
+                    'product' => $row->product,
+                    'branch' => $row->branch,
+                    'user' => $row->user,
+                    'quantity' => $row->quantity,
+                    'old_stock' => $row->old_stock,
+                    'new_stock' => $row->new_stock,
+                    'notes' => $row->notes,
+                    'created_at' => $row->created_at,
+                ];
+            });
+
+        // Order movements
+        $orders = OrderHistory::where('branch_id', $this->branch->id)
+            ->with(['product', 'user', 'branch'])
+            ->get()
+            ->map(function ($row) {
+                return (object) [
+                    'kind' => 'order',
+                    'type' => $row->status, // out | cancelled | no_show
+                    'product' => $row->product,
+                    'branch' => $row->branch,
+                    'user' => $row->user,
+                    'quantity' => $row->quantity,
+                    'old_stock' => $row->old_stock,
+                    'new_stock' => $row->new_stock,
+                    'notes' => $row->notes,
+                    'created_at' => $row->created_at,
+                ];
+            });
+
+        // Merge, newest first, limit 10 for the dashboard widget
+        $this->stockHistories = $inventory
+            ->concat($orders)
+            ->sortByDesc('created_at')
+            ->take(10)
+            ->values();
     }
 
     public function checkAndSendStockNotifications()

@@ -28,6 +28,10 @@
                 class="px-4 py-2 text-sm font-medium {{ $activeTab === 'product' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
                 Product Reviews ({{ $productReviews->count() }})
             </button>
+            <button wire:click="setTab('banned')"
+                class="px-4 py-2 text-sm font-medium {{ $activeTab === 'banned' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
+                Banned Reviewers ({{ $bannedReviewers->count() }})
+            </button>
         </div>
 
         @if($activeTab === 'service')
@@ -84,7 +88,6 @@
             </div>
             @empty
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center text-gray-500">
-
                 <p>No flagged service reviews.</p>
             </div>
             @endforelse
@@ -140,15 +143,67 @@
             </div>
             @empty
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center text-gray-500">
-
                 <p>No flagged product reviews.</p>
+            </div>
+            @endforelse
+        </div>
+        @endif
+
+        {{-- ✅ NEW: Banned Reviewers Tab --}}
+        @if($activeTab === 'banned')
+        <div class="space-y-4">
+            @forelse($bannedReviewers as $user)
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 flex-wrap mb-3">
+                            <span class="text-xs bg-red-100 text-red-800 font-medium px-2.5 py-1 rounded-full">🚫
+                                Banned from reviewing</span>
+                            <span class="text-xs text-gray-400">· banned {{ $user->review_banned_at?->diffForHumans()
+                                }}</span>
+                        </div>
+
+                        <p class="text-sm text-gray-800">
+                            <span class="font-semibold">Name:</span> {{ $user->name }}
+                        </p>
+                        <p class="text-sm text-gray-800 mt-1">
+                            <span class="font-semibold">Email:</span> {{ $user->email }}
+                        </p>
+                        @if($user->phone)
+                        <p class="text-sm text-gray-800 mt-1">
+                            <span class="font-semibold">Phone:</span> {{ $user->phone }}
+                        </p>
+                        @endif
+                        <p class="text-sm text-gray-800 mt-1">
+                            <span class="font-semibold">Banned on:</span>
+                            {{ $user->review_banned_at?->format('M d, Y h:i A') }}
+                        </p>
+
+                        @if($user->review_ban_reason)
+                        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-xs font-semibold text-red-800">Ban reason:</p>
+                            <p class="text-xs text-gray-700 mt-1 italic">"{{ $user->review_ban_reason }}"</p>
+                        </div>
+                        @endif
+                    </div>
+
+                    <button wire:click="unbanReviewer({{ $user->id }})" wire:loading.attr="disabled"
+                        onclick="confirm('Unban {{ $user->name }}? They will be able to leave reviews again.') || event.stopImmediatePropagation()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium flex-shrink-0 disabled:opacity-60">
+                        Unban
+                    </button>
+                </div>
+            </div>
+            @empty
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center text-gray-500">
+                <p>No banned reviewers. Everyone is welcome to leave reviews.</p>
             </div>
             @endforelse
         </div>
         @endif
     </div>
 
-    <!-- Moderation Modal -->
+    <!-- Moderation Modal (unchanged) -->
     @if($showModerationModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeModerationModal"></div>

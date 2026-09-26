@@ -41,16 +41,17 @@
             <!-- LEFT: Introduction -->
             <div class="login-responsive-introduction col-start-1 row-start-1 flex flex-col justify-center"
                 style="min-height: 26rem;">
-                <h1 class="text-4xl text-gray-900 font-bold leading-tight md:text-5xl"> Welcome to Web-based
+                <h1 class="text-2xl text-gray-900 font-bold leading-tight md:text-3xl lg:text-4xl"> Welcome to
+                    Web-based
                     Multi-tenant Bakeshop
                     with Service Quality Reviews, Ratings, Sales Analytics, and E-payment Services </h1>
-                <p class="mt-5 text-base text-gray-600 leading-relaxed max-w-xl md:text-lg">
+                <p class="mt-4 text-sm text-gray-600 leading-relaxed max-w-xl md:text-base">
                     Your all-in-one bakeshop management solution. Handle orders, track inventory, manage employees, and
                     gain real-time sales insights - all from a single platform. Built to help bakeshops in Victorias
                     City
                     grow and serve customers better.
                 </p>
-                <ul class="mt-6 space-y-3 text-sm text-gray-700 md:text-base">
+                <ul class="mt-4 space-y-2 text-xs text-gray-700 md:text-sm">
                     <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> All-in-one solution
                     </li>
                     <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Orders, inventory,

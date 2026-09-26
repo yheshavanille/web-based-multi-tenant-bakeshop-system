@@ -104,7 +104,7 @@ class Login extends Component
             return;
         }
 
-        // ✅ NEW: Record the last login timestamp
+        //  NEW: Record the last login timestamp
         $user->update(['last_login_at' => now()]);
 
         if (session()->has('redirect_after_login')) {

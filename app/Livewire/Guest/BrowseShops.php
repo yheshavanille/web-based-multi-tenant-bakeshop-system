@@ -14,6 +14,7 @@ class BrowseShops extends Component
     public $search = '';
     public $shops = [];
     public $categories = [];
+    public $products = [];   // ✅ NEW
 
     // Store products per shop separately
     public $shopProducts = [];
@@ -33,14 +34,35 @@ class BrowseShops extends Component
     {
         $query = Shop::with(['branches', 'user']);
 
+        // ✅ Product search query (new)
+        $productQuery = Product::with(['shop', 'category', 'branches']);
+
         // Apply search filter
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
+
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('shop_name', 'like', $searchTerm)
                     ->orWhere('address', 'like', $searchTerm)
                     ->orWhere('description', 'like', $searchTerm);
             });
+
+            // ✅ Product matches: name or description
+            $productQuery->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            })
+                ->whereHas('shop', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->whereHas('branches', function ($q) {
+                    $q->where('branch_product.stock', '>', 0)
+                        ->where('branches.is_active', true);
+                });
+
+            $this->products = $productQuery->limit(8)->get();
+        } else {
+            $this->products = collect();
         }
 
         $this->shops = $query->get();
@@ -58,7 +80,7 @@ class BrowseShops extends Component
             return;
         }
 
-        // ✅ Simple query - show ALL products with stock
+        // Simple query - show ALL products with stock
         $products = Product::where('shop_id', $shopId)
             ->whereHas('branches', function ($q) {
                 $q->where('stock', '>', 0);
@@ -85,6 +107,7 @@ class BrowseShops extends Component
     public function clearSearch()
     {
         $this->search = '';
+        $this->products = collect();
         $this->loadShops();
     }
 

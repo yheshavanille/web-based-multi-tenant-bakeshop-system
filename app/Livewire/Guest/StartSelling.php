@@ -25,7 +25,7 @@ class StartSelling extends Component
 
     public function mount()
     {
-        // ✅ Only check if user is logged in, don't redirect
+        //  Only check if user is logged in, don't redirect
         if (Auth::check()) {
             $this->hasPendingApplication = SellerRegistration::where('user_id', Auth::id())
                 ->where('status', 'pending')
@@ -38,7 +38,7 @@ class StartSelling extends Component
 
     public function submitApplication()
     {
-        // ✅ Check if user is logged in before submitting
+        //  Check if user is logged in before submitting
         if (!Auth::check()) {
             session()->flash('error', 'Please login first.');
             return redirect()->route('livewire.auth.login', ['start_selling' => 'true']);

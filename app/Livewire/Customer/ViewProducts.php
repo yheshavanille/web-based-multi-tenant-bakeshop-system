@@ -86,7 +86,7 @@ class ViewProducts extends Component
                     ->where('stock', '>', 0);
             })
             ->with(['category', 'branches'])
-            // ✅ NEW: only average reviews that are visible/kept
+            //  NEW: only average reviews that are visible/kept
             ->withAvg(['productReviews' => function ($q) {
                 $q->whereIn('moderation_status', ['visible', 'kept']);
             }], 'rating');
@@ -215,7 +215,7 @@ class ViewProducts extends Component
     public function openReviewModal($productId)
     {
         $this->selectedProduct = Product::with([
-            // ✅ NEW: only load reviews that are visible/kept
+            //  NEW: only load reviews that are visible/kept
             'productReviews' => function ($query) {
                 $query->whereIn('moderation_status', ['visible', 'kept'])
                     ->with('customer')
@@ -241,7 +241,7 @@ class ViewProducts extends Component
 
     public function getShopRating()
     {
-        // ✅ NEW: only count visible/kept reviews
+        //  NEW: only count visible/kept reviews
         return ServiceReview::where('shop_id', $this->shopId)
             ->whereIn('moderation_status', ['visible', 'kept'])
             ->avg('rating') ?? 0;

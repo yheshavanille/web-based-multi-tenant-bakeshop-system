@@ -4,14 +4,13 @@
             <!-- Logo -->
             <div class="flex items-center gap-4">
                 <a href="{{ route('livewire.customer.dashboard') }}" class="flex items-center gap-2">
-                    <span class="text-2xl"></span>
                     <span class="text-xl font-bold text-gray-900">Web-based Multi-Tenant Bakeshop System</span>
                 </a>
             </div>
 
             <!-- Right Side - Cart + Notification Bell + Profile Dropdown -->
             <div class="flex items-center gap-3">
-                <!-- ✅ CART ICON (moved here, before the notification bell) -->
+                <!-- CART ICON -->
                 <a href="{{ route('livewire.customer.cart') }}"
                     class="relative p-2 text-gray-600 hover:text-amber-600 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,7 +29,7 @@
                     @endif
                 </a>
 
-                <!-- ✅ NOTIFICATION BELL -->
+                <!-- NOTIFICATION BELL -->
                 @livewire('components.notification-bell', ['context' => 'customer'])
 
                 <div class="relative" x-data="{ open: false }">
@@ -59,8 +58,9 @@
 
                     <div x-show="open" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
 
+                        {{-- Profile Header --}}
                         <div class="px-4 py-3 border-b border-gray-100">
                             <div class="flex items-center gap-3">
                                 @if($profilePic)
@@ -80,38 +80,55 @@
                             </div>
                         </div>
 
+                        {{-- ============ SHOPPING ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Shopping
+                        </p>
+
                         <a href="{{ route('livewire.customer.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Dashboard
+                            Dashboard
                         </a>
                         <a href="{{ route('livewire.customer.browse-shops') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> Browse Shops
+                            Browse Shops
                         </a>
                         <a href="{{ route('livewire.customer.orders') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> My Orders & Transaction History
-                        </a>
-                        <a href="{{ route('livewire.customer.profile') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> My Profile
+                            My Orders & Transaction History
                         </a>
 
+                        {{-- ============ ACCOUNT ============ --}}
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Account
+                        </p>
+
+                        <a href="{{ route('livewire.customer.profile') }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            My Profile
+                        </a>
+
+                        {{-- ============ SELL (only if already an owner) ============ --}}
                         @if(auth()->user()->hasRole('owner') && auth()->user()->shop &&
                         !auth()->user()->shop->trashed())
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Sell
+                        </p>
+
                         <a href="{{ route('livewire.owner.dashboard') }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                            <span class="text-lg"></span> My Shop Dashboard
+                            My Shop Dashboard
                         </a>
                         @endif
 
-                        <div class="border-t border-gray-100 my-1"></div>
+                        {{-- ============ LOGOUT ============ --}}
+                        <div class="border-t border-gray-100 my-2"></div>
 
                         <form method="POST" action="{{ route('logout.post') }}" class="block">
                             @csrf
                             <button type="submit"
                                 class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                <span class="text-lg"></span> Logout
+                                Logout
                             </button>
                         </form>
                     </div>

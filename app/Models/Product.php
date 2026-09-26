@@ -68,7 +68,19 @@ class Product extends Model
         return $this->hasMany(ProductReview::class);
     }
 
-    // ✅ DISCOUNT METHODS
+    // Stock movement log — manual adjustments by owner/employees
+    public function inventoryHistories()
+    {
+        return $this->hasMany(InventoryHistory::class);
+    }
+
+    // Stock movement log — order-driven changes
+    public function orderHistories()
+    {
+        return $this->hasMany(OrderHistory::class);
+    }
+
+    // DISCOUNT METHODS
     public function isDiscounted()
     {
         if ($this->discount_type === 'none' || $this->discount_value <= 0) {

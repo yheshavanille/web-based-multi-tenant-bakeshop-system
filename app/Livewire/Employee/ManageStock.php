@@ -3,7 +3,7 @@
 namespace App\Livewire\Employee;
 
 use App\Models\Product;
-use App\Models\StockHistory;
+use App\Models\InventoryHistory;
 use App\Models\ProductEditHistory;
 use App\Models\Employee;
 use App\Notifications\LowStockNotification;
@@ -15,7 +15,7 @@ use Livewire\Component;
 class ManageStock extends Component
 {
     public $products = [];
-    public $stockUpdates = [];
+    public $stockUpdates = [];    // ✅ now holds DELTAS (user enters +2 / -3)
     public $notes = [];
     public $branch;
     public $shop;
@@ -54,8 +54,8 @@ class ManageStock extends Component
         $this->products = $query->get();
 
         foreach ($this->products as $product) {
-            $stock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
-            $this->stockUpdates[$product->id] = $stock;
+            // ✅ Start empty — user enters the delta
+            $this->stockUpdates[$product->id] = '';
 
             if (!isset($this->notes[$product->id])) {
                 $this->notes[$product->id] = '';
@@ -67,19 +67,15 @@ class ManageStock extends Component
     {
         $this->loadProducts();
     }
-
     public function clearSearch()
     {
         $this->search = '';
         $this->loadProducts();
     }
 
-    // ✅ Notify inventory managers + owner about low/out-of-stock
     private function notifyLowOrOutOfStock(Product $product, int $newStock): void
     {
-        // Low stock threshold
         $threshold = 5;
-
         $isOutOfStock = $newStock <= 0;
         $isLowStock = $newStock > 0 && $newStock <= $threshold;
 
@@ -87,7 +83,6 @@ class ManageStock extends Component
             return;
         }
 
-        // Recipients: inventory managers of this shop + owner
         $inventoryManagers = Employee::where('shop_id', $this->shop->id)
             ->where('role', 'inventory_manager')
             ->where('is_active', true)
@@ -103,12 +98,8 @@ class ManageStock extends Component
             $recipients = $recipients->push($owner);
         }
 
-        // Deduplicate (in case owner is somehow also an inventory manager)
         $recipients = $recipients->unique('id');
-
-        if ($recipients->count() === 0) {
-            return;
-        }
+        if ($recipients->count() === 0) return;
 
         if ($isOutOfStock) {
             Notification::send($recipients, new OutOfStockNotification($product, $this->branch));
@@ -120,25 +111,43 @@ class ManageStock extends Component
     public function updateStock($productId)
     {
         $product = Product::findOrFail($productId);
-        $newStock = $this->stockUpdates[$productId] ?? 0;
+        $deltaRaw = $this->stockUpdates[$productId] ?? '';
         $note = $this->notes[$productId] ?? '';
         $productName = $product->name;
 
-        if ($newStock < 0) {
-            session()->flash('error', 'Stock cannot be negative.');
+        // ✅ Parse delta — allow "", "+2", "2", "-3"
+        $delta = ($deltaRaw === '' || $deltaRaw === null) ? 0 : (int) $deltaRaw;
+
+        if ($delta === 0) {
+            session()->flash('error', 'No change made to stock.');
             return;
         }
 
-        $oldStock = $product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0;
+        if (trim($note) === '') {
+            session()->flash('error', 'Please provide a reason for changing the stock.');
+            return;
+        }
+
+        $oldStock = (int) ($product->branches->firstWhere('id', $this->branch->id)?->pivot->stock ?? 0);
+        $newStock = $oldStock + $delta;
+
+        if ($newStock < 0) {
+            session()->flash('error', 'Stock cannot go below 0. Current stock: ' . $oldStock);
+            return;
+        }
+
+        $type = $delta > 0 ? 'stock_in' : 'stock_out';
 
         $product->branches()->syncWithoutDetaching([
             $this->branch->id => ['stock' => $newStock]
         ]);
 
-        StockHistory::create([
+        InventoryHistory::create([
             'product_id' => $product->id,
-            'user_id' => Auth::id(),
             'branch_id' => $this->branch->id,
+            'user_id' => Auth::id(),
+            'type' => $type,
+            'quantity' => $delta,
             'old_stock' => $oldStock,
             'new_stock' => $newStock,
             'notes' => $note,
@@ -152,14 +161,13 @@ class ManageStock extends Component
             'new_value' => (string) $newStock,
         ]);
 
-        // ✅ NEW: Notify inventory managers + owner if stock is low or out
         $this->notifyLowOrOutOfStock($product, $newStock);
 
         $this->notes[$productId] = '';
 
         $this->loadProducts();
 
-        session()->flash('message', "✅ Stock updated for {$productName}!");
+        session()->flash('message', "Stock updated for {$productName}!");
     }
 
     public function render()

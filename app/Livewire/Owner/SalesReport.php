@@ -30,6 +30,7 @@ class SalesReport extends Component
     public array $bestSellers = [];
     public array $dailyTrend = [];
     public string $trendGrouping = 'day';
+    public array $chartData = ['labels' => [], 'revenue' => [], 'orders' => []];
 
     public function mount()
     {
@@ -230,9 +231,15 @@ class SalesReport extends Component
                 'revenue' => (float) $row->revenue,
             ];
         })->toArray();
-    }
 
-    // ✅ UPDATED: dynamic label based on period + month
+        //  NEW: also expose a compact array for the chart
+        $this->chartData = [
+            'labels' => array_column($this->dailyTrend, 'label'),
+            'revenue' => array_column($this->dailyTrend, 'revenue'),
+            'orders' => array_column($this->dailyTrend, 'orders'),
+        ];
+    }
+    //  UPDATED: dynamic label based on period + month
     public function getPeriodLabelProperty(): string
     {
         return match ($this->period) {

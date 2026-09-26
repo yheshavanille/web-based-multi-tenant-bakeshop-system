@@ -1,4 +1,46 @@
-<div>
+<div x-data="productScroller()" x-init="init()">
+    {{-- ✅ Auto-scroll to the product if URL has #product-{id} --}}
+    <script>
+        function productScroller() {
+            return {
+                init() {
+                    const scrollToHash = (attempt = 0) => {
+                        const hash = window.location.hash;
+                        if (!hash || !hash.startsWith('#product-')) return;
+
+                        const el = document.querySelector(hash);
+
+                        // If the element isn't rendered yet, retry a few times (max ~1.5s)
+                        if (!el) {
+                            if (attempt < 5) {
+                                setTimeout(() => scrollToHash(attempt + 1), 300);
+                            }
+                            return;
+                        }
+
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        el.classList.add('ring-4', 'ring-amber-400', 'ring-offset-2');
+                        setTimeout(() => {
+                            el.classList.remove('ring-4', 'ring-amber-400', 'ring-offset-2');
+                        }, 2500);
+
+                        // Clean the URL
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                    };
+
+                    // ✅ Initial page load (regular navigation)
+                    setTimeout(() => scrollToHash(0), 400);
+
+                    // ✅ Livewire SPA navigation (wire:navigate)
+                    document.addEventListener('livewire:navigated', () => {
+                        setTimeout(() => scrollToHash(0), 400);
+                    });
+                }
+            }
+        }
+    </script>
+
     <style>
         @media (max-width: 639px) {
             .guest-products-content {
@@ -138,7 +180,7 @@
                         @endif
                     </div>
                     <div class="mt-3 flex items-center gap-3 text-sm text-gray-500">
-                        <span>📦 {{ $branch->products()->wherePivot('stock', '>', 0)->count() }} products</span>
+                        <span> {{ $branch->products()->wherePivot('stock', '>', 0)->count() }} products</span>
                     </div>
                     @if($selectedBranchId == $branch->id)
                     <div class="mt-2 text-xs text-amber-600">Viewing this branch</div>
@@ -187,7 +229,8 @@
                 @php
                 $stock = $product->branches->firstWhere('id', $selectedBranchId)?->pivot->stock ?? 0;
                 @endphp
-                <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col"
+                <div id="product-{{ $product->id }}"
+                    class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col transition-all duration-500"
                     wire:click="openReviewModal({{ $product->id }})">
 
                     @if($product->image_url)

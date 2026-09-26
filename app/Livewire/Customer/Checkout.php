@@ -5,6 +5,7 @@ namespace App\Livewire\Customer;
 use App\Models\Branch;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\OrderHistory;
 use App\Models\OrderItem;
 use App\Models\Shop;
 use App\Models\Employee;
@@ -32,10 +33,7 @@ class Checkout extends Component
     public $payment_method_detail = 'gcash';
     public $isProcessing = false;
 
-    // ✅ NEW: Per-item notes keyed by cart item ID
     public $itemNotes = [];
-
-    // ✅ Persistent stock warning
     public $stockWarning = null;
 
     public function setPaymentDetail($value)
@@ -52,7 +50,6 @@ class Checkout extends Component
             return redirect()->route('livewire.customer.browse-shops');
         }
 
-        // ✅ Safety net: auto-remove items that went out of stock since cart page
         $removed = [];
         foreach ($this->cartItems as $item) {
             if (!$item->product) continue;
@@ -103,8 +100,6 @@ class Checkout extends Component
             }
 
             $this->pickupTimes[$item->id] = now()->addMinutes(30)->format('Y-m-d\TH:i');
-
-            // ✅ Pre-fill item notes from cart if saved
             $this->itemNotes[$item->id] = $item->notes ?? '';
         }
 
@@ -192,10 +187,9 @@ class Checkout extends Component
 
     public function updatedBranchSelections()
     {
-        // The view will automatically update via Livewire
+        //
     }
 
-    // ✅ Save item notes to cart in real time
     public function updatedItemNotes($value, $key)
     {
         $cartId = is_numeric($key) ? $key : null;
@@ -282,7 +276,7 @@ class Checkout extends Component
                 'payment_method_detail' => $this->payment_method_detail,
                 'payment_status' => 'pending',
                 'pickup_time' => now()->addMinutes(30),
-                'notes' => null, // ✅ parent has no notes now
+                'notes' => null,
                 'is_parent_order' => true,
             ]);
 
@@ -316,7 +310,7 @@ class Checkout extends Component
                     'payment_method_detail' => null,
                     'payment_status' => 'pending',
                     'pickup_time' => $pickupTime,
-                    'notes' => null, // ✅ child orders no longer use global notes
+                    'notes' => null,
                     'parent_order_id' => $parentOrder->id,
                 ]);
 
@@ -326,8 +320,8 @@ class Checkout extends Component
                     $originalPrice = $product->price;
                     $pickupTime = $this->pickupTimes[$item->id] ?? now()->addMinutes(30);
 
-                    // ✅ Save per-item notes
-                    OrderItem::create([
+                    // ✅ Capture the created OrderItem so we can link the movement
+                    $orderItem = OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $item->product_id,
                         'branch_id' => $branchId,
@@ -343,8 +337,24 @@ class Checkout extends Component
                     if ($branch) {
                         $pivot = $branch->products()->where('product_id', $item->product_id)->first();
                         if ($pivot) {
-                            $currentStock = $pivot->pivot->stock;
-                            $pivot->pivot->update(['stock' => $currentStock - $item->quantity]);
+                            $oldStock = (int) $pivot->pivot->stock;
+                            $newStock = max(0, $oldStock - $item->quantity);
+
+                            $pivot->pivot->update(['stock' => $newStock]);
+
+                            // ✅ Log the stock movement
+                            OrderHistory::create([
+                                'order_id' => $order->id,
+                                'order_item_id' => $orderItem->id,
+                                'product_id' => $item->product_id,
+                                'branch_id' => $branchId,
+                                'user_id' => Auth::id(),
+                                'status' => 'out',
+                                'quantity' => -$item->quantity,
+                                'old_stock' => $oldStock,
+                                'new_stock' => $newStock,
+                                'notes' => 'Order #' . $order->order_number . ' — stock reduced',
+                            ]);
                         }
                     }
                 }
@@ -404,7 +414,8 @@ class Checkout extends Component
                 $originalPrice = $product->price;
                 $pickupTime = $this->pickupTimes[$item->id] ?? now()->addMinutes(30);
 
-                OrderItem::create([
+                // ✅ Capture the created OrderItem
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'branch_id' => $branchId,
@@ -420,8 +431,24 @@ class Checkout extends Component
                 if ($branch) {
                     $pivot = $branch->products()->where('product_id', $item->product_id)->first();
                     if ($pivot) {
-                        $currentStock = $pivot->pivot->stock;
-                        $pivot->pivot->update(['stock' => $currentStock - $item->quantity]);
+                        $oldStock = (int) $pivot->pivot->stock;
+                        $newStock = max(0, $oldStock - $item->quantity);
+
+                        $pivot->pivot->update(['stock' => $newStock]);
+
+                        // ✅ Log the stock movement
+                        OrderHistory::create([
+                            'order_id' => $order->id,
+                            'order_item_id' => $orderItem->id,
+                            'product_id' => $item->product_id,
+                            'branch_id' => $branchId,
+                            'user_id' => Auth::id(),
+                            'status' => 'out',
+                            'quantity' => -$item->quantity,
+                            'old_stock' => $oldStock,
+                            'new_stock' => $newStock,
+                            'notes' => 'Order #' . $order->order_number . ' — stock reduced',
+                        ]);
                     }
                 }
             }

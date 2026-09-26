@@ -29,7 +29,7 @@ class ViewProducts extends Component
     public $productReviews = [];
     public $averageRating = 0;
 
-    // ✅ Flag to show login modal
+    //  Flag to show login modal
     public $showLoginModal = false;
 
     public function mount($shopId, $branch = null)
@@ -145,7 +145,7 @@ class ViewProducts extends Component
             ->get();
     }
 
-    // ✅ FIXED: Reload best sellers when category changes
+    //  FIXED: Reload best sellers when category changes
     public function updatedSelectedCategory()
     {
         $this->loadProducts();
@@ -161,14 +161,14 @@ class ViewProducts extends Component
         return $pivot ? $pivot->pivot->stock : 0;
     }
 
-    // ✅ Guest addToCart - shows login modal instead of adding to cart
+    //  Guest addToCart - shows login modal instead of adding to cart
     public function addToCart($productId)
     {
-        // ✅ Show login modal for guests
+        //  Show login modal for guests
         $this->showLoginModal = true;
     }
 
-    // ✅ Close login modal
+    //  Close login modal
     public function closeLoginModal()
     {
         $this->showLoginModal = false;

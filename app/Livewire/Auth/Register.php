@@ -15,13 +15,13 @@ class Register extends Component
 {
     public $name, $email, $password, $password_confirmation;
 
-    // ✅ Rate limit config: 3 registrations per hour per IP
+    //  Rate limit config: 3 registrations per hour per IP
     public int $maxAttempts = 3;
     public int $decaySeconds = 3600; // 1 hour
 
     public function mount()
     {
-        // ✅ Only store redirect if user explicitly clicked "Start Selling"
+        //  Only store redirect if user explicitly clicked "Start Selling"
         if (request()->has('start_selling') && request()->get('start_selling') === 'true') {
             session()->put('redirect_after_register', route('livewire.guest.start-selling'));
         } else {
@@ -33,7 +33,7 @@ class Register extends Component
     {
         $key = 'register:' . request()->ip();
 
-        // ✅ Rate limit registration attempts
+        //  Rate limit registration attempts
         if (RateLimiter::tooManyAttempts($key, $this->maxAttempts)) {
             $seconds = RateLimiter::availableIn($key);
             $minutes = ceil($seconds / 60);
@@ -41,7 +41,7 @@ class Register extends Component
             return;
         }
 
-        // ✅ Custom email rule: block ONLY if email belongs to a verified account
+        //  Custom email rule: block ONLY if email belongs to a verified account
         //    (unverified accounts can be overwritten by re-registering)
         $this->validate([
             'name' => ['required', 'string', 'max:255', new PersonName],
@@ -66,10 +66,10 @@ class Register extends Component
             'password.same' => 'Passwords do not match.',
         ]);
 
-        // ✅ Count the attempt
+        //  Count the attempt
         RateLimiter::hit($key, $this->decaySeconds);
 
-        // ✅ Handle existing unverified account (overwrite it)
+        //  Handle existing unverified account (overwrite it)
         $existingUnverified = User::where('email', $this->email)
             ->where('is_active', false)
             ->first();
@@ -86,21 +86,21 @@ class Register extends Component
                 'name' => trim($this->name),
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
-                'is_active' => false, // ✅ Unverified until OTP confirmed
+                'is_active' => false, //  Unverified until OTP confirmed
             ]);
 
             $user->assignRole('customer');
         }
 
-        // ✅ Generate + save OTP
+        //  Generate + save OTP
         $this->generateAndSendOtp($user);
 
-        // ✅ Redirect to OTP verification page
+        //  Redirect to OTP verification page
         return redirect()->route('livewire.auth.verify-registration-otp', ['email' => $user->email]);
     }
 
     /**
-     * ✅ Generate a 6-digit code, store it, and email it.
+     *  Generate a 6-digit code, store it, and email it.
      */
     private function generateAndSendOtp(User $user): void
     {

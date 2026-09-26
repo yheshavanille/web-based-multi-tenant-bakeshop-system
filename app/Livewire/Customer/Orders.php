@@ -3,11 +3,13 @@
 namespace App\Livewire\Customer;
 
 use App\Models\Order;
+use App\Models\OrderHistory;
 use App\Models\OrderItem;
 use App\Models\ServiceReview;
 use App\Models\ProductReview;
 use App\Notifications\StockReviewNeededNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
@@ -108,7 +110,6 @@ class Orders extends Component
         $this->loadOrders();
     }
 
-    // ✅ NEW: reusable ban check
     private function bannedFromReviewing(): bool
     {
         $user = Auth::user();
@@ -148,6 +149,40 @@ class Orders extends Component
         }
     }
 
+    // ✅ NEW: Restore stock and log the movement
+    private function restoreStockForItem(OrderItem $item, string $newStatus): void
+    {
+        $branchProduct = DB::table('branch_product')
+            ->where('branch_id', $item->branch_id)
+            ->where('product_id', $item->product_id)
+            ->first();
+
+        if (!$branchProduct) {
+            return;
+        }
+
+        $oldStock = (int) $branchProduct->stock;
+        $newStock = $oldStock + (int) $item->quantity;
+
+        DB::table('branch_product')
+            ->where('branch_id', $item->branch_id)
+            ->where('product_id', $item->product_id)
+            ->update(['stock' => $newStock]);
+
+        OrderHistory::create([
+            'order_id' => $item->order_id,
+            'order_item_id' => $item->id,
+            'product_id' => $item->product_id,
+            'branch_id' => $item->branch_id,
+            'user_id' => Auth::id(),
+            'status' => $newStatus,
+            'quantity' => (int) $item->quantity,
+            'old_stock' => $oldStock,
+            'new_stock' => $newStock,
+            'notes' => 'Order #' . $item->order->order_number . ' — ' . $newStatus . ', stock restored',
+        ]);
+    }
+
     public function cancelOrder($orderId)
     {
         $order = Order::where('customer_id', Auth::id())
@@ -167,6 +202,10 @@ class Orders extends Component
         foreach ($order->items as $item) {
             if ($item->status === 'pending') {
                 $item->update(['status' => 'cancelled']);
+
+                // ✅ Restore stock + log
+                $this->restoreStockForItem($item, 'cancelled');
+
                 $this->notifyStockReview($order, $item, 'cancelled_by_customer');
             }
         }
@@ -192,6 +231,9 @@ class Orders extends Component
         }
 
         $item->update(['status' => 'cancelled']);
+
+        // ✅ Restore stock + log
+        $this->restoreStockForItem($item, 'cancelled');
 
         $this->notifyStockReview($item->order, $item, 'cancelled_by_customer');
 
@@ -246,7 +288,6 @@ class Orders extends Component
 
     public function openReviewModal($orderId)
     {
-        // ✅ NEW: block banned users
         if ($this->bannedFromReviewing()) {
             return;
         }
@@ -286,7 +327,6 @@ class Orders extends Component
 
     public function openEditReviewModal($orderId)
     {
-        // ✅ NEW: block banned users
         if ($this->bannedFromReviewing()) {
             return;
         }
@@ -426,7 +466,6 @@ class Orders extends Component
 
     public function submitReview()
     {
-        // ✅ NEW: block banned users
         if ($this->bannedFromReviewing()) {
             return;
         }

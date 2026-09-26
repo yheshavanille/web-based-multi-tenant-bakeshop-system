@@ -24,7 +24,7 @@ class EmployeeActivities extends Component
         $this->shops = Shop::orderBy('shop_name')->get();
         $this->employees = Employee::with('user')->get();
 
-        // ✅ Auto-filter by shop if the URL has ?shop=ID
+        //  Auto-filter by shop if the URL has ?shop=ID
         if (request()->has('shop')) {
             $this->selectedShop = (string) request()->get('shop');
         }

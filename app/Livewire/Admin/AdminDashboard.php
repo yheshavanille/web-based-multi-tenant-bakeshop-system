@@ -9,6 +9,7 @@ use App\Models\SellerRegistration;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class AdminDashboard extends Component
@@ -19,7 +20,7 @@ class AdminDashboard extends Component
     public $pendingSellers;
     public $recentApplications;
 
-    // ✅ Best Selling Shops
+    //  Best Selling Shops
     public $topShops = [];
     public $allShopsRanked = [];
 
@@ -38,6 +39,7 @@ class AdminDashboard extends Component
         $this->loadBestSellingShops();
     }
 
+    #[Computed]
     public function loadBestSellingShops()
     {
         $shops = Shop::with('user')
@@ -63,7 +65,7 @@ class AdminDashboard extends Component
                 ->distinct('order_id')
                 ->count('order_id');
 
-            // ✅ UPDATED: only count visible/kept reviews in the rating average
+            //  UPDATED: only count visible/kept reviews in the rating average
             $avgRating = DB::table('service_reviews')
                 ->where('shop_id', $shop->id)
                 ->whereIn('moderation_status', ['visible', 'kept'])

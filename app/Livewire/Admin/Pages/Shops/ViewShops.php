@@ -14,7 +14,7 @@ class ViewShops extends Component
     public $showDeleted = false;
     public $search = '';
 
-    // ✅ NEW: Delete reason modal state
+    //  NEW: Delete reason modal state
     public $showDeleteModal = false;
     public $shopToDeleteId = null;
     public $deleteReason = '';
@@ -34,7 +34,7 @@ class ViewShops extends Component
         $this->search = '';
     }
 
-    // ✅ NEW: Open the delete confirmation modal
+    //  NEW: Open the delete confirmation modal
     public function openDeleteModal(int $shopId)
     {
         $this->shopToDeleteId = $shopId;
@@ -43,7 +43,7 @@ class ViewShops extends Component
         $this->resetErrorBag();
     }
 
-    // ✅ NEW: Close the modal
+    //  NEW: Close the modal
     public function closeDeleteModal()
     {
         $this->showDeleteModal = false;
@@ -52,7 +52,7 @@ class ViewShops extends Component
         $this->resetErrorBag();
     }
 
-    // ✅ UPDATED: Validate reason, pass it to the notification
+    //  UPDATED: Validate reason, pass it to the notification
     // NOTE: The old delete(int $shopId) signature was replaced with delete() that
     // reads $this->shopToDeleteId — the blade button was updated accordingly.
     public function delete()
@@ -69,12 +69,12 @@ class ViewShops extends Component
         $shopName = $shop->shop_name;
         $user = $shop->user;
 
-        // ✅ Notify owner BEFORE deleting — pass reason
+        //  Notify owner BEFORE deleting — pass reason
         if ($user) {
             Notification::send($user, new ShopDeletedByAdminNotification($shop, $this->deleteReason));
         }
 
-        // ✅ Remove owner role from the user when shop is deleted
+        //  Remove owner role from the user when shop is deleted
         if ($user && $user->hasRole('owner')) {
             $user->removeRole('owner');
         }
@@ -94,12 +94,12 @@ class ViewShops extends Component
 
         $shop->restore();
 
-        // ✅ Restore owner role when shop is restored
+        //  Restore owner role when shop is restored
         if ($user && !$user->hasRole('owner')) {
             $user->assignRole('owner');
         }
 
-        // ✅ Notify owner about restoration
+        //  Notify owner about restoration
         if ($user) {
             Notification::send($user, new ShopRestoredByAdminNotification($shop));
         }
@@ -107,7 +107,7 @@ class ViewShops extends Component
         session()->flash('message', 'Shop "' . $shopName . '" restored successfully. Owner role restored.');
     }
 
-    // ✅ UNCHANGED: forceDelete stays reason-free (Q2 = 🅱️)
+    //  UNCHANGED: forceDelete stays reason-free (Q2 = 🅱️)
     public function forceDelete(int $shopId)
     {
         $shop = Shop::withTrashed()->findOrFail($shopId);

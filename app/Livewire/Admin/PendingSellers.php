@@ -119,7 +119,7 @@ class PendingSellers extends Component
 
     public function approve($id)
     {
-        // ✅ GUARD 1: Block if already approved (prevents duplicate shop on double-click)
+        //  GUARD 1: Block if already approved (prevents duplicate shop on double-click)
         $application = SellerRegistration::findOrFail($id);
 
         if ($application->status === 'approved') {
@@ -136,7 +136,7 @@ class PendingSellers extends Component
             return;
         }
 
-        // ✅ GUARD 2: Require all checklist items ticked
+        //  GUARD 2: Require all checklist items ticked
         $allChecked = true;
         foreach ($this->requirements as $value) {
             if (!$value) {
@@ -152,7 +152,7 @@ class PendingSellers extends Component
 
         $user = User::find($application->user_id);
 
-        // ✅ GUARD 3: Safety net — check if a shop already exists for this user
+        //  GUARD 3: Safety net — check if a shop already exists for this user
         //    (protects against race conditions from double-clicks)
         $existingShop = Shop::where('user_id', $user->id)->first();
 
@@ -164,7 +164,7 @@ class PendingSellers extends Component
             return;
         }
 
-        // ✅ All guards passed — proceed
+        //  All guards passed — proceed
         $application->update([
             'status' => 'approved',
             'reviewed_at' => now(),
@@ -193,7 +193,7 @@ class PendingSellers extends Component
             'rejection_reason' => 'required|string|min:10',
         ]);
 
-        // ✅ GUARD: Block if already approved or rejected
+        //  GUARD: Block if already approved or rejected
         $application = SellerRegistration::findOrFail($id);
 
         if ($application->status === 'approved') {

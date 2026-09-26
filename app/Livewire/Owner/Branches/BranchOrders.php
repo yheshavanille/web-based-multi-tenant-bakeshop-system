@@ -113,7 +113,7 @@ class BranchOrders extends Component
                 $order->pending_count = $pendingCount;
                 $order->no_show_count = $noShowCount;
 
-                // ✅ FIX: Compute subtotal, VAT, and total (with VAT) to match dashboard
+                //  FIX: Compute subtotal, VAT, and total (with VAT) to match dashboard
                 $adjustedSubtotal = $order->items
                     ->where('status', '!=', 'cancelled')
                     ->sum(function ($item) {
@@ -149,7 +149,7 @@ class BranchOrders extends Component
         $this->selectedOrder = Order::with(['customer', 'items.product', 'branch'])
             ->findOrFail($orderId);
 
-        // ✅ FIX: Same total-with-VAT logic for consistency
+        // FIX: Same total-with-VAT logic for consistency
         $adjustedSubtotal = $this->selectedOrder->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {

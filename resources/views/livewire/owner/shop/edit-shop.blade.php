@@ -172,7 +172,7 @@
                     </path>
                 </svg>
                 <div>
-                    <p class="text-xs font-medium text-red-800">⚠️ Danger Zone</p>
+                    <p class="text-xs font-medium text-red-800"> Danger Zone</p>
                     <p class="text-xs text-red-600">Deleting your shop will hide all your products, orders, and data.
                         Contact support to restore.</p>
                 </div>
