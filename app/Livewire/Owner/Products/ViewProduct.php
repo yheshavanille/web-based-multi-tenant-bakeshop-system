@@ -341,7 +341,7 @@ class ViewProduct extends Component
                         'user_id' => Auth::id(),
                         'field' => 'branch',
                         'old_value' => 'Not assigned',
-                        'new_value' => ($branch?->name ?? 'Unknown') . ' (stock: ' . $delta . ')',
+                        'new_value' => 'Assigned — stock: ' . $delta,
                     ]);
 
                     // Log the initial stock for the new branch
@@ -369,7 +369,7 @@ class ViewProduct extends Component
                         'product_id' => $product->id,
                         'user_id' => Auth::id(),
                         'field' => 'branch',
-                        'old_value' => ($oldBranchNames[$oldBranchId] ?? 'Unknown') . ' (stock: ' . $oldStock . ')',
+                        'old_value' => 'Stock was ' . $oldStock,
                         'new_value' => 'Removed',
                     ]);
                 }
@@ -395,8 +395,8 @@ class ViewProduct extends Component
                         'product_id' => $product->id,
                         'user_id' => Auth::id(),
                         'field' => 'stock',
-                        'old_value' => ($oldBranchNames[$branchId] ?? 'Branch') . ': ' . $oldStock,
-                        'new_value' => ($oldBranchNames[$branchId] ?? 'Branch') . ': ' . $newStock,
+                        'old_value' => (string) $oldStock,
+                        'new_value' => (string) $newStock,
                     ]);
 
                     InventoryHistory::create([

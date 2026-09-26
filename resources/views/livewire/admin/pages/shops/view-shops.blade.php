@@ -3,7 +3,11 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">
-                    {{ $showDeleted ? '🗑️ Deleted Bakeshops' : 'View Bakeshops' }}
+                    @if($showDeleted)
+                    Deleted Bakeshops
+                    @else
+                    View Bakeshops
+                    @endif
                 </h1>
                 <p class="mt-1 text-sm text-gray-500">
                     {{ $showDeleted ? 'View and restore deleted bakeshops.' : 'View bakeshops, products, and employees.'
@@ -18,12 +22,30 @@
                 </span>
                 @endif
                 <button wire:click="toggleDeleted"
-                    class="rounded-lg px-4 py-2 text-sm font-medium transition {{ $showDeleted ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-gray-600 text-white hover:bg-gray-700' }}">
-                    {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
+                    class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition {{ $showDeleted ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-gray-600 text-white hover:bg-gray-700' }}">
+                    @if($showDeleted)
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    Show Active
+                    @else
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    Show Deleted
+                    @endif
                 </button>
                 <a href="{{ route('livewire.admin.admin-dashboard') }}"
-                    class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700">
-                    ← Back
+                    class="inline-flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back
                 </a>
             </div>
         </div>
@@ -62,15 +84,20 @@
         @if (session()->has('message'))
         <div
             class="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 shadow-sm">
-            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white">✓</span>
+            <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </span>
             {{ session('message') }}
         </div>
         @endif
 
         <div class="mb-5 flex items-center justify-between pb-3">
             <div>
-                <p class="text-sm font-semibold text-slate-800">{{ $showDeleted ? 'Archived listings' : 'Active
-                    listings' }}</p>
+                <p class="text-sm font-semibold text-slate-800">
+                    {{ $showDeleted ? 'Archived listings' : 'Active listings' }}
+                </p>
                 <p class="mt-1 text-xs text-slate-500">{{ $shops->count() }} {{ $shops->count() === 1 ? 'bakeshop' :
                     'bakeshops' }} shown</p>
             </div>
@@ -88,7 +115,11 @@
                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
                     @else
                     <div class="flex h-full flex-col items-center justify-center text-gray-400">
-                        <span class="text-5xl">🏪</span>
+                        <svg class="w-14 h-14 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
+                        </svg>
                         <span class="mt-1 text-xs">No Image</span>
                     </div>
                     @endif
@@ -107,7 +138,17 @@
                     <div class="mb-4">
                         <h2 class="truncate text-lg font-semibold text-slate-900">{{ $shop->shop_name ?: 'Unnamed
                             bakeshop' }}</h2>
-                        <p class="mt-1 text-sm text-slate-500">{{ $shop->address ?: 'Address not provided' }}</p>
+                        <p class="mt-1 text-sm text-slate-500 inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            {{ $shop->address ?: 'Address not provided' }}
+                        </p>
                     </div>
 
                     <div class="mb-4 rounded-xl bg-slate-50 p-3">
@@ -122,24 +163,44 @@
                     <div class="mt-auto flex flex-col gap-2 border-t border-gray-100 pt-3">
                         @if($isDeleted)
                         <button wire:click="restore({{ $shop->id }})"
-                            class="flex-1 rounded-lg bg-emerald-50 px-3 py-2.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100">
-                            🔄 Restore
+                            class="inline-flex items-center justify-center gap-2 flex-1 rounded-lg bg-emerald-50 px-3 py-2.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                            Restore
                         </button>
                         <button wire:click="forceDelete({{ $shop->id }})"
                             onclick="confirm('Permanently delete this shop? This cannot be undone.') || event.stopImmediatePropagation()"
-                            class="flex-1 rounded-lg bg-rose-50 px-3 py-2.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100">
-                            🗑️ Delete forever
+                            class="inline-flex items-center justify-center gap-2 flex-1 rounded-lg bg-rose-50 px-3 py-2.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
+                            Delete forever
                         </button>
                         @else
                         <div class="flex gap-2">
                             <a href="{{ route('livewire.admin.pages.shops.shop-details', ['shopId' => $shop->id]) }}"
-                                class="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-blue-700">
-                                🏪 View Shop Details
+                                class="inline-flex items-center justify-center gap-2 flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-blue-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                                View Shop Details
                             </a>
-                            {{-- ✅ CHANGED: opens modal instead of inline confirm --}}
+                            {{-- Opens modal instead of inline confirm --}}
                             <button wire:click="openDeleteModal({{ $shop->id }})"
-                                class="rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-100">
-                                🗑️
+                                class="inline-flex items-center justify-center rounded-lg bg-rose-50 px-4 py-2.5 text-rose-700 transition hover:bg-rose-100"
+                                title="Delete shop">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
                             </button>
                         </div>
                         @endif
@@ -149,7 +210,12 @@
             @empty
             <div
                 class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-4xl">🏪
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50">
+                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
                 </div>
                 <p class="mt-5 text-lg font-semibold text-slate-800">
                     @if(!empty($search))
@@ -172,7 +238,7 @@
         </div>
     </div>
 
-    {{-- ✅ NEW: DELETE REASON MODAL (SUPER ADMIN) --}}
+    {{-- DELETE REASON MODAL (SUPER ADMIN) --}}
     @if($showDeleteModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDeleteModal"></div>

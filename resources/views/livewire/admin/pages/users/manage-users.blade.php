@@ -8,8 +8,12 @@
                 <p class="text-sm text-gray-500">View and manage all registered users</p>
             </div>
             <a href="{{ route('livewire.admin.admin-dashboard') }}"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
-                ← Back to Dashboard
+                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
             </a>
         </div>
 
@@ -47,28 +51,44 @@
                 @if($activeTab !== 'permanently_deleted')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <select wire:model.live="roleFilter"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                        <option value="all">All Roles</option>
-                        <option value="customer">Customer</option>
-                        <option value="owner">Owner</option>
-                        <option value="employee">Employee</option>
-                        <option value="super_admin">Super Admin</option>
-                    </select>
+                    <div class="relative">
+                        <select wire:model.live="roleFilter"
+                            class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white cursor-pointer">
+                            <option value="all">All Roles</option>
+                            <option value="customer">Customer</option>
+                            <option value="owner">Owner</option>
+                            <option value="employee">Employee</option>
+                            <option value="super_admin">Super Admin</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
                 @endif
 
                 @if($activeTab === 'active')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select wire:model.live="statusFilter"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                        <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="suspended">Suspended</option>
-                        <option value="deactivated_by_owner">Deactivated by Owner</option>
-                        <option value="suspended_by_admin">Suspended by Super Admin</option>
-                    </select>
+                    <div class="relative">
+                        <select wire:model.live="statusFilter"
+                            class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white cursor-pointer">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="suspended">Suspended</option>
+                            <option value="deactivated_by_owner">Deactivated by Owner</option>
+                            <option value="suspended_by_admin">Suspended by Super Admin</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
                 @endif
 
@@ -111,7 +131,7 @@
                         $employeeStatus = null;
                         if ($employee) {
                         if ($employee->trashed()) {
-                        $employeeStatus = '🗑️ Deleted by Employer';
+                        $employeeStatus = 'Deleted by Employer';
                         } elseif (!$employee->is_active) {
                         if ($employee->deactivated_by === 'super_admin') {
                         $employeeStatus = 'Suspended by Super Admin';
@@ -223,7 +243,7 @@
                                     </button>
                                     @elseif($user->id !== auth()->id())
                                     @if(isset($user->is_active) && $user->is_active)
-                                    {{-- ✅ opens reason modal --}}
+                                    {{-- opens reason modal --}}
                                     <button wire:click="openSuspendModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Suspend
@@ -235,7 +255,7 @@
                                     </button>
                                     @endif
 
-                                    {{-- ✅ opens archive reason modal --}}
+                                    {{-- opens archive reason modal --}}
                                     <button wire:click="openArchiveModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Archive
@@ -255,7 +275,10 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
-                <span class="text-4xl block mb-2">👤</span>
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
                 <p>No users found.</p>
                 <p class="text-sm text-gray-400">Try adjusting your filters.</p>
             </div>
@@ -299,7 +322,11 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
-                <span class="text-4xl block mb-2">📭</span>
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                    </path>
+                </svg>
                 <p>No permanently deleted users found.</p>
                 <p class="text-sm text-gray-400">Users who are permanently deleted will appear here.</p>
             </div>
@@ -307,7 +334,7 @@
         </div>
         @endif
 
-        <!-- ✅ USER DETAILS MODAL -->
+        <!-- USER DETAILS MODAL -->
         @if($showUserModal && $selectedUser)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeUserModal"></div>
@@ -361,11 +388,31 @@
                         <div class="bg-gray-50 rounded-lg p-3">
                             <p class="text-xs text-gray-500">Status</p>
                             @if($selectedUser->trashed())
-                            <span class="text-sm font-medium text-red-600">🗑️ Deleted</span>
+                            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                                Deleted
+                            </span>
                             @elseif($selectedUser->is_active)
-                            <span class="text-sm font-medium text-green-600">🟢 Active</span>
+                            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Active
+                            </span>
                             @else
-                            <span class="text-sm font-medium text-red-600">🔴 Suspended</span>
+                            <span class="inline-flex items-center gap-1.5 text-sm font-medium text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                    </path>
+                                </svg>
+                                Suspended
+                            </span>
                             @endif
                         </div>
                         <div class="bg-gray-50 rounded-lg p-3 col-span-2">
@@ -411,11 +458,30 @@
                                 <div>
                                     <p class="text-xs text-gray-400">Employee Status</p>
                                     @if($selectedUser->employee->trashed())
-                                    <span class="text-sm font-medium text-red-600">🗑️ Deleted by Employer</span>
+                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-red-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                        Deleted by Employer
+                                    </span>
                                     @elseif($selectedUser->employee->is_active)
-                                    <span class="text-sm font-medium text-green-600">🟢 Active</span>
+                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Active
+                                    </span>
                                     @else
-                                    <span class="text-sm font-medium text-yellow-600">🟡 Disabled</span>
+                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-yellow-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Disabled
+                                    </span>
                                     @endif
                                 </div>
                                 <div>
@@ -467,14 +533,21 @@
         </div>
         @endif
 
-        <!-- ✅ SUSPEND REASON MODAL -->
+        <!-- SUSPEND REASON MODAL -->
         @if($showSuspendModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeSuspendModal"></div>
 
             <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
-                    <h3 class="text-lg font-bold text-red-800">Suspend User</h3>
+                    <h3 class="text-lg font-bold text-red-800 inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                            </path>
+                        </svg>
+                        Suspend User
+                    </h3>
                     <p class="text-xs text-red-600 mt-0.5">Suspending "{{ $actionUserName }}". They will be notified
                         with this reason.</p>
                 </div>
@@ -509,14 +582,21 @@
         </div>
         @endif
 
-        <!-- ✅ ARCHIVE REASON MODAL -->
+        <!-- ARCHIVE REASON MODAL -->
         @if($showArchiveModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeArchiveModal"></div>
 
             <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
-                    <h3 class="text-lg font-bold text-red-800">Archive User</h3>
+                    <h3 class="text-lg font-bold text-red-800 inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
+                            </path>
+                        </svg>
+                        Archive User
+                    </h3>
                     <p class="text-xs text-red-600 mt-0.5">Archiving "{{ $actionUserName }}". They will be notified with
                         this reason.</p>
                 </div>

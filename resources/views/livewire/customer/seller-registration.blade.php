@@ -40,7 +40,13 @@
         <!-- Step 1: Shop Info -->
         @if($step == 1)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">🏪 Shop Information</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 inline-flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                Shop Information
+            </h2>
             <p class="text-sm text-gray-500 mb-6">Tell us about your bakeshop.</p>
 
             <div class="space-y-4">
@@ -63,8 +69,9 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span
-                            class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Number <span class="text-red-500">*</span>
+                    </label>
                     <input type="text" wire:model="contact_number" maxlength="11"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('contact_number') border-red-500 @enderror"
                         placeholder="09123456789">
@@ -84,8 +91,12 @@
                 </div>
 
                 <button wire:click="nextStep"
-                    class="w-full px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                    Next →
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                    Next
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -94,9 +105,14 @@
         <!-- Step 2: Business Info -->
         @if($step == 2)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">📄 Business Information</h2>
-            <p class="text-sm text-gray-500 mb-6">Upload your Business Permit from the LGU and a Valid Government ID.
-            </p>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 inline-flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Business Information
+            </h2>
+            <p class="text-sm text-gray-500 mb-6">Upload your Business Permit from the LGU and a Valid Government ID.</p>
 
             <div class="space-y-4">
                 <!-- Business Permit -->
@@ -117,8 +133,13 @@
                             onclick="window.open('{{ $business_permit->temporaryUrl() }}', '_blank')">
                         <p class="text-xs text-gray-400 mt-1">Click image to enlarge</p>
                         @else
-                        <p class="text-sm text-green-600">✅ {{ $business_permit->getClientOriginalName() }} uploaded
-                            (PDF)</p>
+                        <p class="inline-flex items-center gap-1.5 text-sm text-green-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ $business_permit->getClientOriginalName() }} uploaded (PDF)
+                        </p>
                         @endif
                     </div>
                     @endif
@@ -142,7 +163,13 @@
                             onclick="window.open('{{ $valid_id->temporaryUrl() }}', '_blank')">
                         <p class="text-xs text-gray-400 mt-1">Click image to enlarge</p>
                         @else
-                        <p class="text-sm text-green-600">✅ {{ $valid_id->getClientOriginalName() }} uploaded (PDF)</p>
+                        <p class="inline-flex items-center gap-1.5 text-sm text-green-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ $valid_id->getClientOriginalName() }} uploaded (PDF)
+                        </p>
                         @endif
                     </div>
                     @endif
@@ -150,8 +177,12 @@
 
                 <div class="flex gap-3 pt-2">
                     <button wire:click="previousStep"
-                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
-                        ← Back
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back
                     </button>
                     <button wire:click="submit" wire:loading.attr="disabled"
                         wire:loading.class="opacity-50 cursor-not-allowed"

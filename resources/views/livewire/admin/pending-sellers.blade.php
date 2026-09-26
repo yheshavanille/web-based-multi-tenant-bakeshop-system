@@ -28,13 +28,21 @@
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select wire:model.live="statusFilter"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
-                        <option value="all">All Status</option>
-                        <option value="pending">⏳ Pending</option>
-                        <option value="approved">✅ Approved</option>
-                        <option value="rejected">❌ Rejected</option>
-                    </select>
+                    <div class="relative">
+                        <select wire:model.live="statusFilter"
+                            class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white cursor-pointer">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
                 <div class="sm:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
@@ -144,7 +152,13 @@
 
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                    <h2 class="text-lg font-bold text-gray-800">📄 Application Details</h2>
+                    <h2 class="text-lg font-bold text-gray-800 inline-flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Application Details
+                    </h2>
                     <button wire:click="closeDetails" wire:loading.attr="disabled"
                         class="text-gray-400 hover:text-gray-600 transition disabled:opacity-40">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +209,11 @@
                     @if($selectedApplication->business_permit)
                     <a href="{{ asset('storage/' . $selectedApplication->business_permit) }}" target="_blank"
                         class="text-amber-600 hover:text-amber-700 font-medium text-sm inline-flex items-center gap-1">
-                        📄 View Business Permit
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        View Business Permit
                     </a>
                     @else
                     <p class="text-sm text-gray-400">No file uploaded</p>
@@ -208,7 +226,11 @@
                     @if($selectedApplication->valid_id_path)
                     <a href="{{ asset('storage/' . $selectedApplication->valid_id_path) }}" target="_blank"
                         class="text-amber-600 hover:text-amber-700 font-medium text-sm inline-flex items-center gap-1">
-                        🪪 View Valid ID
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                        </svg>
+                        View Valid ID
                     </a>
                     @else
                     <p class="text-sm text-gray-400">No file uploaded</p>
@@ -218,20 +240,43 @@
                 <!-- Requirements Checklist -->
                 <div class="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm border border-gray-100">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-lg">📋</span>
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
                         <h4 class="text-sm font-semibold text-gray-700">Requirements Checklist</h4>
                         <span class="text-xs text-gray-400 ml-auto">Check all that are verified</span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {{-- ✅ CHANGED: wire:model.live so the progress bar updates instantly --}}
+                        {{-- wire:model.live so the progress bar updates instantly --}}
                         <label
                             class="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
                             <input type="checkbox" wire:model.live="requirements.valid_id"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">🪪 Valid Government ID</p>
-                                <p class="text-xs text-gray-400">Uploaded: {{ $selectedApplication->valid_id_path ? '✅
-                                    Yes' : '❌ No' }}</p>
+                                <p class="text-sm font-medium text-gray-700 inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                                    </svg>
+                                    Valid Government ID
+                                </p>
+                                <p class="text-xs text-gray-400 inline-flex items-center gap-1">
+                                    Uploaded:
+                                    @if($selectedApplication->valid_id_path)
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Yes
+                                    @else
+                                    <svg class="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    No
+                                    @endif
+                                </p>
                             </div>
                             @if($selectedApplication->valid_id_path)
                             <a href="{{ asset('storage/' . $selectedApplication->valid_id_path) }}" target="_blank"
@@ -246,9 +291,29 @@
                             <input type="checkbox" wire:model.live="requirements.business_permit"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">📄 Business Permit</p>
-                                <p class="text-xs text-gray-400">Uploaded: {{ $selectedApplication->business_permit ? '✅
-                                    Yes' : '❌ No' }}</p>
+                                <p class="text-sm font-medium text-gray-700 inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Business Permit
+                                </p>
+                                <p class="text-xs text-gray-400 inline-flex items-center gap-1">
+                                    Uploaded:
+                                    @if($selectedApplication->business_permit)
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Yes
+                                    @else
+                                    <svg class="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    No
+                                    @endif
+                                </p>
                             </div>
                             @if($selectedApplication->business_permit)
                             <a href="{{ asset('storage/' . $selectedApplication->business_permit) }}" target="_blank"
@@ -263,9 +328,29 @@
                             <input type="checkbox" wire:model.live="requirements.shop_name"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">🏪 Shop Name</p>
-                                <p class="text-xs text-gray-400">Provided: {{ $selectedApplication->shop_name ? '✅ Yes'
-                                    : '❌ No' }}</p>
+                                <p class="text-sm font-medium text-gray-700 inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    Shop Name
+                                </p>
+                                <p class="text-xs text-gray-400 inline-flex items-center gap-1">
+                                    Provided:
+                                    @if($selectedApplication->shop_name)
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Yes
+                                    @else
+                                    <svg class="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    No
+                                    @endif
+                                </p>
                             </div>
                         </label>
 
@@ -274,9 +359,31 @@
                             <input type="checkbox" wire:model.live="requirements.shop_address"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">📍 Shop Address</p>
-                                <p class="text-xs text-gray-400">Provided: {{ $selectedApplication->shop_address ? '✅
-                                    Yes' : '❌ No' }}</p>
+                                <p class="text-sm font-medium text-gray-700 inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Shop Address
+                                </p>
+                                <p class="text-xs text-gray-400 inline-flex items-center gap-1">
+                                    Provided:
+                                    @if($selectedApplication->shop_address)
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Yes
+                                    @else
+                                    <svg class="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    No
+                                    @endif
+                                </p>
                             </div>
                         </label>
 
@@ -285,9 +392,29 @@
                             <input type="checkbox" wire:model.live="requirements.contact_number"
                                 class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
                             <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-700">📞 Contact Number</p>
-                                <p class="text-xs text-gray-400">Provided: {{ $selectedApplication->contact_number ? '✅
-                                    Yes' : '❌ No' }}</p>
+                                <p class="text-sm font-medium text-gray-700 inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                    Contact Number
+                                </p>
+                                <p class="text-xs text-gray-400 inline-flex items-center gap-1">
+                                    Provided:
+                                    @if($selectedApplication->contact_number)
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Yes
+                                    @else
+                                    <svg class="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    No
+                                    @endif
+                                </p>
                             </div>
                         </label>
                     </div>
@@ -302,8 +429,16 @@
                     <div class="mt-3 pt-3 border-t border-gray-200">
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-gray-600">{{ $checked }} of {{ $total }} requirements checked</span>
-                            <span class="font-medium {{ $allChecked ? 'text-green-600' : 'text-amber-600' }}">
-                                {{ $allChecked ? '✅ All requirements met!' : $percentage . '% complete' }}
+                            <span class="font-medium {{ $allChecked ? 'text-green-600' : 'text-amber-600' }} inline-flex items-center gap-1">
+                                @if($allChecked)
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                All requirements met!
+                                @else
+                                {{ $percentage }}% complete
+                                @endif
                             </span>
                         </div>
                         <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
@@ -313,10 +448,14 @@
                     </div>
                 </div>
 
-                <!-- ✅ CUSTOM NOTE FIELD -->
+                <!-- CUSTOM NOTE FIELD -->
                 <div class="bg-gray-50 rounded-lg p-3 mb-4 shadow-sm border border-gray-100">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        📝 Custom Note <span class="text-xs text-gray-400">(Optional)</span>
+                    <label class="text-sm font-medium text-gray-700 mb-1 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Custom Note <span class="text-xs text-gray-400 font-normal">(Optional)</span>
                     </label>
                     <p class="text-xs text-gray-400 mb-2">Add a personal message to include in the notification.</p>
                     <textarea wire:model="custom_note" rows="2"
@@ -349,12 +488,17 @@
                         @enderror
                     </div>
                     <div class="flex gap-3">
-                        {{-- ✅ Confirm Reject — disabled during processing --}}
+                        {{-- Confirm Reject — disabled during processing --}}
                         <button wire:click="reject({{ $selectedApplication->id }})" wire:loading.attr="disabled"
                             wire:target="reject({{ $selectedApplication->id }})"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
-                            <span wire:loading.remove wire:target="reject({{ $selectedApplication->id }})">❌ Confirm
-                                Reject</span>
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span wire:loading.remove wire:target="reject({{ $selectedApplication->id }})" class="inline-flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Confirm Reject
+                            </span>
                             <span wire:loading wire:target="reject({{ $selectedApplication->id }})">Rejecting...</span>
                         </button>
 
@@ -365,12 +509,15 @@
                     </div>
                     @else
                     <div class="flex gap-3">
-                        {{-- ✅ Approve — disabled during processing --}}
+                        {{-- Approve — disabled during processing --}}
                         <button wire:click="approve({{ $selectedApplication->id }})" wire:loading.attr="disabled"
                             wire:target="approve({{ $selectedApplication->id }})"
                             class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed {{ !$allChecked ? 'opacity-50 cursor-not-allowed' : '' }}"
                             {{ !$allChecked ? 'disabled' : '' }}>
-                            <span class="text-lg">✅</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                             <span wire:loading.remove wire:target="approve({{ $selectedApplication->id }})">
                                 Approve
                                 @if(!$allChecked)
@@ -383,10 +530,13 @@
                             </span>
                         </button>
 
-                        {{-- ✅ Reject (start form) — disabled during processing --}}
+                        {{-- Reject (start form) — disabled during processing --}}
                         <button wire:click="startReject" wire:loading.attr="disabled"
                             class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60">
-                            <span class="text-lg">❌</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                             Reject
                         </button>
                     </div>

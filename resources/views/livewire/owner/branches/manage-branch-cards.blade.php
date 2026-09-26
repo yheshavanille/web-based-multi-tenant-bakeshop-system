@@ -17,10 +17,24 @@
                     </svg>
                     Dashboard
                 </a>
-                <!-- ✅ Show Deleted Toggle -->
+                {{-- Show Deleted Toggle --}}
                 <button wire:click="toggleDeleted"
-                    class="px-4 py-2 text-sm rounded-lg {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} hover:bg-amber-700 transition">
-                    {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} hover:bg-amber-700 transition">
+                    @if($showDeleted)
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    Show Active
+                    @else
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    Show Deleted
+                    @endif
                 </button>
                 <a href="{{ route('livewire.owner.branches.manage-branches') }}"
                     class="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition text-sm font-medium shadow-sm hover:shadow-md">
@@ -32,19 +46,29 @@
             </div>
         </div>
 
-        <!-- ✅ Flash Messages -->
+        {{-- Flash Messages --}}
         @if (session()->has('message'))
         <div
             class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center justify-between">
             <span>{{ session('message') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">✕</button>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
         </div>
         @endif
 
         @if (session()->has('error'))
         <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center justify-between">
             <span>{{ session('error') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">✕</button>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
         </div>
         @endif
 
@@ -114,8 +138,21 @@
                 <div class="p-4 space-y-3 flex-1 flex flex-col">
                     <!-- Stats - Fixed height row -->
                     <div class="flex items-center gap-4 text-sm flex-shrink-0">
-                        <span class="text-gray-600">📦 {{ $branch->products_count ?? 0 }} products</span>
-                        <span class="text-gray-600">👥 {{ $branch->employees_count ?? 0 }} employees</span>
+                        <span class="inline-flex items-center gap-1.5 text-gray-600">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            {{ $branch->products_count ?? 0 }} products
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 text-gray-600">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                            {{ $branch->employees_count ?? 0 }} employees
+                        </span>
                     </div>
 
                     <!-- Actions - Pushed to bottom with margin-top auto -->
@@ -123,13 +160,23 @@
                         @if($isDeleted)
                         <!-- Restore button for deleted branches -->
                         <button wire:click="restore({{ $branch->id }})"
-                            class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium text-center">
+                            class="inline-flex items-center justify-center gap-2 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium text-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
                             Restore Branch
                         </button>
                         @else
                         <!-- Normal actions for active branches -->
                         <button wire:click="viewBranchDetails({{ $branch->id }})"
-                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium text-center">
+                            class="inline-flex items-center justify-center gap-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium text-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                </path>
+                            </svg>
                             View Branch Details
                         </button>
                         <div class="flex gap-2">
@@ -155,7 +202,13 @@
         </div>
         @else
         <div class="text-center py-12 text-gray-500">
-
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
+            </div>
             @if(!empty($search))
             <p class="text-lg">No branches found matching "<span class="font-medium text-amber-600">{{ $search
                     }}</span>"</p>
@@ -168,8 +221,12 @@
             <p class="text-sm text-gray-400">Create your first branch to start managing your bakeshop.</p>
             @endif
             <a href="{{ route('livewire.owner.branches.manage-branches') }}"
-                class="inline-block mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
-                Create Branch →
+                class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                Create Branch
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
         @endif
@@ -187,7 +244,14 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-lg font-bold text-gray-800">📊 Branch Performance</h3>
+                        <h3 class="text-lg font-bold text-gray-800 inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                </path>
+                            </svg>
+                            Branch Performance
+                        </h3>
                         <p class="text-sm text-gray-500">
                             {{ $selectedBranch->name }}
                             <span
@@ -229,7 +293,11 @@
                         <div class="flex items-center justify-center gap-1">
                             <span class="text-xl font-bold text-amber-600">{{ number_format($branchStats['avg_rating']
                                 ?? 0, 1) }}</span>
-                            <span class="text-amber-500">⭐</span>
+                            <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                </path>
+                            </svg>
                             <span class="text-xs text-gray-400">({{ $branchStats['rating_count'] ?? 0 }})</span>
                         </div>
                     </div>
@@ -265,7 +333,15 @@
                 <!-- Products & Employees - Side by side -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                        <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">📦 Products</h4>
+                        <h4
+                            class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Products
+                        </h4>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Total</span>
                             <span class="font-bold text-amber-600">{{ $branchStats['total_products'] ?? 0 }}</span>
@@ -276,7 +352,16 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                        <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">👥 Employees</h4>
+                        <h4
+                            class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                            Employees
+                        </h4>
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600">Total</span>
                             <span class="font-bold text-blue-600">{{ $branchStats['total_employees'] ?? 0 }}</span>
@@ -326,8 +411,12 @@
             <!-- Modal Footer - Fixed -->
             <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end gap-3">
                 <a href="{{ route('livewire.owner.branches.branch-orders', ['branchId' => $selectedBranch->id]) }}"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
-                    View All Orders →
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+                    View All Orders
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
                 </a>
                 <button wire:click="closeDetailsModal"
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">

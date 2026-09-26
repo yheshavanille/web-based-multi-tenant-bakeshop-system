@@ -24,28 +24,55 @@
         <!-- Period tabs + Month picker -->
         <div class="flex flex-wrap items-center gap-3 mb-6">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 inline-flex flex-wrap gap-1">
-                <button wire:click="setPeriod('today')" class="px-4 py-2 text-sm font-medium rounded-lg transition
+                <button wire:click="setPeriod('today')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
                 {{ $period === 'today' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
-                    📅 Today
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    Today
                 </button>
-                <button wire:click="setPeriod('week')" class="px-4 py-2 text-sm font-medium rounded-lg transition
+                <button wire:click="setPeriod('week')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
                 {{ $period === 'week' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
-                    📅 This Week
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    This Week
                 </button>
-                <button wire:click="setPeriod('month')" class="px-4 py-2 text-sm font-medium rounded-lg transition
+                <button wire:click="setPeriod('month')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
                 {{ $period === 'month' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
-                    📅 Month
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    Month
                 </button>
-                <button wire:click="setPeriod('year')" class="px-4 py-2 text-sm font-medium rounded-lg transition
+                <button wire:click="setPeriod('year')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
                 {{ $period === 'year' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
-                    📅 This Year
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    This Year
                 </button>
             </div>
 
             {{-- Month picker — only visible when the "Month" tab is active --}}
             @if($period === 'month')
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 inline-flex items-center gap-2">
-                <span class="text-sm text-gray-500 pl-2">📆 Select Month:</span>
+                <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 pl-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    Select Month:
+                </span>
                 <select wire:change="setMonth($event.target.value)"
                     class="px-3 py-2 pr-10 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat">
                     @foreach($availableMonths as $month)
@@ -60,29 +87,43 @@
 
         <!-- Summary cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            {{-- Total Revenue --}}
             <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-5">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Revenue</p>
-                    <span class="text-2xl">💰</span>
+                    <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
                 </div>
                 <p class="text-3xl font-bold text-gray-800 mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
                 <p class="text-xs text-green-600 mt-1">{{ $periodLabel }}</p>
             </div>
 
+            {{-- Total Orders --}}
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-5">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Orders</p>
-                    <span class="text-2xl">📋</span>
+                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                        </path>
+                    </svg>
                 </div>
                 <p class="text-3xl font-bold text-gray-800 mt-2">{{ number_format($totalOrders) }}</p>
                 <p class="text-xs text-blue-600 mt-1">Completed</p>
             </div>
 
+            {{-- Avg Order Value --}}
             <div
                 class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-200 p-5">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Avg Order Value</p>
-                    <span class="text-2xl">📈</span>
+                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
                 </div>
                 <p class="text-3xl font-bold text-gray-800 mt-2">₱{{ number_format($averageOrderValue, 2) }}</p>
                 <p class="text-xs text-purple-600 mt-1">Per completed order</p>
@@ -92,7 +133,11 @@
         <!-- Branch breakdown -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex items-center gap-2 mb-4">
-                <span class="text-xl">🏪</span>
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
                 <h2 class="text-lg font-semibold text-gray-800">Branch Breakdown</h2>
                 <span class="text-xs text-gray-500 ml-auto">{{ $periodLabel }}</span>
             </div>
@@ -112,7 +157,19 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($branchBreakdown as $branch)
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 font-medium text-gray-800">📍 {{ $branch['name'] }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    {{ $branch['name'] }}
+                                </span>
+                            </td>
                             <td class="px-4 py-3 text-right font-semibold text-green-600">
                                 ₱{{ number_format($branch['revenue'], 2) }}
                             </td>
@@ -157,7 +214,10 @@
         @if(count($bestSellers) > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex items-center gap-2 mb-4">
-                <span class="text-xl">🏆</span>
+                <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z">
+                    </path>
+                </svg>
                 <h2 class="text-lg font-semibold text-gray-800">Best Sellers</h2>
                 <span class="text-xs text-gray-500 ml-auto">Top 5 for {{ $periodLabel }}</span>
             </div>
@@ -195,7 +255,10 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
             wire:key="trend-chart-{{ $period }}-{{ $selectedMonth }}-{{ $trendGrouping }}">
             <div class="flex items-center gap-2 mb-4">
-                <span class="text-xl">📊</span>
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                </svg>
                 <h2 class="text-lg font-semibold text-gray-800">Daily Trend</h2>
                 <span class="text-xs text-gray-500 ml-auto">
                     {{ $periodLabel }} • {{ $trendGrouping === 'month' ? 'Grouped by month' : 'Grouped by day' }}
@@ -212,7 +275,10 @@
         @if(count($dailyTrend) > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center gap-2 mb-4">
-                <span class="text-xl">📈</span>
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
                 <h2 class="text-lg font-semibold text-gray-800">Revenue Trend</h2>
                 <span class="text-xs text-gray-500 ml-auto">
                     {{ $periodLabel }} • {{ $trendGrouping === 'month' ? 'Grouped by month' : 'Grouped by day' }}
@@ -262,135 +328,135 @@
     {{-- ✅ Chart.js initialization --}}
     <script>
         (function () {
-                let chartInstance = null;
+            let chartInstance = null;
 
-                function initChart() {
-                    const canvas = document.getElementById('revenueTrendChart');
-                    if (!canvas) return;
+            function initChart() {
+                const canvas = document.getElementById('revenueTrendChart');
+                if (!canvas) return;
 
-                    if (chartInstance) {
-                        chartInstance.destroy();
-                        chartInstance = null;
-                    }
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
 
-                    const labels = JSON.parse(canvas.dataset.labels || '[]');
-                    const revenue = JSON.parse(canvas.dataset.revenue || '[]');
-                    const orders = JSON.parse(canvas.dataset.orders || '[]');
+                const labels = JSON.parse(canvas.dataset.labels || '[]');
+                const revenue = JSON.parse(canvas.dataset.revenue || '[]');
+                const orders = JSON.parse(canvas.dataset.orders || '[]');
 
-                    if (labels.length === 0) return;
+                if (labels.length === 0) return;
 
-                    chartInstance = new Chart(canvas, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                {
-                                    label: 'Revenue (₱)',
-                                    data: revenue,
-                                    borderColor: '#d97706',
-                                    backgroundColor: 'rgba(217, 119, 6, 0.1)',
-                                    fill: true,
-                                    tension: 0.3,
-                                    borderWidth: 2,
-                                    pointRadius: 4,
-                                    pointBackgroundColor: '#d97706',
-                                    pointBorderColor: '#fff',
-                                    pointBorderWidth: 2,
-                                    yAxisID: 'y',
-                                },
-                                {
-                                    label: 'Orders',
-                                    data: orders,
-                                    borderColor: '#3b82f6',
-                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                    fill: false,
-                                    tension: 0.3,
-                                    borderWidth: 2,
-                                    pointRadius: 4,
-                                    pointBackgroundColor: '#3b82f6',
-                                    pointBorderColor: '#fff',
-                                    pointBorderWidth: 2,
-                                    yAxisID: 'y1',
-                                }
-                            ]
+                chartInstance = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Revenue (₱)',
+                                data: revenue,
+                                borderColor: '#d97706',
+                                backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                                fill: true,
+                                tension: 0.3,
+                                borderWidth: 2,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#d97706',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'Orders',
+                                data: orders,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                fill: false,
+                                tension: 0.3,
+                                borderWidth: 2,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#3b82f6',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                yAxisID: 'y1',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false,
-                            },
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                    labels: {
-                                        usePointStyle: true,
-                                        boxWidth: 8,
-                                        font: { size: 12 }
-                                    }
-                                },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function (context) {
-                                            const label = context.dataset.label || '';
-                                            const value = context.parsed.y;
-                                            if (label.includes('Revenue')) {
-                                                return label + ': ₱' + value.toLocaleString('en-PH', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2
-                                                });
-                                            }
-                                            return label + ': ' + value;
-                                        }
-                                    }
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8,
+                                    font: { size: 12 }
                                 }
                             },
-                            scales: {
-                                y: {
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'left',
-                                    beginAtZero: true,
-                                    ticks: {
-                                        callback: function (value) {
-                                            return '₱' + value.toLocaleString();
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.dataset.label || '';
+                                        const value = context.parsed.y;
+                                        if (label.includes('Revenue')) {
+                                            return label + ': ₱' + value.toLocaleString('en-PH', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            });
                                         }
-                                    },
-                                    title: {
-                                        display: true,
-                                        text: 'Revenue',
-                                        color: '#d97706'
-                                    }
-                                },
-                                y1: {
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'right',
-                                    beginAtZero: true,
-                                    grid: { drawOnChartArea: false },
-                                    title: {
-                                        display: true,
-                                        text: 'Orders',
-                                        color: '#3b82f6'
+                                        return label + ': ' + value;
                                     }
                                 }
                             }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return '₱' + value.toLocaleString();
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Revenue',
+                                    color: '#d97706'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                title: {
+                                    display: true,
+                                    text: 'Orders',
+                                    color: '#3b82f6'
+                                }
+                            }
                         }
-                    });
-                }
+                    }
+                });
+            }
 
-                document.addEventListener('DOMContentLoaded', initChart);
-                document.addEventListener('livewire:navigated', () => {
-                    setTimeout(initChart, 50);
+            document.addEventListener('DOMContentLoaded', initChart);
+            document.addEventListener('livewire:navigated', () => {
+                setTimeout(initChart, 50);
+            });
+            document.addEventListener('livewire:init', () => {
+                Livewire.hook('morph.updated', ({ el }) => {
+                    if (el.id === 'revenueTrendChart' || el.querySelector?.('#revenueTrendChart')) {
+                        setTimeout(initChart, 50);
+                    }
                 });
-                document.addEventListener('livewire:init', () => {
-                    Livewire.hook('morph.updated', ({ el }) => {
-                        if (el.id === 'revenueTrendChart' || el.querySelector?.('#revenueTrendChart')) {
-                            setTimeout(initChart, 50);
-                        }
-                    });
-                });
-            })();
+            });
+        })();
     </script>
 </div>

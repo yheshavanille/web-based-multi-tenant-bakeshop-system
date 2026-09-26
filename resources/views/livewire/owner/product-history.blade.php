@@ -1,13 +1,18 @@
 <div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Product Edit History</h1>
                 <p class="text-sm text-gray-500">View all product edit history</p>
             </div>
             <a href="{{ route('livewire.owner.dashboard') }}"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
-                ← Back to Dashboard
+                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
             </a>
         </div>
 
@@ -55,10 +60,12 @@
                         @foreach($histories as $history)
                         @php
                         $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                        $oldClean = $this->cleanValue($history->field, $history->old_value);
+                        $newClean = $this->cleanValue($history->field, $history->new_value);
                         @endphp
                         <tr>
                             <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $branchName }}</td>
+                            <td class="px-4 py-3 text-gray-600 text-xs">{{ $branchName }}</td>
                             <td class="px-4 py-3 text-gray-600">
                                 <span class="px-2 py-0.5 text-xs rounded-full
                                     {{ $history->field === 'created' ? 'bg-green-100 text-green-800' : '' }}
@@ -67,6 +74,9 @@
                                     {{ $history->field === 'category_id' ? 'bg-purple-100 text-purple-800' : '' }}
                                     {{ $history->field === 'description' ? 'bg-gray-100 text-gray-800' : '' }}
                                     {{ $history->field === 'image_url' ? 'bg-pink-100 text-pink-800' : '' }}
+                                    {{ $history->field === 'branch' ? 'bg-indigo-100 text-indigo-800' : '' }}
+                                    {{ $history->field === 'stock' ? 'bg-cyan-100 text-cyan-800' : '' }}
+                                    {{ $history->field === 'discount' ? 'bg-yellow-100 text-yellow-800' : '' }}
                                     {{ $history->field === 'deleted' ? 'bg-red-100 text-red-800' : '' }}
                                     {{ $history->field === 'restored' ? 'bg-green-100 text-green-800' : '' }}">
                                     {{ ucfirst(str_replace('_', ' ', $history->field)) }}
@@ -74,32 +84,30 @@
                             </td>
                             <td class="px-4 py-3 text-gray-500 text-sm">
                                 @if($history->field === 'price')
-                                ₱{{ number_format($history->old_value ?? 0, 2) }}
+                                ₱{{ number_format((float) ($oldClean ?? 0), 2) }}
                                 @elseif($history->field === 'image_url')
-                                <span class="text-xs text-gray-400">{{ $history->old_value ? 'Old image' : 'No image'
-                                    }}</span>
+                                <span class="text-xs text-gray-400">{{ $oldClean ? 'Old image' : 'No image' }}</span>
                                 @elseif($history->field === 'deleted')
-                                <span class="text-xs text-red-600">{{ $history->old_value }}</span>
+                                <span class="text-xs text-red-600">{{ $oldClean }}</span>
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-gray-400">—</span>
                                 @else
-                                {{ $history->old_value ?? '-' }}
+                                {{ $oldClean ?? '-' }}
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-gray-700 text-sm">
                                 @if($history->field === 'price')
-                                ₱{{ number_format($history->new_value ?? 0, 2) }}
+                                ₱{{ number_format((float) ($newClean ?? 0), 2) }}
                                 @elseif($history->field === 'image_url')
-                                <span class="text-xs text-green-600">{{ $history->new_value ? 'New image' : 'Removed'
-                                    }}</span>
+                                <span class="text-xs text-green-600">{{ $newClean ? 'New image' : 'Removed' }}</span>
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-green-600">Product created</span>
                                 @elseif($history->field === 'deleted')
-                                <span class="text-xs text-red-600">{{ $history->new_value }}</span>
+                                <span class="text-xs text-red-600">{{ $newClean }}</span>
                                 @elseif($history->field === 'restored')
-                                <span class="text-xs text-green-600">{{ $history->new_value }}</span>
+                                <span class="text-xs text-green-600">{{ $newClean }}</span>
                                 @else
-                                {{ $history->new_value ?? '-' }}
+                                {{ $newClean ?? '-' }}
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-gray-600">{{ $history->user->name ?? 'System' }}</td>
@@ -111,7 +119,13 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
-                <span class="text-4xl block mb-2">📭</span>
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                        </path>
+                    </svg>
+                </div>
                 <p>No product edit history found.</p>
             </div>
             @endif

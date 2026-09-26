@@ -18,14 +18,11 @@
                             el.classList.remove('ring-4', 'ring-amber-400', 'ring-offset-2');
                         }, 2500);
 
-                        // Clean the URL (removes #product-123 from the address bar)
                         history.replaceState(null, '', window.location.pathname + window.location.search);
                     };
 
-                    // ✅ Initial page load (regular navigation)
                     setTimeout(scrollToHash, 300);
 
-                    // ✅ Livewire SPA navigation (wire:navigate)
                     document.addEventListener('livewire:navigated', () => {
                         setTimeout(scrollToHash, 300);
                     });
@@ -36,7 +33,7 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
-        <!-- Back Button with Background -->
+        <!-- Back Button -->
         <div class="mb-4">
             <a href="{{ route('livewire.customer.browse-shops') }}"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm font-medium">
@@ -79,7 +76,7 @@
             @endif
         </div>
 
-        <!-- Shop Info with Rating - SQUARED IMAGE -->
+        <!-- Shop Info with Rating -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex items-center gap-4">
                 <div
@@ -87,16 +84,39 @@
                     @if($shop->shop_image)
                     <img src="{{ asset($shop->shop_image) }}" class="w-full h-full object-cover">
                     @else
-                    <span class="text-3xl">🏪</span>
+                    <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
                     @endif
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">{{ $shop->shop_name }}</h1>
-                    <p class="text-sm text-gray-500">{{ $shop->address ?? 'Victorias City' }}</p>
-                    <p class="text-sm text-gray-400">👤 {{ $shop->user->name ?? 'N/A' }}</p>
+                    <p class="text-sm text-gray-500 inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        {{ $shop->address ?? 'Victorias City' }}
+                    </p>
+                    <p class="text-sm text-gray-400 inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        {{ $shop->user->name ?? 'N/A' }}
+                    </p>
                     @if($shopRatingCount > 0)
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="text-amber-500 text-sm">⭐</span>
+                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                            </path>
+                        </svg>
                         <span class="font-semibold text-gray-800 text-sm">{{ number_format($shopRating, 1) }}</span>
                         <span class="text-sm text-gray-500">({{ $shopRatingCount }} reviews)</span>
                     </div>
@@ -111,7 +131,10 @@
         @if($bestSellers->count() > 0 && $selectedBranchId)
         <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl shadow-sm border border-amber-200 p-5 mb-6">
             <div class="flex items-center gap-2 mb-4">
-                <span class="text-2xl">🏆</span>
+                <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z">
+                    </path>
+                </svg>
                 <h2 class="text-lg font-semibold text-gray-800">Best Sellers</h2>
                 <span class="text-xs text-gray-500 ml-auto">
                     {{ $branches->firstWhere('id', $selectedBranchId)?->name ?? '' }}
@@ -127,8 +150,14 @@
                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                         @else
                         <div
-                            class="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-amber-50 to-orange-50">
-                            🍰
+                            class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50">
+                            <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.5 10.5v3M8 8v3M12 6v3M16 8v3M19.5 10.5v3"></path>
+                            </svg>
                         </div>
                         @endif
                     </div>
@@ -149,7 +178,15 @@
 
         <!-- Branch Cards -->
         <div class="mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">📍 Select Branch</h2>
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 inline-flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Select Branch
+            </h2>
             @if($branches->count() > 0)
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($branches as $branch)
@@ -161,11 +198,23 @@
                             <p class="text-sm text-gray-500">{{ $branch->address }}</p>
                         </div>
                         @if($selectedBranchId == $branch->id)
-                        <span class="text-amber-500 text-sm font-medium">✓ Selected</span>
+                        <span class="inline-flex items-center gap-1 text-amber-500 text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Selected
+                        </span>
                         @endif
                     </div>
                     <div class="mt-3 flex items-center gap-3 text-sm text-gray-500">
-                        <span> {{ $branch->products()->wherePivot('stock', '>', 0)->count() }} products</span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            {{ $branch->products()->wherePivot('stock', '>', 0)->count() }} products
+                        </span>
                     </div>
                     @if($selectedBranchId == $branch->id)
                     <div class="mt-2 text-xs text-amber-600">Viewing this branch</div>
@@ -185,7 +234,13 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-800">📦 Products</h2>
+                    <h2 class="text-lg font-semibold text-gray-800 inline-flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Products
+                    </h2>
                     @php
                     $selectedBranch = $branches->firstWhere('id', $selectedBranchId);
                     @endphp
@@ -239,7 +294,11 @@
 
                     <div class="flex items-center gap-1 mt-1">
                         @if($product->product_reviews_avg_rating > 0)
-                        <span class="text-amber-500 text-sm">⭐</span>
+                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                            </path>
+                        </svg>
                         <span class="text-sm font-medium text-gray-700">{{
                             number_format($product->product_reviews_avg_rating, 1) }}</span>
                         <span class="text-xs text-gray-400">({{ $product->productReviews->count() }} reviews)</span>
@@ -249,11 +308,31 @@
                     </div>
 
                     <div class="mt-2">
-                        @if($stock <= 0) <p class="text-xs text-red-500 font-medium">🚫 Out of Stock</p>
-                            @elseif($stock <= 5) <p class="text-xs text-orange-500 font-medium">⚠️ Only {{ $stock }}
-                                left!</p>
+                        @if($stock <= 0) <p class="inline-flex items-center gap-1 text-xs text-red-500 font-medium">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                </path>
+                            </svg>
+                            Out of Stock
+                            </p>
+                            @elseif($stock <= 5) <p
+                                class="inline-flex items-center gap-1 text-xs text-orange-500 font-medium">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                    </path>
+                                </svg>
+                                Only {{ $stock }} left!
+                                </p>
                                 @else
-                                <p class="text-xs text-green-500">✅ {{ $stock }} in stock</p>
+                                <p class="inline-flex items-center gap-1 text-xs text-green-500">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ $stock }} in stock
+                                </p>
                                 @endif
                     </div>
 
@@ -261,8 +340,16 @@
                         <p class="text-xs font-medium text-gray-700">Available for pickup at:</p>
                         <div class="flex flex-wrap gap-1 mt-1">
                             @forelse($product->branches as $branch)
-                            <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full">
-                                📍 {{ $branch->name }}
+                            <span
+                                class="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ $branch->name }}
                             </span>
                             @empty
                             <span class="text-xs text-gray-400">No branches available</span>
@@ -275,8 +362,13 @@
                     <div class="mt-auto pt-3">
                         @if($stock > 0)
                         <button wire:click.stop="addToCart({{ $product->id }})"
-                            class="w-full px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                            Add to Cart 🛒
+                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                            Add to Cart
                         </button>
                         @else
                         <button disabled
@@ -317,7 +409,13 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">📦 Product Details</h3>
+                        <h3 class="text-xl font-bold text-gray-800 inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Product Details
+                        </h3>
                         <p class="text-sm text-gray-500">{{ $selectedProduct->name }}</p>
                     </div>
                     <button wire:click="closeReviewModal" class="text-gray-400 hover:text-gray-600 transition">
@@ -332,7 +430,6 @@
             <!-- Scrollable Body -->
             <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
-                <!-- Product Image -->
                 @if($selectedProduct->image_url)
                 <div class="w-full h-64 rounded-xl overflow-hidden bg-gray-100">
                     <img src="{{ asset($selectedProduct->image_url) }}" alt="{{ $selectedProduct->name }}"
@@ -340,7 +437,6 @@
                 </div>
                 @endif
 
-                <!-- Product Info -->
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800">{{ $selectedProduct->name }}</h2>
                     <p class="text-sm text-gray-500">{{ $selectedProduct->category->name ?? 'No Category' }}</p>
@@ -361,7 +457,11 @@
 
                     <div class="flex items-center gap-2 mt-2">
                         @if($averageRating > 0)
-                        <span class="text-amber-500 text-lg">⭐</span>
+                        <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                            </path>
+                        </svg>
                         <span class="font-semibold text-gray-800 text-lg">{{ number_format($averageRating, 1) }}</span>
                         <span class="text-sm text-gray-500">({{ $selectedProduct->productReviews->count() }}
                             reviews)</span>
@@ -373,7 +473,10 @@
 
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                     <div class="flex items-center gap-2">
-                        <span class="text-lg">📦</span>
+                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
                         <div>
                             <p class="text-xs text-gray-500">Total Sold</p>
                             <p class="text-lg font-bold text-amber-600">
@@ -394,29 +497,62 @@
 
                 @if($selectedProduct->description)
                 <div class="border-t border-gray-100 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📝 Description</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 10h16M4 14h10M4 18h10"></path>
+                        </svg>
+                        Description
+                    </h4>
                     <p class="text-sm text-gray-600">{{ $selectedProduct->description }}</p>
                 </div>
                 @endif
 
                 <div class="border-t border-gray-100 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📦 Stock Availability</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Stock Availability
+                    </h4>
                     @php
                     $stock = $selectedProduct->branches->firstWhere('id', $selectedBranchId)?->pivot->stock ?? 0;
                     @endphp
                     <div class="flex items-center gap-2">
                         @if($stock > 0)
-                        <span class="text-sm text-green-600 font-medium">✅ {{ $stock }} in stock</span>
+                        <span class="inline-flex items-center gap-1 text-sm text-green-600 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ $stock }} in stock
+                        </span>
                         @else
-                        <span class="text-sm text-red-600 font-medium">🚫 Out of Stock</span>
+                        <span class="inline-flex items-center gap-1 text-sm text-red-600 font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                </path>
+                            </svg>
+                            Out of Stock
+                        </span>
                         @endif
                     </div>
                     <div class="mt-2">
                         <p class="text-xs font-medium text-gray-700">Available for pickup at:</p>
                         <div class="flex flex-wrap gap-1 mt-1">
                             @forelse($selectedProduct->branches as $branch)
-                            <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full">
-                                📍 {{ $branch->name }}
+                            <span
+                                class="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ $branch->name }}
                             </span>
                             @empty
                             <span class="text-xs text-gray-400">No branches available</span>
@@ -427,7 +563,14 @@
 
                 <div class="border-t border-gray-100 pt-4">
                     <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-semibold text-gray-700">⭐ Customer Reviews</h4>
+                        <h4 class="text-sm font-semibold text-gray-700 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                </path>
+                            </svg>
+                            Customer Reviews
+                        </h4>
                         <span class="text-xs text-gray-500">{{ $selectedProduct->productReviews->count() }}
                             reviews</span>
                     </div>
@@ -440,8 +583,14 @@
                                 <div>
                                     <p class="font-semibold text-gray-800 text-sm">{{ $review->customer->name ??
                                         'Anonymous' }}</p>
-                                    <div class="flex items-center gap-1 text-amber-500 text-sm">
-                                        {{ str_repeat('⭐', $review->rating) }}
+                                    <div class="flex items-center gap-0.5 text-amber-500">
+                                        @for($i = 0; $i < $review->rating; $i++)
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                                </path>
+                                            </svg>
+                                            @endfor
                                     </div>
                                 </div>
                                 <span class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
@@ -466,8 +615,13 @@
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end gap-3">
                 @if($stock > 0)
                 <button wire:click="addToCart({{ $selectedProduct->id }})" wire:click.stop
-                    class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                    Add to Cart 🛒
+                    class="inline-flex items-center gap-2 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                        </path>
+                    </svg>
+                    Add to Cart
                 </button>
                 @endif
                 <button wire:click="closeReviewModal"

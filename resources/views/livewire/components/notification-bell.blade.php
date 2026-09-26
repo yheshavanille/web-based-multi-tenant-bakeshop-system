@@ -18,7 +18,13 @@
         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
         class="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-96 overflow-y-auto">
         <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
-            <span class="text-sm font-semibold text-gray-800">🔔 Notifications</span>
+            <span class="text-sm font-semibold text-gray-800 inline-flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                Notifications
+            </span>
             @if($unreadCount > 0)
             <button wire:click="markAllAsRead" class="text-xs text-amber-600 hover:text-amber-700 font-medium">
                 Mark all as read
@@ -33,43 +39,97 @@
             class="w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0 {{ $notification->read_at ? 'opacity-75' : 'bg-amber-50' }}">
             <div class="flex-shrink-0 mt-0.5">
                 @if($notification->data['type'] === 'new_order')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'order_status_updated')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'low_stock')
                 @if(isset($notification->data['is_out_of_stock']) && $notification->data['is_out_of_stock'])
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
                 @else
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
                 @endif
                 @elseif($notification->data['type'] === 'stock_review_needed')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'seller_approved')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'seller_rejected')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'new_seller_registration')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'shop_deleted_by_owner')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'shop_deleted_by_admin')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'shop_restored_by_admin')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'review_moderation_kept')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'review_moderation_removed')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'review_moderation_banned')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'user_suspended')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'user_archived')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'user_restored')
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 @else
-                <span class="text-lg"></span>
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
                 @endif
             </div>
             <div class="flex-1 min-w-0">
@@ -77,7 +137,13 @@
                     {{ $notification->data['message'] }}
                 </p>
                 @if(isset($notification->data['custom_note']))
-                <p class="text-xs text-amber-600 mt-0.5 italic"> "{{ $notification->data['custom_note'] }}"</p>
+                <p class="text-xs text-amber-600 mt-0.5 italic inline-flex items-center gap-1">
+                    <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    "{{ $notification->data['custom_note'] }}"
+                </p>
                 @endif
                 <p class="text-xs text-gray-400 mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
             </div>
@@ -88,7 +154,10 @@
         @endforeach
         @else
         <div class="px-4 py-6 text-center text-gray-500 text-sm">
-            <span class="text-3xl block mb-2"></span>
+            <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
             No notifications yet
         </div>
         @endif
@@ -125,7 +194,13 @@
 
                 @if($selectedNotification->data['type'] === 'new_seller_registration')
                 <div class="bg-purple-50 rounded-lg p-3 border border-purple-200">
-                    <p class="text-sm font-semibold text-purple-800">📋 New Seller Application!</p>
+                    <p class="text-sm font-semibold text-purple-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        New Seller Application!
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -165,7 +240,13 @@
                 </div>
                 @if(isset($selectedNotification->data['custom_note']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs text-amber-600 font-medium">💬 Custom Note:</p>
+                    <p class="text-xs text-amber-600 font-medium inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        Custom Note:
+                    </p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['custom_note'] }}"</p>
                 </div>
                 @endif
@@ -244,7 +325,13 @@
 
                 @if(isset($orderDetails) && $orderDetails && $orderDetails->items->count() > 0)
                 <div class="border-t border-gray-200 pt-3">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📦 Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Order Items
+                    </h4>
                     <div class="space-y-2 max-h-48 overflow-y-auto">
                         @foreach($orderDetails->items as $item)
                         <div class="p-2 bg-gray-50 rounded-lg border border-gray-100">
@@ -309,7 +396,15 @@
 
                 @if(isset($orderDetails) && $orderDetails->pickup_time)
                 <div class="border-t border-gray-200 pt-3">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📍 Pickup Details</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Pickup Details
+                    </h4>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-sm text-gray-700">
                             <span class="font-medium">Branch:</span> {{ $orderDetails->branch?->name ?? 'N/A' }}
@@ -337,7 +432,13 @@
 
                 @if(isset($selectedNotification->data['product_name']) && $selectedNotification->data['product_name'])
                 <div class="bg-amber-50 rounded-lg p-4 border-2 border-amber-300">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Item Status Changed</p>
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        Item Status Changed
+                    </p>
                     <p class="text-base font-bold text-gray-800 mb-2">{{ $selectedNotification->data['product_name'] }}
                     </p>
                     <div class="flex items-center gap-2 text-sm">
@@ -425,7 +526,13 @@
                     <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Summary</h4>
 
                     <div class="bg-gray-50 rounded-lg p-3 mb-3 border border-gray-200">
-                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">📦 Original Order</p>
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Original Order
+                        </p>
                         <div class="space-y-1 mb-2">
                             @foreach($orderDetails->items as $item)
                             @php
@@ -460,7 +567,12 @@
                     </div>
 
                     <div class="bg-green-50 rounded-lg p-3 mb-3 border border-green-200">
-                        <p class="text-xs font-bold text-green-700 uppercase tracking-wider mb-2">✅ Charged to Customer
+                        <p class="text-xs font-bold text-green-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Charged to Customer
                         </p>
                         @if($chargedItems->count() > 0)
                         <div class="space-y-1 mb-2">
@@ -494,7 +606,13 @@
                     </div>
 
                     <div class="bg-red-50 rounded-lg p-3 mb-3 border border-red-200">
-                        <p class="text-xs font-bold text-red-700 uppercase tracking-wider mb-2">❌ Not Charged</p>
+                        <p class="text-xs font-bold text-red-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Not Charged
+                        </p>
                         @if($notChargedItems->count() > 0)
                         <div class="space-y-1 mb-2">
                             @foreach($notChargedItems as $item)
@@ -528,7 +646,13 @@
                     </div>
 
                     <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                        <p class="text-xs font-bold text-yellow-700 uppercase tracking-wider mb-2">⏳ Outstanding</p>
+                        <p class="text-xs font-bold text-yellow-700 uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Outstanding
+                        </p>
                         @if($outstandingItems->count() > 0)
                         <div class="space-y-1 mb-2">
                             @foreach($outstandingItems as $item)
@@ -567,7 +691,13 @@
 
                 @if($selectedNotification->data['type'] === 'shop_deleted_by_owner')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">Shop Deleted by Owner</p>
+                    <p class="text-sm font-semibold text-red-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        Shop Deleted by Owner
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -600,7 +730,13 @@
 
                 @if($selectedNotification->data['type'] === 'shop_deleted_by_admin')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">❌ Shop Deleted</p>
+                    <p class="text-sm font-semibold text-red-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Shop Deleted
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -650,12 +786,24 @@
                 @if(isset($selectedNotification->data['is_out_of_stock']) &&
                 $selectedNotification->data['is_out_of_stock'])
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">Out of Stock!</p>
+                    <p class="text-sm font-semibold text-red-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                        </svg>
+                        Out of Stock!
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 @else
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
-                    <p class="text-sm font-semibold text-red-800">Low Stock Alert</p>
+                    <p class="text-sm font-semibold text-red-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        Low Stock Alert
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
                 @endif
@@ -737,10 +885,16 @@
                 @endif
                 @endif
 
-                {{-- ✅ REVIEW MODERATION KEPT --}}
+                {{-- REVIEW MODERATION KEPT --}}
                 @if($selectedNotification->data['type'] === 'review_moderation_kept')
                 <div class="bg-green-50 rounded-lg p-3 border border-green-200">
-                    <p class="text-sm font-semibold text-green-800">✅ Flag Reviewed — Review Kept</p>
+                    <p class="text-sm font-semibold text-green-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Flag Reviewed — Review Kept
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 
@@ -757,8 +911,14 @@
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500">Rating</p>
-                        <p class="text-amber-500 text-sm">{{ str_repeat('⭐', $selectedNotification->data['rating'] ?? 0)
-                            }} ({{ $selectedNotification->data['rating'] ?? 0 }}/5)</p>
+                        <p class="inline-flex items-center gap-0.5 text-amber-500 text-sm">
+                            @for($i = 0; $i < ($selectedNotification->data['rating'] ?? 0); $i++)
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                            @endfor
+                            <span class="text-gray-500 ml-1">({{ $selectedNotification->data['rating'] ?? 0 }}/5)</span>
+                        </p>
                     </div>
                 </div>
 
@@ -776,7 +936,7 @@
                 </a>
                 @endif
 
-                {{-- ✅ REVIEW MODERATION REMOVED --}}
+                {{-- REVIEW MODERATION REMOVED --}}
                 @if($selectedNotification->data['type'] === 'review_moderation_removed')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
                     <p class="text-sm font-semibold text-red-800">Flag Reviewed — Review Removed</p>
@@ -799,14 +959,25 @@
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500">Rating</p>
-                        <p class="text-amber-500 text-sm">{{ str_repeat('⭐', $selectedNotification->data['rating'] ?? 0)
-                            }} ({{ $selectedNotification->data['rating'] ?? 0 }}/5)</p>
+                        <p class="inline-flex items-center gap-0.5 text-amber-500 text-sm">
+                            @for($i = 0; $i < ($selectedNotification->data['rating'] ?? 0); $i++)
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                            @endfor
+                            <span class="text-gray-500 ml-1">({{ $selectedNotification->data['rating'] ?? 0 }}/5)</span>
+                        </p>
                     </div>
                 </div>
 
                 @if(!empty($selectedNotification->data['moderator_notes']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason from Super Admin
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1 inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        Reason from Super Admin
                     </p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['moderator_notes'] }}"</p>
                 </div>
@@ -825,7 +996,7 @@
                 @endif
                 @endif
 
-                {{-- ✅ REVIEW MODERATION BANNED --}}
+                {{-- REVIEW MODERATION BANNED --}}
                 @if($selectedNotification->data['type'] === 'review_moderation_banned')
                 <div class="bg-red-50 rounded-lg p-3 border-2 border-red-300">
                     <p class="text-sm font-semibold text-red-800">Review Removed & Reviewer Banned</p>
@@ -867,7 +1038,7 @@
                 @endif
                 @endif
 
-                {{-- ✅ USER SUSPENDED --}}
+                {{-- USER SUSPENDED --}}
                 @if($selectedNotification->data['type'] === 'user_suspended')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
                     <p class="text-sm font-semibold text-red-800">Account Suspended</p>
@@ -900,7 +1071,7 @@
                 </p>
                 @endif
 
-                {{-- ✅ USER ARCHIVED --}}
+                {{-- USER ARCHIVED --}}
                 @if($selectedNotification->data['type'] === 'user_archived')
                 <div class="bg-red-50 rounded-lg p-3 border border-red-200">
                     <p class="text-sm font-semibold text-red-800">Account Archived</p>
@@ -923,7 +1094,12 @@
 
                 @if(!empty($selectedNotification->data['reason']))
                 <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">💬 Reason for Archiving
+                    <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1 inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        Reason for Archiving
                     </p>
                     <p class="text-sm text-gray-700 italic">"{{ $selectedNotification->data['reason'] }}"</p>
                 </div>
@@ -934,10 +1110,16 @@
                 </p>
                 @endif
 
-                {{-- ✅ USER RESTORED --}}
+                {{-- USER RESTORED --}}
                 @if($selectedNotification->data['type'] === 'user_restored')
                 <div class="bg-green-50 rounded-lg p-3 border border-green-200">
-                    <p class="text-sm font-semibold text-green-800">🎉 Account Restored</p>
+                    <p class="text-sm font-semibold text-green-800 inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Account Restored
+                    </p>
                     <p class="text-sm text-gray-700 mt-1">{{ $selectedNotification->data['message'] }}</p>
                 </div>
 

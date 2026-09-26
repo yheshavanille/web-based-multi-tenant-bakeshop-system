@@ -139,6 +139,15 @@ class ManageEmployees extends Component
     public function toggleDeleted()
     {
         $this->showDeleted = !$this->showDeleted;
+
+        // Close any open form when toggling deleted view
+        $this->showForm = false;
+        $this->editing = false;
+        $this->resetErrorBag();
+        $this->reset(['name', 'email', 'phone', 'role', 'branch_id', 'password', 'password_confirmation', 'employeeId']);
+        $this->reset(['showResetPassword', 'new_password', 'new_password_confirmation']);
+        $this->reset(['new_profile_picture', 'temp_profile_picture_preview', 'existing_profile_picture', 'removeImage']);
+
         $this->loadEmployees();
     }
 
@@ -147,8 +156,12 @@ class ManageEmployees extends Component
         $this->reset(['name', 'email', 'phone', 'role', 'branch_id', 'password', 'password_confirmation', 'employeeId']);
         $this->reset(['showResetPassword', 'new_password', 'new_password_confirmation']);
         $this->reset(['new_profile_picture', 'temp_profile_picture_preview', 'existing_profile_picture', 'removeImage']);
+
         $this->editing = false;
         $this->showForm = true;
+
+        // Auto-scroll to top
+        $this->dispatch('scroll-to-top');
     }
 
     public function edit($employeeId)
@@ -184,6 +197,9 @@ class ManageEmployees extends Component
 
         $this->reset(['showResetPassword', 'new_password', 'new_password_confirmation']);
         $this->reset(['new_profile_picture', 'temp_profile_picture_preview', 'removeImage']);
+
+        // Auto-scroll to top
+        $this->dispatch('scroll-to-top');
     }
 
     public function cancel()

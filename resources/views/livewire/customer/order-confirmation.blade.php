@@ -2,7 +2,12 @@
     <div class="max-w-4xl mx-auto">
         <!-- Success Header -->
         <div class="text-center mb-8">
-            <div class="text-6xl mb-4">🎉</div>
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
             <h1 class="text-3xl font-bold text-gray-800">Order Placed Successfully!</h1>
             <p class="text-gray-600 mt-2">
                 @if($orders->count() > 1)
@@ -69,19 +74,39 @@
                             <p class="font-medium text-gray-800">{{ $item->product->name }}</p>
                             <p class="text-sm text-gray-500">₱{{ number_format($item->price, 2) }} x {{ $item->quantity
                                 }}</p>
-                            <div class="flex flex-wrap items-center gap-2 mt-1">
-                                <span class="text-xs text-gray-400">📍 {{ $item->branch->name ?? 'No branch' }}</span>
+                            <div class="flex flex-wrap items-center gap-3 mt-1">
+                                <span class="inline-flex items-center gap-1 text-xs text-gray-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    {{ $item->branch->name ?? 'No branch' }}
+                                </span>
                                 @if($item->pickup_time)
-                                <span class="text-xs text-gray-400">🕐 {{
-                                    \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i A') }}</span>
+                                <span class="inline-flex items-center gap-1 text-xs text-gray-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i A') }}
+                                </span>
                                 @endif
                             </div>
 
-                            {{-- ✅ PER-ITEM NOTES --}}
+                            {{-- Per-item notes --}}
                             @if(!empty($item->notes))
                             <div class="mt-2">
                                 <div
                                     class="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1.5 max-w-full">
+                                    <svg class="w-3.5 h-3.5 text-amber-600 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                        </path>
+                                    </svg>
                                     <span class="text-xs font-medium text-gray-700 flex-shrink-0">Order Note:</span>
                                     <p class="text-xs text-gray-700 italic leading-snug break-words">{{ $item->notes }}
                                     </p>
@@ -143,16 +168,28 @@
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="{{ route('livewire.customer.dashboard') }}"
-                class="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
-                ← Back to Dashboard
+                class="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
             </a>
             <a href="{{ route('livewire.customer.browse-shops') }}"
-                class="px-6 py-3 border border-amber-600 text-amber-600 rounded-lg hover:bg-amber-50 transition">
-                Continue Shopping →
+                class="inline-flex items-center gap-2 px-6 py-3 border border-amber-600 text-amber-600 rounded-lg hover:bg-amber-50 transition">
+                Continue Shopping
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
             <a href="{{ route('livewire.customer.orders') }}"
-                class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-                View All Orders →
+                class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                View All Orders
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
     </div>

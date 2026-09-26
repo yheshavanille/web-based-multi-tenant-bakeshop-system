@@ -4,21 +4,48 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Manage Products</h1>
-                <p class="text-sm text-gray-500">
-                    Manage products for <span class="font-medium text-amber-600">{{ $branch->name }}</span>
+                <p class="text-sm text-gray-500 inline-flex items-center gap-1.5">
+                    Manage products for
+                    <span class="inline-flex items-center gap-1 font-medium text-amber-600">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        {{ $branch->name }}
+                    </span>
                 </p>
             </div>
             <div class="flex gap-3">
                 <button wire:click="createNew"
-                    class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium shadow-sm hover:shadow-md">
-                    + Add Product
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium shadow-sm hover:shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Product
                 </button>
                 <button wire:click="toggleDeleted"
-                    class="px-4 py-2 {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                    {{ $showDeleted ? '📋 Show Active' : '🗑️ Show Deleted' }}
+                    class="inline-flex items-center gap-2 px-4 py-2 {{ $showDeleted ? 'bg-amber-600 text-white' : 'bg-gray-600 text-white' }} rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                    @if($showDeleted)
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    Show Active
+                    @else
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    Show Deleted
+                    @endif
                 </button>
                 <a href="{{ route('livewire.employee.dashboard') }}"
-                    class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm font-medium">
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -74,8 +101,20 @@
         <!-- Product Form -->
         @if($showForm)
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                {{ $editing ? '✏️ Edit Product' : '➕ Add New Product' }}
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 inline-flex items-center gap-2">
+                @if($editing)
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
+                </svg>
+                Edit Product
+                @else
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add New Product
+                @endif
             </h2>
 
             <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,11 +228,23 @@
                         <tr>
                             <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
-                                    <span class="text-4xl">🗑️</span>
+                                    <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
+                                        <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                    </div>
                                     <p class="text-sm font-medium text-gray-800">{{ $product->name }}</p>
                                     <p class="text-xs text-gray-400">This product is deleted.</p>
                                     <button wire:click="restore({{ $product->id }})"
-                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                                        class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                            </path>
+                                        </svg>
                                         Restore Product
                                     </button>
                                 </div>
@@ -249,12 +300,22 @@
                             </td>
                             <td class="px-4 py-3 text-right space-x-2">
                                 <button wire:click="edit({{ $product->id }})"
-                                    class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                    class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
+                                    </svg>
                                     Edit
                                 </button>
                                 <button wire:click="delete({{ $product->id }})"
                                     onclick="confirm('Delete this product?') || event.stopImmediatePropagation()"
-                                    class="text-red-600 hover:text-red-800 text-xs font-medium">
+                                    class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 text-xs font-medium">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
                                     Delete
                                 </button>
                             </td>
@@ -264,7 +325,14 @@
                         <tr>
                             <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center gap-2">
-                                    <span class="text-4xl">📭</span>
+                                    <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
+                                        <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                            </path>
+                                        </svg>
+                                    </div>
                                     <p>{{ $showDeleted ? 'No deleted products found.' : 'No products for this branch
                                         yet.' }}</p>
                                     @if(!empty($search) && !$showDeleted)

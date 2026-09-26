@@ -19,8 +19,13 @@
 
         <!-- Success Message -->
         @if(session()->has('message'))
-        <div class="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
-            {{ session('message') }}
+        <div
+            class="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm inline-flex items-center gap-2 w-full">
+            <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>{{ session('message') }}</span>
         </div>
         @endif
 
@@ -137,7 +142,6 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                    {{-- ✅ CHANGED: opens modal instead of inline confirm --}}
                     <button type="button" wire:click="openDeleteModal"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition text-xs font-medium">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,7 +166,7 @@
             </form>
         </div>
 
-        <!-- Danger Zone Notice - Compact -->
+        <!-- Danger Zone Notice -->
         <div class="mt-3 p-2.5 bg-red-50 rounded-lg border border-red-200">
             <div class="flex items-start gap-2">
                 <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
@@ -172,7 +176,7 @@
                     </path>
                 </svg>
                 <div>
-                    <p class="text-xs font-medium text-red-800"> Danger Zone</p>
+                    <p class="text-xs font-medium text-red-800">Danger Zone</p>
                     <p class="text-xs text-red-600">Deleting your shop will hide all your products, orders, and data.
                         Contact support to restore.</p>
                 </div>
@@ -181,7 +185,7 @@
 
     </div>
 
-    {{-- ✅ NEW: DELETE REASON MODAL --}}
+    {{-- DELETE REASON MODAL --}}
     @if($showDeleteModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDeleteModal"></div>

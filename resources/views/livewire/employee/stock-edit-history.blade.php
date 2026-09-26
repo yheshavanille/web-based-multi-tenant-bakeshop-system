@@ -19,8 +19,12 @@
                 </div>
             </div>
             <a href="{{ route('livewire.employee.inventory') }}"
-                class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                ← Manage Stock
+                class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Manage Stock
             </a>
         </div>
 
@@ -31,7 +35,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <div class="relative">
-                        <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none">
+                        <div
+                            class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -44,7 +49,8 @@
                         <button wire:click="clearSearch" type="button"
                             class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
                         @endif
@@ -65,8 +71,7 @@
 
             @if($search || $scopeFilter !== 'all')
             <div class="flex justify-end mt-3">
-                <button wire:click="resetFilters"
-                    class="text-xs text-gray-500 hover:text-gray-700 underline">
+                <button wire:click="resetFilters" class="text-xs text-gray-500 hover:text-gray-700 underline">
                     Reset filters
                 </button>
             </div>
@@ -112,43 +117,44 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($stockHistories as $row)
                         @php
-                            $typeLabels = [
-                                'stock_in'    => ['label' => 'Stock In',        'color' => 'green'],
-                                'stock_out'   => ['label' => 'Stock Out',       'color' => 'red'],
-                                'adjustment'  => ['label' => 'Adjustment',      'color' => 'yellow'],
-                                'out'         => ['label' => 'Customer Order',  'color' => 'blue'],
-                                'cancelled'   => ['label' => 'Order Cancelled', 'color' => 'orange'],
-                                'no_show'     => ['label' => 'Not Picked Up',   'color' => 'orange'],
-                            ];
-                            $info = $typeLabels[$row->type] ?? ['label' => ucfirst($row->type), 'color' => 'gray'];
-                            $badgeClasses = match ($info['color']) {
-                                'green' => 'bg-green-100 text-green-800',
-                                'red' => 'bg-red-100 text-red-800',
-                                'yellow' => 'bg-yellow-100 text-yellow-800',
-                                'blue' => 'bg-blue-100 text-blue-800',
-                                'orange' => 'bg-orange-100 text-orange-800',
-                                default => 'bg-gray-100 text-gray-800',
-                            };
-                            $qty = (int) $row->quantity;
+                        $typeLabels = [
+                        'stock_in' => ['label' => 'Stock In', 'color' => 'green'],
+                        'stock_out' => ['label' => 'Stock Out', 'color' => 'red'],
+                        'adjustment' => ['label' => 'Adjustment', 'color' => 'yellow'],
+                        'out' => ['label' => 'Customer Order', 'color' => 'blue'],
+                        'cancelled' => ['label' => 'Order Cancelled', 'color' => 'orange'],
+                        'no_show' => ['label' => 'Not Picked Up', 'color' => 'orange'],
+                        ];
+                        $info = $typeLabels[$row->type] ?? ['label' => ucfirst($row->type), 'color' => 'gray'];
+                        $badgeClasses = match ($info['color']) {
+                        'green' => 'bg-green-100 text-green-800',
+                        'red' => 'bg-red-100 text-red-800',
+                        'yellow' => 'bg-yellow-100 text-yellow-800',
+                        'blue' => 'bg-blue-100 text-blue-800',
+                        'orange' => 'bg-orange-100 text-orange-800',
+                        default => 'bg-gray-100 text-gray-800',
+                        };
+                        $qty = (int) $row->quantity;
 
-                            $reason = $row->notes ?? '';
-                            if ($row->kind === 'order') {
-                                if (preg_match('/Order #(ORD-[A-Z0-9]+)/', $reason, $m)) {
-                                    $orderNo = $m[1];
-                                } else {
-                                    $orderNo = null;
-                                }
-                                $reason = match ($row->type) {
-                                    'out'       => $orderNo ? "Customer order — {$orderNo}" : 'Customer order',
-                                    'cancelled' => $orderNo ? "Order {$orderNo} was cancelled" : 'Order cancelled',
-                                    'no_show'   => $orderNo ? "Order {$orderNo} was not picked up" : 'Order not picked up',
-                                    default     => $reason,
-                                };
-                            }
+                        $reason = $row->notes ?? '';
+                        if ($row->kind === 'order') {
+                        if (preg_match('/Order #(ORD-[A-Z0-9]+)/', $reason, $m)) {
+                        $orderNo = $m[1];
+                        } else {
+                        $orderNo = null;
+                        }
+                        $reason = match ($row->type) {
+                        'out' => $orderNo ? "Customer order — {$orderNo}" : 'Customer order',
+                        'cancelled' => $orderNo ? "Order {$orderNo} was cancelled" : 'Order cancelled',
+                        'no_show' => $orderNo ? "Order {$orderNo} was not picked up" : 'Order not picked up',
+                        default => $reason,
+                        };
+                        }
                         @endphp
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-4 py-3">
-                                <span class="text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap {{ $badgeClasses }}">
+                                <span
+                                    class="text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap {{ $badgeClasses }}">
                                     {{ $info['label'] }}
                                 </span>
                             </td>
@@ -177,13 +183,18 @@
             </div>
             @else
             <div class="text-center py-16 text-gray-500">
-                <span class="text-5xl block mb-3">📭</span>
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
                 <p class="text-lg font-medium">No stock movements found</p>
                 <p class="text-sm text-gray-400 mt-1">
                     @if($search || $scopeFilter !== 'all')
-                        Try adjusting your filters.
+                    Try adjusting your filters.
                     @else
-                        Stock movements will appear here once products are created or ordered.
+                    Stock movements will appear here once products are created or ordered.
                     @endif
                 </p>
             </div>

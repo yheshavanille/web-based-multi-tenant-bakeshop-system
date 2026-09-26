@@ -8,9 +8,16 @@
                     Orders Dashboard
                 </h1>
 
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 inline-flex items-center gap-1.5">
                     Manage orders for
-                    <span class="font-medium text-amber-600">
+                    <span class="inline-flex items-center gap-1 font-medium text-amber-600">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
                         {{ $branch->name }}
                     </span>
                 </p>
@@ -95,18 +102,10 @@
 
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">
-                                Order #
-                            </th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">
-                                Customer
-                            </th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">
-                                Items
-                            </th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">
-                                Total
-                            </th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Order #</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Customer</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
@@ -116,19 +115,9 @@
                         @foreach($orders as $order)
 
                         <tr class="bg-gray-50">
-
-                            <td class="px-4 py-3 font-medium text-gray-800">
-                                #{{ $order->order_number }}
-                            </td>
-
-                            <td class="px-4 py-3 text-gray-600">
-                                {{ $order->customer->name ?? 'N/A' }}
-                            </td>
-
-                            <td class="px-4 py-3 text-gray-600">
-                                {{ $order->items->sum('quantity') }} items
-                            </td>
-
+                            <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ $order->customer->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ $order->items->sum('quantity') }} items</td>
                             <td class="px-4 py-3 font-medium text-amber-600">
                                 ₱{{ number_format($order->total_amount, 2) }}
                                 @if($order->tax_amount)
@@ -137,77 +126,78 @@
                                 </span>
                                 @endif
                             </td>
-
                             <td class="px-4 py-3 text-right">
                                 <button wire:click="openDetailsModal({{ $order->id }})"
                                     class="text-xs text-blue-600 hover:text-blue-800 font-medium transition">
                                     View Details
                                 </button>
                             </td>
-
                         </tr>
 
                         <tr>
                             <td colspan="5" class="px-4 py-3 bg-gray-50 border-t border-gray-200">
-
                                 <div>
-
                                     <div class="flex items-center justify-between px-4 mb-4">
-
-                                        <span class="text-sm font-semibold text-gray-700">
-                                            Order Items
-                                        </span>
-
-                                        <div class="w-[245px] flex justify-center">
-                                            <span class="text-sm font-semibold text-gray-700">
-                                                Status
-                                            </span>
+                                        <span class="text-sm font-semibold text-gray-700">Order Items</span>
+                                        <div class="w-[340px] flex justify-center">
+                                            <span class="text-sm font-semibold text-gray-700">Status</span>
                                         </div>
-
                                     </div>
 
                                     <div class="space-y-2">
-
                                         @foreach($order->items as $item)
-
                                         <div
                                             class="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0 px-4">
-
                                             <div class="min-w-0">
-
                                                 <p class="text-sm font-medium text-gray-800">
                                                     {{ $item->product?->name ?? 'Product Unavailable' }}
                                                 </p>
 
-                                                <p class="text-xs text-gray-500">
-                                                    Qty: {{ $item->quantity }}
+                                                <p
+                                                    class="text-xs text-gray-500 inline-flex items-center gap-1 flex-wrap">
+                                                    <span>Qty: {{ $item->quantity }}</span>
                                                     @if($item->original_price && $item->original_price > $item->price)
                                                     <span class="text-red-600 font-medium">₱{{
                                                         number_format($item->price, 2) }}</span>
-                                                    <span class="text-gray-400 line-through ml-1">₱{{
+                                                    <span class="text-gray-400 line-through">₱{{
                                                         number_format($item->original_price, 2) }}</span>
                                                     @else
-                                                    x ₱{{ number_format($item->price, 2) }}
+                                                    <span>x ₱{{ number_format($item->price, 2) }}</span>
                                                     @endif
 
                                                     @if($item->pickup_time)
-                                                    | 🕐
-                                                    {{ \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i A')
-                                                    }}
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        {{ \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i
+                                                        A') }}
+                                                    </span>
                                                     @endif
                                                 </p>
 
                                                 @if($item->notes)
-                                                <p class="text-xs text-amber-600 italic mt-0.5">📝 {{ $item->notes }}
+                                                <p
+                                                    class="text-xs text-amber-600 italic mt-0.5 inline-flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                        </path>
+                                                    </svg>
+                                                    {{ $item->notes }}
                                                 </p>
                                                 @endif
-
                                             </div>
 
-                                            <div class="w-[245px] flex items-center justify-end gap-3">
-
+                                            <div class="w-[340px] flex items-center justify-end gap-4">
+                                                {{-- Status badge — fixed min-width so the layout never collapses --}}
                                                 <span
-                                                    class="text-xs px-2.5 py-1 rounded-full whitespace-nowrap
+                                                    class="inline-flex items-center justify-center text-xs px-3 py-1 rounded-full whitespace-nowrap font-medium min-w-[110px]
                                                     {{ $item->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
                                                     {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
                                                     {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
@@ -217,39 +207,42 @@
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
-                                                <select
-                                                    wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
-                                                    x-data x-on:change="if ($event.target.value === 'cancelled') {
-                                                        if (!confirm('⚠️ Are you sure you want to cancel this item?')) {
-                                                            $event.target.value = '{{ $item->status }}';
-                                                            $event.preventDefault();
-                                                        }
-                                                    }"
-                                                    class="px-2 py-1 text-xs border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                                                    <option value="pending" {{ $item->status === 'pending' ? 'selected'
-                                                        : '' }}>Pending</option>
-                                                    <option value="preparing" {{ $item->status === 'preparing' ?
-                                                        'selected' : '' }}>Preparing</option>
-                                                    <option value="ready_for_pickup" {{ $item->status ===
-                                                        'ready_for_pickup' ? 'selected' : '' }}>Ready</option>
-                                                    <option value="completed" {{ $item->status === 'completed' ?
-                                                        'selected' : '' }}>Completed</option>
-                                                    <option value="no_show" {{ $item->status === 'no_show' ? 'selected'
-                                                        : '' }}>No Show</option>
-                                                    <option value="cancelled" {{ $item->status === 'cancelled' ?
-                                                        'selected' : '' }}>Cancelled</option>
-                                                </select>
-
+                                                {{-- Status dropdown with custom chevron --}}
+                                                <div class="relative">
+                                                    <select
+                                                        wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
+                                                        x-data x-on:change="if ($event.target.value === 'cancelled') {
+        if (!confirm('⚠️ Are you sure you want to cancel this item?')) {
+            $event.target.value = '{{ $item->status }}';
+            $event.preventDefault();
+        }
+    }" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
+                                                        class="pl-3 pr-8 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-white cursor-pointer">
+                                                        <option value="pending" {{ $item->status === 'pending' ?
+                                                            'selected' : '' }}>Pending</option>
+                                                        <option value="preparing" {{ $item->status === 'preparing' ?
+                                                            'selected' : '' }}>Preparing</option>
+                                                        <option value="ready_for_pickup" {{ $item->status ===
+                                                            'ready_for_pickup' ? 'selected' : '' }}>Ready</option>
+                                                        <option value="completed" {{ $item->status === 'completed' ?
+                                                            'selected' : '' }}>Completed</option>
+                                                        <option value="no_show" {{ $item->status === 'no_show' ?
+                                                            'selected' : '' }}>No Show</option>
+                                                        <option value="cancelled" {{ $item->status === 'cancelled' ?
+                                                            'selected' : '' }}>Cancelled</option>
+                                                    </select>
+                                                    {{-- Custom chevron, positioned so it never overlaps the text --}}
+                                                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </div>
                                             </div>
-
                                         </div>
-
                                         @endforeach
-
                                     </div>
-
                                 </div>
-
                             </td>
                         </tr>
 
@@ -263,6 +256,13 @@
             @else
 
             <div class="text-center py-12 text-gray-500">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                        </path>
+                    </svg>
+                </div>
                 @if(!empty($search))
                 <p>No orders found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
                 <p class="text-xs text-gray-400">Try adjusting your search or status filter.</p>
@@ -343,7 +343,10 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+
+                        Order Items
+                    </h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
@@ -407,8 +410,16 @@
 
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1">
-                                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">📦
-                                            Original Order</div>
+                                        <div
+                                            class="text-xs font-semibold text-gray-500 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                                </path>
+                                            </svg>
+                                            Original Order
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -431,18 +442,23 @@
                                 @if($b['amount_charged'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-green-600 uppercase tracking-wider">✅
-                                            Charged to Customer</div>
+                                        <div
+                                            class="text-xs font-semibold text-green-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Charged to Customer
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -467,18 +483,24 @@
                                 @if($b['amount_not_charged'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-red-600 uppercase tracking-wider">❌ Not
-                                            Charged</div>
+                                        <div
+                                            class="text-xs font-semibold text-red-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                                </path>
+                                            </svg>
+                                            Not Charged
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['not_charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -503,18 +525,23 @@
                                 @if($b['amount_outstanding'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-amber-600 uppercase tracking-wider">⏳
-                                            Outstanding</div>
+                                        <div
+                                            class="text-xs font-semibold text-amber-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Outstanding
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['outstanding_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -542,7 +569,16 @@
 
                 @if($selectedOrderDetails->pickup_time)
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📍 Pickup Details</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Pickup Details
+                    </h4>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-sm text-gray-700">
                             <span class="font-medium">Branch:</span> {{ $selectedOrderDetails->branch->name ?? 'N/A' }}

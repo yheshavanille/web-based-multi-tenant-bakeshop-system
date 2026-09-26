@@ -126,12 +126,17 @@
 
                             <td class="px-4 py-3 text-gray-600">{{ $items->count() }} items</td>
                             <td class="px-4 py-3">
-                                <span class="text-xs font-medium text-gray-700">
+                                <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-700">
                                     {{ $statusSummary }}
+                                    @if($cancelledCount > 0)
+                                    <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                        </path>
+                                    </svg>
+                                    @endif
                                 </span>
-                                @if($cancelledCount > 0)
-
-                                @endif
                             </td>
                             <td class="px-4 py-3 font-semibold text-green-600" title="Includes VAT">
                                 ₱{{ number_format($order->adjusted_total ?? $order->total_amount, 2) }}
@@ -150,7 +155,13 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
-
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                </div>
                 @if(!empty($search))
                 <p>No orders found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
                 <p class="text-xs text-gray-400">Try adjusting your search or filters.</p>
@@ -162,7 +173,7 @@
         </div>
     </div>
 
-    <!-- ✅ Order Details Modal -->
+    <!-- Order Details Modal -->
     @if($showOrderDetails && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4"
         style="overscroll-behavior: contain;">
@@ -195,8 +206,8 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Order Date</p>
-                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrder->created_at->format('M d, Y
-                            h:i A') }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrder->created_at->format('M d, Y h:i
+                            A') }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-xs text-gray-500">Status</p>
@@ -228,7 +239,10 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+
+                        Order Items
+                    </h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
@@ -292,8 +306,16 @@
 
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1">
-                                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">📦
-                                            Original Order</div>
+                                        <div
+                                            class="text-xs font-semibold text-gray-500 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                                </path>
+                                            </svg>
+                                            Original Order
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -316,18 +338,23 @@
                                 @if($b['amount_charged'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-green-600 uppercase tracking-wider">✅
-                                            Charged to Customer</div>
+                                        <div
+                                            class="text-xs font-semibold text-green-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Charged to Customer
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -352,18 +379,24 @@
                                 @if($b['amount_not_charged'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-red-600 uppercase tracking-wider">❌ Not
-                                            Charged</div>
+                                        <div
+                                            class="text-xs font-semibold text-red-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                                </path>
+                                            </svg>
+                                            Not Charged
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['not_charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -388,18 +421,23 @@
                                 @if($b['amount_outstanding'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-amber-600 uppercase tracking-wider">⏳
-                                            Outstanding</div>
+                                        <div
+                                            class="text-xs font-semibold text-amber-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Outstanding
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['outstanding_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -427,7 +465,16 @@
 
                 @if($selectedOrder->pickup_time)
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📍 Pickup Details</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Pickup Details
+                    </h4>
                     <div class="bg-gray-50 rounded-lg p-3">
                         <p class="text-sm text-gray-700">
                             <span class="font-medium">Branch:</span> {{ $selectedOrder->branch->name ?? 'N/A' }}

@@ -17,14 +17,14 @@
                 </a>
                 <select wire:model.live="selectedStatus"
                     class="px-4 py-2 pr-10 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat min-w-[160px]">
-                    <option value="all">📋 All Orders</option>
-                    <option value="pending">⏳ Pending</option>
-                    <option value="preparing">🔵 Preparing</option>
-                    <option value="ready_for_pickup">✅ Ready</option>
-                    <option value="completed">📦 Completed</option>
-                    <option value="partially_completed">🟡 Partially Completed</option>
-                    <option value="cancelled">🚫 Cancelled</option>
-                    <option value="no_show">🚫 No Show</option>
+                    <option value="all">All Orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="preparing">Preparing</option>
+                    <option value="ready_for_pickup">Ready</option>
+                    <option value="completed">Completed</option>
+                    <option value="partially_completed">Partially Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="no_show">No Show</option>
                 </select>
             </div>
         </div>
@@ -148,22 +148,30 @@
                                     @endphp
 
                                     @if($isRemoved)
-                                    {{-- ✅ Review removed by Super Admin — read-only --}}
                                     <button wire:click="viewLockedReview({{ $order->id }})"
-                                        class="text-xs bg-red-100 text-red-700 hover:bg-red-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        class="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 hover:bg-red-200 font-medium transition px-2.5 py-1 rounded-lg"
                                         title="This review was removed by the Super Admin">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                            </path>
+                                        </svg>
                                         Removed — View
                                     </button>
                                     @elseif($isFlagged)
-                                    {{-- ✅ Flagged, awaiting Super Admin — read-only --}}
                                     <button wire:click="viewLockedReview({{ $order->id }})"
-                                        class="text-xs bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        class="inline-flex items-center gap-1 text-xs bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-medium transition px-2.5 py-1 rounded-lg"
                                         title="This review is under review by the Super Admin">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
                                         Under Review — View
                                     </button>
                                     @elseif($remaining > 0)
                                     <button wire:click="openEditReviewModal({{ $order->id }})"
-                                        class="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        class="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium transition px-2.5 py-1 rounded-lg"
                                         title="{{ $remaining }} edit(s) remaining">
                                         Edit Review
                                         <span
@@ -172,7 +180,7 @@
                                     </button>
                                     @else
                                     <button wire:click="viewLockedReview({{ $order->id }})"
-                                        class="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition px-2.5 py-1 rounded-lg flex items-center gap-1"
+                                        class="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition px-2.5 py-1 rounded-lg"
                                         title="You have reached the edit limit">
                                         View Review
                                     </button>
@@ -198,31 +206,54 @@
                                                 <span class="text-gray-400">Product Unavailable</span>
                                                 @endif
                                             </p>
-                                            <p class="text-xs text-gray-500">
-                                                Qty: {{ $item->quantity }}
+                                            <p class="text-xs text-gray-500 inline-flex items-center gap-2 flex-wrap">
+                                                <span>Qty: {{ $item->quantity }}</span>
                                                 @if($item->original_price && $item->original_price > $item->price)
                                                 <span class="text-red-600 font-medium">₱{{ number_format($item->price,
                                                     2) }}</span>
-                                                <span class="text-gray-400 line-through ml-1">₱{{
+                                                <span class="text-gray-400 line-through">₱{{
                                                     number_format($item->original_price, 2) }}</span>
                                                 @else
-                                                x ₱{{ number_format($item->price, 2) }}
+                                                <span>x ₱{{ number_format($item->price, 2) }}</span>
                                                 @endif
                                                 @if($item->pickup_time)
-                                                | 🕐 {{ \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i A')
-                                                }}
+                                                <span class="inline-flex items-center gap-1 text-gray-500">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    {{ \Carbon\Carbon::parse($item->pickup_time)->format('M d, h:i A')
+                                                    }}
+                                                </span>
                                                 @endif
                                             </p>
                                             @if($item->notes)
-                                            <p class="text-xs text-amber-600 italic mt-0.5">📝 {{ $item->notes }}</p>
+                                            <p
+                                                class="text-xs text-amber-600 italic mt-0.5 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                    </path>
+                                                </svg>
+                                                {{ $item->notes }}
+                                            </p>
                                             @endif
                                         </div>
                                         <div class="w-40 pl-4 flex items-center gap-2">
                                             @if($item->status === 'pending')
                                             <button wire:click="cancelItem({{ $item->id }})"
                                                 onclick="confirm('Cancel this item?') || event.stopImmediatePropagation()"
-                                                class="text-xs text-red-500 hover:text-red-700 font-medium transition">
-                                                ✕
+                                                class="text-red-500 hover:text-red-700 transition"
+                                                title="Cancel this item">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
                                             </button>
                                             @endif
                                             <span class="text-xs px-2.5 py-1 rounded-full
@@ -246,6 +277,11 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
+                <svg class="w-14 h-14 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                    </path>
+                </svg>
                 @if(!empty($search))
                 <p>No orders found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
                 <p class="text-xs text-gray-400">Try adjusting your search.</p>
@@ -332,7 +368,13 @@
                     </div>
 
                     <div class="border-t border-gray-200 pt-4">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Order Items</h4>
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Order Items
+                        </h4>
                         <div class="overflow-x-auto">
                             <table class="w-full divide-y divide-gray-200 text-sm">
                                 <thead class="bg-gray-50">
@@ -396,8 +438,17 @@
 
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1">
-                                            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">📦
-                                                Original Order</div>
+                                            <div
+                                                class="text-xs font-semibold text-gray-500 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                                    </path>
+                                                </svg>
+                                                Original Order
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -414,8 +465,8 @@
                                     </tr>
                                     <tr>
                                         <td colspan="5"
-                                            class="px-4 py-1 text-right text-sm font-semibold text-gray-800">
-                                            Original Total:</td>
+                                            class="px-4 py-1 text-right text-sm font-semibold text-gray-800">Original
+                                            Total:</td>
                                         <td colspan="2" class="px-4 py-1 font-bold text-gray-800">₱{{
                                             number_format($b['original_total'], 2) }}</td>
                                     </tr>
@@ -423,24 +474,29 @@
                                     @if($b['amount_charged'] > 0)
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                            <div class="text-xs font-semibold text-green-600 uppercase tracking-wider">✅
-                                                Charged to Customer</div>
+                                            <div
+                                                class="text-xs font-semibold text-green-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Charged to Customer
+                                            </div>
                                         </td>
                                     </tr>
                                     @foreach($b['charged_items'] as $item)
                                     <tr>
-                                        <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                            • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                        </td>
-                                        <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                            ₱{{ number_format($item['subtotal'], 2) }}
-                                        </td>
+                                        <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                            $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                        <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                            number_format($item['subtotal'], 2) }}</td>
                                     </tr>
                                     @endforeach
                                     <tr>
                                         <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">Completed
-                                            Items:
-                                        </td>
+                                            Items:</td>
                                         <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
                                             number_format($b['charged_subtotal'], 2) }}</td>
                                     </tr>
@@ -452,8 +508,8 @@
                                     </tr>
                                     <tr>
                                         <td colspan="5"
-                                            class="px-4 py-1 text-right text-sm font-semibold text-green-700">
-                                            Amount Charged:</td>
+                                            class="px-4 py-1 text-right text-sm font-semibold text-green-700">Amount
+                                            Charged:</td>
                                         <td colspan="2" class="px-4 py-1 font-bold text-green-600">₱{{
                                             number_format($b['amount_charged'], 2) }}</td>
                                     </tr>
@@ -462,19 +518,25 @@
                                     @if($b['amount_not_charged'] > 0)
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                            <div class="text-xs font-semibold text-red-600 uppercase tracking-wider">❌
-                                                Not
-                                                Charged</div>
+                                            <div
+                                                class="text-xs font-semibold text-red-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                                    </path>
+                                                </svg>
+                                                Not Charged
+                                            </div>
                                         </td>
                                     </tr>
                                     @foreach($b['not_charged_items'] as $item)
                                     <tr>
-                                        <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                            • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                        </td>
-                                        <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                            ₱{{ number_format($item['subtotal'], 2) }}
-                                        </td>
+                                        <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                            $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                        <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                            number_format($item['subtotal'], 2) }}</td>
                                     </tr>
                                     @endforeach
                                     <tr>
@@ -500,18 +562,24 @@
                                     @if($b['amount_outstanding'] > 0)
                                     <tr>
                                         <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                            <div class="text-xs font-semibold text-amber-600 uppercase tracking-wider">⏳
-                                                Outstanding</div>
+                                            <div
+                                                class="text-xs font-semibold text-amber-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                Outstanding
+                                            </div>
                                         </td>
                                     </tr>
                                     @foreach($b['outstanding_items'] as $item)
                                     <tr>
-                                        <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                            • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                        </td>
-                                        <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                            ₱{{ number_format($item['subtotal'], 2) }}
-                                        </td>
+                                        <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                            $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                        <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                            number_format($item['subtotal'], 2) }}</td>
                                     </tr>
                                     @endforeach
                                     <tr>
@@ -528,8 +596,8 @@
                                     </tr>
                                     <tr>
                                         <td colspan="5"
-                                            class="px-4 py-1 text-right text-sm font-semibold text-amber-700">
-                                            Amount Outstanding:</td>
+                                            class="px-4 py-1 text-right text-sm font-semibold text-amber-700">Amount
+                                            Outstanding:</td>
                                         <td colspan="2" class="px-4 py-1 font-bold text-amber-600">₱{{
                                             number_format($b['amount_outstanding'], 2) }}</td>
                                     </tr>
@@ -541,7 +609,16 @@
 
                     @if($selectedOrderDetails->pickup_time)
                     <div class="border-t border-gray-200 pt-4">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-2">📍 Pickup Details</h4>
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Pickup Details
+                        </h4>
                         <div class="bg-gray-50 rounded-lg p-3">
                             <p class="text-sm text-gray-700">
                                 <span class="font-medium">Branch:</span> {{ $selectedOrderDetails->branch->name ?? 'N/A'
@@ -567,7 +644,7 @@
         </div>
     </div>
 
-    <!-- ✅ Review Details Modal (unchanged) -->
+    <!-- ✅ Review Details Modal -->
     @if($showReviewDetailsModal && $selectedReviewOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeReviewDetailsModal"></div>
@@ -578,7 +655,14 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">⭐ Your Review</h3>
+                        <h3 class="text-xl font-bold text-gray-800 inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                </path>
+                            </svg>
+                            Your Review
+                        </h3>
                         <p class="text-sm text-gray-500">
                             Order #{{ $selectedReviewOrder->order_number }} •
                             {{ $selectedReviewOrder->shop->shop_name ?? 'N/A' }}
@@ -587,8 +671,7 @@
                     <button wire:click="closeReviewDetailsModal" class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12">
-                            </path>
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
@@ -596,10 +679,14 @@
 
             <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
-                {{-- ✅ NEW: Show a banner if this review was removed by the Super Admin --}}
                 @if($selectedReviewOrder->serviceReview->moderation_status === 'removed')
                 <div class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                    <span class="text-base leading-none mt-0.5">❌</span>
+                    <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                        </path>
+                    </svg>
                     <div>
                         <p class="text-sm font-semibold text-red-800">This review was removed by the Super Admin</p>
                         <p class="text-xs text-red-700 mt-0.5">
@@ -616,9 +703,17 @@
                             <p class="text-sm font-medium text-gray-700">Service Quality</p>
                             <div class="flex items-center gap-1 mt-1">
                                 @for($i = 1; $i <= 5; $i++) @if($i <=$selectedReviewOrder->serviceReview->rating)
-                                    <span class="text-2xl text-amber-500">⭐</span>
+                                    <svg class="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
                                     @else
-                                    <span class="text-2xl text-gray-300">☆</span>
+                                    <svg class="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
                                     @endif
                                     @endfor
                                     <span class="text-sm text-gray-500 ml-2">({{
@@ -633,13 +728,28 @@
                 <div class="bg-gray-50 rounded-lg p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-700">👤 Employee Service</p>
+                            <p class="text-sm font-medium text-gray-700 inline-flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Employee Service
+                            </p>
                             <div class="flex items-center gap-1 mt-1">
                                 @for($i = 1; $i <= 5; $i++) @if($i <=$selectedReviewOrder->
                                     serviceReview->employee_rating)
-                                    <span class="text-2xl text-amber-500">⭐</span>
+                                    <svg class="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
                                     @else
-                                    <span class="text-2xl text-gray-300">☆</span>
+                                    <svg class="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
                                     @endif
                                     @endfor
                                     <span class="text-sm text-gray-500 ml-2">({{
@@ -651,7 +761,14 @@
 
                 @if($selectedReviewOrder->serviceReview->review)
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-sm font-medium text-gray-700 mb-1">📝 Your Review</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        Your Review
+                    </p>
                     <p class="text-sm text-gray-600 italic">"{{ $selectedReviewOrder->serviceReview->review }}"</p>
                 </div>
                 @endif
@@ -663,7 +780,13 @@
                 @endphp
                 @if($productReviews->count() > 0)
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Product Reviews</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Product Reviews
+                    </h4>
                     <div class="space-y-3">
                         @foreach($productReviews as $productReview)
                         <div class="bg-gray-50 rounded-lg p-3">
@@ -672,9 +795,17 @@
                                     'Product Unavailable' }}</p>
                                 <div class="flex items-center gap-1">
                                     @for($i = 1; $i <= 5; $i++) @if($i <=$productReview->rating)
-                                        <span class="text-lg text-amber-500">⭐</span>
+                                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                            </path>
+                                        </svg>
                                         @else
-                                        <span class="text-lg text-gray-300">☆</span>
+                                        <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                            </path>
+                                        </svg>
                                         @endif
                                         @endfor
                                 </div>
@@ -710,12 +841,27 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">
+                        <h3 class="text-xl font-bold text-gray-800 inline-flex items-center gap-2">
                             @if($reviewReadOnly)
+                            <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                </path>
+                            </svg>
                             Your Review
                             @elseif($selectedOrder->serviceReview)
-                            ✏️ Edit Review
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                </path>
+                            </svg>
+                            Edit Review
                             @else
+                            <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                </path>
+                            </svg>
                             Leave Review
                             @endif
                         </h3>
@@ -731,8 +877,7 @@
                     <button wire:click="closeReviewModal" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12">
-                            </path>
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
@@ -740,8 +885,6 @@
 
             <div class="min-h-0 flex-1 px-6 py-4 space-y-6 overflow-y-auto">
 
-                {{-- ✅ Read-only info banner --}}
-                {{-- ✅ Conditional banner based on WHY the review is read-only --}}
                 @if($reviewReadOnly)
                 @php
                 $status = $selectedOrder->serviceReview->moderation_status ?? 'visible';
@@ -751,7 +894,12 @@
 
                 @if($status === 'removed')
                 <div class="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                    <span class="text-base leading-none mt-0.5">❌</span>
+                    <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                        </path>
+                    </svg>
                     <div>
                         <p class="text-sm font-semibold text-red-800">This review was removed by the Super Admin</p>
                         <p class="text-xs text-red-700 mt-0.5">
@@ -762,7 +910,11 @@
                 </div>
                 @elseif($status === 'pending_review')
                 <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
-                    <span class="text-base leading-none mt-0.5">⏳</span>
+                    <svg class="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                     <div>
                         <p class="text-sm font-semibold text-yellow-800">This review is under review by the Super Admin
                         </p>
@@ -774,7 +926,12 @@
                 </div>
                 @elseif($editCount >= $maxEdits)
                 <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-                    <span class="text-base leading-none mt-0.5">🔒</span>
+                    <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
                     <div>
                         <p class="text-sm font-semibold text-amber-800">You've reached the edit limit</p>
                         <p class="text-xs text-amber-700 mt-0.5">
@@ -794,9 +951,21 @@
                                 @for($i = 1; $i <= 5; $i++) <button
                                     @click="{{ $reviewReadOnly ? '' : 'rating = ' . $i }}" {{ $reviewReadOnly
                                     ? 'disabled' : '' }} wire:key="service-star-{{ $i }}-{{ $selectedOrder->id }}"
-                                    class="text-3xl focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
-                                    <span x-show="rating >= {{ $i }}">⭐</span>
-                                    <span x-show="rating < {{ $i }}">☆</span>
+                                    class="focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
+                                    <template x-if="rating >= {{ $i }}">
+                                        <svg class="w-9 h-9 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                            </path>
+                                        </svg>
+                                    </template>
+                                    <template x-if="rating < {{ $i }}">
+                                        <svg class="w-9 h-9 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                            </path>
+                                        </svg>
+                                    </template>
                                     </button>
                                     @endfor
                             </div>
@@ -808,9 +977,21 @@
                                 @for($i = 1; $i <= 5; $i++) <button
                                     @click="{{ $reviewReadOnly ? '' : 'rating = ' . $i }}" {{ $reviewReadOnly
                                     ? 'disabled' : '' }} wire:key="employee-star-{{ $i }}-{{ $selectedOrder->id }}"
-                                    class="text-3xl focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
-                                    <span x-show="rating >= {{ $i }}">⭐</span>
-                                    <span x-show="rating < {{ $i }}">☆</span>
+                                    class="focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
+                                    <template x-if="rating >= {{ $i }}">
+                                        <svg class="w-9 h-9 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                            </path>
+                                        </svg>
+                                    </template>
+                                    <template x-if="rating < {{ $i }}">
+                                        <svg class="w-9 h-9 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                            </path>
+                                        </svg>
+                                    </template>
                                     </button>
                                     @endfor
                             </div>
@@ -838,8 +1019,14 @@
                     @endphp
 
                     @if($noShowItems->count() > 0)
-                    <div class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700">
-                        ⚠️ {{ $noShowItems->count() }} item(s) (No Show/Cancelled) are not eligible for review.
+                    <div
+                        class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700 inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                        {{ $noShowItems->count() }} item(s) (No Show/Cancelled) are not eligible for review.
                     </div>
                     @endif
 
@@ -853,12 +1040,19 @@
                         <div class="border border-gray-200 rounded-lg p-3">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl overflow-hidden">
+                                    class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
                                     @if($item->product && $item->product->image_url)
                                     <img src="{{ asset($item->product->image_url) }}"
                                         class="w-full h-full object-cover">
                                     @else
-                                    🍰
+                                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.5 10.5v3M8 8v3M12 6v3M16 8v3M19.5 10.5v3"></path>
+                                    </svg>
                                     @endif
                                 </div>
                                 <div class="flex-1">
@@ -878,9 +1072,23 @@
                                             @click="{{ $reviewReadOnly ? '' : 'rating = ' . $i }}" {{ $reviewReadOnly
                                             ? 'disabled' : '' }}
                                             wire:key="product-star-{{ $productId }}-{{ $i }}-{{ $selectedOrder->id }}"
-                                            class="text-xl focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
-                                            <span x-show="rating >= {{ $i }}">⭐</span>
-                                            <span x-show="rating < {{ $i }}">☆</span>
+                                            class="focus:outline-none transition {{ $reviewReadOnly ? 'cursor-default' : 'hover:scale-110' }}">
+                                            <template x-if="rating >= {{ $i }}">
+                                                <svg class="w-5 h-5 text-amber-500" fill="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                                    </path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="rating < {{ $i }}">
+                                                <svg class="w-5 h-5 text-gray-300" fill="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                                    </path>
+                                                </svg>
+                                            </template>
                                             </button>
                                             @endfor
                                     </div>
@@ -902,23 +1110,26 @@
 
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex gap-3 flex-shrink-0">
                 @if($reviewReadOnly)
-                {{-- ✅ Read-only: only Close --}}
                 <button wire:click="closeReviewModal"
                     class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                     Close
                 </button>
                 @else
-                {{-- Editable: Skip + Submit/Update --}}
                 <button wire:click="closeReviewModal"
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                     Skip
                 </button>
                 <button wire:click="submitReview"
-                    class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                    class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                        </path>
+                    </svg>
                     @if($selectedOrder->serviceReview)
-                    Update Review ⭐
+                    Update Review
                     @else
-                    Submit Review ⭐
+                    Submit Review
                     @endif
                 </button>
                 @endif

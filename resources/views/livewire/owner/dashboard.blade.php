@@ -10,8 +10,12 @@
                 <img src="{{ asset($shop->shop_image) }}" alt="{{ $shop->shop_name }}"
                     class="w-full h-full object-cover">
                 @else
-                <div class="w-full h-full bg-amber-100 flex items-center justify-center text-2xl">
-                    🏪
+                <div class="w-full h-full bg-amber-100 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
                 </div>
                 @endif
             </div>
@@ -20,7 +24,11 @@
                 <p class="text-gray-500">Manage your bakeshop and track performance.</p>
                 @if($shopRatingCount > 0)
                 <div class="flex items-center gap-2 mt-1">
-                    <span class="text-amber-500 text-sm">⭐</span>
+                    <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                        </path>
+                    </svg>
                     <span class="font-semibold text-gray-800 text-sm">{{ number_format($shopRating, 1) }}</span>
                     <span class="text-sm text-gray-500">({{ $shopRatingCount }} reviews)</span>
                 </div>
@@ -31,48 +39,67 @@
 
     <!-- SALES OVERVIEW CARDS -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {{-- Total Revenue --}}
         <div
             class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Revenue</p>
-                <span class="text-2xl">💰</span>
+                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
+                </svg>
             </div>
             <p class="text-2xl font-bold text-gray-800 mt-2">₱{{ number_format($totalSales, 2) }}</p>
             <p class="text-xs text-green-600 mt-1">From completed orders</p>
         </div>
 
+        {{-- Total Orders --}}
         <div
             class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Orders</p>
-                <span class="text-2xl">📋</span>
+                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                    </path>
+                </svg>
             </div>
             <p class="text-2xl font-bold text-gray-800 mt-2">{{ $totalOrders }}</p>
             <p class="text-xs text-blue-600 mt-1">Completed orders</p>
         </div>
 
+        {{-- Total Products --}}
         <div
             class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-sm border border-amber-200 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Products</p>
-                <span class="text-2xl">📦</span>
+                <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
             </div>
             <p class="text-2xl font-bold text-gray-800 mt-2">{{ $totalProducts }}</p>
             <p class="text-xs text-amber-600 mt-1">All branches</p>
         </div>
 
+        {{-- Total Employees --}}
         <div
             class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-200 p-5 hover:shadow-md transition">
             <div class="flex items-center justify-between">
                 <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Employees</p>
-                <span class="text-2xl">👥</span>
+                <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
             </div>
             <p class="text-2xl font-bold text-gray-800 mt-2">{{ $employeesCount }}</p>
             <p class="text-xs text-purple-600 mt-1">Active employees</p>
         </div>
     </div>
 
-    <!-- ✅ RECENT PENDING ORDERS (NEW) -->
+    <!-- RECENT PENDING ORDERS -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -80,8 +107,12 @@
                 <span class="text-sm text-gray-500">Last 5 pending orders</span>
             </div>
             <a href="{{ route('livewire.owner.orders', ['status' => 'pending']) }}"
-                class="text-sm text-amber-600 hover:text-amber-700 font-medium">
-                View All →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium">
+                View All
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
 
@@ -129,13 +160,18 @@
         </div>
         @else
         <div class="text-center py-8 text-gray-500">
-            <span class="text-3xl block mb-2">✅</span>
+            <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center">
+                <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
             <p class="text-sm">No pending orders right now.</p>
         </div>
         @endif
     </div>
 
-    <!-- Recent Order Updates (existing section, unchanged) -->
+    <!-- Recent Order Updates -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -143,8 +179,12 @@
                 <span class="text-sm text-gray-500">Last 10 orders</span>
             </div>
             <a href="{{ route('livewire.owner.orders') }}"
-                class="text-sm text-amber-600 hover:text-amber-700 font-medium">
-                View All →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium">
+                View All
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
 
@@ -191,7 +231,7 @@
         @endif
     </div>
 
-    <!-- ✅ RECENT EMPLOYEE ACTIVITIES -->
+    <!-- RECENT EMPLOYEE ACTIVITIES -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
@@ -199,8 +239,12 @@
                 <span class="text-sm text-gray-500">Last 5 activities</span>
             </div>
             <a href="{{ route('livewire.owner.employee-activities') }}"
-                class="text-sm text-amber-600 hover:text-amber-700 font-medium">
-                View All →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium">
+                View All
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
 
@@ -244,7 +288,13 @@
         </div>
         @else
         <div class="text-center py-8 text-gray-500">
-            <span class="text-3xl block mb-2">📭</span>
+            <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                    </path>
+                </svg>
+            </div>
             <p class="text-sm">No employee activities yet.</p>
         </div>
         @endif
@@ -277,7 +327,14 @@
                                 <img src="{{ asset($item->product->image_url) }}"
                                     class="w-8 h-8 rounded-lg object-cover">
                                 @else
-                                <span class="text-lg">🍰</span>
+                                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.5 10.5v3M8 8v3M12 6v3M16 8v3M19.5 10.5v3"></path>
+                                </svg>
                                 @endif
                                 {{ $item->product?->name ?? 'Product Unavailable' }}
                             </div>
@@ -297,10 +354,21 @@
     @if(count($branchPerformance) > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">📊 Branch Performance</h2>
+            <h2 class="text-lg font-semibold text-gray-800 inline-flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                Branch Performance
+            </h2>
             <a href="{{ route('livewire.owner.branches.manage-branches') }}"
-                class="text-sm text-amber-600 hover:text-amber-700">
-                Manage Branches →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700">
+                Manage Branches
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
         <div class="overflow-x-auto">
@@ -321,9 +389,15 @@
                         <td class="px-4 py-3 text-gray-600">{{ $branch['orders'] }}</td>
                         <td class="px-4 py-3">
                             @if($branch['rating_count'] > 0)
-                            <span class="text-amber-500">⭐</span>
-                            <span class="text-gray-700">{{ number_format($branch['rating'], 1) }}</span>
-                            <span class="text-xs text-gray-400">({{ $branch['rating_count'] }})</span>
+                            <span class="inline-flex items-center gap-1">
+                                <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                    </path>
+                                </svg>
+                                <span class="text-gray-700">{{ number_format($branch['rating'], 1) }}</span>
+                                <span class="text-xs text-gray-400">({{ $branch['rating_count'] }})</span>
+                            </span>
                             @else
                             <span class="text-xs text-gray-400">No reviews</span>
                             @endif
@@ -336,7 +410,7 @@
     </div>
     @endif
 
-    <!-- ✅ RECENT PRODUCT UPDATES -->
+    <!-- RECENT PRODUCT UPDATES -->
     @if(isset($productEditHistories) && $productEditHistories->count() > 0)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <div class="flex items-center justify-between mb-4">
@@ -345,8 +419,12 @@
                 <span class="text-sm text-gray-500">Last 10 updates</span>
             </div>
             <button wire:click="viewAllProductHistory"
-                class="text-sm text-amber-600 hover:text-amber-700 font-medium transition">
-                View All →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium transition">
+                View All
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </button>
         </div>
         <div class="overflow-x-auto">
@@ -426,16 +504,37 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <a href="{{ route('livewire.owner.branches.manage-branches') }}"
             class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center hover:bg-blue-100 transition">
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
+            </div>
             <p class="text-sm font-medium text-blue-700">Manage Branches</p>
         </a>
         <a href="{{ route('livewire.owner.employees.manage') }}"
             class="bg-green-50 border border-green-200 rounded-xl p-4 text-center hover:bg-green-100 transition">
-            <div class="text-2xl mb-1">👥</div>
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
+            </div>
             <p class="text-sm font-medium text-green-700">Manage Employees</p>
         </a>
         <a href="{{ route('livewire.owner.shop.edit-shop') }}"
             class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center hover:bg-purple-100 transition">
-            <div class="text-2xl mb-1">⚙️</div>
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-purple-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
             <p class="text-sm font-medium text-purple-700">Shop Settings</p>
         </a>
     </div>
@@ -445,8 +544,12 @@
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-800">Your Branches</h2>
             <a href="{{ route('livewire.owner.branches.manage-branches') }}"
-                class="text-sm text-amber-600 hover:text-amber-700">
-                View All →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700">
+                View All
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
         @if($branches->count() > 0)
@@ -463,8 +566,12 @@
                         {{ $branch->is_active ? 'Active' : 'Inactive' }}
                     </span>
                 </div>
-                <div class="mt-2 text-sm text-gray-600">
-                    📦 {{ $branch->products_count ?? 0 }} products
+                <div class="mt-2 text-sm text-gray-600 inline-flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    {{ $branch->products_count ?? 0 }} products
                 </div>
             </div>
             @endforeach
@@ -472,14 +579,19 @@
         @else
         <div class="text-center py-6 text-gray-500">
             <p>No branches yet.</p>
-            <a href="{{ route('livewire.owner.branches.manage-branches') }}" class="text-amber-600 hover:underline">
-                Create your first branch →
+            <a href="{{ route('livewire.owner.branches.manage-branches') }}"
+                class="inline-flex items-center gap-1 text-amber-600 hover:underline mt-1">
+                Create your first branch
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </a>
         </div>
         @endif
     </div>
 
-    <!-- Order Details Modal (unchanged) -->
+    <!-- Order Details Modal -->
     @if($showOrderModal && $selectedOrder)
     <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeOrderModal"></div>
@@ -543,7 +655,13 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Order Items</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Order Items
+                    </h4>
                     <div class="overflow-x-auto">
                         <table class="w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
@@ -607,8 +725,16 @@
 
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1">
-                                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">📦
-                                            Original Order</div>
+                                        <div
+                                            class="text-xs font-semibold text-gray-500 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
+                                                </path>
+                                            </svg>
+                                            Original Order
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -631,18 +757,23 @@
                                 @if($b['amount_charged'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-green-600 uppercase tracking-wider">✅
-                                            Charged to Customer</div>
+                                        <div
+                                            class="text-xs font-semibold text-green-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Charged to Customer
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -667,18 +798,24 @@
                                 @if($b['amount_not_charged'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-red-600 uppercase tracking-wider">❌ Not
-                                            Charged</div>
+                                        <div
+                                            class="text-xs font-semibold text-red-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                                </path>
+                                            </svg>
+                                            Not Charged
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['not_charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -703,18 +840,23 @@
                                 @if($b['amount_outstanding'] > 0)
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
-                                        <div class="text-xs font-semibold text-amber-600 uppercase tracking-wider">⏳
-                                            Outstanding</div>
+                                        <div
+                                            class="text-xs font-semibold text-amber-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Outstanding
+                                        </div>
                                     </td>
                                 </tr>
                                 @foreach($b['outstanding_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">
-                                        • {{ $item['name'] }} ({{ $item['quantity'] }}x)
-                                    </td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">
-                                        ₱{{ number_format($item['subtotal'], 2) }}
-                                    </td>
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                        $item['name'] }} ({{ $item['quantity'] }}x)</td>
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                        number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
@@ -741,18 +883,45 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">⭐ Customer Review</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                            </path>
+                        </svg>
+                        Customer Review
+                    </h4>
                     @php
                     $serviceReview = $selectedOrder->serviceReview;
                     @endphp
                     @if($serviceReview)
                     <div class="bg-gray-50 rounded-lg p-4 space-y-2">
-                        <div class="flex items-center gap-3">
-                            <span class="text-amber-500 text-lg">{{ str_repeat('⭐', $serviceReview->rating) }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-0.5">
+                                @for($i = 1; $i <= 5; $i++) @if($i <=$serviceReview->rating)
+                                    <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
+                                    @else
+                                    <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                        </path>
+                                    </svg>
+                                    @endif
+                                    @endfor
+                            </div>
                             <span class="text-sm text-gray-500">({{ $serviceReview->rating }}/5)</span>
                             @if($serviceReview->employee_rating)
-                            <span class="text-xs text-gray-400 ml-2">👤 Employee: {{ str_repeat('⭐',
-                                $serviceReview->employee_rating) }}</span>
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-400 ml-2">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Employee: {{ $serviceReview->employee_rating }}/5
+                            </span>
                             @endif
                         </div>
                         @if($serviceReview->review)
@@ -768,7 +937,13 @@
                 </div>
 
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">📦 Product Reviews</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                        </svg>
+                        Product Reviews
+                    </h4>
                     @php
                     $productReviews = $selectedOrder->productReviews;
                     @endphp
@@ -781,8 +956,24 @@
                                     <p class="text-sm font-medium text-gray-800">{{ $productReview->product?->name ??
                                         'N/A' }}</p>
                                     <div class="flex items-center gap-1 mt-1">
-                                        <span class="text-amber-500 text-sm">{{ str_repeat('⭐', $productReview->rating)
-                                            }}</span>
+                                        <div class="flex items-center gap-0.5">
+                                            @for($i = 1; $i <= 5; $i++) @if($i <=$productReview->rating)
+                                                <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                                    </path>
+                                                </svg>
+                                                @else
+                                                <svg class="w-3.5 h-3.5 text-gray-300" fill="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                                                    </path>
+                                                </svg>
+                                                @endif
+                                                @endfor
+                                        </div>
                                         <span class="text-xs text-gray-500">({{ $productReview->rating }}/5)</span>
                                     </div>
                                 </div>
@@ -821,8 +1012,12 @@
                 <span class="text-sm text-gray-500">Last 10 updates</span>
             </div>
             <button wire:click="viewAllStockHistory"
-                class="text-sm text-amber-600 hover:text-amber-700 font-medium transition">
-                View All →
+                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium transition">
+                View All
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                    </path>
+                </svg>
             </button>
         </div>
         @if(isset($stockHistories) && $stockHistories->count() > 0)
@@ -878,7 +1073,14 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">✏️ All Product Updates</h3>
+                        <h3 class="text-xl font-bold text-gray-800 inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                </path>
+                            </svg>
+                            All Product Updates
+                        </h3>
                         <p class="text-sm text-gray-500">{{ $allProductHistories->count() }} total updates</p>
                     </div>
                     <button wire:click="closeProductHistoryModal" class="text-gray-400 hover:text-gray-600 transition">
@@ -983,7 +1185,13 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800">📦 All Stock Updates</h3>
+                        <h3 class="text-xl font-bold text-gray-800 inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            All Stock Updates
+                        </h3>
                         <p class="text-sm text-gray-500">{{ $allStockHistories->count() }} total updates</p>
                     </div>
                     <button wire:click="closeStockHistoryModal" class="text-gray-400 hover:text-gray-600 transition">
