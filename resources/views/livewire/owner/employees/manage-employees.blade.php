@@ -359,9 +359,22 @@
                 @endif
 
                 <div class="md:col-span-2 flex gap-3 pt-2">
-                    <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
-                        {{ $editing ? 'Update Employee' : 'Save Employee' }}
+                    <button type="submit" wire:loading.attr="disabled" wire:target="save"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span wire:loading.remove wire:target="save">
+                            {{ $editing ? 'Update Employee' : 'Save Employee' }}
+                        </span>
+                        <span wire:loading wire:target="save"
+                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                            <svg class="animate-spin w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <span>{{ $editing ? 'Updating Employee...' : 'Saving Employee...' }}</span>
+                        </span>
                     </button>
                     <button type="button" wire:click="cancel"
                         class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">

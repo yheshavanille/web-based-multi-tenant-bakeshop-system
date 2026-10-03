@@ -54,10 +54,18 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 <div>
                                     <label class="block mb-2 text-sm font-medium text-gray-700">Product Name</label>
-                                    <input type="text" wire:model="name"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                    <input type="text" wire:model.live.debounce.500ms="name" maxlength="40" class="py-2.5 px-4 w-full border rounded-lg focus:ring-amber-500 focus:border-amber-500
+        @error('name') border-red-500 focus:ring-red-400 focus:border-red-400 @else border-gray-200 @enderror">
                                     @error('name')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                        {{ $message }}
+                                    </p>
                                     @enderror
                                 </div>
 
@@ -66,7 +74,15 @@
                                     <input type="number" step="0.01" wire:model="price"
                                         class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                     @error('price')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                        {{ $message }}
+                                    </p>
                                     @enderror
                                 </div>
                             </div>
@@ -84,7 +100,15 @@
                                         @endforeach
                                     </select>
                                     @error('category_id')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                        {{ $message }}
+                                    </p>
                                     @enderror
                                 </div>
                             </div>
@@ -127,7 +151,7 @@
                                                 class="py-2 px-3 w-full sm:w-48 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
                                                 placeholder="0">
                                             @error("branch_stocks.{$branch->id}")
-                                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         @endif
@@ -135,7 +159,7 @@
                                     @endforeach
                                 </div>
                                 @error('selectedBranches')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                                 @else
                                 <div
@@ -152,7 +176,7 @@
                                 <textarea wire:model="description"
                                     class="py-2.5 px-4 w-full border border-gray-200 rounded-lg min-h-[120px] focus:ring-amber-500 focus:border-amber-500"></textarea>
                                 @error('description')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -170,7 +194,7 @@
                                             <option value="fixed">Fixed Amount (₱)</option>
                                         </select>
                                         @error('discount_type')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
 
@@ -186,7 +210,7 @@
                                             class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500"
                                             {{ $discount_type==='none' ? 'disabled' : '' }}>
                                         @error('discount_value')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
 
@@ -196,7 +220,7 @@
                                         <input type="datetime-local" wire:model="discount_start"
                                             class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                         @error('discount_start')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
 
@@ -206,7 +230,7 @@
                                         <input type="datetime-local" wire:model="discount_end"
                                             class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                         @error('discount_end')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
                                 </div>
@@ -226,7 +250,7 @@
                                     @endif
                                 </div>
                                 @error('image_url')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -234,6 +258,7 @@
                                 <label class="block mb-2 text-sm font-medium text-gray-700">Upload Image</label>
                                 <div class="flex items-center gap-2">
                                     <input type="file" wire:model="image" @disabled($image_url)
+                                        accept="image/jpeg,image/png,image/gif,image/webp"
                                         class="py-2.5 px-4 w-full border border-gray-200 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
                                     @if($image)
                                     <button type="button" wire:click="$set('image', null)"
@@ -242,8 +267,32 @@
                                     </button>
                                     @endif
                                 </div>
+
+                                {{-- ✅ NEW: Show loading state while image is uploading --}}
+                                <div wire:loading wire:target="image" class="mt-2">
+                                    <div class="flex items-center gap-2 text-xs text-amber-600">
+                                        <svg class="animate-spin w-3.5 h-3.5 flex-shrink-0" fill="none"
+                                            viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                        <span>Uploading image...</span>
+                                    </div>
+                                </div>
+
                                 @error('image')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                        </path>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
                                 @enderror
                             </div>
                         </div>

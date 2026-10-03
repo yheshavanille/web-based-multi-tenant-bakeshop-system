@@ -3,8 +3,8 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Product Edit History</h1>
-                <p class="text-sm text-gray-500">View all product edit history</p>
+                <h1 class="text-2xl font-bold text-gray-800">Product Update History</h1>
+                <p class="text-sm text-gray-500">View recent product updates and full product edit history</p>
             </div>
             <a href="{{ route('livewire.owner.dashboard') }}"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
@@ -16,9 +16,32 @@
             </a>
         </div>
 
-        <!-- Search Bar -->
-        <div class="mb-4">
-            <div class="relative">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-4">
+            <button wire:click="setTab('product-updates')"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition
+                    {{ $tab === 'product-updates' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                Product Updates
+            </button>
+            <button wire:click="setTab('product-edits')"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition
+                    {{ $tab === 'product-edits' ? 'text-amber-600 border-b-2 border-amber-600' : 'text-gray-500 hover:text-gray-700' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Product Edits
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+            <!-- Search Bar -->
+            <div class="relative flex-1">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +49,7 @@
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
-                <input type="text" wire:model.live="search" placeholder="Search by product name..."
+                <input type="text" wire:model.live.debounce.400ms="search" placeholder="Search by product name..."
                     class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                 @if(!empty($search))
                 <button wire:click="clearSearch" type="button"
@@ -39,8 +62,20 @@
                 </button>
                 @endif
             </div>
+
+            <!-- Field filter dropdown -->
+            <div class="sm:w-56">
+                <select wire:model.live="fieldFilter"
+                    style="appearance: auto; -webkit-appearance: auto; -moz-appearance: auto; background-image: none;"
+                    class="w-full h-10 px-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white">
+                    @foreach($fieldOptions as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
+        <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             @if($histories->count() > 0)
             <div class="overflow-x-auto">
@@ -59,12 +94,12 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($histories as $history)
                         @php
-                        $branchName = $history->product->branches->first()?->name ?? 'N/A';
+                        $branchName = $history->product?->branches->first()?->name ?? 'N/A';
                         $oldClean = $this->cleanValue($history->field, $history->old_value);
                         $newClean = $this->cleanValue($history->field, $history->new_value);
                         @endphp
                         <tr>
-                            <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product->name }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800">{{ $history->product?->name ?? 'Product Deleted' }}</td>
                             <td class="px-4 py-3 text-gray-600 text-xs">{{ $branchName }}</td>
                             <td class="px-4 py-3 text-gray-600">
                                 <span class="px-2 py-0.5 text-xs rounded-full
@@ -110,12 +145,17 @@
                                 {{ $newClean ?? '-' }}
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ $history->user->name ?? 'System' }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ $history->user?->name ?? 'System' }}</td>
                             <td class="px-4 py-3 text-gray-400 text-xs">{{ $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                {{ $histories->links() }}
             </div>
             @else
             <div class="text-center py-12 text-gray-500">
@@ -126,7 +166,7 @@
                         </path>
                     </svg>
                 </div>
-                <p>No product edit history found.</p>
+                <p>No product history found.</p>
             </div>
             @endif
         </div>

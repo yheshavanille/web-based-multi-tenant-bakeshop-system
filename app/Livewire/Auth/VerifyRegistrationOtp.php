@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\AccountOtpNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
@@ -100,9 +101,15 @@ class VerifyRegistrationOtp extends Component
             'updated_at' => now(),
         ]);
 
-        $user->notify(new AccountOtpNotification($code));
+        // Send the email (don't fail if SMTP is unavailable)
+        try {
+            $user->notify(new AccountOtpNotification($code));
+            session()->flash('status', 'A new verification code has been sent to your email.');
+        } catch (\Throwable $e) {
+            Log::error('Failed to resend OTP email: ' . $e->getMessage());
+            session()->flash('error', 'Could not send email right now. Please try again in a minute.');
+        }
 
-        session()->flash('status', 'A new verification code has been sent to your email.');
         $this->code = '';
     }
 

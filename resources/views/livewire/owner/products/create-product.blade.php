@@ -57,207 +57,377 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 <div>
                                     <label class="block mb-2 text-sm font-medium text-gray-700">Product Name</label>
-                                    <input type="text" wire:model="name"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                   <input type="text" wire:model.live.debounce.500ms="name" maxlength="40"
+    class="py-2.5 px-4 w-full border rounded-lg focus:ring-amber-500 focus:border-amber-500
+        @error('name') border-red-500 focus:ring-red-400 focus:border-red-400 @else border-gray-200 @enderror">
                                     @error('name')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                        {{ $message }}
+                                    </p>
                                     @enderror
                                 </div>
 
                                 <div>
                                     <label class="block mb-2 text-sm font-medium text-gray-700">Price (₱)</label>
-                                    <input type="number" step="0.01" wire:model="price"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                                    @error('price')
-                                    <span class="text-red-500 text-xs">{{ $message }}</span>
-                                    @enderror
+                                    @php
+                                    $priceRaw = $price;
+                                    $priceOutOfRange = false;
+                                    if ($priceRaw !== '' && $priceRaw !== null) {
+                                    if (!is_numeric($priceRaw)) {
+                                    $priceOutOfRange = true;
+                                    } else {
+                                    $priceFloat = (float) $priceRaw;
+                                    if ($priceFloat < 0 || $priceFloat> 999999.99) {
+                                        $priceOutOfRange = true;
+                                        }
+                                        }
+                                        }
+                                        @endphp
+                                        <input type="number" step="0.01" wire:model.live="price" class="py-2.5 px-4 w-full border rounded-lg focus:ring-amber-500 focus:border-amber-500
+            {{ $priceOutOfRange ? 'border-red-400 focus:ring-red-400 focus:border-red-400' : 'border-gray-200' }}">
+                                        @if($priceOutOfRange)
+                                        <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                                </path>
+                                            </svg>
+                                            Price is too large. Maximum is ₱999,999.99.
+                                        </p>
+                                        @endif
+                                        @error('price')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium text-gray-700">Category</label>
+                                        <select wire:model="category_id"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
+                                            <option value="">Select category</option>
+                                            @foreach($categories as $category)
+                                            <option value="{{ $category->id }}">
+                                                {{ $category->name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @error('category_id')
+                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <!-- ✅ BRANCH CHECKBOXES WITH PER-BRANCH STOCK -->
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-gray-700">Category</label>
-                                    <select wire:model="category_id"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
-                                        <option value="">Select category</option>
-                                        @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">
-                                            {{ $category->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    @error('category_id')
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Available
+                                        Branches</label>
+                                    <p class="text-sm text-gray-500 mb-3">
+                                        Select which branches this product is available at, and set the stock quantity
+                                        for
+                                        each branch.
+                                    </p>
+
+                                    @if($branches->count() > 0)
+                                    <div class="grid grid-cols-1 gap-3">
+                                        @foreach($branches as $branch)
+                                        @php
+                                        $isChecked = in_array($branch->id, $selectedBranches);
+                                        $stockRaw = $branch_stocks[$branch->id] ?? '';
+                                        $stockOutOfRange = false;
+                                        if ($stockRaw !== '' && $stockRaw !== null) {
+                                        if (!is_numeric($stockRaw)) {
+                                        $stockOutOfRange = true;
+                                        } else {
+                                        $stockFloat = (float) $stockRaw;
+                                        if ($stockFloat < 0 || $stockFloat> 999999) {
+                                            $stockOutOfRange = true;
+                                            }
+                                            }
+                                            }
+                                            @endphp
+                                            <div class="border border-gray-200 rounded-lg overflow-hidden transition
+                                            {{ $isChecked ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
+
+                                                {{-- Checkbox header --}}
+                                                <label class="flex items-start gap-3 p-3 cursor-pointer">
+                                                    <input type="checkbox" wire:model.live="selectedBranches"
+                                                        value="{{ $branch->id }}"
+                                                        class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                                    <div class="flex-1">
+                                                        <p class="text-sm font-medium text-gray-800">{{ $branch->name }}
+                                                        </p>
+                                                        <p class="text-xs text-gray-500">{{ $branch->address }}</p>
+                                                        <p class="text-xs text-gray-400">
+                                                            Status: {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                                        </p>
+                                                    </div>
+                                                </label>
+
+                                                {{-- ✅ Per-branch stock input — only shows when checked --}}
+                                                @if($isChecked)
+                                                <div class="px-3 pb-3 pt-1 border-t border-amber-200/50">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                        Stock for {{ $branch->name }}
+                                                    </label>
+                                                    <input type="number" min="0"
+                                                        wire:model.live="branch_stocks.{{ $branch->id }}"
+                                                        class="py-2 px-3 w-full sm:w-48 border rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white
+                                                    {{ $stockOutOfRange ? 'border-red-400 focus:ring-red-400 focus:border-red-400' : 'border-gray-200' }}"
+                                                        placeholder="0">
+                                                    @if($stockOutOfRange)
+                                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                                            </path>
+                                                        </svg>
+                                                        Stock value is too large. Max is 999,999.
+                                                    </p>
+                                                    @endif
+                                                    @error("branch_stocks.{$branch->id}")
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+                                                @endif
+                                            </div>
+                                            @endforeach
+                                    </div>
+                                    @error('selectedBranches')
+                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    @enderror
+                                    @else
+                                    <div
+                                        class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                                        <p>⚠️ No branches found. Please <a
+                                                href="{{ route('livewire.owner.branches.manage-branches') }}"
+                                                class="text-amber-600 hover:underline">create a branch</a> first.</p>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Description</label>
+                                    <textarea wire:model="description"
+                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg min-h-[120px] focus:ring-amber-500 focus:border-amber-500"></textarea>
+                                    @error('description')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <!-- ✅ BRANCH CHECKBOXES WITH PER-BRANCH STOCK -->
-                            <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Available Branches</label>
-                                <p class="text-sm text-gray-500 mb-3">
-                                    Select which branches this product is available at, and set the stock quantity for
-                                    each branch.
-                                </p>
-
-                                @if($branches->count() > 0)
-                                <div class="grid grid-cols-1 gap-3">
-                                    @foreach($branches as $branch)
-                                    <div
-                                        class="border border-gray-200 rounded-lg overflow-hidden transition
-                                            {{ in_array($branch->id, $selectedBranches) ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
-
-                                        {{-- Checkbox header --}}
-                                        <label class="flex items-start gap-3 p-3 cursor-pointer">
-                                            <input type="checkbox" wire:model.live="selectedBranches"
-                                                value="{{ $branch->id }}"
-                                                class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
-                                            <div class="flex-1">
-                                                <p class="text-sm font-medium text-gray-800">{{ $branch->name }}</p>
-                                                <p class="text-xs text-gray-500">{{ $branch->address }}</p>
-                                                <p class="text-xs text-gray-400">
-                                                    Status: {{ $branch->is_active ? 'Active' : 'Inactive' }}
-                                                </p>
-                                            </div>
-                                        </label>
-
-                                        {{-- ✅ Per-branch stock input — only shows when checked --}}
-                                        @if(in_array($branch->id, $selectedBranches))
-                                        <div class="px-3 pb-3 pt-1 border-t border-amber-200/50">
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                Stock for {{ $branch->name }}
-                                            </label>
-                                            <input type="number" min="0" wire:model="branch_stocks.{{ $branch->id }}"
-                                                class="py-2 px-3 w-full sm:w-48 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
-                                                placeholder="0">
-                                            @error("branch_stocks.{$branch->id}")
+                                <!-- ✅ DISCOUNT SECTION -->
+                                <div class="border-t border-gray-200 pt-4 mt-2">
+                                    <h3 class="text-md font-semibold text-gray-800 mb-3">🏷️ Discount Settings</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Discount
+                                                Type</label>
+                                            <select wire:model.live="discount_type"
+                                                class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
+                                                <option value="none">No Discount</option>
+                                                <option value="percentage">Percentage (%)</option>
+                                                <option value="fixed">Fixed Amount (₱)</option>
+                                            </select>
+                                            @error('discount_type')
                                             <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
+
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">
+                                                Discount Value
+                                                <span class="text-xs text-gray-400">
+                                                    ({{ $discount_type === 'percentage' ? 'e.g., 20 for 20%' : 'e.g.,
+                                                    100
+                                                    for ₱100 off' }})
+                                                </span>
+                                            </label>
+                                            @php
+                                            $discountMax = $discount_type === 'percentage' ? 100 : 999999.99;
+                                            $discountOutOfRange = false;
+                                            if ($discount_value !== '' && $discount_value !== null && $discount_type !==
+                                            'none') {
+                                            if (!is_numeric($discount_value)) {
+                                            $discountOutOfRange = true;
+                                            } else {
+                                            $discountFloat = (float) $discount_value;
+                                            if ($discountFloat < 0 || $discountFloat> $discountMax) {
+                                                $discountOutOfRange = true;
+                                                }
+                                                }
+                                                }
+                                                @endphp
+                                                <input type="number" step="0.01" wire:model.live="discount_value"
+                                                    min="0"
+                                                    class="py-2.5 px-4 w-full border rounded-lg focus:ring-amber-500 focus:border-amber-500
+                                                {{ $discountOutOfRange ? 'border-red-400 focus:ring-red-400 focus:border-red-400' : 'border-gray-200' }}"
+                                                    {{ $discount_type==='none' ? 'disabled' : '' }}>
+                                                @error('discount_value')
+                                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Discount Start
+                                                Date</label>
+                                            <input type="datetime-local" wire:model="discount_start"
+                                                class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                            @error('discount_start')
+                                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="block mb-2 text-sm font-medium text-gray-700">Discount End
+                                                Date</label>
+                                            <input type="datetime-local" wire:model="discount_end"
+                                                class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                            @error('discount_end')
+                                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    @if($discount_type !== 'none' && $discount_value > 0 && $price > 0)
+                                    @if($discountOutOfRange)
+                                    <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                        <p class="text-sm text-red-700 font-medium inline-flex items-center gap-2">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                                </path>
+                                            </svg>
+                                            @if($discount_type === 'percentage')
+                                            Discount value is too large. For percentage, use a value between 0 and 100.
+                                            @else
+                                            Discount value is too large. Maximum is ₱999,999.99.
+                                            @endif
+                                        </p>
+                                    </div>
+                                    @else
+                                    @php
+                                    $discountedPrice = $price;
+                                    if ($discount_type === 'percentage') {
+                                    $discountedPrice = $price * (1 - $discount_value / 100);
+                                    } elseif ($discount_type === 'fixed') {
+                                    $discountedPrice = max(0, $price - $discount_value);
+                                    }
+                                    $discountedPrice = max(0, $discountedPrice);
+                                    @endphp
+                                    <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                        <div class="flex items-center gap-4 flex-wrap">
+                                            <p class="text-sm text-gray-700">
+                                                <span class="font-medium">Original Price:</span>
+                                                <span class="text-gray-500 line-through">₱{{ number_format($price, 2)
+                                                    }}</span>
+                                            </p>
+                                            <p class="text-sm text-gray-700">
+                                                <span class="font-medium">Discounted Price:</span>
+                                                <span class="text-lg font-bold text-green-600">₱{{
+                                                    number_format($discountedPrice, 2) }}</span>
+                                            </p>
+                                            <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+                                                {{ $discount_type === 'percentage' ? $discount_value . '% OFF' : '₱' .
+                                                number_format($discount_value, 2) . ' OFF' }}
+                                            </span>
+                                            <span class="text-xs text-gray-400">
+                                                (Save ₱{{ number_format($price - $discountedPrice, 2) }})
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    @endif
+                                </div>
+
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Image URL</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" wire:model.live="image_url" @disabled($image)
+                                            placeholder="https://example.com/image.jpg"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white relative z-20 disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
+                                        @if($image_url)
+                                        <button type="button" wire:click="$set('image_url', '')"
+                                            class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
+                                            ✕
+                                        </button>
                                         @endif
                                     </div>
-                                    @endforeach
+                                    @error('image_url')
+                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    @enderror
                                 </div>
-                                @error('selectedBranches')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                @enderror
-                                @else
-                                <div
-                                    class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                                    <p>⚠️ No branches found. Please <a
-                                            href="{{ route('livewire.owner.branches.manage-branches') }}"
-                                            class="text-amber-600 hover:underline">create a branch</a> first.</p>
-                                </div>
-                                @endif
-                            </div>
 
-                            <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Description</label>
-                                <textarea wire:model="description"
-                                    class="py-2.5 px-4 w-full border border-gray-200 rounded-lg min-h-[120px] focus:ring-amber-500 focus:border-amber-500"></textarea>
-                                @error('description')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <!-- ✅ DISCOUNT SECTION -->
-                            <div class="border-t border-gray-200 pt-4 mt-2">
-                                <h3 class="text-md font-semibold text-gray-800 mb-3">🏷️ Discount Settings</h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                                    <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount
-                                            Type</label>
-                                        <select wire:model="discount_type"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
-                                            <option value="none">No Discount</option>
-                                            <option value="percentage">Percentage (%)</option>
-                                            <option value="fixed">Fixed Amount (₱)</option>
-                                        </select>
-                                        @error('discount_type')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
-                                        @enderror
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700">Upload Image</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="file" wire:model="image" @disabled($image_url)
+                                            accept="image/jpeg,image/png,image/gif,image/webp"
+                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
+                                        @if($image)
+                                        <button type="button" wire:click="$set('image', null)"
+                                            class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
+                                            ✕
+                                        </button>
+                                        @endif
                                     </div>
 
-                                    <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">
-                                            Discount Value
-                                            <span class="text-xs text-gray-400">
-                                                ({{ $discount_type === 'percentage' ? 'e.g., 20 for 20%' : 'e.g., 100
-                                                for ₱100 off' }})
-                                            </span>
-                                        </label>
-                                        <input type="number" step="0.01" wire:model="discount_value" min="0"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500"
-                                            {{ $discount_type==='none' ? 'disabled' : '' }}>
-                                        @error('discount_value')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
-                                        @enderror
+                                    {{-- NEW: Show loading state while image is uploading --}}
+                                    <div wire:loading wire:target="image" class="mt-2">
+                                        <div class="flex items-center gap-2 text-xs text-amber-600">
+                                            <svg class="animate-spin w-3.5 h-3.5 flex-shrink-0" fill="none"
+                                                viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                    stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                </path>
+                                            </svg>
+                                            <span>Uploading image...</span>
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount Start
-                                            Date</label>
-                                        <input type="datetime-local" wire:model="discount_start"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                                        @error('discount_start')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount End
-                                            Date</label>
-                                        <input type="datetime-local" wire:model="discount_end"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                                        @error('discount_end')
-                                        <span class="text-red-500 text-xs">{{ $message }}</span>
-                                        @enderror
-                                    </div>
+                                    @error('image')
+                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                        {{ $message }}
+                                    </p>
+                                    @enderror
                                 </div>
-                            </div>
 
-                            <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Image URL</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="text" wire:model.live="image_url" @disabled($image)
-                                        placeholder="https://example.com/image.jpg"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white relative z-20 disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
-                                    @if($image_url)
-                                    <button type="button" wire:click="$set('image_url', '')"
-                                        class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
-                                        ✕
-                                    </button>
-                                    @endif
-                                </div>
-                                @error('image_url')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Upload Image</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="file" wire:model="image" @disabled($image_url)
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
-                                    @if($image)
-                                    <button type="button" wire:click="$set('image', null)"
-                                        class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
-                                        ✕
-                                    </button>
-                                    @endif
-                                </div>
                                 @error('image')
-                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                        </path>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
                                 @enderror
                             </div>
-                        </div>
 
-                        <div class="mt-6 grid">
-                            <button type="submit"
-                                class="w-50 py-3 px-4 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
-                                Create Product
-                            </button>
-                        </div>
+                            <div class="mt-6 grid">
+                                <button type="submit"
+                                    class="w-50 py-3 px-4 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                                    Create Product
+                                </button>
+                            </div>
                     </form>
                 </div>
 

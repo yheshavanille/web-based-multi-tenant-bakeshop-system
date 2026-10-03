@@ -19,7 +19,6 @@ class EditProduct extends Component
     public $price;
     public $category_id;
     public array $selectedBranches = [];
-    // ✅ NEW: per-branch stock keyed by branch id
     public array $branch_stocks = [];
 
     public $image_url;
@@ -32,6 +31,11 @@ class EditProduct extends Component
     public $discount_value = 0;
     public $discount_start;
     public $discount_end;
+
+    public function updatedName()
+    {
+        $this->validateOnly('name');
+    }
 
     public function updatedImage()
     {
@@ -74,12 +78,10 @@ class EditProduct extends Component
             ->orderBy('name')
             ->get();
 
-        // ✅ Initialize per-branch stocks to 0
         foreach ($this->branches as $branch) {
             $this->branch_stocks[$branch->id] = 0;
         }
 
-        // ✅ Selected branches + their existing pivot stocks
         foreach ($product->branches as $branch) {
             $this->selectedBranches[] = $branch->id;
             $this->branch_stocks[$branch->id] = (int) ($branch->pivot->stock ?? 0);
@@ -89,30 +91,51 @@ class EditProduct extends Component
     public function messages()
     {
         return [
+            'name.regex' => 'Product name must contain at least one letter and can only use letters, numbers, spaces, and common punctuation ( . , - ( ) & \' / ).',
+            'name.max' => 'Product name cannot exceed 40 characters.',
             'name.required' => 'Product name is required.',
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
             'selectedBranches.required' => 'Please select at least one branch.',
             'selectedBranches.min' => 'Please select at least one branch.',
             'discount_value.min' => 'Discount value must be greater than 0.',
+            'image.image' => 'The file must be a valid image (JPG, PNG, GIF, or WebP).',
+            'image.mimes' => 'The image must be a JPG, PNG, GIF, or WebP file. PDFs and other files are not allowed.',
+            'image.max' => 'The image must not be larger than 2MB.',
+
+            'price.max' => 'Price cannot exceed ₱999,999.99.',
+            'price.min' => 'Price must be at least 1.',
+            'discount_value.max' => 'Discount value is too large. For percentage, use 0–100. For fixed amount, use 0–999,999.99.',
+            'branch_stocks.*.max' => 'Branch stock cannot exceed 999,999.',
+            'branch_stocks.*.integer' => 'Branch stock must be a whole number.',
+            'branch_stocks.*.numeric' => 'Branch stock must be a number.',
+            'branch_stocks.*.min' => 'Branch stock cannot be negative.',
         ];
     }
 
     public function rules()
     {
+        $discountMax = $this->discount_type === 'percentage' ? 100 : 999999.99;
+
         return [
-            'name' => 'required|string|min:3',
-            'price' => 'required|numeric|min:1',
+            'name' => [
+                'required',
+                'string',
+                'min:3',
+                'max:40',
+                'regex:/^(?=.*\p{L})[\p{L}\p{N}\s\-\.\,\(\)\&\'\/]+$/u',
+            ],
+            'price' => 'required|numeric|min:1|max:999999.99',
             'category_id' => 'required|exists:categories,id',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
             'branch_stocks' => 'array',
-            'branch_stocks.*' => 'nullable|integer|min:0',
+            'branch_stocks.*' => 'nullable|numeric|min:0|max:999999',
             'image_url' => 'nullable',
-            'image' => 'nullable|image|max:2048',
-            'description' => 'nullable|string',
+            'image' => 'nullable|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'description' => 'nullable|string|max:5000',
             'discount_type' => 'required|in:none,percentage,fixed',
-            'discount_value' => 'required_if:discount_type,percentage,fixed|nullable|numeric|min:0',
+            'discount_value' => 'required_if:discount_type,percentage,fixed|nullable|numeric|min:0|max:' . $discountMax,
             'discount_start' => 'nullable|date',
             'discount_end' => 'nullable|date|after:discount_start',
         ];
@@ -153,7 +176,6 @@ class EditProduct extends Component
             'discount_end' => $this->discount_end,
         ]);
 
-        // ✅ Sync per-branch stock
         $syncData = [];
         foreach ($this->selectedBranches as $branchId) {
             $syncData[$branchId] = [
@@ -162,7 +184,7 @@ class EditProduct extends Component
         }
         $product->branches()->sync($syncData);
 
-        session()->flash('message', '✅ Product updated successfully.');
+        session()->flash('message', 'Product updated successfully.');
 
         return redirect()->route('livewire.owner.products.view-product');
     }

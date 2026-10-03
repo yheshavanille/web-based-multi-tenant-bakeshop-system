@@ -418,14 +418,14 @@
                 <h2 class="text-lg font-semibold text-gray-800">Recent Product Updates</h2>
                 <span class="text-sm text-gray-500">Last 10 updates</span>
             </div>
-            <button wire:click="viewAllProductHistory"
+                       <a href="{{ route('livewire.owner.product-history', ['tab' => 'product-updates']) }}"
                 class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium transition">
                 View All
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
                     </path>
                 </svg>
-            </button>
+            </a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full divide-y divide-gray-200 text-sm">

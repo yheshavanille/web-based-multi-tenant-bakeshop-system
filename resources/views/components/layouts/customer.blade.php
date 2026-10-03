@@ -21,10 +21,12 @@
 
 <body class="bg-gray-50">
     <x-sidebar-layout role="customer">
+        {{-- Sidebar content --}}
         <x-slot:sidebar>
             @include('components.sidebar.customer')
         </x-slot:sidebar>
 
+        {{-- Profile dropdown content --}}
         <x-slot:dropdown>
             @php
             $user = auth()->user();
@@ -58,6 +60,19 @@
                 </svg>
                 My Profile
             </a>
+
+            {{-- ✅ My Shop Dashboard — only if user owns an active shop --}}
+            @if(auth()->user()->hasRole('owner') && auth()->user()->shop && !auth()->user()->shop->trashed())
+            <a href="{{ route('livewire.owner.dashboard') }}"
+                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+                My Shop Dashboard
+            </a>
+            @endif
 
             <div class="border-t border-gray-100 my-1"></div>
 
@@ -99,6 +114,7 @@
     </div>
 
     @livewireScripts
+    @stack('scripts')
 </body>
 
 </html>

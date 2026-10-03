@@ -5,25 +5,76 @@ namespace App\Livewire\Owner;
 use App\Models\ProductEditHistory;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class ProductHistory extends Component
 {
-    public $histories = [];
+    use WithPagination;
+
+    public $tab = 'product-updates'; // 'product-updates' | 'product-edits'
     public $search = '';
+    public $fieldFilter = 'all';
+
+    protected $queryString = [
+        'tab' => ['except' => 'product-updates'],
+    ];
 
     public function mount()
     {
-        $this->loadHistories();
+        $tab = request()->get('tab');
+        if (in_array($tab, ['product-updates', 'product-edits'])) {
+            $this->tab = $tab;
+        }
     }
 
-    public function loadHistories()
+    public function setTab($tab)
+    {
+        if (!in_array($tab, ['product-updates', 'product-edits'])) {
+            return;
+        }
+        $this->tab = $tab;
+        $this->search = '';
+        $this->fieldFilter = 'all';
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFieldFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    /**
+     * Build the base query for the current tab.
+     */
+    private function buildQuery()
     {
         $shop = Auth::user()->shop;
 
         $query = ProductEditHistory::whereHas('product', function ($q) use ($shop) {
             $q->where('shop_id', $shop->id);
-        })->with(['product', 'user']);
+        })->with(['product.branches', 'user']);
 
+        // Tab filter
+        if ($this->tab === 'product-updates') {
+            // Product Updates tab: show recent 10 (matches dashboard's "Recent Product Updates")
+            // but with pagination — first page shows 10, subsequent pages show the next batches
+            // (This effectively shows the same data as "Product Edits" but paginated at 10 per page)
+        } elseif ($this->tab === 'product-edits') {
+            // Product Edits tab: full history (paginated at 20 per page)
+        }
+
+        // Search
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->whereHas('product', function ($q) use ($searchTerm) {
@@ -31,24 +82,37 @@ class ProductHistory extends Component
             });
         }
 
-        $this->histories = $query->orderBy('created_at', 'desc')->get();
-    }
+        // Field filter
+        if ($this->fieldFilter !== 'all') {
+            $query->where('field', $this->fieldFilter);
+        }
 
-    public function updatedSearch()
-    {
-        $this->loadHistories();
-    }
-
-    public function clearSearch()
-    {
-        $this->search = '';
-        $this->loadHistories();
+        return $query->orderBy('created_at', 'desc');
     }
 
     /**
-     * ✅ Clean old-format values for display.
-     * Old stock rows used to store "Branch Name: 23" — we strip that.
-     * Old branch rows used to store "Branch Name (stock: 5)" — we strip too.
+     * Get the field options for the dropdown.
+     */
+    public function getFieldOptionsProperty()
+    {
+        return [
+            'all' => 'All Fields',
+            'created' => 'Created',
+            'name' => 'Name',
+            'price' => 'Price',
+            'category_id' => 'Category',
+            'description' => 'Description',
+            'image_url' => 'Image',
+            'branch' => 'Branch',
+            'stock' => 'Stock',
+            'discount' => 'Discount',
+            'deleted' => 'Deleted',
+            'restored' => 'Restored',
+        ];
+    }
+
+    /**
+     * Clean old-format values for display.
      */
     public function cleanValue($field, $value)
     {
@@ -58,12 +122,10 @@ class ProductHistory extends Component
 
         $value = (string) $value;
 
-        // Stock field: "Something Here: 23" → "23"
         if ($field === 'stock' && preg_match('/:\s*(-?\d+)\s*$/', $value, $m)) {
             return $m[1];
         }
 
-        // Branch field: "Branch Name (stock: 5)" → "Stock: 5"
         if ($field === 'branch' && preg_match('/\(stock:\s*(-?\d+)\)/', $value, $m)) {
             return 'Stock: ' . $m[1];
         }
@@ -73,7 +135,12 @@ class ProductHistory extends Component
 
     public function render()
     {
-        return view('livewire.owner.product-history')
-            ->layout('components.layouts.owner');
+        $perPage = $this->tab === 'product-updates' ? 10 : 20;
+        $histories = $this->buildQuery()->paginate($perPage);
+
+        return view('livewire.owner.product-history', [
+            'histories' => $histories,
+            'fieldOptions' => $this->fieldOptions,
+        ])->layout('components.layouts.owner');
     }
 }

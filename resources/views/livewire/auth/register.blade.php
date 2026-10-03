@@ -28,6 +28,22 @@
         }
     </style>
 
+    {{-- ✅ Full-screen loading overlay while register() is running --}}
+    <div wire:loading.flex wire:target="register"
+        class="fixed inset-0 z-[9999] items-center justify-center bg-gray-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl px-8 py-6 max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg class="animate-spin w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">Sending verification code...</h3>
+            <p class="text-sm text-gray-500">This will only take a moment. Please don't close this page.</p>
+        </div>
+    </div>
     <div class="register-responsive-shell relative overflow-hidden min-h-screen bg-white flex items-center">
         <div
             class="register-responsive-container max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
@@ -142,9 +158,23 @@
                                 </div>
                             </div>
 
-                            <button type="submit"
-                                class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-amber-500 hover:bg-amber-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
-                                Create Account
+                            {{-- ✅ Button with loading state --}}
+                            <button type="submit" wire:loading.attr="disabled" wire:target="register"
+                                class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg bg-amber-500 hover:bg-amber-600 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                                <span wire:loading.remove wire:target="register">
+                                    Create Account
+                                </span>
+                                <span wire:loading wire:target="register"
+                                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                                    <svg class="animate-spin w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    <span>Sending verification code...</span>
+                                </span>
                             </button>
                         </form>
 

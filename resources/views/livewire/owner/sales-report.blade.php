@@ -429,18 +429,25 @@
                                     color: '#d97706'
                                 }
                             },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                beginAtZero: true,
-                                grid: { drawOnChartArea: false },
-                                title: {
-                                    display: true,
-                                    text: 'Orders',
-                                    color: '#3b82f6'
-                                }
-                            }
+                           y1: {
+    type: 'linear',
+    display: true,
+    position: 'right',
+    beginAtZero: true,
+    grid: { drawOnChartArea: false },
+    title: {
+        display: true,
+        text: 'Orders',
+        color: '#3b82f6'
+    },
+    ticks: {
+        stepSize: 10,
+        precision: 0,
+        callback: function (value) {
+            return value;
+        }
+    }
+}
                         }
                     }
                 });

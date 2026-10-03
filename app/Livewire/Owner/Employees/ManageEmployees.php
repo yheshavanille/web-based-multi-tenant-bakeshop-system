@@ -341,6 +341,9 @@ class ManageEmployees extends Component
                 'description' => Auth::user()->name . ' created account for ' . $user->name,
             ]);
 
+            // ✅ Email the new employee
+            $user->notify(new \App\Notifications\EmployeeWelcomeNotification($newEmployee, $this->password));
+
             session()->flash('message', 'Employee created successfully!');
         }
 

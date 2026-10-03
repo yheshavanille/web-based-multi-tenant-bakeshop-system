@@ -34,6 +34,11 @@ class CreateProduct extends Component
     public $discount_start;
     public $discount_end;
 
+    public function updatedName()
+    {
+        $this->validateOnly('name');
+    }
+
     public function updatedImage()
     {
         if ($this->image) {
@@ -83,38 +88,53 @@ class CreateProduct extends Component
     {
         return [
             'name.required' => 'Product name is required.',
+            'name.max' => 'Product name cannot exceed 40 characters.',
+            'name.regex' => 'Product name must contain at least one letter and can only use letters, numbers, spaces, and common punctuation ( . , - ( ) & \' / ).',
             'price.required' => 'Price is required.',
             'category_id.required' => 'Category is required.',
             'selectedBranches.required' => 'Please select at least one branch.',
             'selectedBranches.min' => 'Please select at least one branch.',
             'image_url.url' => 'Image URL must be valid.',
             'discount_value.min' => 'Discount value must be greater than 0.',
+
+            'price.max' => 'Price cannot exceed ₱999,999.99.',
+            'price.min' => 'Price must be at least 1.',
+            'discount_value.max' => 'Discount value is too large. For percentage, use 0–100. For fixed amount, use 0–999,999.99.',
+            'branch_stocks.*.max' => 'Branch stock cannot exceed 999,999.',
+            'branch_stocks.*.numeric' => 'Branch stock must be a number.',
+            'branch_stocks.*.min' => 'Branch stock cannot be negative.',
+
+            'image.image' => 'The file must be a valid image (JPG, PNG, GIF, or WebP).',
+            'image.mimes' => 'The image must be a JPG, PNG, GIF, or WebP file. PDFs and other files are not allowed.',
+            'image.max' => 'The image must not be larger than 2MB.',
         ];
     }
 
     public function rules()
     {
         $shop = Auth::user()?->shop;
+        $discountMax = $this->discount_type === 'percentage' ? 100 : 999999.99;
 
         return [
             'name' => [
                 'required',
                 'string',
                 'min:3',
-                // ✅ Duplicate check: block same name in same shop
+                'max:40',
+                'regex:/^(?=.*\p{L})[\p{L}\p{N}\s\-\.\,\(\)\&\'\/]+$/u',
                 $shop ? new UniqueProductName($shop->id) : 'string',
             ],
-            'price' => 'required|numeric|min:1',
+            'price' => 'required|numeric|min:1|max:999999.99',
             'category_id' => 'required|exists:categories,id',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
             'branch_stocks' => 'array',
-            'branch_stocks.*' => 'nullable|integer|min:0',
+            'branch_stocks.*' => 'nullable|numeric|min:0|max:999999',
             'image_url' => 'nullable|url',
-            'image' => 'nullable|image|max:2048',
-            'description' => 'nullable|string',
+            'image' => 'nullable|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'description' => 'nullable|string|max:5000',
             'discount_type' => 'required|in:none,percentage,fixed',
-            'discount_value' => 'required_if:discount_type,percentage,fixed|nullable|numeric|min:0',
+            'discount_value' => 'required_if:discount_type,percentage,fixed|nullable|numeric|min:0|max:' . $discountMax,
             'discount_start' => 'nullable|date',
             'discount_end' => 'nullable|date|after:discount_start',
         ];
@@ -140,7 +160,7 @@ class CreateProduct extends Component
         }
 
         $product = Product::create([
-            'name' => trim($this->name), // ✅ trim to keep consistency
+            'name' => trim($this->name),
             'price' => $this->price,
             'category_id' => $this->category_id,
             'image_url' => $imagePath,
@@ -157,7 +177,7 @@ class CreateProduct extends Component
             $product->branches()->attach($branchId, ['stock' => $stock]);
         }
 
-        session()->flash('message', '✅ Product created successfully!');
+        session()->flash('message', ' Product created successfully!');
 
         return redirect()->route('livewire.owner.products.view-product');
     }

@@ -48,7 +48,6 @@
                         <option value="order">Orders Only</option>
                         <option value="stock_in">Stock In</option>
                         <option value="stock_out">Stock Out</option>
-                        <option value="adjustment">Adjustment</option>
                         <option value="order_sale">Customer Order</option>
                         <option value="cancelled">Order Cancelled</option>
                         <option value="no_show">Not Picked Up</option>
@@ -76,119 +75,101 @@
             @endif
         </div>
 
-        <!-- Legend -->
-        <div class="flex flex-wrap items-center gap-3 mb-4 text-xs text-gray-600">
-            <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> Stock In
-            </span>
-            <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Stock Out
-            </span>
-            <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Adjustment
-            </span>
-            <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Customer Order
-            </span>
-            <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Order Cancelled / Not Picked Up
-            </span>
-        </div>
-
         <!-- Movement log -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             @if($histories->count() > 0)
             <div class="overflow-x-auto">
                 <table class="w-full divide-y divide-gray-200 text-sm">
-                    <the<tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Type</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
-                        <th class="px-4 py-3 text-right font-medium text-gray-700">Old Stock</th>
-                        <th class="px-4 py-3 text-right font-medium text-gray-700">Change</th>
-                        <th class="px-4 py-3 text-right font-medium text-gray-700">Stock After</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Reason</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">By</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">When</th>
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Type</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700">Old Stock</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700">Change</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700">Stock After</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">Reason</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">By</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700">When</th>
                         </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            @foreach($histories as $row)
-                            @php
-                            // Map type/status → label + badge color
-                            $typeLabels = [
-                            'stock_in' => ['label' => 'Stock In', 'color' => 'green'],
-                            'stock_out' => ['label' => 'Stock Out', 'color' => 'red'],
-                            'adjustment' => ['label' => 'Adjustment', 'color' => 'yellow'],
-                            'out' => ['label' => 'Customer Order', 'color' => 'blue'],
-                            'cancelled' => ['label' => 'Order Cancelled', 'color' => 'orange'],
-                            'no_show' => ['label' => 'Not Picked Up', 'color' => 'orange'],
-                            ];
-                            $info = $typeLabels[$row['type']] ?? ['label' => ucfirst($row['type']), 'color' => 'gray'];
-                            $badgeClasses = match ($info['color']) {
-                            'green' => 'bg-green-100 text-green-800',
-                            'red' => 'bg-red-100 text-red-800',
-                            'yellow' => 'bg-yellow-100 text-yellow-800',
-                            'blue' => 'bg-blue-100 text-blue-800',
-                            'orange' => 'bg-orange-100 text-orange-800',
-                            default => 'bg-gray-100 text-gray-800',
-                            };
-                            $qty = (int) $row['quantity'];
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @foreach($histories as $row)
+                        @php
+                        // Map type/status → label + badge color
+                        $typeLabels = [
+                        'stock_in' => ['label' => 'Stock In', 'color' => 'green'],
+                        'stock_out' => ['label' => 'Stock Out', 'color' => 'red'],
+                        'adjustment' => ['label' => 'Adjustment', 'color' => 'yellow'],
+                        'out' => ['label' => 'Customer Order', 'color' => 'blue'],
+                        'cancelled' => ['label' => 'Order Cancelled', 'color' => 'orange'],
+                        'no_show' => ['label' => 'Not Picked Up', 'color' => 'orange'],
+                        ];
+                        $info = $typeLabels[$row['type']] ?? ['label' => ucfirst($row['type']), 'color' => 'gray'];
+                        $badgeClasses = match ($info['color']) {
+                        'green' => 'bg-green-100 text-green-800',
+                        'red' => 'bg-red-100 text-red-800',
+                        'yellow' => 'bg-yellow-100 text-yellow-800',
+                        'blue' => 'bg-blue-100 text-blue-800',
+                        'orange' => 'bg-orange-100 text-orange-800',
+                        default => 'bg-gray-100 text-gray-800',
+                        };
+                        $qty = (int) $row['quantity'];
 
-                            // ✅ Clean up the reason text for order-driven rows
-                            $reason = $row['notes'] ?? '';
+                        // ✅ Clean up the reason text for order-driven rows
+                        $reason = $row['notes'] ?? '';
 
-                            if ($row['kind'] === 'order') {
-                            // Extract the order number from the notes (e.g. "Order #ORD-XXX — stock reduced")
-                            if (preg_match('/Order #(ORD-[A-Z0-9]+)/', $reason, $m)) {
-                            $orderNo = $m[1];
-                            } else {
-                            $orderNo = null;
-                            }
+                        if ($row['kind'] === 'order') {
+                        // Extract the order number from the notes (e.g. "Order #ORD-XXX — stock reduced")
+                        if (preg_match('/Order #(ORD-[A-Z0-9]+)/', $reason, $m)) {
+                        $orderNo = $m[1];
+                        } else {
+                        $orderNo = null;
+                        }
 
-                            $reason = match ($row['type']) {
-                            'out' => $orderNo ? "Customer order — {$orderNo}" : 'Customer order',
-                            'cancelled' => $orderNo ? "Order {$orderNo} was cancelled" : 'Order cancelled',
-                            'no_show' => $orderNo ? "Order {$orderNo} was not picked up" : 'Order not picked up',
-                            default => $reason,
-                            };
-                            }
-                            @endphp
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-4 py-3">
-                                    <span
-                                        class="text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap {{ $badgeClasses }}">
-                                        {{ $info['label'] }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 font-medium text-gray-800">
-                                    {{ $row['product']->name ?? 'Deleted product' }}
-                                </td>
-                                <td class="px-4 py-3 text-gray-600">
-                                    {{ $row['branch']->name ?? 'Deleted branch' }}
-                                </td>
-                                <td class="px-4 py-3 text-right text-gray-500">
-                                    {{ $row['old_stock'] }}
-                                </td>
-                                <td class="px-4 py-3 text-right font-semibold
+                        $reason = match ($row['type']) {
+                        'out' => $orderNo ? "Customer order — {$orderNo}" : 'Customer order',
+                        'cancelled' => $orderNo ? "Order {$orderNo} was cancelled" : 'Order cancelled',
+                        'no_show' => $orderNo ? "Order {$orderNo} was not picked up" : 'Order not picked up',
+                        default => $reason,
+                        };
+                        }
+                        @endphp
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-4 py-3">
+                                <span
+                                    class="text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap {{ $badgeClasses }}">
+                                    {{ $info['label'] }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 font-medium text-gray-800">
+                                {{ $row['product']->name ?? 'Deleted product' }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-600">
+                                {{ $row['branch']->name ?? 'Deleted branch' }}
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-500">
+                                {{ $row['old_stock'] }}
+                            </td>
+                            <td class="px-4 py-3 text-right font-semibold
     {{ $qty > 0 ? 'text-green-600' : ($qty < 0 ? 'text-red-600' : 'text-gray-500') }}">
-                                    {{ $qty > 0 ? '+' : '' }}{{ $qty }}
-                                </td>
-                                <td class="px-4 py-3 text-right font-medium text-gray-800">
-                                    {{ $row['new_stock'] }}
-                                </td>
-                                <td class="px-4 py-3 text-gray-500 max-w-xs truncate" title="{{ $reason }}">
-                                    {{ $reason ?: '—' }}
-                                </td>
-                                <td class="px-4 py-3 text-gray-600 text-xs">
-                                    {{ $row['user']->name ?? 'System' }}
-                                </td>
-                                <td class="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
-                                    {{ $row['created_at']->diffForHumans() }}
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
+                                {{ $qty > 0 ? '+' : '' }}{{ $qty }}
+                            </td>
+                            <td class="px-4 py-3 text-right font-medium text-gray-800">
+                                {{ $row['new_stock'] }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-500 max-w-xs truncate" title="{{ $reason }}">
+                                {{ $reason ?: '—' }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-600 text-xs">
+                                {{ $row['user']->name ?? 'System' }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
+                                {{ $row['created_at']->diffForHumans() }}
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                 </table>
             </div>
             @else

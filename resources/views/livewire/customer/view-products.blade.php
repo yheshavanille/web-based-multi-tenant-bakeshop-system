@@ -164,10 +164,14 @@
                     <div class="p-3">
                         <p class="font-semibold text-gray-800 text-sm truncate">{{ $item->product?->name ?? 'Product
                             Unavailable' }}</p>
-                        <div class="flex items-center justify-between mt-1">
-                            <span class="text-xs text-gray-500">{{ $item->total_sold }} sold</span>
-                            <span class="text-xs font-bold text-amber-600">₱{{ number_format($item->total_revenue, 2)
-                                }}</span>
+                        <div class="mt-1">
+                            <span class="text-xs text-gray-500">
+                                @php
+                                $rounded = floor($item->total_sold / 10) * 10;
+                                $displaySold = $rounded >= 10 ? $rounded . '+' : $item->total_sold;
+                                @endphp
+                                {{ $displaySold }} sold
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -273,8 +277,22 @@
                     class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition hover:border-amber-200 cursor-pointer flex flex-col transition-all duration-500"
                     wire:click="openReviewModal({{ $product->id }})">
 
+                    {{-- ✅ Image section: shows fallback when no image --}}
                     @if($product->image_url)
                     <img src="{{ asset($product->image_url) }}" class="w-full h-40 object-cover rounded-lg mb-3">
+                    @else
+                    <div
+                        class="w-full h-40 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg mb-3 flex flex-col items-center justify-center">
+                        <svg class="w-12 h-12 mb-2 text-amber-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.5 10.5v3M8 8v3M12 6v3M16 8v3M19.5 10.5v3"></path>
+                        </svg>
+                        <span class="text-xs text-gray-400">No Image</span>
+                    </div>
                     @endif
 
                     <h3 class="font-semibold text-gray-800 text-lg">{{ $product->name }}</h3>
@@ -282,7 +300,8 @@
 
                     @if($product->isDiscounted())
                     <div class="mt-1">
-                        <span class="text-sm text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
+                        <span class="text-sm text-gray-400 line-through">₱{{ number_format($product->price, 2)
+                            }}</span>
                         <span class="text-lg font-bold text-green-600 ml-2">₱{{
                             number_format($product->getDiscountedPrice(), 2) }}</span>
                         <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full ml-2">{{
@@ -488,8 +507,11 @@
                                 })
                                 ->where('product_id', $selectedProduct->id)
                                 ->sum('quantity');
+
+                                $roundedModal = floor($soldCount / 10) * 10;
+                                $displaySoldModal = $roundedModal >= 10 ? $roundedModal . '+' : $soldCount;
                                 @endphp
-                                {{ $soldCount }} units
+                                {{ $displaySoldModal }} units
                             </p>
                         </div>
                     </div>

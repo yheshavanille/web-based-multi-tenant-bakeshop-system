@@ -37,10 +37,6 @@ class Products extends Component
 
     public $originalValues = [];
 
-    /**
-     *  Dynamic rules — the name rule depends on whether we're editing
-     *    (must skip the current product) or creating a new one.
-     */
     protected function rules()
     {
         $shopId = $this->shop?->id;
@@ -51,15 +47,29 @@ class Products extends Component
                 'required',
                 'string',
                 'min:3',
-                'max:255',
+                'max:40',
+                'regex:/^(?=.*\p{L})[\p{L}\p{N}\s\-\.\,\(\)\&\'\/]+$/u',
                 $shopId
                     ? new UniqueProductName($shopId, $ignoreId)
                     : 'string',
             ],
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:999999.99',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'description' => 'nullable|string|max:5000',
+            'image' => 'nullable|mimes:jpg,jpeg,png,gif,webp|max:2048',
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'name.regex' => 'Product name must contain at least one letter and can only use letters, numbers, spaces, and common punctuation ( . , - ( ) & \' / ).',
+            'name.max' => 'Product name cannot exceed 40 characters.',
+            'price.max' => 'Price cannot exceed ₱999,999.99.',
+            'price.min' => 'Price must be 0 or higher.',
+            'image.image' => 'The file must be a valid image (JPG, PNG, GIF, or WebP).',
+            'image.mimes' => 'The image must be a JPG, PNG, GIF, or WebP file. PDFs and other files are not allowed.',
+            'image.max' => 'The image must not be larger than 2MB.',
         ];
     }
 
@@ -155,6 +165,11 @@ class Products extends Component
     public function updatedSearch()
     {
         $this->loadProducts();
+    }
+
+    public function updatedName()
+    {
+        $this->validateOnly('name');
     }
 
     public function toggleDeleted()

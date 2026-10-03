@@ -42,8 +42,8 @@ class ViewProduct extends Component
     public $image_url = '';
 
     public array $selectedBranches = [];
-    public array $branch_stocks = [];     //  now holds DELTAS in edit mode
-    public array $branch_notes = [];      //  per-branch notes
+    public array $branch_stocks = [];
+    public array $branch_notes = [];
 
     public $discount_type = 'none';
     public $discount_value = 0;
@@ -53,32 +53,58 @@ class ViewProduct extends Component
     protected $messages = [
         'selectedBranches.required' => 'Please select at least one branch.',
         'selectedBranches.min' => 'Please select at least one branch.',
+
+        // ✅ Product name validation
+        'name.max' => 'Product name cannot exceed 40 characters.',
+        'name.regex' => 'Product name must contain at least one letter and can only use letters, numbers, spaces, and common punctuation ( . , - ( ) & \' / ).',
+
+        //  Numeric limits
+        'price.max' => 'Price cannot exceed ₱999,999.99.',
+        'price.min' => 'Price must be at least 0.',
+        'discount_value.max' => 'Discount value is too large. For percentage, use 0–100. For fixed amount, use 0–999,999.99.',
+        'discount_value.min' => 'Discount value must be 0 or higher.',
+        'branch_stocks.*.max' => 'Stock cannot exceed 999 per branch.',
+        'branch_stocks.*.min' => 'Stock cannot go below -999.',
+        'branch_stocks.*.numeric' => 'Stock must be a number.',
+
+        //  Image validation
+        'image.image' => 'The file must be a valid image (JPG, PNG, GIF, or WebP).',
+        'image.mimes' => 'The image must be a JPG, PNG, GIF, or WebP file. PDFs and other files are not allowed.',
+        'image.max' => 'The image must not be larger than 2MB.',
     ];
 
     protected function rules()
     {
         $shop = Auth::user()->shop;
         $ignoreId = $this->editing ? $this->productId : null;
+        $discountMax = $this->discount_type === 'percentage' ? 100 : 999999.99;
 
         return [
             'name' => [
                 'required',
                 'string',
                 'min:3',
-                'max:255',
+                'max:40',
+                'regex:/^(?=.*\p{L})[\p{L}\p{N}\s\-\.\,\(\)\&\'\/]+$/u',
                 new UniqueProductName($shop->id, $ignoreId),
             ],
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:999999.99',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'description' => 'nullable|string|max:5000',
+            'image' => 'nullable|mimes:jpg,jpeg,png,gif,webp|max:2048',
             'selectedBranches' => 'required|array|min:1',
             'selectedBranches.*' => 'exists:branches,id',
             'branch_stocks' => 'array',
+            'branch_stocks.*' => 'nullable|numeric|min:-999|max:999',
             'branch_notes' => 'array',
             'discount_type' => 'required|in:none,percentage,fixed',
-            'discount_value' => 'nullable|numeric|min:0',
+            'discount_value' => 'nullable|numeric|min:0|max:' . $discountMax,
         ];
+    }
+
+    public function updatedName()
+    {
+        $this->validateOnly('name');
     }
 
     public function mount($branch = null)
@@ -101,8 +127,6 @@ class ViewProduct extends Component
     public function toggleDeleted()
     {
         $this->showDeleted = !$this->showDeleted;
-
-        // Close any open form when toggling deleted view
         $this->showForm = false;
         $this->editing = false;
         $this->productId = null;
@@ -212,7 +236,6 @@ class ViewProduct extends Component
         $this->discount_type = 'none';
         $this->discount_value = 0;
 
-        // Auto-scroll to the form
         $this->dispatch('scroll-to-product-form');
     }
 
@@ -231,7 +254,6 @@ class ViewProduct extends Component
 
         foreach ($product->branches as $branch) {
             $this->selectedBranches[] = $branch->id;
-            //  In edit mode, the input holds a DELTA, so start at empty
             $this->branch_stocks[$branch->id] = '';
         }
 
@@ -264,7 +286,6 @@ class ViewProduct extends Component
         $this->showForm = true;
         $this->showProductModal = false;
 
-        // Auto-scroll to the form
         $this->dispatch('scroll-to-product-form');
     }
 
@@ -301,7 +322,6 @@ class ViewProduct extends Component
             $oldImageUrl = $this->originalValues['image_url'] ?? null;
             $newImageUrl = $imagePath ?? $product->image_url;
 
-            //  Product metadata history
             $fields = ['name', 'price', 'category_id', 'description'];
             foreach ($fields as $field) {
                 $oldValue = $this->originalValues[$field] ?? null;
@@ -331,7 +351,6 @@ class ViewProduct extends Component
             $oldBranchStocks = $this->originalValues['branch_stocks'] ?? [];
             $oldBranchNames = $this->originalValues['branch_names'] ?? [];
 
-            //  Branch additions
             foreach ($this->selectedBranches as $branchId) {
                 if (!array_key_exists($branchId, $oldBranchStocks)) {
                     $branch = Branch::find($branchId);
@@ -344,7 +363,6 @@ class ViewProduct extends Component
                         'new_value' => 'Assigned — stock: ' . $delta,
                     ]);
 
-                    // Log the initial stock for the new branch
                     if ($delta > 0) {
                         InventoryHistory::create([
                             'product_id' => $product->id,
@@ -362,7 +380,6 @@ class ViewProduct extends Component
                 }
             }
 
-            //  Branch removals
             foreach ($oldBranchStocks as $oldBranchId => $oldStock) {
                 if (!in_array($oldBranchId, $this->selectedBranches)) {
                     ProductEditHistory::create([
@@ -375,7 +392,6 @@ class ViewProduct extends Component
                 }
             }
 
-            //  Existing branch stock deltas
             $syncData = [];
             foreach ($this->selectedBranches as $branchId) {
                 $oldStock = (int) ($oldBranchStocks[$branchId] ?? 0);
@@ -383,13 +399,11 @@ class ViewProduct extends Component
                 $delta = ($deltaRaw === '' || $deltaRaw === null) ? 0 : (int) $deltaRaw;
                 $newStock = max(0, $oldStock + $delta);
 
-                // Prevent going below 0 — reject if user tries too much
                 if ($oldStock + $delta < 0) {
                     session()->flash('error', 'Stock for ' . ($oldBranchNames[$branchId] ?? 'branch') . ' cannot go below 0.');
                     return;
                 }
 
-                // Log if this is an existing branch AND delta is non-zero
                 if (array_key_exists($branchId, $oldBranchStocks) && $delta !== 0) {
                     ProductEditHistory::create([
                         'product_id' => $product->id,
@@ -416,7 +430,6 @@ class ViewProduct extends Component
                 $syncData[$branchId] = ['stock' => $newStock];
             }
 
-            //  Discount history (unchanged)
             $oldDiscountType = $this->originalValues['discount_type'] ?? 'none';
             $newDiscountType = $this->discount_type ?? 'none';
             $oldDiscountValue = $this->originalValues['discount_value'] ?? 0;
@@ -446,7 +459,6 @@ class ViewProduct extends Component
 
             session()->flash('message', 'Product updated successfully!');
         } else {
-            //  CREATE MODE
             $product = Product::create([
                 'name' => trim($this->name),
                 'price' => $this->price,
@@ -467,7 +479,6 @@ class ViewProduct extends Component
             ]);
 
             foreach ($this->selectedBranches as $branchId) {
-                //  In create mode, the input holds the INITIAL stock
                 $initialStock = (int) ($this->branch_stocks[$branchId] ?? 0);
                 $branch = Branch::find($branchId);
 

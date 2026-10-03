@@ -36,7 +36,7 @@
 
                     <div
                         class="mb-5 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs flex items-start gap-2">
-                        <span class="text-base leading-none mt-0.5">💡</span>
+
                         <span>Codes are case-insensitive and valid for 10 minutes. You can request a new one
                             after 60 seconds.</span>
                     </div>

@@ -121,21 +121,54 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Product Name <span
                             class="text-red-500">*</span></label>
-                    <input type="text" wire:model="name"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('name') border-red-500 @enderror">
+                    <input type="text" wire:model.live.debounce.500ms="name" maxlength="40" class="w-full px-4 py-2 border rounded-lg focus:ring-amber-500 focus:border-amber-500
+            @error('name') border-red-500 focus:ring-red-400 focus:border-red-400 @else border-gray-300 @enderror">
                     @error('name')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                        {{ $message }}
+                    </p>
                     @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Price <span
                             class="text-red-500">*</span></label>
-                    <input type="number" step="0.01" wire:model="price"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('price') border-red-500 @enderror">
-                    @error('price')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                    @enderror
+                    @php
+                    $priceRaw = $price;
+                    $priceOutOfRange = false;
+                    if ($priceRaw !== '' && $priceRaw !== null) {
+                    if (!is_numeric($priceRaw)) {
+                    $priceOutOfRange = true;
+                    } else {
+                    $priceFloat = (float) $priceRaw;
+                    if ($priceFloat < 0 || $priceFloat> 999999.99) {
+                        $priceOutOfRange = true;
+                        }
+                        }
+                        }
+                        @endphp
+                        <input type="number" step="0.01" wire:model.live="price" class="w-full px-4 py-2 border rounded-lg focus:ring-amber-500 focus:border-amber-500
+                            {{ $priceOutOfRange ? 'border-red-400 focus:ring-red-400 focus:border-red-400' : 'border-gray-300' }}
+                            @error('price') border-red-500 @enderror">
+                        @if($priceOutOfRange)
+                        <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                            Price is too large. Maximum is ₱999,999.99.
+                        </p>
+                        @endif
+                        @error('price')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                 </div>
 
                 <div>
@@ -165,10 +198,32 @@
                 <!-- Image Upload -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
-                    <input type="file" wire:model.live="image"
+                    <input type="file" wire:model.live="image" accept="image/jpeg,image/png,image/gif,image/webp"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+
+                    {{-- ✅ NEW: Loading state while image is uploading --}}
+                    <div wire:loading wire:target="image" class="mt-2">
+                        <div class="flex items-center gap-2 text-xs text-amber-600">
+                            <svg class="animate-spin w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <span>Uploading image...</span>
+                        </div>
+                    </div>
+
                     @error('image')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                        {{ $message }}
+                    </p>
                     @enderror
                 </div>
 

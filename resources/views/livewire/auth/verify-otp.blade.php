@@ -151,7 +151,7 @@
                     {{-- ✅ Friendly info box --}}
                     <div
                         class="mb-5 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs flex items-start gap-2">
-                        <span class="text-base leading-none mt-0.5">💡</span>
+
                         <span>Didn't get anything? Check your spam folder or try again with the correct email.</span>
                     </div>
 

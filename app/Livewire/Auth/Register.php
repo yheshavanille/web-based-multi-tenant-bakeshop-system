@@ -8,6 +8,7 @@ use App\Rules\PersonName;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 
@@ -118,8 +119,12 @@ class Register extends Component
             'updated_at' => now(),
         ]);
 
-        // Send the email
-        $user->notify(new AccountOtpNotification($code));
+        // Send the email (don't fail registration if SMTP is unavailable)
+        try {
+            $user->notify(new AccountOtpNotification($code));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send OTP email: ' . $e->getMessage());
+        }
     }
 
     public function render()
