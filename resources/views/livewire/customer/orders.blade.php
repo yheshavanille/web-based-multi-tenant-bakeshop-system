@@ -55,7 +55,7 @@
             @if(!empty($search))
             <p class="mt-1 text-xs text-gray-500">
                 Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-                <span class="text-gray-400">({{ $orders->count() }} found)</span>
+                <span class="text-gray-400">({{ $orders->total() }} found)</span>
             </p>
             @endif
         </div>
@@ -120,8 +120,7 @@
                                         View Details
                                     </button>
                                     @if($order->status === 'pending')
-                                    <button wire:click="cancelOrder({{ $order->id }})"
-                                        onclick="confirm('Cancel entire order?') || event.stopImmediatePropagation()"
+                                    <button wire:click="openCancelOrderModal({{ $order->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium transition">
                                         Cancel Order
                                     </button>
@@ -245,8 +244,7 @@
                                         </div>
                                         <div class="w-40 pl-4 flex items-center gap-2">
                                             @if($item->status === 'pending')
-                                            <button wire:click="cancelItem({{ $item->id }})"
-                                                onclick="confirm('Cancel this item?') || event.stopImmediatePropagation()"
+                                            <button wire:click="openCancelItemModal({{ $item->id }})"
                                                 class="text-red-500 hover:text-red-700 transition"
                                                 title="Cancel this item">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -275,6 +273,12 @@
                     </tbody>
                 </table>
             </div>
+            {{-- ✅ Pagination --}}
+            @if($orders->hasPages())
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                {{ $orders->links() }}
+            </div>
+            @endif
             @else
             <div class="text-center py-12 text-gray-500">
                 <svg class="w-14 h-14 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,16 +360,44 @@
                         </div>
                         <div class="bg-gray-50 rounded-lg p-3">
                             <p class="text-xs text-gray-500">Payment Status</p>
-                            <span
-                                class="text-sm font-medium px-2 py-0.5 rounded-full
-                                {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
-                                {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}">
+                            <span class="text-sm font-medium px-2 py-0.5 rounded-full
+        {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
+        {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
+        {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
+        {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}
+        {{ $selectedOrderDetails->payment_status === 'cancelled' ? 'bg-gray-100 text-gray-700' : '' }}">
                                 {{ ucfirst($selectedOrderDetails->payment_status) }}
                             </span>
                         </div>
                     </div>
+
+                    {{-- ✅ Cancellation reason banner --}}
+                    @if($selectedOrderDetails->status === 'cancelled')
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                        <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold text-red-800">
+                                @if($selectedOrderDetails->cancellation_reason)
+                                Cancelled — {{ $selectedOrderDetails->cancellation_reason }}
+                                @else
+                                This order was cancelled
+                                @endif
+                            </p>
+                            <p class="text-xs text-red-600 mt-0.5">
+                                @if($selectedOrderDetails->cancellation_reason)
+                                Reason provided by you.
+                                @else
+                                No cancellation reason was recorded.
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    @endif
 
                     <div class="border-t border-gray-200 pt-4">
                         <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
@@ -428,6 +460,10 @@
                                             <span class="italic">"{{ $item->notes }}"</span>
                                             @else
                                             <span class="text-gray-400">—</span>
+                                            @endif
+                                            @if($item->status === 'cancelled' && $item->cancellation_reason)
+                                            <p class="text-red-600 italic mt-0.5">Cancelled — {{
+                                                $item->cancellation_reason }}</p>
                                             @endif
                                         </td>
                                     </tr>
@@ -1137,4 +1173,96 @@
         </div>
     </div>
     @endif
+
+    {{-- ✅ Cancel Reason Modal --}}
+    <div x-data="{ open: false }" @open-cancel-modal.window="open = true;" @close-cancel-modal.window="open = false;"
+        x-show="open" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-100"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="open = false"></div>
+
+        <div class="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            x-show="open" x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-rose-50 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-red-800 inline-flex items-center gap-2">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                            <span x-text="$wire.cancelTarget === 'order' ? 'Cancel Order' : 'Cancel Item'"></span>
+                        </h3>
+                        <p class="text-xs text-red-600 mt-0.5" x-text="$wire.cancelSummary"></p>
+                    </div>
+                    <button @click="open = false" type="button" class="text-gray-400 hover:text-gray-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+                <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">
+                        Why are you cancelling? <span class="text-red-500">*</span>
+                    </p>
+
+                    <div class="space-y-2">
+                        @foreach(\App\Livewire\Customer\Orders::CANCEL_REASONS as $r)
+                        <label
+                            class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition text-sm {{ $cancelReason === $r ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+                            <input type="radio" wire:model.live="cancelReason" value="{{ $r }}"
+                                class="text-amber-600 focus:ring-amber-500">
+                            <span class="text-gray-800">{{ $r }}</span>
+                        </label>
+                        @endforeach
+
+                        <label
+                            class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition text-sm {{ $cancelReason === 'Other reason' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-amber-300' }}">
+                            <input type="radio" wire:model.live="cancelReason" value="Other reason"
+                                class="text-amber-600 focus:ring-amber-500">
+                            <span class="text-gray-800">Other reason</span>
+                        </label>
+                    </div>
+                    @error('cancelReason')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                @if($cancelReason === 'Other reason')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Please specify <span class="text-red-500">*</span>
+                    </label>
+                    <textarea wire:model="cancelOtherText" rows="3" maxlength="100"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('cancelOtherText') border-red-500 @enderror"
+                        placeholder="Tell us briefly why you're cancelling..."></textarea>
+                    @error('cancelOtherText')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                @endif
+            </div>
+
+            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex justify-end gap-2 flex-shrink-0">
+                <button @click="open = false" type="button"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    Keep
+                </button>
+                <button wire:click="submitCancellation" wire:loading.attr="disabled" wire:target="submitCancellation"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-50">
+                    <span wire:loading.remove wire:target="submitCancellation">Confirm Cancellation</span>
+                    <span wire:loading wire:target="submitCancellation">Cancelling...</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

@@ -12,13 +12,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Orders extends Component
 {
+    use WithPagination;
+
     public const MAX_EDITS = 2;
 
-    public $orders = [];
+    public const CANCEL_REASONS = [
+        'Ordered by mistake',
+        'Changed my mind',
+        'Found a better price elsewhere',
+        'Pickup time is not convenient',
+        'Wrong branch selected',
+    ];
+
     public $selectedStatus = 'all';
     public $search = '';
     public $showReviewModal = false;
@@ -37,12 +48,31 @@ class Orders extends Component
     public $showReviewDetailsModal = false;
     public $selectedReviewOrder = null;
 
-    public function mount()
+    // ✅ Cancel modal state (client-side via Alpine)
+    public $cancelTarget = null;
+    public $cancelTargetId = null;
+    public $cancelReason = '';
+    public $cancelOtherText = '';
+    public $cancelSummary = null;
+
+    // ✅ Reset pagination when filters change
+    public function updatedSelectedStatus()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
-    public function loadOrders()
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    private function buildOrdersQuery()
     {
         $query = Order::where('customer_id', Auth::id())
             ->where(function ($q) {
@@ -91,23 +121,7 @@ class Orders extends Component
             });
         }
 
-        $this->orders = $query->get();
-    }
-
-    public function updatedSelectedStatus()
-    {
-        $this->loadOrders();
-    }
-
-    public function updatedSearch()
-    {
-        $this->loadOrders();
-    }
-
-    public function clearSearch()
-    {
-        $this->search = '';
-        $this->loadOrders();
+        return $query;
     }
 
     private function bannedFromReviewing(): bool
@@ -149,7 +163,6 @@ class Orders extends Component
         }
     }
 
-    // ✅ NEW: Restore stock and log the movement
     private function restoreStockForItem(OrderItem $item, string $newStatus): void
     {
         $branchProduct = DB::table('branch_product')
@@ -183,7 +196,112 @@ class Orders extends Component
         ]);
     }
 
-    public function cancelOrder($orderId)
+    #[Renderless]
+    public function openCancelOrderModal($orderId)
+    {
+        $order = Order::where('customer_id', Auth::id())
+            ->where('id', $orderId)
+            ->first();
+
+        if (!$order) {
+            session()->flash('error', 'Order not found.');
+            return;
+        }
+
+        if ($order->status !== 'pending') {
+            session()->flash('error', 'Only pending orders can be cancelled.');
+            return;
+        }
+
+        $this->cancelTarget = 'order';
+        $this->cancelTargetId = $order->id;
+        $this->cancelSummary = 'Order #' . $order->order_number;
+        $this->cancelReason = '';
+        $this->cancelOtherText = '';
+
+        $this->dispatch('open-cancel-modal');
+    }
+
+    #[Renderless]
+    public function openCancelItemModal($itemId)
+    {
+        $item = OrderItem::whereHas('order', function ($query) {
+            $query->where('customer_id', Auth::id());
+        })->with('product')->find($itemId);
+
+        if (!$item) {
+            session()->flash('error', 'Item not found.');
+            return;
+        }
+
+        if ($item->status !== 'pending') {
+            session()->flash('error', 'Only pending items can be cancelled.');
+            return;
+        }
+
+        $this->cancelTarget = 'item';
+        $this->cancelTargetId = $item->id;
+        $this->cancelSummary = $item->product->name ?? 'Item';
+        $this->cancelReason = '';
+        $this->cancelOtherText = '';
+
+        $this->dispatch('open-cancel-modal');
+    }
+
+    public function closeCancelModal()
+    {
+        $this->resetCancelModal();
+    }
+
+    private function resetCancelModal()
+    {
+        $this->cancelTarget = null;
+        $this->cancelTargetId = null;
+        $this->cancelReason = '';
+        $this->cancelOtherText = '';
+        $this->cancelSummary = null;
+        $this->resetErrorBag(['cancelReason', 'cancelOtherText']);
+    }
+
+    // ✅ Accepts the reason directly from Alpine (fixes async race)
+    public function submitCancellation($reasonFromClient = null)
+    {
+        if ($reasonFromClient) {
+            $this->cancelReason = $reasonFromClient;
+        }
+
+        $rules = [
+            'cancelReason' => 'required|string|max:100',
+        ];
+
+        if ($this->cancelReason === 'Other reason') {
+            $rules['cancelOtherText'] = 'required|string|max:100';
+        }
+
+        $messages = [
+            'cancelReason.required' => 'Please select a reason for cancelling.',
+            'cancelOtherText.required' => 'Please specify your reason.',
+        ];
+
+        $this->validate($rules, $messages);
+
+        $finalReason = $this->cancelReason === 'Other reason'
+            ? $this->cancelOtherText
+            : $this->cancelReason;
+
+        $finalReason = mb_substr($finalReason, 0, 100);
+
+        if ($this->cancelTarget === 'order') {
+            $this->cancelOrder($this->cancelTargetId, $finalReason);
+        } elseif ($this->cancelTarget === 'item') {
+            $this->cancelItem($this->cancelTargetId, $finalReason);
+        }
+
+        $this->resetCancelModal();
+        $this->dispatch('close-cancel-modal');
+    }
+
+    public function cancelOrder($orderId, $reason = null)
     {
         $order = Order::where('customer_id', Auth::id())
             ->where('id', $orderId)
@@ -201,25 +319,28 @@ class Orders extends Component
 
         foreach ($order->items as $item) {
             if ($item->status === 'pending') {
-                $item->update(['status' => 'cancelled']);
+                $item->update([
+                    'status' => 'cancelled',
+                    'cancellation_reason' => $reason,
+                ]);
 
-                // ✅ Restore stock + log
                 $this->restoreStockForItem($item, 'cancelled');
-
                 $this->notifyStockReview($order, $item, 'cancelled_by_customer');
             }
         }
 
+        $paymentStatus = $order->isEPayment() ? 'refunded' : 'cancelled';
         $order->update([
             'status' => 'cancelled',
+            'payment_status' => $paymentStatus,
             'cancelled_by' => 'customer',
+            'cancellation_reason' => $reason,
         ]);
 
         session()->flash('message', 'Order cancelled successfully.');
-        $this->loadOrders();
     }
 
-    public function cancelItem($itemId)
+    public function cancelItem($itemId, $reason = null)
     {
         $item = OrderItem::whereHas('order', function ($query) {
             $query->where('customer_id', Auth::id());
@@ -230,11 +351,12 @@ class Orders extends Component
             return;
         }
 
-        $item->update(['status' => 'cancelled']);
+        $item->update([
+            'status' => 'cancelled',
+            'cancellation_reason' => $reason,
+        ]);
 
-        // ✅ Restore stock + log
         $this->restoreStockForItem($item, 'cancelled');
-
         $this->notifyStockReview($item->order, $item, 'cancelled_by_customer');
 
         $order = $item->order;
@@ -245,26 +367,20 @@ class Orders extends Component
         }
 
         session()->flash('message', 'Item cancelled successfully.');
-        $this->loadOrders();
     }
 
     private function recalculateOrderStatus($order)
     {
         $itemStatuses = $order->items()->pluck('status')->toArray();
 
-        $pendingCount = count(array_filter($itemStatuses, function ($s) {
-            return $s === 'pending';
-        }));
-        $completedCount = count(array_filter($itemStatuses, function ($s) {
-            return $s === 'completed';
-        }));
-        $cancelledCount = count(array_filter($itemStatuses, function ($s) {
-            return in_array($s, ['cancelled', 'no_show']);
-        }));
+        $pendingCount = count(array_filter($itemStatuses, fn($s) => $s === 'pending'));
+        $completedCount = count(array_filter($itemStatuses, fn($s) => $s === 'completed'));
+        $cancelledCount = count(array_filter($itemStatuses, fn($s) => in_array($s, ['cancelled', 'no_show'])));
         $totalItems = count($itemStatuses);
 
         if ($cancelledCount === $totalItems) {
-            $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+            $paymentStatus = $order->isEPayment() ? 'refunded' : 'cancelled';
+            $order->update(['status' => 'cancelled', 'payment_status' => $paymentStatus]);
             return;
         }
 
@@ -307,9 +423,7 @@ class Orders extends Component
             return;
         }
 
-        $hasCompletedItem = $this->selectedOrder->items->contains(function ($item) {
-            return $item->status === 'completed';
-        });
+        $hasCompletedItem = $this->selectedOrder->items->contains(fn($item) => $item->status === 'completed');
 
         if (!$hasCompletedItem) {
             session()->flash('error', 'You can only review orders with completed items.');
@@ -402,13 +516,12 @@ class Orders extends Component
         $this->reviewReadOnly = false;
     }
 
+    // ✅ Cancelled items now visible in the modal
     public function openDetailsModal($orderId)
     {
         $this->selectedOrderDetails = Order::where('customer_id', Auth::id())
             ->where('id', $orderId)
-            ->with(['items' => function ($query) {
-                $query->with('product')->where('status', '!=', 'cancelled');
-            }, 'shop', 'branch'])
+            ->with(['items.product', 'shop', 'branch'])
             ->first();
 
         if (!$this->selectedOrderDetails) {
@@ -495,7 +608,6 @@ class Orders extends Component
             if ($isEdit && $existingServiceReview->edit_count >= self::MAX_EDITS) {
                 session()->flash('error', 'You have reached the maximum number of edits for this review (' . self::MAX_EDITS . ' edits).');
                 $this->closeReviewModal();
-                $this->loadOrders();
                 return;
             }
 
@@ -572,7 +684,6 @@ class Orders extends Component
 
             session()->flash('message', $message);
             $this->closeReviewModal();
-            $this->loadOrders();
         } catch (\Exception $e) {
             Log::error('Review submission failed', [
                 'order_id' => $this->selectedOrder->id,
@@ -642,7 +753,10 @@ class Orders extends Component
 
     public function render()
     {
-        return view('livewire.customer.orders')
-            ->layout('components.layouts.customer');
+        $orders = $this->buildOrdersQuery()->paginate(15);
+
+        return view('livewire.customer.orders', [
+            'orders' => $orders,
+        ])->layout('components.layouts.customer');
     }
 }

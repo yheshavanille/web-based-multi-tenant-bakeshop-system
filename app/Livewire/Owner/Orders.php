@@ -6,11 +6,13 @@ use App\Models\Branch;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Orders extends Component
 {
+    use WithPagination;
+
     public $branches = [];
-    public $orders = [];
     public $selectedBranch = 'all';
     public $selectedStatus = 'all';
     public $search = '';
@@ -30,11 +32,9 @@ class Orders extends Component
         if (request()->has('status')) {
             $this->selectedStatus = request()->get('status');
         }
-
-        $this->loadOrders();
     }
 
-    public function loadOrders()
+    private function buildOrdersQuery()
     {
         $shop = Auth::user()->shop;
 
@@ -105,68 +105,28 @@ class Orders extends Component
             });
         }
 
-        $this->orders = $query->get()
-            ->map(function ($order) {
-                $itemCount = $order->items->count();
-                $cancelledCount = $order->items->where('status', 'cancelled')->count();
-                $completedCount = $order->items->where('status', 'completed')->count();
-                $pendingCount = $order->items->where('status', 'pending')->count();
-                $preparingCount = $order->items->where('status', 'preparing')->count();
-                $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
-                $noShowCount = $order->items->where('status', 'no_show')->count();
-
-                $statusParts = [];
-                if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
-                if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
-                if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
-                if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
-                if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
-                if ($noShowCount > 0) $statusParts[] = $noShowCount . ' no show';
-
-                $order->status_summary = !empty($statusParts)
-                    ? implode(', ', $statusParts)
-                    : ucfirst(str_replace('_', ' ', $order->status));
-
-                $order->item_count = $itemCount;
-                $order->cancelled_count = $cancelledCount;
-                $order->completed_count = $completedCount;
-                $order->pending_count = $pendingCount;
-                $order->no_show_count = $noShowCount;
-
-                // ✅ Total-with-VAT to match dashboard and BranchOrders
-                $adjustedSubtotal = $order->items
-                    ->where('status', '!=', 'cancelled')
-                    ->sum(function ($item) {
-                        return $item->price * $item->quantity;
-                    });
-
-                $order->adjusted_subtotal = $adjustedSubtotal;
-                $order->adjusted_tax = round($adjustedSubtotal * 0.12, 2);
-                $order->adjusted_total = $adjustedSubtotal + $order->adjusted_tax;
-
-                return $order;
-            });
+        return $query;
     }
 
     public function updatedSelectedBranch()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function updatedSelectedStatus()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function updatedSearch()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function clearSearch()
     {
         $this->search = '';
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function resetFilters()
@@ -174,7 +134,7 @@ class Orders extends Component
         $this->selectedBranch = 'all';
         $this->selectedStatus = 'all';
         $this->search = '';
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function viewOrderDetails($orderId)
@@ -265,7 +225,51 @@ class Orders extends Component
 
     public function render()
     {
-        return view('livewire.owner.orders')
-            ->layout('components.layouts.owner');
+        $orders = $this->buildOrdersQuery()
+            ->paginate(15)
+            ->through(function ($order) {
+                $itemCount = $order->items->count();
+                $cancelledCount = $order->items->where('status', 'cancelled')->count();
+                $completedCount = $order->items->where('status', 'completed')->count();
+                $pendingCount = $order->items->where('status', 'pending')->count();
+                $preparingCount = $order->items->where('status', 'preparing')->count();
+                $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
+                $noShowCount = $order->items->where('status', 'no_show')->count();
+
+                $statusParts = [];
+                if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
+                if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
+                if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
+                if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
+                if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+                if ($noShowCount > 0) $statusParts[] = $noShowCount . ' no show';
+
+                $order->status_summary = !empty($statusParts)
+                    ? implode(', ', $statusParts)
+                    : ucfirst(str_replace('_', ' ', $order->status));
+
+                $order->item_count = $itemCount;
+                $order->cancelled_count = $cancelledCount;
+                $order->completed_count = $completedCount;
+                $order->pending_count = $pendingCount;
+                $order->no_show_count = $noShowCount;
+
+                // ✅ Total-with-VAT to match dashboard and BranchOrders
+                $adjustedSubtotal = $order->items
+                    ->where('status', '!=', 'cancelled')
+                    ->sum(function ($item) {
+                        return $item->price * $item->quantity;
+                    });
+
+                $order->adjusted_subtotal = $adjustedSubtotal;
+                $order->adjusted_tax = round($adjustedSubtotal * 0.12, 2);
+                $order->adjusted_total = $adjustedSubtotal + $order->adjusted_tax;
+
+                return $order;
+            });
+
+        return view('livewire.owner.orders', [
+            'orders' => $orders,
+        ])->layout('components.layouts.owner');
     }
 }

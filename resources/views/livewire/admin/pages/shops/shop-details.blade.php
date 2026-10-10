@@ -298,7 +298,6 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach($recentEmployeeActivities as $activity)
                         @php
-                        // ✅ Safe accessors
                         $actUser = $activity->employee?->user;
                         $actPic = $actUser?->profile_picture;
                         $actName = $actUser?->name ?? 'Deleted User';
@@ -722,7 +721,7 @@
                             </svg>
                             All Orders
                         </h3>
-                        <p class="text-sm text-gray-500">{{ $allOrders->count() }} orders found</p>
+                        <p class="text-sm text-gray-500">{{ $this->allOrders->total() }} orders found</p>
                     </div>
                     <button wire:click="closeAllOrdersModal" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -734,7 +733,7 @@
             </div>
 
             <div class="px-6 py-4 overflow-y-auto flex-1" style="max-height: 60vh;">
-                @if($allOrders->count() > 0)
+                @if($this->allOrders->count() > 0)
                 <div class="overflow-x-auto">
                     <table class="w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50 sticky top-0">
@@ -750,7 +749,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
-                            @foreach($allOrders as $order)
+                            @foreach($this->allOrders as $order)
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ $order->customer->name ?? 'N/A' }}</td>
@@ -784,6 +783,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if($this->allOrders->hasPages())
+                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 mt-2">
+                    {{ $this->allOrders->links() }}
+                </div>
+                @endif
                 @else
                 <p class="text-sm text-gray-500">No orders found.</p>
                 @endif
@@ -799,11 +804,15 @@
     </div>
     @endif
 
-    <!-- ✅ Order Details Modal -->
+    <!-- ✅ Order Details Modal — Alpine-controlled for instant close -->
     @if($showOrderDetailsModal && $selectedOrder)
-    <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4"
+    <div x-data="{ open: true }" @close-order-details.window="
+            open = false;
+            setTimeout(() => $wire.closeOrderDetailsModal(), 10);
+        " x-show="open" x-cloak
+        class="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto p-2 sm:p-4"
         style="overscroll-behavior: contain;">
-        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeOrderDetailsModal">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="$dispatch('close-order-details')">
         </div>
 
         <div class="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
@@ -826,7 +835,8 @@
                             {{ $selectedOrder->customer->name ?? 'N/A' }}
                         </p>
                     </div>
-                    <button wire:click="closeOrderDetailsModal" class="text-gray-400 hover:text-gray-600 transition">
+                    <button @click="$dispatch('close-order-details')" type="button"
+                        class="text-gray-400 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -865,11 +875,41 @@
                             {{ $selectedOrder->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
                             {{ $selectedOrder->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
                             {{ $selectedOrder->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}
+                            {{ $selectedOrder->payment_status === 'cancelled' ? 'bg-gray-100 text-gray-700' : '' }}
                             {{ $selectedOrder->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}">
                             {{ ucfirst($selectedOrder->payment_status) }}
                         </span>
                     </div>
                 </div>
+
+                @if($selectedOrder->status === 'cancelled')
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                    <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-red-800">
+                            @if($selectedOrder->cancellation_reason)
+                            Cancelled — {{ $selectedOrder->cancellation_reason }}
+                            @else
+                            This order was cancelled
+                            @endif
+                        </p>
+                        <p class="text-xs text-red-600 mt-0.5">
+                            @if($selectedOrder->cancelled_by === 'customer')
+                            Cancelled by customer.
+                            @elseif($selectedOrder->cancelled_by === 'employee')
+                            Cancelled by staff.
+                            @else
+                            No cancellation reason was recorded.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                @endif
 
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
@@ -916,6 +956,10 @@
                                         <span class="italic">"{{ $item->notes }}"</span>
                                         @else
                                         <span class="text-gray-400">—</span>
+                                        @endif
+                                        @if($item->status === 'cancelled' && $item->cancellation_reason)
+                                        <p class="text-red-600 italic mt-0.5">Cancelled — {{ $item->cancellation_reason
+                                            }}</p>
                                         @endif
                                     </td>
                                 </tr>
@@ -1116,7 +1160,7 @@
             </div>
 
             <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
-                <button wire:click="closeOrderDetailsModal"
+                <button @click="$dispatch('close-order-details')" type="button"
                     class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                     Close
                 </button>

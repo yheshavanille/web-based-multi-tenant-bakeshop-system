@@ -16,6 +16,7 @@ class OrderItem extends Model
         'pickup_time',
         'status',
         'cancelled_by',
+        'cancellation_reason',
         'notes',
     ];
 

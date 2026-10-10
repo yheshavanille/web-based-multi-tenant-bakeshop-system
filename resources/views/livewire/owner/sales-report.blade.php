@@ -251,9 +251,7 @@
         @endif
 
         <!-- ✅ Daily Trend — Line Chart -->
-        @if(count($dailyTrend) > 0)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6"
-            wire:key="trend-chart-{{ $period }}-{{ $selectedMonth }}-{{ $trendGrouping }}">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <div class="flex items-center gap-2 mb-4">
                 <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -264,12 +262,13 @@
                     {{ $periodLabel }} • {{ $trendGrouping === 'month' ? 'Grouped by month' : 'Grouped by day' }}
                 </span>
             </div>
-            <div class="relative" style="height: 320px;">
-                <canvas id="revenueTrendChart" data-labels='@json($chartData["labels"])'
-                    data-revenue='@json($chartData["revenue"])' data-orders='@json($chartData["orders"])'></canvas>
+            <div class="relative" style="height: 320px;" wire:ignore>
+                <canvas id="revenueTrendChart"></canvas>
             </div>
+            @if(count($dailyTrend) === 0)
+            <p class="text-center text-sm text-gray-500">No sales data for this period.</p>
+            @endif
         </div>
-        @endif
 
         <!-- ✅ Revenue Trend — Table -->
         @if(count($dailyTrend) > 0)
@@ -325,145 +324,117 @@
 
     </div>
 
-    {{-- ✅ Chart.js initialization --}}
+    {{-- ✅ Chart.js initialization using Livewire @script --}}
+    @script
     <script>
-        (function () {
-            let chartInstance = null;
+        const renderTrendChart = () => {
+            const canvas = document.getElementById('revenueTrendChart');
+            if (!canvas) return;
 
-            function initChart() {
-                const canvas = document.getElementById('revenueTrendChart');
-                if (!canvas) return;
-
-                if (chartInstance) {
-                    chartInstance.destroy();
-                    chartInstance = null;
-                }
-
-                const labels = JSON.parse(canvas.dataset.labels || '[]');
-                const revenue = JSON.parse(canvas.dataset.revenue || '[]');
-                const orders = JSON.parse(canvas.dataset.orders || '[]');
-
-                if (labels.length === 0) return;
-
-                chartInstance = new Chart(canvas, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Revenue (₱)',
-                                data: revenue,
-                                borderColor: '#d97706',
-                                backgroundColor: 'rgba(217, 119, 6, 0.1)',
-                                fill: true,
-                                tension: 0.3,
-                                borderWidth: 2,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#d97706',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                yAxisID: 'y',
-                            },
-                            {
-                                label: 'Orders',
-                                data: orders,
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                fill: false,
-                                tension: 0.3,
-                                borderWidth: 2,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#3b82f6',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                yAxisID: 'y1',
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    usePointStyle: true,
-                                    boxWidth: 8,
-                                    font: { size: 12 }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        const label = context.dataset.label || '';
-                                        const value = context.parsed.y;
-                                        if (label.includes('Revenue')) {
-                                            return label + ': ₱' + value.toLocaleString('en-PH', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            });
-                                        }
-                                        return label + ': ' + value;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function (value) {
-                                        return '₱' + value.toLocaleString();
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Revenue',
-                                    color: '#d97706'
-                                }
-                            },
-                           y1: {
-    type: 'linear',
-    display: true,
-    position: 'right',
-    beginAtZero: true,
-    grid: { drawOnChartArea: false },
-    title: {
-        display: true,
-        text: 'Orders',
-        color: '#3b82f6'
-    },
-    ticks: {
-        stepSize: 10,
-        precision: 0,
-        callback: function (value) {
-            return value;
-        }
-    }
-}
-                        }
-                    }
-                });
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js not loaded yet.');
+                return;
             }
 
-            document.addEventListener('DOMContentLoaded', initChart);
-            document.addEventListener('livewire:navigated', () => {
-                setTimeout(initChart, 50);
-            });
-            document.addEventListener('livewire:init', () => {
-                Livewire.hook('morph.updated', ({ el }) => {
-                    if (el.id === 'revenueTrendChart' || el.querySelector?.('#revenueTrendChart')) {
-                        setTimeout(initChart, 50);
+            // Destroy existing chart on this canvas to avoid "Canvas is already in use" error
+            if (canvas._chartInstance) {
+                canvas._chartInstance.destroy();
+                canvas._chartInstance = null;
+            }
+
+            const chartData = $wire.chartData || {};
+
+            const labels = chartData.labels || [];
+            const revenue = chartData.revenue || [];
+            const orders = chartData.orders || [];
+
+            if (labels.length === 0) return;
+
+            canvas._chartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenue (₱)',
+                            data: revenue,
+                            borderColor: '#d97706',
+                            backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#d97706',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y',
+                        },
+                        {
+                            label: 'Orders',
+                            data: orders,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: false,
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y1',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y;
+                                    if (label.includes('Revenue')) {
+                                        return label + ': ₱' + value.toLocaleString('en-PH', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        });
+                                    }
+                                    return label + ': ' + value;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: { callback: (v) => '₱' + v.toLocaleString() },
+                            title: { display: true, text: 'Revenue', color: '#d97706' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Orders', color: '#3b82f6' },
+                            ticks: { stepSize: 10, precision: 0 }
+                        }
                     }
-                });
+                }
             });
-        })();
+        };
+
+        renderTrendChart();
+        $wire.$watch('chartData', () => renderTrendChart());
     </script>
+    @endscript
 </div>

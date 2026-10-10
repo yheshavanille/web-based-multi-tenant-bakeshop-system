@@ -73,7 +73,7 @@
             @if(!empty($search))
             <p class="mt-1 text-xs text-gray-500">
                 Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-                <span class="text-gray-400">({{ $orders->count() }} found)</span>
+                <span class="text-gray-400">({{ $orders->total() }} found)</span>
             </p>
             @endif
         </div>
@@ -192,10 +192,15 @@
                                                     {{ $item->notes }}
                                                 </p>
                                                 @endif
+
+                                                @if($item->status === 'cancelled' && $item->cancellation_reason)
+                                                <p class="text-xs text-red-600 italic mt-0.5">
+                                                    Cancelled — {{ $item->cancellation_reason }}
+                                                </p>
+                                                @endif
                                             </div>
 
                                             <div class="w-[340px] flex items-center justify-end gap-4">
-                                                {{-- Status badge — fixed min-width so the layout never collapses --}}
                                                 <span
                                                     class="inline-flex items-center justify-center text-xs px-3 py-1 rounded-full whitespace-nowrap font-medium min-w-[110px]
                                                     {{ $item->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
@@ -207,7 +212,6 @@
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
-                                                {{-- Status dropdown with custom chevron --}}
                                                 <div class="relative">
                                                     <select
                                                         wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
@@ -231,7 +235,6 @@
                                                         <option value="cancelled" {{ $item->status === 'cancelled' ?
                                                             'selected' : '' }}>Cancelled</option>
                                                     </select>
-                                                    {{-- Custom chevron, positioned so it never overlaps the text --}}
                                                     <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none"
                                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -252,6 +255,13 @@
                 </table>
 
             </div>
+
+            {{-- ✅ Pagination --}}
+            @if($orders->hasPages())
+            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                {{ $orders->links() }}
+            </div>
+            @endif
 
             @else
 
@@ -336,11 +346,42 @@
                             {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
                             {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
                             {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                            {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}">
+                            {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'cancelled' ? 'bg-gray-100 text-gray-700' : '' }}">
                             {{ ucfirst($selectedOrderDetails->payment_status) }}
                         </span>
                     </div>
                 </div>
+
+                {{-- ✅ Cancellation reason banner --}}
+                @if($selectedOrderDetails->status === 'cancelled')
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                    <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold text-red-800">
+                            @if($selectedOrderDetails->cancellation_reason)
+                            Cancelled — {{ $selectedOrderDetails->cancellation_reason }}
+                            @else
+                            This order was cancelled
+                            @endif
+                        </p>
+                        <p class="text-xs text-red-600 mt-0.5">
+                            @if($selectedOrderDetails->cancelled_by === 'customer')
+                            Cancelled by customer.
+                            @elseif($selectedOrderDetails->cancelled_by === 'employee')
+                            Cancelled by staff.
+                            @else
+                            No cancellation reason was recorded.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                @endif
 
                 <div class="border-t border-gray-200 pt-4">
                     <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
@@ -400,6 +441,10 @@
                                         <span class="italic">"{{ $item->notes }}"</span>
                                         @else
                                         <span class="text-gray-400">—</span>
+                                        @endif
+                                        @if($item->status === 'cancelled' && $item->cancellation_reason)
+                                        <p class="text-red-600 italic mt-0.5">Cancelled — {{ $item->cancellation_reason
+                                            }}</p>
                                         @endif
                                     </td>
                                 </tr>

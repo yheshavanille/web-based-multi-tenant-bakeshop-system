@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Orders extends Component
 {
-    public $orders = [];
+    use WithPagination;
+
     public $branch;
     public $selectedStatus = 'all';
     public $showItems = [];
@@ -34,11 +36,9 @@ class Orders extends Component
         if (request()->has('status')) {
             $this->selectedStatus = request()->get('status');
         }
-
-        $this->loadOrders();
     }
 
-    public function loadOrders()
+    private function buildOrdersQuery()
     {
         $query = Order::where('branch_id', $this->branch->id)
             ->where(function ($q) {
@@ -98,7 +98,7 @@ class Orders extends Component
             });
         }
 
-        $this->orders = $query->get();
+        return $query;
     }
 
     public function openDetailsModal($orderId)
@@ -128,18 +128,18 @@ class Orders extends Component
 
     public function updatedSelectedStatus()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function updatedSearch()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function clearSearch()
     {
         $this->search = '';
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     private function notifyStockReview(Order $order, OrderItem $item, string $reason): void
@@ -164,7 +164,6 @@ class Orders extends Component
         }
     }
 
-    // ✅ NEW: Restore stock and log the movement
     private function restoreStockForItem(OrderItem $item, string $newStatus): void
     {
         $branchProduct = DB::table('branch_product')
@@ -211,14 +210,12 @@ class Orders extends Component
         if ($item->status === 'cancelled') {
             if ($item->order->status === 'pending' || ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer')) {
                 session()->flash('error', 'This item was cancelled by the customer and cannot be updated.');
-                $this->loadOrders();
                 return;
             }
         }
 
         if ($item->order->status === 'cancelled' && $item->order->cancelled_by === 'customer') {
             session()->flash('error', 'This order was cancelled by the customer and cannot be updated.');
-            $this->loadOrders();
             return;
         }
 
@@ -235,7 +232,6 @@ class Orders extends Component
             ]);
         }
 
-        // ✅ NEW: If moving INTO cancelled/no_show AND it wasn't already there, restore stock
         $wasAlreadyFinal = in_array($oldStatus, ['cancelled', 'no_show']);
         $isNowFinal = in_array($status, ['cancelled', 'no_show']);
 
@@ -278,7 +274,6 @@ class Orders extends Component
             }
         }
 
-        $this->loadOrders();
         session()->flash('message', 'Item status updated successfully!');
     }
 
@@ -301,7 +296,8 @@ class Orders extends Component
         $totalItems = count($itemStatuses);
 
         if ($cancelledCount === $totalItems) {
-            $order->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+            $paymentStatus = $order->isEPayment() ? 'refunded' : 'cancelled';
+            $order->update(['status' => 'cancelled', 'payment_status' => $paymentStatus]);
             return;
         }
 
@@ -388,7 +384,10 @@ class Orders extends Component
 
     public function render()
     {
-        return view('livewire.employee.orders')
-            ->layout('components.layouts.employee');
+        $orders = $this->buildOrdersQuery()->paginate(15);
+
+        return view('livewire.employee.orders', [
+            'orders' => $orders,
+        ])->layout('components.layouts.employee');
     }
 }

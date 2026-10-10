@@ -12,11 +12,15 @@ use App\Models\Product;
 use App\Models\ProductEditHistory;
 use App\Models\Shop;
 use App\Models\StockHistory;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 
 class ShopDetails extends Component
 {
+    use WithPagination;
+
     public $shop;
     public $categories;
     public $branches;
@@ -29,23 +33,23 @@ class ShopDetails extends Component
     public $totalProducts = 0;
     public $totalEmployees = 0;
 
-    //  Best Sellers
+    // Best Sellers
     public $bestSellers = [];
 
-    //  Recent Employee Activities
+    // Recent Employee Activities
     public $recentEmployeeActivities = [];
 
-    //  Recent Stock Updates
+    // Recent Stock Updates
     public $stockHistories = [];
     public $showStockHistoryModal = false;
     public $allStockHistories = [];
 
-    //  Recent Product Updates
+    // Recent Product Updates
     public $productEditHistories = [];
     public $showProductHistoryModal = false;
     public $allProductHistories = [];
 
-    //  Product Details Modal
+    // Product Details Modal
     public $showProductModal = false;
     public $selectedProduct = null;
     public $productAnalytics = [];
@@ -53,7 +57,6 @@ class ShopDetails extends Component
     // Recent Orders properties
     public $recentOrders = [];
     public $showAllOrdersModal = false;
-    public $allOrders = [];
     public $orderSearch = '';
     public $showOrderDetailsModal = false;
     public $selectedOrder = null;
@@ -76,7 +79,6 @@ class ShopDetails extends Component
         $shopId = $this->shop->id;
         $branchId = $this->selectedBranch;
 
-        // Total Sales — item-level, net revenue (excludes VAT & cancelled)
         $this->totalSales = OrderItem::whereHas('order', function ($query) use ($shopId, $branchId) {
             $query->where('shop_id', $shopId)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -87,7 +89,6 @@ class ShopDetails extends Component
             ->where('status', 'completed')
             ->sum(DB::raw('quantity * price'));
 
-        // Total Orders — distinct orders with completed items
         $this->totalOrders = OrderItem::whereHas('order', function ($query) use ($shopId, $branchId) {
             $query->where('shop_id', $shopId)
                 ->whereIn('status', ['completed', 'partially_completed']);
@@ -99,7 +100,6 @@ class ShopDetails extends Component
             ->distinct('order_id')
             ->count('order_id');
 
-        // Total Products
         $productsQuery = Product::where('shop_id', $shopId);
         if ($branchId !== 'all') {
             $productsQuery->whereHas('branches', function ($q) use ($branchId) {
@@ -108,30 +108,19 @@ class ShopDetails extends Component
         }
         $this->totalProducts = $productsQuery->count();
 
-        // Total Employees
         $employeesQuery = Employee::where('shop_id', $shopId);
         if ($branchId !== 'all') {
             $employeesQuery->where('branch_id', $branchId);
         }
         $this->totalEmployees = $employeesQuery->count();
 
-        //  Best Sellers (respects branch filter)
         $this->loadBestSellers();
-
-        // Load Recent Orders (last 5)
         $this->loadRecentOrders();
-
-        // Load recent employee activities
         $this->loadRecentEmployeeActivities();
-
-        // Load recent stock updates
         $this->loadRecentStockHistories();
-
-        // Load recent product updates
         $this->loadRecentProductHistories();
     }
 
-    //  NEW: Best Selling Products for this shop
     public function loadBestSellers()
     {
         $shopId = $this->shop->id;
@@ -158,7 +147,6 @@ class ShopDetails extends Component
         $this->bestSellers = $query->get();
     }
 
-    //  Recent Employee Activities for this shop
     public function loadRecentEmployeeActivities()
     {
         $this->recentEmployeeActivities = EmployeeActivity::where('shop_id', $this->shop->id)
@@ -168,7 +156,6 @@ class ShopDetails extends Component
             ->get();
     }
 
-    //  Recent Stock Updates for this shop
     public function loadRecentStockHistories()
     {
         $this->stockHistories = StockHistory::whereHas('product', function ($query) {
@@ -180,7 +167,6 @@ class ShopDetails extends Component
             ->get();
     }
 
-    //  Recent Product Updates for this shop
     public function loadRecentProductHistories()
     {
         $this->productEditHistories = ProductEditHistory::whereHas('product', function ($query) {
@@ -192,7 +178,6 @@ class ShopDetails extends Component
             ->get();
     }
 
-    //  View all stock histories
     public function viewAllStockHistory()
     {
         $this->allStockHistories = StockHistory::whereHas('product', function ($query) {
@@ -204,13 +189,13 @@ class ShopDetails extends Component
         $this->showStockHistoryModal = true;
     }
 
+    #[Renderless]
     public function closeStockHistoryModal()
     {
         $this->showStockHistoryModal = false;
         $this->allStockHistories = [];
     }
 
-    //  View all product edit histories
     public function viewAllProductHistory()
     {
         $this->allProductHistories = ProductEditHistory::whereHas('product', function ($query) {
@@ -222,14 +207,13 @@ class ShopDetails extends Component
         $this->showProductHistoryModal = true;
     }
 
+    #[Renderless]
     public function closeProductHistoryModal()
     {
         $this->showProductHistoryModal = false;
         $this->allProductHistories = [];
     }
 
-    //  Product Details Modal
-    //  UPDATED: only load visible/kept reviews
     public function viewProductDetails($productId)
     {
         $this->selectedProduct = Product::with([
@@ -272,6 +256,7 @@ class ShopDetails extends Component
         $this->showProductModal = true;
     }
 
+    #[Renderless]
     public function closeProductModal()
     {
         $this->showProductModal = false;
@@ -279,7 +264,6 @@ class ShopDetails extends Component
         $this->productAnalytics = [];
     }
 
-    //  Show ALL orders (not just completed)
     public function loadRecentOrders()
     {
         $shopId = $this->shop->id;
@@ -359,6 +343,21 @@ class ShopDetails extends Component
 
     public function openAllOrdersModal()
     {
+        $this->resetPage('allOrdersPage');
+        $this->showAllOrdersModal = true;
+    }
+
+    #[Renderless]
+    public function closeAllOrdersModal()
+    {
+        $this->showAllOrdersModal = false;
+        $this->orderSearch = '';
+        $this->dispatch('all-orders-modal-closed');
+    }
+
+    // ✅ Paginated orders for the All Orders modal (via computed accessor)
+    public function getAllOrdersProperty()
+    {
         $shopId = $this->shop->id;
         $branchId = $this->selectedBranch;
 
@@ -374,18 +373,9 @@ class ShopDetails extends Component
             $query->where('branch_id', $branchId);
         }
 
-        $this->allOrders = $query->get()->map(function ($order) {
+        return $query->paginate(20, ['*'], 'allOrdersPage')->through(function ($order) {
             return $this->enrichOrder($order);
         });
-        $this->showAllOrdersModal = true;
-    }
-
-    public function closeAllOrdersModal()
-    {
-        $this->showAllOrdersModal = false;
-        $this->allOrders = [];
-        $this->orderSearch = '';
-        $this->dispatch('all-orders-modal-closed');
     }
 
     public function viewOrderDetails($orderId)
@@ -402,13 +392,13 @@ class ShopDetails extends Component
         $this->showOrderDetailsModal = true;
     }
 
+    #[Renderless]
     public function closeOrderDetailsModal()
     {
         $this->showOrderDetailsModal = false;
         $this->selectedOrder = null;
     }
 
-    //  Calculate the 4-section breakdown with product lists
     public function getBreakdown()
     {
         if (!$this->selectedOrder) {
@@ -495,7 +485,6 @@ class ShopDetails extends Component
         $products = $query->get();
 
         foreach ($products as $product) {
-            //  Match modal logic — filter by branch IDs where this product exists
             $branchIds = $product->branches->pluck('id')->toArray();
 
             if (!empty($branchIds)) {
@@ -518,7 +507,6 @@ class ShopDetails extends Component
                 return $item->quantity * $item->price;
             });
 
-            //  Stock calculation (respects branch filter)
             if ($this->selectedBranch !== 'all') {
                 $branch = $product->branches->firstWhere('id', $this->selectedBranch);
                 $product->current_stock = $branch ? $branch->pivot->stock : 0;

@@ -24,6 +24,7 @@ class Order extends Model
         'pickup_time',
         'notes',
         'cancelled_by',
+        'cancellation_reason',
         'service_review',
     ];
 

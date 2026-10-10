@@ -30,3 +30,4 @@ if (document.readyState === 'complete') {
 window.addEventListener('livewire:load', initializePreline);
 window.addEventListener('livewire:afterDomUpdate', initializePreline);
 window.addEventListener('livewire:update', initializePreline);
+
