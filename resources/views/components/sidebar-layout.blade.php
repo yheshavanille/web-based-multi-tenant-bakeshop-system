@@ -9,7 +9,7 @@
             this.sidebarOpen = !this.sidebarOpen;
             localStorage.setItem('sidebar-{{ $role }}', JSON.stringify(this.sidebarOpen));
         }
-    }" class="min-h-screen bg-gray-50" x-cloak>
+    }" class="min-h-screen bg-gray-50 dark:bg-gray-900" x-cloak>
     {{-- ==================== MOBILE OVERLAY ==================== --}}
     <div x-show="mobileOpen" x-transition:enter="transition-opacity ease-linear duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -19,10 +19,10 @@
 
     {{-- ==================== SIDEBAR ==================== --}}
     <aside :class="sidebarOpen ? 'lg:w-64' : 'lg:w-[72px]'"
-        class="fixed top-0 left-0 z-50 h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out w-64 -translate-x-full lg:translate-x-0"
+        class="fixed top-0 left-0 z-50 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ease-in-out w-64 -translate-x-full lg:translate-x-0"
         :class="mobileOpen ? '!translate-x-0' : ''">
         {{-- Top spacer — keeps sidebar from starting behind the header --}}
-        <div class="h-16 flex-shrink-0 border-b border-gray-100"></div>
+        <div class="h-16 flex-shrink-0 border-b border-gray-100 dark:border-gray-700"></div>
 
         {{-- Sidebar content (scrollable) --}}
         <nav class="flex-1 overflow-x-hidden overflow-y-auto py-4 space-y-1">
@@ -33,12 +33,12 @@
     {{-- ==================== MAIN COLUMN ==================== --}}
     <div :class="sidebarOpen ? 'lg:pl-64' : 'lg:pl-[72px]'" class="transition-all duration-300 ease-in-out">
         {{-- ==================== TOP BAR ==================== --}}
-        <header class="sticky top-0 z-30 bg-white border-b border-gray-200 h-16">
+        <header class="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16">
             <div class="h-full px-4 sm:px-6 flex items-center gap-3">
 
                 {{-- Hamburger — leftmost --}}
                 <button @click="if (window.innerWidth >= 1024) { toggleSidebar(); } else { mobileOpen = !mobileOpen; }"
-                    class="p-2 -ml-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition"
+                    class="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
                     aria-label="Toggle sidebar">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,25 +48,50 @@
 
                 {{-- Brand + role --}}
                 <div class="flex items-center gap-3 min-w-0">
-                    <span class="text-base sm:text-lg font-bold text-gray-900 truncate">
+                    <span class="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
                         Web-based Multi-Tenant Bakeshop System
                     </span>
                     <span class="hidden sm:inline text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap
-                        @if($role === 'owner') bg-amber-100 text-amber-800 border border-amber-200
-                        @elseif($role === 'employee') bg-blue-100 text-blue-800 border border-blue-200
-                        @elseif($role === 'admin') bg-red-100 text-red-800 border border-red-200
-                        @else bg-gray-100 text-gray-800 border border-gray-200 @endif">
+                        @if($role === 'owner') bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-800
+                        @elseif($role === 'employee') bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-800
+                        @elseif($role === 'admin') bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/40 dark:text-red-200 dark:border-red-800
+                        @else bg-gray-100 text-gray-800 border border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 @endif">
                         {{ ucfirst($role) }}
                     </span>
                 </div>
 
                 <div class="flex-1"></div>
 
-                {{-- Right side: cart (customer), notification bell, profile --}}
+                {{-- Right side: dark mode toggle, cart (customer), notification bell, profile --}}
                 <div class="flex items-center gap-2">
+
+                    {{-- ✅ Dark Mode Toggle --}}
+                    <button type="button"
+                        class="hs-dark-mode-active:hidden inline-flex hs-dark-mode items-center justify-center w-9 h-9 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                        data-hs-theme-click-value="dark"
+                        aria-label="Enable dark mode">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                        </svg>
+                    </button>
+                    <button type="button"
+                        class="hs-dark-mode-active:block hidden hs-dark-mode items-center justify-center w-9 h-9 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                        data-hs-theme-click-value="light"
+                        aria-label="Enable light mode">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"/>
+                            <path d="M12 2v2"/><path d="M12 20v2"/>
+                            <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+                            <path d="M2 12h2"/><path d="M20 12h2"/>
+                            <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                        </svg>
+                    </button>
+
                     @if($role === 'customer')
                     <a href="{{ route('livewire.customer.cart') }}"
-                        class="relative p-2 text-gray-600 hover:text-amber-600 transition">
+                        class="relative p-2 text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
@@ -94,7 +119,7 @@
                     {{-- Profile dropdown --}}
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" @click.away="open = false"
-                            class="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition">
+                            class="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                             @php
                             $user = auth()->user();
                             $profilePic = $user->profile_picture;
@@ -102,7 +127,7 @@
 
                             @if($profilePic)
                             <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
-                                class="w-8 h-8 rounded-full object-cover border-2 border-gray-200">
+                                class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600">
                             @else
                             <div
                                 class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
@@ -110,7 +135,7 @@
                             </div>
                             @endif
 
-                            <svg class="w-4 h-4 text-gray-500 hidden sm:block" fill="none" stroke="currentColor"
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 hidden sm:block" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7"></path>
@@ -120,7 +145,7 @@
                         <div x-show="open" x-transition:enter="transition ease-out duration-200"
                             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                             x-cloak
-                            class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                            class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-1 z-50">
                             {{ $dropdown }}
                         </div>
                     </div>
