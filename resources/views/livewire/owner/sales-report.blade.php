@@ -4,17 +4,17 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-                <a href="{{ route('livewire.owner.dashboard') }}" class="text-gray-500 hover:text-gray-700">
+                <a href="{{ route('livewire.owner.dashboard') }}" class="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Sales Report</h1>
-                    <p class="text-sm text-gray-500">
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Sales Report</h1>
+                    <p class="text-sm text-gray-500 dark:text-slate-400">
                         {{ $periodLabel }} • {{ $dateRangeLabel }}
                     </p>
                 </div>
@@ -23,9 +23,9 @@
 
         <!-- Period tabs + Month picker -->
         <div class="flex flex-wrap items-center gap-3 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 inline-flex flex-wrap gap-1">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-1.5 inline-flex flex-wrap gap-1">
                 <button wire:click="setPeriod('today')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
-                {{ $period === 'today' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
+                {{ $period === 'today' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -34,7 +34,7 @@
                     Today
                 </button>
                 <button wire:click="setPeriod('week')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
-                {{ $period === 'week' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
+                {{ $period === 'week' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -43,7 +43,7 @@
                     This Week
                 </button>
                 <button wire:click="setPeriod('month')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
-                {{ $period === 'month' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
+                {{ $period === 'month' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -52,7 +52,7 @@
                     Month
                 </button>
                 <button wire:click="setPeriod('year')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition
-                {{ $period === 'year' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100' }}">
+                {{ $period === 'year' ? 'bg-amber-600 text-white shadow-sm' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -64,8 +64,8 @@
 
             {{-- Month picker — only visible when the "Month" tab is active --}}
             @if($period === 'month')
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 inline-flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 pl-2">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-1.5 inline-flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-slate-400 pl-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -74,7 +74,7 @@
                     Select Month:
                 </span>
                 <select wire:change="setMonth($event.target.value)"
-                    class="px-3 py-2 pr-10 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat">
+                    class="px-3 py-2 pr-10 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white dark:bg-slate-800 dark:text-slate-100 dark:[color-scheme:dark] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat">
                     @foreach($availableMonths as $month)
                     <option value="{{ $month['value'] }}" {{ $selectedMonth===$month['value'] ? 'selected' : '' }}>
                         {{ $month['label'] }}
@@ -88,78 +88,78 @@
         <!-- Summary cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             {{-- Total Revenue --}}
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-sm border border-green-200 p-5">
+            <div class="bg-green-50 dark:bg-green-900/30 dark:bg-green-900/30 rounded-xl shadow-sm border border-green-200 dark:border-green-800 p-5">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Revenue</p>
-                    <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Revenue</p>
+                    <svg class="w-7 h-7 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                         </path>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-800 mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
-                <p class="text-xs text-green-600 mt-1">{{ $periodLabel }}</p>
+                <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 mt-2">₱{{ number_format($totalRevenue, 2) }}</p>
+                <p class="text-xs text-green-600 dark:text-green-400 mt-1">{{ $periodLabel }}</p>
             </div>
 
             {{-- Total Orders --}}
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm border border-blue-200 p-5">
+            <div class="bg-blue-50 dark:bg-blue-900/30 dark:bg-blue-900/30 rounded-xl shadow-sm border border-blue-200 dark:border-blue-800 p-5">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Total Orders</p>
-                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Orders</p>
+                    <svg class="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
                         </path>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-800 mt-2">{{ number_format($totalOrders) }}</p>
-                <p class="text-xs text-blue-600 mt-1">Completed</p>
+                <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 mt-2">{{ number_format($totalOrders) }}</p>
+                <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Completed</p>
             </div>
 
             {{-- Avg Order Value --}}
             <div
-                class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow-sm border border-purple-200 p-5">
+                class="bg-amber-50 dark:bg-amber-900/30 dark:bg-slate-800 rounded-xl shadow-sm border border-purple-200 p-5">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Avg Order Value</p>
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Avg Order Value</p>
                     <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-800 mt-2">₱{{ number_format($averageOrderValue, 2) }}</p>
+                <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 mt-2">₱{{ number_format($averageOrderValue, 2) }}</p>
                 <p class="text-xs text-purple-600 mt-1">Per completed order</p>
             </div>
         </div>
 
         <!-- Branch breakdown -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                     </path>
                 </svg>
-                <h2 class="text-lg font-semibold text-gray-800">Branch Breakdown</h2>
-                <span class="text-xs text-gray-500 ml-auto">{{ $periodLabel }}</span>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100">Branch Breakdown</h2>
+                <span class="text-xs text-gray-500 dark:text-slate-400 ml-auto">{{ $periodLabel }}</span>
             </div>
 
             @if(count($branchBreakdown) > 0)
             <div class="overflow-x-auto">
-                <table class="w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                    <thead class="bg-gray-50 dark:bg-slate-900">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Branch</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Revenue</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Orders</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Avg Order</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Share</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Branch</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Revenue</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Orders</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Avg Order</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Share</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($branchBreakdown as $branch)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 font-medium text-gray-800">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">
                                 <span class="inline-flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor"
+                                    <svg class="w-4 h-4 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -170,41 +170,41 @@
                                     {{ $branch['name'] }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-right font-semibold text-green-600">
+                            <td class="px-4 py-3 text-right font-semibold text-green-600 dark:text-green-400">
                                 ₱{{ number_format($branch['revenue'], 2) }}
                             </td>
-                            <td class="px-4 py-3 text-right text-gray-600">{{ $branch['orders'] }}</td>
-                            <td class="px-4 py-3 text-right text-gray-600">₱{{ number_format($branch['avg'], 2) }}</td>
+                            <td class="px-4 py-3 text-right text-gray-600 dark:text-slate-300">{{ $branch['orders'] }}</td>
+                            <td class="px-4 py-3 text-right text-gray-600 dark:text-slate-300">₱{{ number_format($branch['avg'], 2) }}</td>
                             <td class="px-4 py-3 text-right">
                                 @if($totalRevenue > 0)
                                 @php $share = round(($branch['revenue'] / $totalRevenue) * 100, 1); @endphp
                                 <div class="flex items-center justify-end gap-2">
-                                    <div class="w-24 bg-gray-200 rounded-full h-1.5">
+                                    <div class="w-24 bg-gray-200 dark:bg-slate-700 rounded-full h-1.5">
                                         <div class="bg-amber-500 h-1.5 rounded-full" style="width: {{ $share }}%"></div>
                                     </div>
-                                    <span class="text-xs text-gray-500 w-10 text-right">{{ $share }}%</span>
+                                    <span class="text-xs text-gray-500 dark:text-slate-400 w-10 text-right">{{ $share }}%</span>
                                 </div>
                                 @else
-                                <span class="text-xs text-gray-400">—</span>
+                                <span class="text-xs text-gray-400 dark:text-slate-500">—</span>
                                 @endif
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-gray-50 font-semibold">
+                    <tfoot class="bg-gray-50 dark:bg-slate-900 font-semibold">
                         <tr>
-                            <td class="px-4 py-3 text-gray-800">Total</td>
-                            <td class="px-4 py-3 text-right text-green-700">₱{{ number_format($totalRevenue, 2) }}</td>
-                            <td class="px-4 py-3 text-right text-gray-700">{{ $totalOrders }}</td>
-                            <td class="px-4 py-3 text-right text-gray-700">₱{{ number_format($averageOrderValue, 2) }}
+                            <td class="px-4 py-3 text-gray-800 dark:text-slate-100">Total</td>
+                            <td class="px-4 py-3 text-right text-green-700 dark:text-green-300">₱{{ number_format($totalRevenue, 2) }}</td>
+                            <td class="px-4 py-3 text-right text-gray-700 dark:text-slate-300">{{ $totalOrders }}</td>
+                            <td class="px-4 py-3 text-right text-gray-700 dark:text-slate-300">₱{{ number_format($averageOrderValue, 2) }}
                             </td>
-                            <td class="px-4 py-3 text-right text-gray-500">100%</td>
+                            <td class="px-4 py-3 text-right text-gray-500 dark:text-slate-400">100%</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
             @else
-            <div class="text-center py-8 text-gray-500">
+            <div class="text-center py-8 text-gray-500 dark:text-slate-400">
                 <p>No branches found.</p>
             </div>
             @endif
@@ -212,34 +212,34 @@
 
         <!-- Best sellers -->
         @if(count($bestSellers) > 0)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z">
                     </path>
                 </svg>
-                <h2 class="text-lg font-semibold text-gray-800">Best Sellers</h2>
-                <span class="text-xs text-gray-500 ml-auto">Top 5 for {{ $periodLabel }}</span>
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100">Best Sellers</h2>
+                <span class="text-xs text-gray-500 dark:text-slate-400 ml-auto">Top 5 for {{ $periodLabel }}</span>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                    <thead class="bg-gray-50 dark:bg-slate-900">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">#</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Sold</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Revenue</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">#</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Product</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Sold</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Revenue</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($bestSellers as $index => $item)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-4 py-3 text-gray-500 font-medium">{{ $index + 1 }}</td>
-                            <td class="px-4 py-3 font-medium text-gray-800">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
+                            <td class="px-4 py-3 text-gray-500 dark:text-slate-400 font-medium">{{ $index + 1 }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">
                                 {{ $item['product']['name'] ?? 'Product Unavailable' }}
                             </td>
-                            <td class="px-4 py-3 text-right text-gray-600">{{ $item['total_sold'] }}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-green-600">
+                            <td class="px-4 py-3 text-right text-gray-600 dark:text-slate-300">{{ $item['total_sold'] }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-green-600 dark:text-green-400">
                                 ₱{{ number_format($item['total_revenue'], 2) }}
                             </td>
                         </tr>
@@ -251,14 +251,14 @@
         @endif
 
         <!-- ✅ Daily Trend — Line Chart -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
                 </svg>
-                <h2 class="text-lg font-semibold text-gray-800">Daily Trend</h2>
-                <span class="text-xs text-gray-500 ml-auto">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100">Daily Trend</h2>
+                <span class="text-xs text-gray-500 dark:text-slate-400 ml-auto">
                     {{ $periodLabel }} • {{ $trendGrouping === 'month' ? 'Grouped by month' : 'Grouped by day' }}
                 </span>
             </div>
@@ -266,50 +266,50 @@
                 <canvas id="revenueTrendChart"></canvas>
             </div>
             @if(count($dailyTrend) === 0)
-            <p class="text-center text-sm text-gray-500">No sales data for this period.</p>
+            <p class="text-center text-sm text-gray-500 dark:text-slate-400">No sales data for this period.</p>
             @endif
         </div>
 
         <!-- ✅ Revenue Trend — Table -->
         @if(count($dailyTrend) > 0)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
             <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
-                <h2 class="text-lg font-semibold text-gray-800">Revenue Trend</h2>
-                <span class="text-xs text-gray-500 ml-auto">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100">Revenue Trend</h2>
+                <span class="text-xs text-gray-500 dark:text-slate-400 ml-auto">
                     {{ $periodLabel }} • {{ $trendGrouping === 'month' ? 'Grouped by month' : 'Grouped by day' }}
                 </span>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                    <thead class="bg-gray-50 dark:bg-slate-900">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">
                                 {{ $trendGrouping === 'month' ? 'Month' : 'Date' }}
                             </th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Orders</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-700">Revenue</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Visual</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Orders</th>
+                            <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-slate-300">Revenue</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Visual</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @php
                         $maxRevenue = collect($dailyTrend)->max('revenue') ?: 1;
                         @endphp
                         @foreach($dailyTrend as $row)
                         <tr>
-                            <td class="px-4 py-3 text-gray-700 font-medium">
+                            <td class="px-4 py-3 text-gray-700 dark:text-slate-300 font-medium">
                                 {{ $row['label'] }}
                             </td>
-                            <td class="px-4 py-3 text-right text-gray-600">{{ $row['orders'] }}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-green-600">
+                            <td class="px-4 py-3 text-right text-gray-600 dark:text-slate-300">{{ $row['orders'] }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-green-600 dark:text-green-400">
                                 ₱{{ number_format($row['revenue'], 2) }}
                             </td>
                             <td class="px-4 py-3">
-                                <div class="w-full bg-gray-200 rounded-full h-2 max-w-xs">
+                                <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 max-w-xs">
                                     <div class="bg-amber-500 h-2 rounded-full"
                                         style="width: {{ round(($row['revenue'] / $maxRevenue) * 100) }}%"></div>
                                 </div>
@@ -349,6 +349,10 @@
             const orders = chartData.orders || [];
 
             if (labels.length === 0) return;
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#6b7280';
+            const gridColor = isDark ? 'rgba(148, 163, 184, 0.15)' : 'rgba(0, 0, 0, 0.1)';
 
             canvas._chartInstance = new Chart(canvas, {
                 type: 'line',
@@ -392,7 +396,7 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                            labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } }
+                            labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 }, color: textColor }
                         },
                         tooltip: {
                             callbacks: {
@@ -411,12 +415,17 @@
                         }
                     },
                     scales: {
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        },
                         y: {
                             type: 'linear',
                             display: true,
                             position: 'left',
                             beginAtZero: true,
-                            ticks: { callback: (v) => '₱' + v.toLocaleString() },
+                            ticks: { callback: (v) => '₱' + v.toLocaleString(), color: textColor },
+                            grid: { color: gridColor },
                             title: { display: true, text: 'Revenue', color: '#d97706' }
                         },
                         y1: {
@@ -424,9 +433,9 @@
                             display: true,
                             position: 'right',
                             beginAtZero: true,
-                            grid: { drawOnChartArea: false },
+                            grid: { drawOnChartArea: false, color: gridColor },
                             title: { display: true, text: 'Orders', color: '#3b82f6' },
-                            ticks: { stepSize: 10, precision: 0 }
+                            ticks: { stepSize: 10, precision: 0, color: textColor }
                         }
                     }
                 }

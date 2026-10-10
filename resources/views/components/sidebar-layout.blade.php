@@ -15,17 +15,16 @@
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition-opacity ease-linear duration-200" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0" @click="mobileOpen = false"
-        class="fixed inset-0 z-40 bg-gray-900/60 backdrop-blur-sm lg:hidden" style="display: none;"></div>
+        class="fixed inset-0 z-40 bg-gray-900/60 lg:hidden" style="display: none;"></div>
 
     {{-- ==================== SIDEBAR ==================== --}}
-    <aside :class="sidebarOpen ? 'lg:w-64' : 'lg:w-[72px]'"
-        class="fixed top-0 left-0 z-50 h-screen bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col transition-all duration-300 ease-in-out w-64 -translate-x-full lg:translate-x-0"
-        :class="mobileOpen ? '!translate-x-0' : ''">
+    <aside :class="[sidebarOpen ? 'lg:w-64' : 'lg:w-[72px]', mobileOpen ? '!translate-x-0' : '']"
+        class="fixed top-0 left-0 z-50 h-screen bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col transition-all duration-300 ease-in-out w-64 -translate-x-full lg:translate-x-0">
         {{-- Top spacer --}}
         <div class="h-16 flex-shrink-0 border-b border-gray-100 dark:border-slate-700"></div>
 
         {{-- Sidebar content --}}
-        <nav class="flex-1 overflow-x-hidden overflow-y-auto py-4 space-y-1">
+        <nav @click="if ($event.target.closest('a')) mobileOpen = false" class="flex-1 overflow-x-hidden overflow-y-auto py-4 space-y-1">
             {{ $sidebar }}
         </nav>
     </aside>

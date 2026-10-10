@@ -1,13 +1,13 @@
 <div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Employee Activities</h1>
-                <p class="text-sm text-gray-500">Track what your employees have been doing</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Employee Activities</h1>
+                <p class="text-sm text-gray-500 dark:text-slate-400">Track what your employees have been doing</p>
             </div>
             <a href="{{ route('livewire.owner.dashboard') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -17,22 +17,22 @@
         </div>
 
         <!-- Filters -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 mb-4">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <!-- Search -->
                 <div class="relative">
                     <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                         style="position: absolute;">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
                     <input type="text" wire:model.live="search" placeholder="Search description..."
-                        class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                        class="w-full h-10 pl-10 pr-12 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                     @if(!empty($search))
                     <button wire:click="clearSearch"
-                        class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
+                        class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition"
                         style="position: absolute;">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -45,7 +45,7 @@
                 <!-- Employee Filter -->
                 <div>
                     <select wire:model.live="selectedEmployee"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white">
+                        class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-800">
                         <option value="all">All Employees</option>
                         @foreach($employees as $employee)
                         <option value="{{ $employee->id }}">{{ $employee->user->name ?? 'N/A' }}</option>
@@ -56,7 +56,7 @@
                 <!-- Action Filter -->
                 <div>
                     <select wire:model.live="selectedAction"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white">
+                        class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-800">
                         <option value="all">All Actions</option>
                         <option value="password_changed_self">Changed own password</option>
                         <option value="password_changed_by_owner">Password reset by owner</option>
@@ -68,10 +68,10 @@
 
             @if($selectedEmployee !== 'all' || $selectedAction !== 'all' || !empty($search))
             <div class="mt-3 flex items-center justify-between">
-                <p class="text-xs text-gray-500">
-                    Showing <span class="font-medium text-amber-600">{{ $activities->count() }}</span> result(s)
+                <p class="text-xs text-gray-500 dark:text-slate-400">
+                    Showing <span class="font-medium text-amber-600 dark:text-amber-400">{{ $activities->count() }}</span> result(s)
                 </p>
-                <button wire:click="clearFilters" class="text-xs text-amber-600 hover:text-amber-700 font-medium">
+                <button wire:click="clearFilters" class="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium">
                     Clear all filters
                 </button>
             </div>
@@ -79,21 +79,21 @@
         </div>
 
         <!-- Activities List -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             @if($activities->count() > 0)
             <div class="overflow-x-auto">
-                <table class="w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+                <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                    <thead class="bg-gray-50 dark:bg-slate-900">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Employee</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Description</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">When</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Employee</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Action</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Description</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">When</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($activities as $activity)
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-3">
                                     @php
@@ -101,7 +101,7 @@
                                     @endphp
                                     @if($pic)
                                     <img src="{{ asset('storage/' . $pic) }}"
-                                        class="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0">
+                                        class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-slate-700 flex-shrink-0">
                                     @else
                                     <div
                                         class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
@@ -109,9 +109,9 @@
                                     </div>
                                     @endif
                                     <div>
-                                        <p class="font-medium text-gray-800">{{ $activity->employee->user->name ?? 'N/A'
+                                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $activity->employee->user->name ?? 'N/A'
                                             }}</p>
-                                        <p class="text-xs text-gray-500 inline-flex items-center gap-1">
+                                        <p class="text-xs text-gray-500 dark:text-slate-400 inline-flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -127,17 +127,17 @@
                             <td class="px-4 py-3">
                                 <span
                                     class="text-xs px-2 py-1 rounded-full
-                                    {{ $activity->action === 'password_changed_self' ? 'bg-blue-100 text-blue-800' : '' }}
-                                    {{ $activity->action === 'password_changed_by_owner' ? 'bg-purple-100 text-purple-800' : '' }}
-                                    {{ $activity->action === 'profile_updated' ? 'bg-green-100 text-green-800' : '' }}
-                                    {{ $activity->action === 'employee_created' ? 'bg-amber-100 text-amber-800' : '' }}">
+                                    {{ $activity->action === 'password_changed_self' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
+                                    {{ $activity->action === 'password_changed_by_owner' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200' : '' }}
+                                    {{ $activity->action === 'profile_updated' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
+                                    {{ $activity->action === 'employee_created' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200' : '' }}">
                                     {{ $activity->action_label }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ $activity->description }}</td>
-                            <td class="px-4 py-3 text-gray-400 text-xs">
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $activity->description }}</td>
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">
                                 {{ $activity->created_at->diffForHumans() }}
-                                <span class="block text-gray-300">{{ $activity->created_at->format('M d, Y h:i A')
+                                <span class="block text-gray-300 dark:text-slate-600">{{ $activity->created_at->format('M d, Y h:i A')
                                     }}</span>
                             </td>
                         </tr>
@@ -146,9 +146,9 @@
                 </table>
             </div>
             @else
-            <div class="text-center py-12 text-gray-500">
-                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="text-center py-12 text-gray-500 dark:text-slate-400">
+                <div class="w-14 h-14 mx-auto mb-2 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                         </path>
@@ -156,7 +156,7 @@
                 </div>
                 <p>No activities found.</p>
                 @if($selectedEmployee !== 'all' || $selectedAction !== 'all' || !empty($search))
-                <p class="text-xs text-gray-400 mt-1">Try clearing your filters.</p>
+                <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Try clearing your filters.</p>
                 @endif
             </div>
             @endif

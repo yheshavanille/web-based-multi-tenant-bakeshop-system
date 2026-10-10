@@ -60,7 +60,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             @foreach($shops as $shop)
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition">
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition flex flex-col">
                 <div class="p-4 border-b border-gray-100 dark:border-slate-700">
                     <div class="flex items-start gap-3 sm:gap-4">
                         <div
@@ -121,7 +121,7 @@
                     </div>
                 </div>
 
-                <div class="p-4">
+                <div class="p-4 flex-1 flex flex-col">
                     @php
                     $shopProductsList = $shopProducts[$shop->id] ?? collect();
                     @endphp
@@ -171,7 +171,7 @@
                     </div>
                     @endif
 
-                    <div class="mt-4 text-center">
+                    <div class="mt-auto pt-4 text-center">
                         <a href="{{ route('livewire.guest.view-products', $shop->id) }}"
                             class="inline-flex items-center gap-1 text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium">
                             View All Products

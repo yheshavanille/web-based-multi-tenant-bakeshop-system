@@ -1,45 +1,45 @@
 <div>
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl mx-auto px-4 sm:px-0">
         <div class="flex items-center gap-3 mb-6">
-            <a href="{{ route('livewire.guest.start-selling') }}" class="text-gray-500 hover:text-gray-700">
+            <a href="{{ route('livewire.guest.start-selling') }}" class="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
             </a>
-            <h1 class="text-2xl font-bold text-gray-800">Seller Registration</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100">Seller Registration</h1>
         </div>
 
         <!-- Steps -->
-        <div class="flex items-center gap-4 mb-8">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-4 mb-8">
             <div class="flex items-center gap-2">
                 <span
-                    class="w-8 h-8 rounded-full {{ $step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-600' }} flex items-center justify-center text-sm font-bold">1</span>
-                <span class="text-sm {{ $step >= 1 ? 'text-gray-800' : 'text-gray-400' }}">Shop Info</span>
+                    class="w-8 h-8 rounded-full {{ $step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }} flex items-center justify-center text-sm font-bold">1</span>
+                <span class="text-sm {{ $step >= 1 ? 'text-gray-800 dark:text-slate-100' : 'text-gray-400 dark:text-slate-500' }}">Shop Info</span>
             </div>
-            <div class="flex-1 h-0.5 {{ $step >= 2 ? 'bg-amber-600' : 'bg-gray-200' }}"></div>
+            <div class="flex-1 h-0.5 {{ $step >= 2 ? 'bg-amber-600' : 'bg-gray-200 dark:bg-slate-700' }}"></div>
             <div class="flex items-center gap-2">
                 <span
-                    class="w-8 h-8 rounded-full {{ $step >= 2 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-600' }} flex items-center justify-center text-sm font-bold">2</span>
-                <span class="text-sm {{ $step >= 2 ? 'text-gray-800' : 'text-gray-400' }}">Business Info</span>
+                    class="w-8 h-8 rounded-full {{ $step >= 2 ? 'bg-amber-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-300' }} flex items-center justify-center text-sm font-bold">2</span>
+                <span class="text-sm {{ $step >= 2 ? 'text-gray-800 dark:text-slate-100' : 'text-gray-400 dark:text-slate-500' }}">Business Info</span>
             </div>
         </div>
 
         @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+        <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg">
             {{ session('error') }}
         </div>
         @endif
 
         @if (session()->has('success'))
-        <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+        <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg">
             {{ session('success') }}
         </div>
         @endif
 
         @if(!Auth::check())
-        <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg">
-            <p class="font-medium inline-flex items-center gap-2">
+        <div class="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200 rounded-lg">
+            <p class="font-medium inline-flex flex-wrap items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
@@ -49,7 +49,7 @@
             </p>
             <p class="text-sm">You need to be logged in to register as a seller.</p>
             <a href="{{ route('livewire.auth.login') }}?start_selling=true"
-                class="inline-flex items-center gap-1 text-sm text-amber-600 hover:underline mt-2">
+                class="inline-flex items-center gap-1 text-sm text-amber-600 dark:text-amber-400 hover:underline mt-2">
                 Login Now
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
@@ -60,56 +60,56 @@
         @else
         <!-- Step 1: Shop Info -->
         @if($step == 1)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4 inline-flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4 inline-flex flex-wrap items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                     </path>
                 </svg>
                 Shop Information
             </h2>
-            <p class="text-sm text-gray-500 mb-6">Tell us about your bakeshop.</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Tell us about your bakeshop.</p>
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Shop Name</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Shop Name</label>
                     <input type="text" wire:model="shop_name"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                     @error('shop_name')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Shop Address</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Shop Address</label>
                     <textarea wire:model="shop_address" rows="2"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"></textarea>
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500"></textarea>
                     @error('shop_address')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Contact Number <span class="text-red-500">*</span>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                        Contact Number <span class="text-red-500 dark:text-red-400">*</span>
                     </label>
                     <input type="text" wire:model="contact_number" maxlength="11"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('contact_number') border-red-500 @enderror"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('contact_number') border-red-500 @enderror"
                         placeholder="09123456789">
                     @error('contact_number')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-400">Exactly 11 digits, starting with 09 (e.g., 09123456789)</p>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">Exactly 11 digits, starting with 09 (e.g., 09123456789)</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Shop Description (Optional)</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Shop Description (Optional)</label>
                     <textarea wire:model="shop_description" rows="3"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500"
                         placeholder="Tell customers about your bakeshop..."></textarea>
                     @error('shop_description')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -127,38 +127,38 @@
 
         <!-- Step 2: Business Info -->
         @if($step == 2)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4 inline-flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4 inline-flex flex-wrap items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                     </path>
                 </svg>
                 Business Information
             </h2>
-            <p class="text-sm text-gray-500 mb-6">Upload your Business Permit from the LGU and a Valid Government ID.
+            <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Upload your Business Permit from the LGU and a Valid Government ID.
             </p>
 
             <div class="space-y-4">
                 <!-- Business Permit -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Business Permit</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Business Permit</label>
                     <input type="file" wire:model="business_permit"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                    <p class="text-xs text-gray-400 mt-1">Accepted: PDF, JPG, PNG (Max 5MB)</p>
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 dark:file:bg-amber-900/30 file:text-amber-700 dark:file:text-amber-300 hover:file:bg-amber-100 dark:hover:file:bg-amber-900/50">
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Accepted: PDF, JPG, PNG (Max 5MB)</p>
                     @error('business_permit')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
 
                     @if($business_permit)
                     <div class="mt-2">
                         @if(in_array($business_permit->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']))
                         <img src="{{ $business_permit->temporaryUrl() }}"
-                            class="w-32 h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition"
+                            class="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-slate-700 cursor-pointer hover:opacity-80 transition"
                             onclick="window.open('{{ $business_permit->temporaryUrl() }}', '_blank')">
-                        <p class="text-xs text-gray-400 mt-1">Click image to enlarge</p>
+                        <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Click image to enlarge</p>
                         @else
-                        <p class="inline-flex items-center gap-1.5 text-sm text-green-600">
+                        <p class="inline-flex flex-wrap items-center gap-1.5 text-sm break-all text-green-600 dark:text-green-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -172,23 +172,23 @@
 
                 <!-- Valid Government ID -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Valid Government ID</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Valid Government ID</label>
                     <input type="file" wire:model="valid_id"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
-                    <p class="text-xs text-gray-400 mt-1">Accepted: PDF, JPG, PNG (Max 5MB)</p>
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 dark:file:bg-amber-900/30 file:text-amber-700 dark:file:text-amber-300 hover:file:bg-amber-100 dark:hover:file:bg-amber-900/50">
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Accepted: PDF, JPG, PNG (Max 5MB)</p>
                     @error('valid_id')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
 
                     @if($valid_id)
                     <div class="mt-2">
                         @if(in_array($valid_id->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']))
                         <img src="{{ $valid_id->temporaryUrl() }}"
-                            class="w-32 h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition"
+                            class="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-slate-700 cursor-pointer hover:opacity-80 transition"
                             onclick="window.open('{{ $valid_id->temporaryUrl() }}', '_blank')">
-                        <p class="text-xs text-gray-400 mt-1">Click image to enlarge</p>
+                        <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Click image to enlarge</p>
                         @else
-                        <p class="inline-flex items-center gap-1.5 text-sm text-green-600">
+                        <p class="inline-flex flex-wrap items-center gap-1.5 text-sm break-all text-green-600 dark:text-green-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -200,9 +200,9 @@
                     @endif
                 </div>
 
-                <div class="flex gap-3 pt-2">
+                <div class="flex flex-wrap gap-3 pt-2">
                     <button wire:click="previousStep"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

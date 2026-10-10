@@ -3,21 +3,21 @@
         <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
             <div class="mt-12 max-w-full mx-auto pb-24">
 
-                <div class="flex flex-col border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 overflow-visible">
+                <div class="flex flex-col border border-gray-200 dark:border-slate-700 rounded-xl p-4 sm:p-6 lg:p-8 overflow-visible">
 
                     <!-- FLASH MESSAGE -->
                     @if (session()->has('message'))
                     <div
-                        class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between">
+                        class="mb-6 p-4 bg-green-100 dark:bg-green-900/40 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg flex items-center justify-between">
                         <span>{{ session('message') }}</span>
                         <button onclick="this.parentElement.remove()"
-                            class="text-green-700 hover:text-green-900">✕</button>
+                            class="text-green-700 dark:text-green-300 hover:text-green-900">✕</button>
                     </div>
                     @endif
 
                     <div class="flex flex-col mb-8">
                         <div class="flex justify-between items-center">
-                            <h2 class="text-xl font-semibold text-gray-800">Edit Product</h2>
+                            <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100">Edit Product</h2>
 
                             <a href="{{ route('livewire.owner.products.view-product') }}"
                                 class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
@@ -25,7 +25,7 @@
                             </a>
                         </div>
 
-                        <p class="text-sm text-gray-600 mt-1">
+                        <p class="text-sm text-gray-600 dark:text-slate-300 mt-1">
                             Update product details. Make sure to save your changes before navigating away.
                         </p>
                     </div>
@@ -33,16 +33,16 @@
                     <div class="mb-8">
                         @if($image)
                         <div
-                            class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                            class="w-full h-64 bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
                             <img src="{{ $image->temporaryUrl() }}" class="max-w-full max-h-full object-contain">
                         </div>
                         @elseif($image_url)
                         <div
-                            class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                            class="w-full h-64 bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
                             <img src="{{ $image_url }}" class="max-w-full max-h-full object-contain">
                         </div>
                         @else
-                        <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                        <div class="w-full h-64 bg-gray-200 dark:bg-slate-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-slate-400">
                             No Image Preview
                         </div>
                         @endif
@@ -53,11 +53,11 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-gray-700">Product Name</label>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Product Name</label>
                                     <input type="text" wire:model.live.debounce.500ms="name" maxlength="40" class="py-2.5 px-4 w-full border rounded-lg focus:ring-amber-500 focus:border-amber-500
-        @error('name') border-red-500 focus:ring-red-400 focus:border-red-400 @else border-gray-200 @enderror">
+        @error('name') border-red-500 focus:ring-red-400 focus:border-red-400 @else border-gray-200 dark:border-slate-700 @enderror">
                                     @error('name')
-                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                    <p class="mt-1 text-xs text-red-600 dark:text-red-400 inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -70,11 +70,11 @@
                                 </div>
 
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-gray-700">Price (₱)</label>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Price (₱)</label>
                                     <input type="number" step="0.01" wire:model="price"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                        class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                     @error('price')
-                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                    <p class="mt-1 text-xs text-red-600 dark:text-red-400 inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -89,9 +89,9 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 <div>
-                                    <label class="block mb-2 text-sm font-medium text-gray-700">Category</label>
+                                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Category</label>
                                     <select wire:model="category_id"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
+                                        class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 dark:text-slate-100 dark:[color-scheme:dark] focus:ring-amber-500 focus:border-amber-500">
                                         <option value="">Select category</option>
                                         @foreach($categories as $category)
                                         <option value="{{ $category->id }}">
@@ -100,7 +100,7 @@
                                         @endforeach
                                     </select>
                                     @error('category_id')
-                                    <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                    <p class="mt-1 text-xs text-red-600 dark:text-red-400 inline-flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -115,8 +115,8 @@
 
                             <!-- ✅ BRANCH CHECKBOXES WITH PER-BRANCH STOCK -->
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Available Branches</label>
-                                <p class="text-sm text-gray-500 mb-3">
+                                <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Available Branches</label>
+                                <p class="text-sm text-gray-500 dark:text-slate-400 mb-3">
                                     Update which branches this product is available at, and adjust stock per branch.
                                 </p>
 
@@ -124,18 +124,18 @@
                                 <div class="grid grid-cols-1 gap-3">
                                     @foreach($branches as $branch)
                                     <div
-                                        class="border border-gray-200 rounded-lg overflow-hidden transition
-                                            {{ in_array($branch->id, $selectedBranches) ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50' }}">
+                                        class="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden transition
+                                            {{ in_array($branch->id, $selectedBranches) ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-300' : 'hover:bg-gray-50 dark:hover:bg-slate-700/50' }}">
 
                                         {{-- Checkbox header --}}
                                         <label class="flex items-start gap-3 p-3 cursor-pointer">
                                             <input type="checkbox" wire:model.live="selectedBranches"
                                                 value="{{ $branch->id }}"
-                                                class="mt-0.5 w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                                class="mt-0.5 w-4 h-4 text-amber-600 dark:text-amber-400 rounded border-gray-300 dark:border-slate-600 focus:ring-amber-500">
                                             <div class="flex-1">
-                                                <p class="text-sm font-medium text-gray-800">{{ $branch->name }}</p>
-                                                <p class="text-xs text-gray-500">{{ $branch->address }}</p>
-                                                <p class="text-xs text-gray-400">
+                                                <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $branch->name }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-slate-400">{{ $branch->address }}</p>
+                                                <p class="text-xs text-gray-400 dark:text-slate-500">
                                                     Status: {{ $branch->is_active ? 'Active' : 'Inactive' }}
                                                 </p>
                                             </div>
@@ -144,14 +144,14 @@
                                         {{-- ✅ Per-branch stock input — only shows when checked --}}
                                         @if(in_array($branch->id, $selectedBranches))
                                         <div class="px-3 pb-3 pt-1 border-t border-amber-200/50">
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                            <label class="block text-xs font-medium text-gray-600 dark:text-slate-300 mb-1">
                                                 Stock for {{ $branch->name }}
                                             </label>
                                             <input type="number" min="0" wire:model="branch_stocks.{{ $branch->id }}"
-                                                class="py-2 px-3 w-full sm:w-48 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white"
+                                                class="py-2 px-3 w-full sm:w-48 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-800"
                                                 placeholder="0">
                                             @error("branch_stocks.{$branch->id}")
-                                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         @endif
@@ -159,110 +159,110 @@
                                     @endforeach
                                 </div>
                                 @error('selectedBranches')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
                                 @else
                                 <div
-                                    class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                                    class="p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200">
                                     <p>⚠️ No branches found. Please <a
                                             href="{{ route('livewire.owner.branches.manage-branches') }}"
-                                            class="text-amber-600 hover:underline">create a branch</a> first.</p>
+                                            class="text-amber-600 dark:text-amber-400 hover:underline">create a branch</a> first.</p>
                                 </div>
                                 @endif
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Description</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Description</label>
                                 <textarea wire:model="description"
-                                    class="py-2.5 px-4 w-full border border-gray-200 rounded-lg min-h-[120px] focus:ring-amber-500 focus:border-amber-500"></textarea>
+                                    class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg min-h-[120px] focus:ring-amber-500 focus:border-amber-500"></textarea>
                                 @error('description')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <!-- ✅ DISCOUNT SECTION -->
-                            <div class="border-t border-gray-200 pt-4 mt-2">
-                                <h3 class="text-md font-semibold text-gray-800 mb-3">🏷️ Discount Settings</h3>
+                            <div class="border-t border-gray-200 dark:border-slate-700 pt-4 mt-2">
+                                <h3 class="text-md font-semibold text-gray-800 dark:text-slate-100 mb-3">🏷️ Discount Settings</h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                     <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount
+                                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Discount
                                             Type</label>
                                         <select wire:model="discount_type"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white focus:ring-amber-500 focus:border-amber-500">
+                                            class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 dark:text-slate-100 dark:[color-scheme:dark] focus:ring-amber-500 focus:border-amber-500">
                                             <option value="none">No Discount</option>
                                             <option value="percentage">Percentage (%)</option>
                                             <option value="fixed">Fixed Amount (₱)</option>
                                         </select>
                                         @error('discount_type')
-                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                         @enderror
                                     </div>
 
                                     <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">
+                                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">
                                             Discount Value
-                                            <span class="text-xs text-gray-400">
+                                            <span class="text-xs text-gray-400 dark:text-slate-500">
                                                 ({{ $discount_type === 'percentage' ? 'e.g., 20 for 20%' : 'e.g., 100
                                                 for ₱100 off' }})
                                             </span>
                                         </label>
                                         <input type="number" step="0.01" wire:model="discount_value" min="0"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                                            class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
                                             {{ $discount_type==='none' ? 'disabled' : '' }}>
                                         @error('discount_value')
-                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                         @enderror
                                     </div>
 
                                     <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount Start
+                                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Discount Start
                                             Date</label>
                                         <input type="datetime-local" wire:model="discount_start"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                            class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                         @error('discount_start')
-                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                         @enderror
                                     </div>
 
                                     <div>
-                                        <label class="block mb-2 text-sm font-medium text-gray-700">Discount End
+                                        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Discount End
                                             Date</label>
                                         <input type="datetime-local" wire:model="discount_end"
-                                            class="py-2.5 px-4 w-full border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                                            class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
                                         @error('discount_end')
-                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                         @enderror
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Image URL</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Image URL</label>
                                 <div class="flex items-center gap-2">
                                     <input type="text" wire:model.live="image_url" @disabled($image)
                                         placeholder="https://example.com/image.jpg"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg bg-white relative z-20 disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
+                                        class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 relative z-20 disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500 dark:text-slate-300 dark:[color-scheme:dark]">
                                     @if($image_url)
                                     <button type="button" wire:click="$set('image_url', '')"
-                                        class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
+                                        class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 dark:text-slate-400 hover:text-red-500 hover:border-red-300">
                                         ✕
                                     </button>
                                     @endif
                                 </div>
                                 @error('image_url')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div>
-                                <label class="block mb-2 text-sm font-medium text-gray-700">Upload Image</label>
+                                <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-slate-300">Upload Image</label>
                                 <div class="flex items-center gap-2">
                                     <input type="file" wire:model="image" @disabled($image_url)
                                         accept="image/jpeg,image/png,image/gif,image/webp"
-                                        class="py-2.5 px-4 w-full border border-gray-200 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500">
+                                        class="py-2.5 px-4 w-full border border-gray-200 dark:border-slate-700 rounded-lg disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-amber-500 focus:border-amber-500 dark:text-slate-300 dark:[color-scheme:dark]">
                                     @if($image)
                                     <button type="button" wire:click="$set('image', null)"
-                                        class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 hover:text-red-500 hover:border-red-300">
+                                        class="h-10 w-10 flex items-center justify-center border rounded-lg text-gray-500 dark:text-slate-400 hover:text-red-500 hover:border-red-300">
                                         ✕
                                     </button>
                                     @endif
@@ -270,7 +270,7 @@
 
                                 {{-- ✅ NEW: Show loading state while image is uploading --}}
                                 <div wire:loading wire:target="image" class="mt-2">
-                                    <div class="flex items-center gap-2 text-xs text-amber-600">
+                                    <div class="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
                                         <svg class="animate-spin w-3.5 h-3.5 flex-shrink-0" fill="none"
                                             viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -284,7 +284,7 @@
                                 </div>
 
                                 @error('image')
-                                <p class="mt-1 text-xs text-red-600 inline-flex items-center gap-1">
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400 inline-flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

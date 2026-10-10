@@ -32,7 +32,7 @@
             $employee = $user->employee;
             @endphp
 
-            <div class="px-4 py-3 border-b border-gray-100">
+            <div class="px-4 py-3 border-b border-gray-100 dark:border-slate-700">
                 <div class="flex items-center gap-3">
                     @if($profilePic)
                     <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
@@ -44,9 +44,9 @@
                     </div>
                     @endif
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-gray-900 truncate">{{ $user->name }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ $user->email }}</p>
-                        <p class="text-xs text-gray-400 truncate">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">{{ $user->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 truncate">{{ $user->email }}</p>
+                        <p class="text-xs text-gray-400 dark:text-slate-400 truncate">
                             {{ $employee?->role_label ?? 'Employee' }}
                             @if($employee?->branch) · {{ $employee->branch->name }} @endif
                         </p>
@@ -55,21 +55,21 @@
             </div>
 
             <a href="{{ route('livewire.employee.profile') }}"
-                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
+                <svg class="w-4 h-4 text-gray-500 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
                 My Profile
             </a>
 
-            <div class="border-t border-gray-100 my-1"></div>
+            <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
 
             <form method="POST" action="{{ route('logout.post') }}" class="block">
                 @csrf
                 <button type="submit"
-                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
+                    <svg class="w-4 h-4 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                         </path>

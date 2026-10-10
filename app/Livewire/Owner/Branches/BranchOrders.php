@@ -6,11 +6,13 @@ use App\Models\Branch;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class BranchOrders extends Component
 {
+    use WithPagination;
+
     public $branch;
-    public $orders = [];
     public $showOrderDetails = false;
     public $selectedOrder = null;
     public $search = '';
@@ -23,11 +25,9 @@ class BranchOrders extends Component
         if ($this->branch->shop->user_id !== Auth::id()) {
             abort(403, 'Unauthorized access.');
         }
-
-        $this->loadOrders();
     }
 
-    public function loadOrders()
+    private function buildOrdersQuery()
     {
         $query = Order::where('branch_id', $this->branch->id)
             ->with(['customer', 'items.product'])
@@ -85,63 +85,64 @@ class BranchOrders extends Component
             });
         }
 
-        $this->orders = $query->get()
-            ->map(function ($order) {
-                $itemCount = $order->items->count();
-                $cancelledCount = $order->items->where('status', 'cancelled')->count();
-                $completedCount = $order->items->where('status', 'completed')->count();
-                $pendingCount = $order->items->where('status', 'pending')->count();
-                $preparingCount = $order->items->where('status', 'preparing')->count();
-                $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
-                $noShowCount = $order->items->where('status', 'no_show')->count();
+        return $query;
+    }
 
-                $statusParts = [];
-                if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
-                if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
-                if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
-                if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
-                if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
-                if ($noShowCount > 0) $statusParts[] = $noShowCount . ' no show';
+    private function enrichOrder($order)
+    {
+        $itemCount = $order->items->count();
+        $cancelledCount = $order->items->where('status', 'cancelled')->count();
+        $completedCount = $order->items->where('status', 'completed')->count();
+        $pendingCount = $order->items->where('status', 'pending')->count();
+        $preparingCount = $order->items->where('status', 'preparing')->count();
+        $readyCount = $order->items->where('status', 'ready_for_pickup')->count();
+        $noShowCount = $order->items->where('status', 'no_show')->count();
 
-                $order->status_summary = !empty($statusParts)
-                    ? implode(', ', $statusParts)
-                    : ucfirst(str_replace('_', ' ', $order->status));
+        $statusParts = [];
+        if ($completedCount > 0) $statusParts[] = $completedCount . ' completed';
+        if ($cancelledCount > 0) $statusParts[] = $cancelledCount . ' cancelled';
+        if ($pendingCount > 0) $statusParts[] = $pendingCount . ' pending';
+        if ($preparingCount > 0) $statusParts[] = $preparingCount . ' preparing';
+        if ($readyCount > 0) $statusParts[] = $readyCount . ' ready';
+        if ($noShowCount > 0) $statusParts[] = $noShowCount . ' no show';
 
-                $order->item_count = $itemCount;
-                $order->cancelled_count = $cancelledCount;
-                $order->completed_count = $completedCount;
-                $order->pending_count = $pendingCount;
-                $order->no_show_count = $noShowCount;
+        $order->status_summary = !empty($statusParts)
+            ? implode(', ', $statusParts)
+            : ucfirst(str_replace('_', ' ', $order->status));
 
-                //  FIX: Compute subtotal, VAT, and total (with VAT) to match dashboard
-                $adjustedSubtotal = $order->items
-                    ->where('status', '!=', 'cancelled')
-                    ->sum(function ($item) {
-                        return $item->price * $item->quantity;
-                    });
+        $order->item_count = $itemCount;
+        $order->cancelled_count = $cancelledCount;
+        $order->completed_count = $completedCount;
+        $order->pending_count = $pendingCount;
+        $order->no_show_count = $noShowCount;
 
-                $order->adjusted_subtotal = $adjustedSubtotal;
-                $order->adjusted_tax = round($adjustedSubtotal * 0.12, 2);
-                $order->adjusted_total = $adjustedSubtotal + $order->adjusted_tax;
-
-                return $order;
+        $adjustedSubtotal = $order->items
+            ->where('status', '!=', 'cancelled')
+            ->sum(function ($item) {
+                return $item->price * $item->quantity;
             });
+
+        $order->adjusted_subtotal = $adjustedSubtotal;
+        $order->adjusted_tax = round($adjustedSubtotal * 0.12, 2);
+        $order->adjusted_total = $adjustedSubtotal + $order->adjusted_tax;
+
+        return $order;
     }
 
     public function updatedSelectedStatus()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function updatedSearch()
     {
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function clearSearch()
     {
         $this->search = '';
-        $this->loadOrders();
+        $this->resetPage();
     }
 
     public function viewOrderDetails($orderId)
@@ -149,7 +150,6 @@ class BranchOrders extends Component
         $this->selectedOrder = Order::with(['customer', 'items.product', 'branch'])
             ->findOrFail($orderId);
 
-        // FIX: Same total-with-VAT logic for consistency
         $adjustedSubtotal = $this->selectedOrder->items
             ->where('status', '!=', 'cancelled')
             ->sum(function ($item) {
@@ -229,7 +229,14 @@ class BranchOrders extends Component
 
     public function render()
     {
-        return view('livewire.owner.branches.branch-orders')
-            ->layout('components.layouts.owner');
+        $orders = $this->buildOrdersQuery()
+            ->paginate(15)
+            ->through(function ($order) {
+                return $this->enrichOrder($order);
+            });
+
+        return view('livewire.owner.branches.branch-orders', [
+            'orders' => $orders,
+        ])->layout('components.layouts.owner');
     }
 }

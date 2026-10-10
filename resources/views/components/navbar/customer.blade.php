@@ -58,10 +58,10 @@
 
                     <div x-show="open" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                        class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
+                        class="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 py-1 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto">
 
                         {{-- Profile Header --}}
-                        <div class="px-4 py-3 border-b border-gray-100">
+                        <div class="px-4 py-3 border-b border-gray-100 dark:border-slate-700">
                             <div class="flex items-center gap-3">
                                 @if($profilePic)
                                 <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
@@ -73,61 +73,61 @@
                                 </div>
                                 @endif
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-900">{{ $user->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $user->email }}</p>
-                                    <p class="text-xs text-gray-400">{{ $user->phone ?? 'No phone' }}</p>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-slate-100">{{ $user->name }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400">{{ $user->email }}</p>
+                                    <p class="text-xs text-gray-400 dark:text-slate-400">{{ $user->phone ?? 'No phone' }}</p>
                                 </div>
                             </div>
                         </div>
 
                         {{-- ============ SHOPPING ============ --}}
-                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">
                             Shopping
                         </p>
 
                         <a href="{{ route('livewire.customer.dashboard') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                             Dashboard
                         </a>
                         <a href="{{ route('livewire.customer.browse-shops') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                             Browse Shops
                         </a>
                         <a href="{{ route('livewire.customer.orders') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                             My Orders & Transaction History
                         </a>
 
                         {{-- ============ ACCOUNT ============ --}}
-                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">
                             Account
                         </p>
 
                         <a href="{{ route('livewire.customer.profile') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                             My Profile
                         </a>
 
                         {{-- ============ SELL (only if already an owner) ============ --}}
                         @if(auth()->user()->hasRole('owner') && auth()->user()->shop &&
                         !auth()->user()->shop->trashed())
-                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700">
+                        <p class="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">
                             Sell
                         </p>
 
                         <a href="{{ route('livewire.owner.dashboard') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
                             My Shop Dashboard
                         </a>
                         @endif
 
                         {{-- ============ LOGOUT ============ --}}
-                        <div class="border-t border-gray-100 my-2"></div>
+                        <div class="border-t border-gray-100 dark:border-slate-700 my-2"></div>
 
                         <form method="POST" action="{{ route('logout.post') }}" class="block">
                             @csrf
                             <button type="submit"
-                                class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
+                                class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition">
                                 Logout
                             </button>
                         </form>
