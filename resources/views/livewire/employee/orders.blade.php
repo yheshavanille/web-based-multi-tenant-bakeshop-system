@@ -213,7 +213,6 @@
                                                 </span>
 
                                                 <div class="relative">
-                                                    <select
                                                         <select
     wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
     wire:loading.attr="disabled"

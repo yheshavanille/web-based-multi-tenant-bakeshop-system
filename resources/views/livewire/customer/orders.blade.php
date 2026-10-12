@@ -872,7 +872,7 @@
         style="overscroll-behavior: contain;">
         <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-lg" wire:click="closeReviewModal"></div>
         <div
-            class="relative z-10 flex w-full max-w-2xl max-h-[85vh] flex-col overflow-hidden text-left bg-white dark:bg-slate-800 rounded-2xl shadow-2xl">
+            class="relative z-10 flex w-full max-w-2xl h-[85vh] max-h-[85vh] flex-col overflow-hidden text-left bg-white dark:bg-slate-800 rounded-2xl shadow-2xl">
 
             <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex items-center justify-between">
@@ -1130,7 +1130,7 @@
                                     </div>
                                     <input type="text" wire:model="productReviews.{{ $productId }}"
                                         @disabled($reviewReadOnly) placeholder="Optional review..."
-                                        class="w-full mt-1 px-2 py-1 text-xs border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 @if($reviewReadOnly) bg-gray-50 dark:bg-slate-900 text-gray-600 dark:text-slate-300 @endif">
+                                        class="w-full mt-1 px-2 py-1 text-xs border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 focus:ring-amber-500 focus:border-amber-500 @if($reviewReadOnly) bg-gray-50 dark:bg-slate-900 text-gray-600 dark:text-slate-300 @endif">
                                 </div>
                             </div>
                         </div>

@@ -182,21 +182,21 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name</label>
                     <input type="text" wire:model="name"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                     @error('name') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email</label>
                     <input type="email" wire:model="email"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                     @error('email') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Phone Number</label>
                     <input type="text" wire:model="phone" maxlength="11"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         placeholder="09XXXXXXXXX">
                     @error('phone') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                 </div>
@@ -204,7 +204,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Role</label>
                     <select wire:model="role"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select Role</option>
                         <option value="order_manager">Order Manager</option>
                         <option value="inventory_manager">Inventory Manager</option>
@@ -215,7 +215,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Branch</label>
                     <select wire:model="branch_id"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select Branch</option>
                         @foreach($branches as $branch)
                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
@@ -229,7 +229,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Password</label>
                     <div class="relative" style="position: relative; height: 42px;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="password"
-                            class="block h-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
+                            class="block h-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
                             placeholder="Enter password">
                         <button type="button" @click="show = !show"
                             style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"
@@ -252,7 +252,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm Password</label>
                     <div class="relative" style="position: relative; height: 42px;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="password_confirmation"
-                            class="block h-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
+                            class="block h-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
                             placeholder="Confirm password">
                         <button type="button" @click="show = !show"
                             style="position: absolute; top: 0; right: 0; width: 40px; height: 42px;"

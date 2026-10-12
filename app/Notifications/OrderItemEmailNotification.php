@@ -53,14 +53,14 @@ class OrderItemEmailNotification extends Notification
 
         $subject = $isReady
             ? 'Your item is ready for pickup — ' . $shopName
-            : 'Your item has been picked up — ' . $shopName;
+            : 'Your item has been marked as completed — ' . $shopName;
 
         $mail = (new MailMessage)
             ->subject($subject)
             ->greeting('Hi ' . $customerName . ',')
             ->line($isReady
                 ? 'Good news! The following item from your order is now ready for pickup:'
-                : 'This item from your order has been marked as picked up:')
+                : 'This item from your order has been marked as completed:')
             ->line('• ' . $productName . ' (Qty: ' . $quantity . ')')
             ->line('Order #: ' . $orderNumber)
             ->line('Shop: ' . $shopName)
