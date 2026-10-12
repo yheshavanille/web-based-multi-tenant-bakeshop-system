@@ -1,4 +1,4 @@
-<div class="forgot-password-responsive-shell relative overflow-hidden min-h-screen bg-white flex items-center">
+<div class="forgot-password-responsive-shell relative overflow-hidden min-h-screen bg-white dark:bg-slate-900 flex items-center">
     <style>
         @media (max-width: 1023px) {
             .forgot-password-responsive-shell {
@@ -36,39 +36,39 @@
             <!-- LEFT: Info -->
             <div class="forgot-password-responsive-introduction col-start-1 row-start-1 flex flex-col justify-center"
                 style="min-height: 26rem;">
-                <h1 class="text-4xl text-gray-900 font-bold leading-tight md:text-5xl">
+                <h1 class="text-4xl max-md:text-3xl text-gray-900 dark:text-slate-100 font-bold leading-tight md:text-5xl">
                     Forgot your password?
                 </h1>
-                <p class="mt-5 text-base text-gray-600 leading-relaxed max-w-xl md:text-lg">
+                <p class="mt-5 text-base max-md:text-sm text-gray-600 dark:text-slate-300 leading-relaxed max-w-xl break-words md:text-lg">
                     No worries — it happens. Enter the email address linked to your account and we'll send you a 6-digit
                     verification code.
                 </p>
-                <p class="mt-4 text-sm text-gray-500">
+                <p class="mt-4 text-sm text-gray-500 dark:text-slate-400">
                     The code will expire in 10 minutes for your security.
                 </p>
             </div>
 
             <!-- RIGHT: Form -->
             <div class="forgot-password-responsive-form-wrapper w-full col-start-2 row-start-1 justify-self-end">
-                <div class="forgot-password-responsive-card bg-white rounded-2xl border border-gray-200 p-8 md:p-10 shadow-sm flex flex-col justify-start"
+                <div class="forgot-password-responsive-card bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-8 max-sm:p-5 md:p-10 shadow-sm flex flex-col justify-start"
                     style="min-height: 26rem;">
 
-                    <h2 class="text-xl font-bold text-gray-800 mb-2">Reset your password</h2>
-                    <p class="text-sm text-gray-500 mb-6">We'll email you a verification code</p>
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-slate-100 mb-2">Reset your password</h2>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">We'll email you a verification code</p>
 
                     @if (session('status'))
-                    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+                    <div class="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 rounded-lg text-sm">
                         {{ session('status') }}
                     </div>
                     @endif
 
                     <form wire:submit.prevent="sendOtp">
                         <div class="mb-5">
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                                 Email Address
                             </label>
                             <input type="email" id="email" wire:model="email"
-                                class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
+                                class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
                                 placeholder="you@example.com">
                             @error('email')
                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
@@ -82,10 +82,10 @@
                         </button>
                     </form>
 
-                    <p class="mt-6 text-center text-sm text-gray-500">
+                    <p class="mt-6 text-center text-sm text-gray-500 dark:text-slate-400">
                         Remember your password?
                         <a href="{{ route('livewire.auth.login') }}"
-                            class="text-amber-600 hover:text-amber-700 font-medium hover:underline">
+                            class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium hover:underline">
                             Back to login
                         </a>
                     </p>

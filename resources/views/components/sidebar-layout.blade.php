@@ -64,7 +64,7 @@
                 <div class="flex-1"></div>
 
                 {{-- Right side --}}
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-shrink-0">
 
                     {{-- ✅ Dark Mode Toggle — clean icon-only --}}
                     <button type="button"
@@ -122,7 +122,7 @@
                     {{-- Profile dropdown --}}
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" @click.away="open = false"
-                            class="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                            class="flex items-center gap-2 p-1.5 flex-shrink-0 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition">
                             @php
                             $user = auth()->user();
                             $profilePic = $user->profile_picture;
@@ -130,10 +130,10 @@
 
                             @if($profilePic)
                             <img src="{{ asset('storage/' . $profilePic) }}?v={{ time() }}" alt="{{ $user->name }}"
-                                class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-slate-600">
+                                class="w-8 h-8 flex-shrink-0 rounded-full object-cover border-2 border-gray-200 dark:border-slate-600">
                             @else
                             <div
-                                class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                class="w-8 h-8 flex-shrink-0 bg-amber-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                                 {{ strtoupper(substr($user->name ?? 'U', 0, 2)) }}
                             </div>
                             @endif

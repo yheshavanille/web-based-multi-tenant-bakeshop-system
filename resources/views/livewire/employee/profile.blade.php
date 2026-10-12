@@ -1,26 +1,26 @@
 <div>
     <div class="max-w-2xl mx-auto">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">My Profile</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-slate-100 mb-6">My Profile</h1>
 
         @if (session()->has('message'))
-        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+        <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/40 border border-green-400 text-green-700 dark:text-green-200 rounded-lg">
             {{ session('message') }}
         </div>
         @endif
 
         @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+        <div class="mb-4 p-4 bg-red-100 dark:bg-red-900/40 border border-red-400 text-red-700 dark:text-red-200 rounded-lg">
             {{ session('error') }}
         </div>
         @endif
 
         <!-- Profile Information -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Profile Information</h2>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">Profile Information</h2>
 
             <form wire:submit.prevent="updateProfile" class="space-y-4">
                 <!-- Profile Picture -->
-                <div class="flex items-center gap-6">
+                <div class="flex items-center flex-wrap gap-4 sm:gap-6">
                     <div class="relative flex-shrink-0">
                         @if($temp_profile_picture_preview)
                         <img src="{{ $temp_profile_picture_preview }}" alt="Profile Picture Preview"
@@ -31,21 +31,21 @@
                         </div>
                         @elseif($profile_picture)
                         <img src="{{ asset('storage/' . $profile_picture) }}?t={{ time() }}" alt="Profile Picture"
-                            class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
+                            class="w-20 h-20 rounded-full object-cover border-2 border-gray-200 dark:border-slate-700">
                         @else
                         <div
-                            class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center text-3xl text-amber-600 border-2 border-gray-200">
+                            class="w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-3xl text-amber-600 dark:text-amber-400 border-2 border-gray-200 dark:border-slate-700">
                             {{ substr($name, 0, 1) }}
                         </div>
                         @endif
                     </div>
 
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Profile Picture</label>
                         <div class="flex items-center gap-3 flex-wrap">
                             <label class="cursor-pointer">
                                 <span
-                                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm">
+                                    class="px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition text-sm">
                                     Choose Photo
                                 </span>
                                 <input type="file" wire:model="new_profile_picture" accept="image/*" class="hidden">
@@ -53,7 +53,7 @@
 
                             @if($profile_picture)
                             <button type="button" wire:click="removeProfilePicture"
-                                class="px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:underline">
+                                class="px-4 py-2 text-sm text-red-600 dark:text-red-200 hover:text-red-700 hover:underline">
                                 Remove
                             </button>
                             @endif
@@ -63,70 +63,70 @@
                         @enderror
                         @if($new_profile_picture && !$errors->has('new_profile_picture'))
                         <p class="mt-1 text-xs text-green-600">✓ New photo selected</p>
-                        <p class="mt-0.5 text-xs text-amber-600">Click "Update Profile" to save permanently</p>
+                        <p class="mt-0.5 text-xs text-amber-600 dark:text-amber-400">Click "Update Profile" to save permanently</p>
                         @endif
                         @if($uploadSuccess)
                         <p class="mt-1 text-xs text-green-600">✓ Profile picture updated successfully!</p>
                         @endif
-                        <p class="mt-1 text-xs text-gray-400">Max 2MB • JPG, PNG, or GIF</p>
+                        <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">Max 2MB • JPG, PNG, or GIF</p>
                     </div>
                 </div>
 
-                <hr class="border-gray-200">
+                <hr class="border-gray-200 dark:border-slate-700">
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name <span
                             class="text-red-500">*</span></label>
                     <input type="text" wire:model="name"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('name') border-red-500 @enderror">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('name') border-red-500 @enderror">
                     @error('name')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address <span
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email Address <span
                             class="text-red-500">*</span></label>
                     <input type="email" wire:model="email"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('email') border-red-500 @enderror"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('email') border-red-500 @enderror"
                         placeholder="you@example.com">
                     @error('email')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-400">Must be a valid, reachable email address</p>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">Must be a valid, reachable email address</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Phone Number <span
                             class="text-red-500">*</span></label>
                     <input type="text" wire:model="phone" maxlength="11"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('phone') border-red-500 @enderror"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('phone') border-red-500 @enderror"
                         placeholder="09123456789">
                     @error('phone')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-400">Philippine mobile number (exactly 11 digits, e.g.,
+                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">Philippine mobile number (exactly 11 digits, e.g.,
                         09123456789)</p>
                 </div>
 
                 <button type="submit"
-                    class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                    class="w-full sm:w-auto px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
                     Update Profile
                 </button>
             </form>
         </div>
 
         <!-- Change Password -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-lg font-semibold text-gray-900">Change Password</h2>
-                <button wire:click="togglePasswordForm" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
+            <div class="flex justify-between items-center flex-wrap gap-2 mb-2">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-slate-100">Change Password</h2>
+                <button wire:click="togglePasswordForm" class="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 font-medium">
                     {{ $showPasswordForm ? 'Cancel' : 'Change Password' }}
                 </button>
             </div>
-            <p class="text-xs text-gray-500 mb-4">
+            <p class="text-xs text-gray-500 dark:text-slate-400 mb-4">
                 <a href="{{ route('livewire.auth.forgot-password') }}"
-                    class="text-amber-600 hover:text-amber-700 hover:underline font-medium">
+                    class="text-amber-600 dark:text-amber-400 hover:text-amber-700 hover:underline font-medium">
                     Forgot your current password? Reset it here →
                 </a>
             </p>
@@ -134,14 +134,14 @@
             @if($showPasswordForm)
             <form wire:submit.prevent="updatePassword" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Current Password</label>
                     <div class="relative flex items-center" style="position: relative;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="current_password"
-                            class="w-full px-4 py-2 pr-11 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('current_password') border-red-500 @enderror"
+                            class="w-full px-4 py-2 pr-11 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('current_password') border-red-500 @enderror"
                             style="padding-right: 2.75rem;">
                         <button type="button" @click="show = !show"
                             style="position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; border: none;"
-                            class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                            class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 focus:outline-none">
                             <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -161,14 +161,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">New Password</label>
                     <div class="relative flex items-center" style="position: relative;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="new_password"
-                            class="w-full px-4 py-2 pr-11 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('new_password') border-red-500 @enderror"
+                            class="w-full px-4 py-2 pr-11 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 @error('new_password') border-red-500 @enderror"
                             style="padding-right: 2.75rem;">
                         <button type="button" @click="show = !show"
                             style="position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; border: none;"
-                            class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                            class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 focus:outline-none">
                             <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -188,14 +188,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm New Password</label>
                     <div class="relative flex items-center" style="position: relative;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="new_password_confirmation"
-                            class="w-full px-4 py-2 pr-11 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                            class="w-full px-4 py-2 pr-11 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500"
                             style="padding-right: 2.75rem;">
                         <button type="button" @click="show = !show"
                             style="position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; border: none;"
-                            class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                            class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 focus:outline-none">
                             <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -211,12 +211,12 @@
                     </div>
                 </div>
 
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     Update Password
                 </button>
             </form>
             @else
-            <p class="text-sm text-gray-500">Click "Change Password" to update your password.</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400">Click "Change Password" to update your password.</p>
             @endif
         </div>
     </div>

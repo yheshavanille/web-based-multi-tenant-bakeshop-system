@@ -1,11 +1,11 @@
 <div>
     <div class="mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Manage Stock</h1>
-                <p class="text-sm text-gray-500 inline-flex items-center gap-1.5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100">Manage Stock</h1>
+                <p class="text-sm text-gray-500 dark:text-slate-400 inline-flex items-center flex-wrap gap-1.5">
                     Update inventory for
-                    <span class="inline-flex items-center gap-1 font-medium text-amber-600">
+                    <span class="inline-flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -18,7 +18,7 @@
                 </p>
             </div>
             <a href="{{ route('livewire.employee.dashboard') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm font-medium">
+                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-lg transition text-sm font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -33,16 +33,16 @@
         <div class="relative">
             <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                 style="position: absolute;">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </div>
             <input type="text" wire:model.live="search" placeholder="Search products by name or description..."
-                class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                class="w-full h-10 pl-10 pr-12 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
             @if(!empty($search))
             <button wire:click="clearSearch" type="button"
-                class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
+                class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition"
                 style="position: absolute;">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -52,44 +52,44 @@
             @endif
         </div>
         @if(!empty($search))
-        <p class="mt-1 text-xs text-gray-500">
-            Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-            <span class="text-gray-400">({{ $products->count() }} found)</span>
+        <p class="mt-1 text-xs text-gray-500 dark:text-slate-400 break-words">
+            Showing results for: <span class="font-medium text-amber-600 dark:text-amber-400">{{ $search }}</span>
+            <span class="text-gray-400 dark:text-slate-500">({{ $products->count() }} found)</span>
         </p>
         @endif
     </div>
 
     @if (session()->has('message'))
-    <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+    <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 rounded-lg">
         {{ session('message') }}
     </div>
     @endif
 
     @if (session()->has('error'))
-    <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+    <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 rounded-lg">
         {{ session('error') }}
     </div>
     @endif
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
         @if($products->count() > 0)
         <div class="overflow-x-auto">
-            <table class="w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
+            <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                <thead class="bg-gray-50 dark:bg-slate-900">
                     <tr>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Product</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Category</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Current Stock</th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">
-                            Add / Remove <span class="text-gray-400 font-normal">(+ or −)</span>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Product</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Category</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Current Stock</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">
+                            Add / Remove <span class="text-gray-400 dark:text-slate-500 font-normal">(+ or −)</span>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">
+                        <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">
                             Notes <span class="text-red-500">*</span>
                         </th>
-                        <th class="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+                        <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
+                <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                     @foreach($products as $product)
                     @php
                     $currentStock = (int) ($product->branches->firstWhere('id', $branch->id)?->pivot->stock ?? 0);
@@ -98,29 +98,29 @@
                     $preview = max(0, $currentStock + $delta);
                     @endphp
                     <tr>
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $product->name }}</td>
-                        <td class="px-4 py-3 text-gray-500">{{ $product->category->name ?? 'Uncategorized' }}</td>
+                        <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100 break-words">{{ $product->name }}</td>
+                        <td class="px-4 py-3 text-gray-500 dark:text-slate-400">{{ $product->category->name ?? 'Uncategorized' }}</td>
                         <td class="px-4 py-3">
                             <span class="px-2.5 py-1 text-xs font-medium rounded-full
-                                {{ $currentStock > 5 ? 'bg-green-100 text-green-800' : '' }}
-                                {{ $currentStock <= 5 && $currentStock > 0 ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                {{ $currentStock <= 0 ? 'bg-red-100 text-red-800' : '' }}">
+                                {{ $currentStock > 5 ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
+                                {{ $currentStock <= 5 && $currentStock > 0 ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                                {{ $currentStock <= 0 ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}">
                                 {{ $currentStock }}
                             </span>
                         </td>
                         <td class="px-4 py-3">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center flex-wrap gap-2">
                                 <input type="text" wire:model.live="stockUpdates.{{ $product->id }}"
                                     placeholder="+2 or -3"
-                                    class="w-24 px-2 py-1 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                                    class="w-24 px-2 py-1 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                                 @if($delta !== 0)
-                                <span class="text-xs text-gray-500 whitespace-nowrap">
+                                <span class="text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
                                     {{ $currentStock }}
                                     <span class="{{ $delta > 0 ? 'text-green-600' : 'text-red-600' }}">
                                         {{ $delta > 0 ? '+' : '' }}{{ $delta }}
                                     </span>
                                     =
-                                    <span class="font-semibold text-amber-600">{{ $preview }}</span>
+                                    <span class="font-semibold text-amber-600 dark:text-amber-400">{{ $preview }}</span>
                                 </span>
                                 @endif
                             </div>
@@ -128,7 +128,7 @@
                         <td class="px-4 py-3">
                             <input type="text" wire:model="notes.{{ $product->id }}"
                                 placeholder="Reason for change (required)"
-                                class="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                                class="w-full min-w-[12rem] px-2 py-1 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
                         </td>
                         <td class="px-4 py-3">
                             <button wire:click="updateStock({{ $product->id }})"
@@ -142,10 +142,10 @@
             </table>
         </div>
         @else
-        <div class="text-center py-8 text-gray-500">
+        <div class="text-center py-8 text-gray-500 dark:text-slate-400">
             @if(!empty($search))
-            <p>No products found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
-            <p class="text-xs text-gray-400">Try adjusting your search.</p>
+            <p>No products found matching "<span class="font-medium text-amber-600 dark:text-amber-400">{{ $search }}</span>"</p>
+            <p class="text-xs text-gray-400 dark:text-slate-500">Try adjusting your search.</p>
             @else
             <p>No products found for this branch.</p>
             @endif

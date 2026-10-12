@@ -99,6 +99,7 @@ class PendingSellers extends Component
         $this->custom_note = '';
     }
 
+
     public function closeDetails()
     {
         $this->showDetails = false;

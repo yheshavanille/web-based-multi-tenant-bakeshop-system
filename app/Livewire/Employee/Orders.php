@@ -251,7 +251,20 @@ class Orders extends Component
         if ($oldStatus !== $status) {
             $productName = $item->product->name ?? 'Product';
 
+            \Log::info('[EMAIL DEBUG] Reached notification block', [
+                'item_id' => $item->id,
+                'old_status' => $oldStatus,
+                'new_status' => $status,
+            ]);
+
             $customer = $order->customer;
+
+            \Log::info('[EMAIL DEBUG] Customer lookup', [
+                'customer_found' => $customer ? 'yes' : 'no',
+                'customer_id' => $customer?->id,
+                'customer_email' => $customer?->email,
+            ]);
+
             if ($customer) {
                 Notification::send($customer, new OrderStatusUpdatedNotification(
                     $order,
@@ -260,6 +273,37 @@ class Orders extends Component
                     $productName,
                     $item->id
                 ));
+
+                \Log::info('[EMAIL DEBUG] Bell notification sent');
+
+                if (in_array($status, ['ready_for_pickup', 'completed'])) {
+                    \Log::info('[EMAIL DEBUG] Entering email block', [
+                        'status' => $status,
+                    ]);
+
+                    try {
+                        Notification::send($customer, new \App\Notifications\OrderItemEmailNotification(
+                            $order,
+                            $item,
+                            $status
+                        ));
+
+                        \Log::info('[EMAIL DEBUG] Email sent successfully', [
+                            'item_id' => $item->id,
+                            'email' => $customer->email,
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('[EMAIL DEBUG] Email FAILED', [
+                            'item_id' => $item->id,
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
+                        ]);
+                    }
+                } else {
+                    \Log::info('[EMAIL DEBUG] Skipped email — status not in array', [
+                        'status' => $status,
+                    ]);
+                }
             }
 
             $owner = $order->shop->user;
@@ -275,7 +319,8 @@ class Orders extends Component
         }
 
         session()->flash('message', 'Item status updated successfully!');
-    }
+$this->dispatch('$refresh');
+}
 
     private function recalculateOrderStatus($order)
     {

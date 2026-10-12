@@ -2,15 +2,15 @@
     <div class="max-w-6xl mx-auto">
 
         <!-- Page Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100">
                     Orders Dashboard
                 </h1>
 
-                <p class="text-sm text-gray-500 inline-flex items-center gap-1.5">
+                <p class="text-sm text-gray-500 dark:text-slate-400 inline-flex flex-wrap items-center gap-1.5">
                     Manage orders for
-                    <span class="inline-flex items-center gap-1 font-medium text-amber-600">
+                    <span class="inline-flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -23,9 +23,9 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('livewire.employee.dashboard') }}"
-                    class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm font-medium">
+                    class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 rounded-lg transition text-sm font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -33,15 +33,15 @@
                     Dashboard
                 </a>
                 <select wire:model.live="selectedStatus"
-                    class="px-4 py-2 border border-gray-200 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat pr-10">
-                    <option value="all">All Orders</option>
-                    <option value="pending">Pending</option>
-                    <option value="preparing">Preparing</option>
-                    <option value="ready_for_pickup">Ready</option>
-                    <option value="completed">Completed</option>
-                    <option value="partially_completed">Partially Completed</option>
-                    <option value="no_show">No Show</option>
-                    <option value="cancelled">Cancelled</option>
+                    class="px-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat pr-10">
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="all">All Orders</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="pending">Pending</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="preparing">Preparing</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="ready_for_pickup">Ready</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="completed">Completed</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="partially_completed">Partially Completed</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="no_show">No Show</option>
+                    <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="cancelled">Cancelled</option>
                 </select>
             </div>
         </div>
@@ -51,17 +51,17 @@
             <div class="relative">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
                 </div>
                 <input type="text" wire:model.live="search"
                     placeholder="Search by order #, customer name, or product..."
-                    class="w-full h-10 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm">
+                    class="w-full h-10 pl-10 pr-12 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400">
                 @if(!empty($search))
                 <button wire:click="clearSearch" type="button"
-                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 hover:text-gray-600 transition"
+                    class="absolute right-0 top-0 z-10 flex h-full w-10 items-center justify-center text-gray-400 dark:text-slate-500 hover:text-gray-600 transition"
                     style="position: absolute;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -71,95 +71,95 @@
                 @endif
             </div>
             @if(!empty($search))
-            <p class="mt-1 text-xs text-gray-500">
-                Showing results for: <span class="font-medium text-amber-600">{{ $search }}</span>
-                <span class="text-gray-400">({{ $orders->total() }} found)</span>
+            <p class="mt-1 text-xs text-gray-500 dark:text-slate-400 break-words">
+                Showing results for: <span class="font-medium text-amber-600 dark:text-amber-400">{{ $search }}</span>
+                <span class="text-gray-400 dark:text-slate-500">({{ $orders->total() }} found)</span>
             </p>
             @endif
         </div>
 
         <!-- Flash Message -->
         @if (session()->has('message'))
-        <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+        <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 rounded-lg">
             {{ session('message') }}
         </div>
         @endif
 
         @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+        <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 rounded-lg">
             {{ session('error') }}
         </div>
         @endif
 
         <!-- Orders Container -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
 
             @if($orders->count() > 0)
 
             <div class="overflow-x-auto">
 
-                <table class="w-full divide-y divide-gray-200 text-sm">
+                <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
 
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50 dark:bg-slate-900">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Order #</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Customer</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Items</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700">Total</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Order #</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Customer</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Items</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Total</th>
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
 
-                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
 
                         @foreach($orders as $order)
 
-                        <tr class="bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-800">#{{ $order->order_number }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $order->customer->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ $order->items->sum('quantity') }} items</td>
-                            <td class="px-4 py-3 font-medium text-amber-600">
+                        <tr class="bg-gray-50 dark:bg-slate-900">
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">#{{ $order->order_number }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300 break-words">{{ $order->customer->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300 whitespace-nowrap">{{ $order->items->sum('quantity') }} items</td>
+                            <td class="px-4 py-3 font-medium text-amber-600 dark:text-amber-400">
                                 ₱{{ number_format($order->total_amount, 2) }}
                                 @if($order->tax_amount)
-                                <span class="text-xs text-gray-400 block">
+                                <span class="text-xs text-gray-400 dark:text-slate-500 block">
                                     (incl. VAT ₱{{ number_format($order->tax_amount, 2) }})
                                 </span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <button wire:click="openDetailsModal({{ $order->id }})"
-                                    class="text-xs text-blue-600 hover:text-blue-800 font-medium transition">
+                                    class="text-xs text-blue-600 dark:text-blue-200 hover:text-blue-800 font-medium transition whitespace-nowrap">
                                     View Details
                                 </button>
                             </td>
                         </tr>
 
                         <tr>
-                            <td colspan="5" class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                            <td colspan="5" class="px-4 py-3 bg-gray-50 dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700">
                                 <div>
-                                    <div class="flex items-center justify-between px-4 mb-4">
-                                        <span class="text-sm font-semibold text-gray-700">Order Items</span>
-                                        <div class="w-[340px] flex justify-center">
-                                            <span class="text-sm font-semibold text-gray-700">Status</span>
+                                    <div class="flex flex-wrap items-center justify-between gap-2 px-4 mb-4">
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Order Items</span>
+                                        <div class="w-full sm:w-[340px] flex justify-center">
+                                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Status</span>
                                         </div>
                                     </div>
 
                                     <div class="space-y-2">
                                         @foreach($order->items as $item)
                                         <div
-                                            class="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0 px-4">
+                                            class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-700 pb-2 last:border-0 px-4">
                                             <div class="min-w-0">
-                                                <p class="text-sm font-medium text-gray-800">
+                                                <p class="text-sm font-medium text-gray-800 dark:text-slate-100 break-words">
                                                     {{ $item->product?->name ?? 'Product Unavailable' }}
                                                 </p>
 
                                                 <p
-                                                    class="text-xs text-gray-500 inline-flex items-center gap-1 flex-wrap">
+                                                    class="text-xs text-gray-500 dark:text-slate-400 inline-flex items-center gap-1 flex-wrap">
                                                     <span>Qty: {{ $item->quantity }}</span>
                                                     @if($item->original_price && $item->original_price > $item->price)
                                                     <span class="text-red-600 font-medium">₱{{
                                                         number_format($item->price, 2) }}</span>
-                                                    <span class="text-gray-400 line-through">₱{{
+                                                    <span class="text-gray-400 dark:text-slate-500 line-through">₱{{
                                                         number_format($item->original_price, 2) }}</span>
                                                     @else
                                                     <span>x ₱{{ number_format($item->price, 2) }}</span>
@@ -181,7 +181,7 @@
 
                                                 @if($item->notes)
                                                 <p
-                                                    class="text-xs text-amber-600 italic mt-0.5 inline-flex items-center gap-1">
+                                                    class="text-xs text-amber-600 dark:text-amber-400 italic mt-0.5 inline-flex items-center gap-1">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -200,28 +200,31 @@
                                                 @endif
                                             </div>
 
-                                            <div class="w-[340px] flex items-center justify-end gap-4">
+                                            <div class="w-full sm:w-[340px] flex flex-wrap items-center justify-end gap-4">
                                                 <span
                                                     class="inline-flex items-center justify-center text-xs px-3 py-1 rounded-full whitespace-nowrap font-medium min-w-[110px]
-                                                    {{ $item->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                                    {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
-                                                    {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
-                                                    {{ $item->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                                                    {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}
-                                                    {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                                                    {{ $item->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                                                    {{ $item->status === 'preparing' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
+                                                    {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
+                                                    {{ $item->status === 'completed' ? 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-100' : '' }}
+                                                    {{ $item->status === 'no_show' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}
+                                                    {{ $item->status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}">
                                                     {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                                 </span>
 
                                                 <div class="relative">
                                                     <select
-                                                        wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
-                                                        x-data x-on:change="if ($event.target.value === 'cancelled') {
+                                                        <select
+    wire:change="updateItemStatus({{ $item->id }}, $event.target.value)"
+    wire:loading.attr="disabled"
+    wire:target="updateItemStatus"
+    x-data x-on:change="if ($event.target.value === 'cancelled') {
         if (!confirm('⚠️ Are you sure you want to cancel this item?')) {
             $event.target.value = '{{ $item->status }}';
             $event.preventDefault();
         }
     }" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: none;"
-                                                        class="pl-3 pr-8 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-white cursor-pointer">
+    class="pl-3 pr-8 py-1.5 text-xs border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-amber-500 focus:border-amber-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 cursor-pointer">
                                                         <option value="pending" {{ $item->status === 'pending' ?
                                                             'selected' : '' }}>Pending</option>
                                                         <option value="preparing" {{ $item->status === 'preparing' ?
@@ -235,7 +238,7 @@
                                                         <option value="cancelled" {{ $item->status === 'cancelled' ?
                                                             'selected' : '' }}>Cancelled</option>
                                                     </select>
-                                                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none"
+                                                    <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 dark:text-slate-500 pointer-events-none"
                                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -258,24 +261,24 @@
 
             {{-- ✅ Pagination --}}
             @if($orders->hasPages())
-            <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+            <div class="px-4 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900">
                 {{ $orders->links() }}
             </div>
             @endif
 
             @else
 
-            <div class="text-center py-12 text-gray-500">
-                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="text-center py-12 text-gray-500 dark:text-slate-400">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
                         </path>
                     </svg>
                 </div>
                 @if(!empty($search))
-                <p>No orders found matching "<span class="font-medium text-amber-600">{{ $search }}</span>"</p>
-                <p class="text-xs text-gray-400">Try adjusting your search or status filter.</p>
+                <p>No orders found matching "<span class="font-medium text-amber-600 dark:text-amber-400 break-words">{{ $search }}</span>"</p>
+                <p class="text-xs text-gray-400 dark:text-slate-500">Try adjusting your search or status filter.</p>
                 @else
                 <p>No orders for this branch yet.</p>
                 @endif
@@ -292,20 +295,20 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDetailsModal"></div>
 
-        <div class="relative z-10 w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        <div class="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 92vh;">
 
-            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex-shrink-0">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Order Details</h3>
-                        <p class="text-sm text-gray-500">
+            <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100">Order Details</h3>
+                        <p class="text-sm text-gray-500 dark:text-slate-400 break-words">
                             #{{ $selectedOrderDetails->order_number }} •
                             {{ $selectedOrderDetails->branch->name ?? 'N/A' }} •
                             {{ $selectedOrderDetails->customer->name ?? 'N/A' }}
                         </p>
                     </div>
-                    <button wire:click="closeDetailsModal" class="text-gray-400 hover:text-gray-600 transition">
+                    <button wire:click="closeDetailsModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition flex-shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -314,40 +317,40 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-xs text-gray-500">Order Date</p>
-                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrderDetails->created_at->format('M d,
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Order Date</p>
+                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $selectedOrderDetails->created_at->format('M d,
                             Y h:i A') }}</p>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-xs text-gray-500">Status</p>
+                    <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Status</p>
                         <span class="text-sm font-medium px-2 py-0.5 rounded-full
-                            {{ $selectedOrderDetails->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                            {{ $selectedOrderDetails->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
-                            {{ $selectedOrderDetails->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
-                            {{ $selectedOrderDetails->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                            {{ $selectedOrderDetails->status === 'partially_completed' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                            {{ $selectedOrderDetails->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}">
+                            {{ $selectedOrderDetails->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                            {{ $selectedOrderDetails->status === 'preparing' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
+                            {{ $selectedOrderDetails->status === 'ready_for_pickup' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
+                            {{ $selectedOrderDetails->status === 'completed' ? 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-100' : '' }}
+                            {{ $selectedOrderDetails->status === 'partially_completed' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                            {{ $selectedOrderDetails->status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}">
                             {{ ucfirst(str_replace('_', ' ', $selectedOrderDetails->status)) }}
                         </span>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-xs text-gray-500">Payment Method</p>
-                        <p class="text-sm font-medium text-gray-800">{{ $selectedOrderDetails->payment_method_label }}
+                    <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Payment Method</p>
+                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $selectedOrderDetails->payment_method_label }}
                         </p>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-xs text-gray-500">Payment Status</p>
+                    <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Payment Status</p>
                         <span
                             class="text-sm font-medium px-2 py-0.5 rounded-full
-                            {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 text-green-800' : '' }}
-                            {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                            {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                            {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 text-red-800' : '' }}
-                            {{ $selectedOrderDetails->payment_status === 'cancelled' ? 'bg-gray-100 text-gray-700' : '' }}">
+                            {{ $selectedOrderDetails->payment_status === 'paid' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'partially_paid' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'refunded' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}
+                            {{ $selectedOrderDetails->payment_status === 'cancelled' ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300' : '' }}">
                             {{ ucfirst($selectedOrderDetails->payment_status) }}
                         </span>
                     </div>
@@ -355,7 +358,7 @@
 
                 {{-- ✅ Cancellation reason banner --}}
                 @if($selectedOrderDetails->status === 'cancelled')
-                <div class="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
                     <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -363,14 +366,14 @@
                         </path>
                     </svg>
                     <div>
-                        <p class="text-sm font-semibold text-red-800">
+                        <p class="text-sm font-semibold text-red-800 dark:text-red-200">
                             @if($selectedOrderDetails->cancellation_reason)
                             Cancelled — {{ $selectedOrderDetails->cancellation_reason }}
                             @else
                             This order was cancelled
                             @endif
                         </p>
-                        <p class="text-xs text-red-600 mt-0.5">
+                        <p class="text-xs text-red-600 dark:text-red-300 mt-0.5">
                             @if($selectedOrderDetails->cancelled_by === 'customer')
                             Cancelled by customer.
                             @elseif($selectedOrderDetails->cancelled_by === 'employee')
@@ -383,80 +386,80 @@
                 </div>
                 @endif
 
-                <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3 inline-flex items-center gap-2">
+                <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 inline-flex items-center gap-2">
 
                         Order Items
                     </h4>
                     <div class="overflow-x-auto">
-                        <table class="w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-50">
+                        <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                            <thead class="bg-gray-50 dark:bg-slate-900">
                                 <tr>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Product</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Qty</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Price</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Original</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Subtotal</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Status</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700">Notes</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Product</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Qty</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Price</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Original</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Subtotal</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Status</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Notes</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
+                            <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                                 @foreach($selectedOrderDetails->items as $item)
                                 <tr>
-                                    <td class="px-4 py-2 font-medium text-gray-800">{{ $item->product->name ?? 'N/A' }}
+                                    <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100 break-words">{{ $item->product->name ?? 'N/A' }}
                                     </td>
-                                    <td class="px-4 py-2 text-gray-600">{{ $item->quantity }}</td>
+                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $item->quantity }}</td>
                                     <td class="px-4 py-2">
                                         @if($item->original_price && $item->original_price > $item->price)
                                         <span class="text-red-600 font-medium">₱{{ number_format($item->price, 2)
                                             }}</span>
                                         @else
-                                        <span class="text-gray-600">₱{{ number_format($item->price, 2) }}</span>
+                                        <span class="text-gray-600 dark:text-slate-300">₱{{ number_format($item->price, 2) }}</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-2">
                                         @if($item->original_price && $item->original_price > $item->price)
-                                        <span class="text-gray-400 line-through">₱{{
+                                        <span class="text-gray-400 dark:text-slate-500 line-through">₱{{
                                             number_format($item->original_price, 2) }}</span>
                                         @else
-                                        <span class="text-gray-400">—</span>
+                                        <span class="text-gray-400 dark:text-slate-500">—</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-2 text-gray-600">₱{{ number_format($item->price *
+                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300">₱{{ number_format($item->price *
                                         $item->quantity, 2) }}</td>
                                     <td class="px-4 py-2">
                                         <span class="text-xs px-2 py-0.5 rounded-full
-                                            {{ $item->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                            {{ $item->status === 'preparing' ? 'bg-blue-100 text-blue-800' : '' }}
-                                            {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 text-green-800' : '' }}
-                                            {{ $item->status === 'completed' ? 'bg-gray-100 text-gray-800' : '' }}
-                                            {{ $item->status === 'cancelled' ? 'bg-red-100 text-red-800' : '' }}
-                                            {{ $item->status === 'no_show' ? 'bg-red-100 text-red-800' : '' }}">
+                                            {{ $item->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
+                                            {{ $item->status === 'preparing' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
+                                            {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
+                                            {{ $item->status === 'completed' ? 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-100' : '' }}
+                                            {{ $item->status === 'cancelled' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}
+                                            {{ $item->status === 'no_show' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}">
                                             {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-2 text-gray-600 text-xs">
+                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300 text-xs break-words">
                                         @if($item->notes)
                                         <span class="italic">"{{ $item->notes }}"</span>
                                         @else
-                                        <span class="text-gray-400">—</span>
+                                        <span class="text-gray-400 dark:text-slate-500">—</span>
                                         @endif
                                         @if($item->status === 'cancelled' && $item->cancellation_reason)
-                                        <p class="text-red-600 italic mt-0.5">Cancelled — {{ $item->cancellation_reason
+                                        <p class="text-red-600 dark:text-red-300 italic mt-0.5">Cancelled — {{ $item->cancellation_reason
                                             }}</p>
                                         @endif
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot class="bg-gray-50">
+                            <tfoot class="bg-gray-50 dark:bg-slate-900">
                                 @php $b = $this->getBreakdown(); @endphp
 
                                 <tr>
                                     <td colspan="7" class="px-4 pt-3 pb-1">
                                         <div
-                                            class="text-xs font-semibold text-gray-500 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider inline-flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -468,25 +471,25 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">Subtotal:</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Subtotal:</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['original_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['original_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-gray-800">
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-gray-800 dark:text-slate-100">
                                         Original Total:</td>
-                                    <td colspan="2" class="px-4 py-1 font-bold text-gray-800">₱{{
+                                    <td colspan="2" class="px-4 py-1 font-bold text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['original_total'], 2) }}</td>
                                 </tr>
 
                                 @if($b['amount_charged'] > 0)
                                 <tr>
-                                    <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
+                                    <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
                                         <div
                                             class="text-xs font-semibold text-green-600 uppercase tracking-wider inline-flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
@@ -500,25 +503,25 @@
                                 </tr>
                                 @foreach($b['charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">• {{
                                         $item['name'] }} ({{ $item['quantity'] }}x)</td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600 dark:text-slate-300">₱{{
                                         number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">Completed Items:
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Completed Items:
                                     </td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['charged_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['charged_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-green-700">
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-green-700 dark:text-green-200">
                                         Amount Charged:</td>
                                     <td colspan="2" class="px-4 py-1 font-bold text-green-600">₱{{
                                         number_format($b['amount_charged'], 2) }}</td>
@@ -527,7 +530,7 @@
 
                                 @if($b['amount_not_charged'] > 0)
                                 <tr>
-                                    <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
+                                    <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
                                         <div
                                             class="text-xs font-semibold text-red-600 uppercase tracking-wider inline-flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
@@ -542,25 +545,25 @@
                                 </tr>
                                 @foreach($b['not_charged_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">• {{
                                         $item['name'] }} ({{ $item['quantity'] }}x)</td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600 dark:text-slate-300">₱{{
                                         number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">No Show /
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">No Show /
                                         Cancelled:</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['not_charged_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['not_charged_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-red-700">
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-red-700 dark:text-red-200">
                                         Amount Not Charged:</td>
                                     <td colspan="2" class="px-4 py-1 font-bold text-red-600">₱{{
                                         number_format($b['amount_not_charged'], 2) }}</td>
@@ -569,9 +572,9 @@
 
                                 @if($b['amount_outstanding'] > 0)
                                 <tr>
-                                    <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200">
+                                    <td colspan="7" class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
                                         <div
-                                            class="text-xs font-semibold text-amber-600 uppercase tracking-wider inline-flex items-center gap-1.5">
+                                            class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider inline-flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -583,27 +586,27 @@
                                 </tr>
                                 @foreach($b['outstanding_items'] as $item)
                                 <tr>
-                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500">• {{
+                                    <td colspan="5" class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">• {{
                                         $item['name'] }} ({{ $item['quantity'] }}x)</td>
-                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600">₱{{
+                                    <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600 dark:text-slate-300">₱{{
                                         number_format($item['subtotal'], 2) }}</td>
                                 </tr>
                                 @endforeach
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">Pending +
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Pending +
                                         Preparing + Ready:</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['outstanding_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600">VAT (12%):</td>
-                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800">₱{{
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['outstanding_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-amber-700">
+                                    <td colspan="5" class="px-4 py-1 text-right text-sm font-semibold text-amber-700 dark:text-amber-200">
                                         Amount Outstanding:</td>
-                                    <td colspan="2" class="px-4 py-1 font-bold text-amber-600">₱{{
+                                    <td colspan="2" class="px-4 py-1 font-bold text-amber-600 dark:text-amber-400">₱{{
                                         number_format($b['amount_outstanding'], 2) }}</td>
                                 </tr>
                                 @endif
@@ -613,9 +616,9 @@
                 </div>
 
                 @if($selectedOrderDetails->pickup_time)
-                <div class="border-t border-gray-200 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-2 inline-flex items-center gap-2">
-                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                             </path>
@@ -624,11 +627,11 @@
                         </svg>
                         Pickup Details
                     </h4>
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <p class="text-sm text-gray-700">
+                    <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
+                        <p class="text-sm text-gray-700 dark:text-slate-300 break-words">
                             <span class="font-medium">Branch:</span> {{ $selectedOrderDetails->branch->name ?? 'N/A' }}
                         </p>
-                        <p class="text-sm text-gray-700">
+                        <p class="text-sm text-gray-700 dark:text-slate-300">
                             <span class="font-medium">Pickup Time:</span> {{
                             \Carbon\Carbon::parse($selectedOrderDetails->pickup_time)->format('M d, Y h:i A') }}
                         </p>
@@ -638,9 +641,9 @@
 
             </div>
 
-            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50 flex-shrink-0 flex justify-end">
+            <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                 <button wire:click="closeDetailsModal"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                    class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Close
                 </button>
             </div>

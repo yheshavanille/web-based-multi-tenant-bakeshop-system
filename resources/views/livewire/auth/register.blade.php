@@ -31,20 +31,20 @@
     {{-- ✅ Full-screen loading overlay while register() is running --}}
     <div wire:loading.flex wire:target="register"
         class="fixed inset-0 z-[9999] items-center justify-center bg-gray-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl px-8 py-6 max-w-sm mx-4 text-center">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
-                <svg class="animate-spin w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl px-8 py-6 max-w-sm mx-4 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                <svg class="animate-spin w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                     </path>
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-800 mb-1">Sending verification code...</h3>
-            <p class="text-sm text-gray-500">This will only take a moment. Please don't close this page.</p>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-1">Sending verification code...</h3>
+            <p class="text-sm text-gray-500 dark:text-slate-400">This will only take a moment. Please don't close this page.</p>
         </div>
     </div>
-    <div class="register-responsive-shell relative overflow-hidden min-h-screen bg-white flex items-center">
+    <div class="register-responsive-shell relative overflow-hidden min-h-screen bg-white dark:bg-slate-900 flex items-center">
         <div
             class="register-responsive-container max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
             <div class="register-responsive-grid grid grid-cols-2 gap-12 lg:gap-16 items-stretch">
@@ -52,24 +52,24 @@
                 <!-- LEFT: Introduction -->
                 <div class="register-responsive-introduction col-start-1 row-start-1 flex flex-col justify-center"
                     style="min-height: 26rem;">
-                    <h1 class="text-5xl text-gray-900 font-bold leading-tight md:text-6xl">
+                    <h1 class="text-5xl max-md:text-3xl text-gray-900 dark:text-slate-100 font-bold leading-tight md:text-6xl">
                         Create your account
                     </h1>
-                    <p class="mt-5 text-lg text-gray-600 leading-relaxed max-w-xl md:text-xl">
+                    <p class="mt-5 text-lg max-md:text-base text-gray-600 dark:text-slate-300 leading-relaxed max-w-xl break-words md:text-xl">
                         Your all-in-one bakeshop management solution. Handle orders, track inventory, manage employees,
                         and gain real-time sales insights - all from a single platform. Built to help bakeshops in
                         Victorias City grow and serve customers better.
                     </p>
-                    <ul class="mt-6 space-y-3 text-base text-gray-700 md:text-lg">
-                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> All-in-one
+                    <ul class="mt-6 space-y-3 text-base text-gray-700 dark:text-slate-300 md:text-lg">
+                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> All-in-one
                             solution</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Orders,
+                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Orders,
                             inventory, employees, sales analytics</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Real-time
+                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Real-time
                             insights</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Local focus
+                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Local focus
                             (Victorias City)</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600">&#10003;</span> Growth-oriented
+                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Growth-oriented
                         </li>
                     </ul>
                 </div>
@@ -77,12 +77,12 @@
                 <!-- RIGHT: Register Form -->
                 <div class="register-responsive-form-wrapper w-full col-start-2 row-start-1 justify-self-end">
                     <div
-                        class="register-responsive-card bg-white rounded-2xl border border-gray-200 p-8 md:p-10 shadow-sm">
+                        class="register-responsive-card bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-8 max-sm:p-5 md:p-10 shadow-sm">
                         <form wire:submit.prevent="register">
                             <div class="mb-4">
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name</label>
                                 <input type="text" id="name" wire:model="name" maxlength="255" autocomplete="name"
-                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('name') border-red-500 @enderror"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500 @error('name') border-red-500 @enderror"
                                     placeholder="Juan Dela Cruz">
                                 @error('name')
                                 <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
@@ -90,10 +90,10 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email
+                                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email
                                     Address</label>
                                 <input type="email" id="email" wire:model="email"
-                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
+                                    class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
                                     placeholder="you@example.com">
                                 @error('email')
                                 <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
@@ -102,15 +102,15 @@
 
                             <div class="mb-4">
                                 <label for="password"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Password</label>
                                 <div class="relative flex items-center" style="position: relative;"
                                     x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" id="password" wire:model="password"
-                                        class="py-2.5 sm:py-3 px-4 pr-11 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500 @error('password') border-red-500 @enderror"
+                                        class="py-2.5 sm:py-3 px-4 pr-11 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500 @error('password') border-red-500 @enderror"
                                         style="padding-right: 2.75rem;" placeholder="Enter your password">
                                     <button type="button" @click="show = !show"
                                         style="position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; border: none;"
-                                        class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 focus:outline-none">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -132,16 +132,16 @@
 
                             <div class="mb-4">
                                 <label for="password_confirmation"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm Password</label>
                                 <div class="relative flex items-center" style="position: relative;"
                                     x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" id="password_confirmation"
                                         wire:model="password_confirmation"
-                                        class="py-2.5 sm:py-3 px-4 pr-11 block w-full bg-gray-50 border border-gray-200 rounded-lg sm:text-sm text-gray-900 placeholder:text-gray-400 focus:border-amber-500 focus:ring-amber-500"
+                                        class="py-2.5 sm:py-3 px-4 pr-11 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500"
                                         style="padding-right: 2.75rem;" placeholder="Confirm your password">
                                     <button type="button" @click="show = !show"
                                         style="position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; border: none;"
-                                        class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 focus:outline-none">
                                         <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -178,10 +178,10 @@
                             </button>
                         </form>
 
-                        <p class="mt-8 text-center text-sm text-gray-500">
+                        <p class="mt-8 text-center text-sm text-gray-500 dark:text-slate-400">
                             Already have an account?
                             <a href="{{ route('livewire.auth.login') }}"
-                                class="text-amber-600 hover:text-amber-700 font-medium hover:underline">
+                                class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium hover:underline">
                                 Sign in here
                             </a>
                         </p>
