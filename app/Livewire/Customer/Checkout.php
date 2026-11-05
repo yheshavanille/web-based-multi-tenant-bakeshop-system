@@ -45,7 +45,8 @@ class Checkout extends Component
     {
         $this->loadCart();
 
-        if (empty($this->cartItems)) {
+        if ($this->cartItems->isEmpty()) {
+            session()->forget('checkout_items');
             session()->flash('error', 'Your cart is empty.');
             return redirect()->route('livewire.customer.browse-shops');
         }
@@ -74,7 +75,8 @@ class Checkout extends Component
 
             $this->stockWarning = '⚠️ ' . count($removed) . ' item(s) removed because they are out of stock: ' . implode(', ', $removed);
 
-            if (empty($this->cartItems)) {
+            if ($this->cartItems->isEmpty()) {
+                session()->forget('checkout_items');
                 session()->flash('error', 'Your cart is now empty.');
                 return redirect()->route('livewire.customer.browse-shops');
             }
@@ -136,11 +138,13 @@ class Checkout extends Component
         if (empty($selectedCartIds)) {
             $this->cartItems = Cart::with('product.shop')
                 ->where('user_id', Auth::id())
+                ->whereHas('product')
                 ->get();
         } else {
             $this->cartItems = Cart::with('product.shop')
                 ->where('user_id', Auth::id())
                 ->whereIn('id', $selectedCartIds)
+                ->whereHas('product')
                 ->get();
         }
 

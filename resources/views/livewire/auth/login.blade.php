@@ -1,37 +1,165 @@
 <div class="login-responsive-shell relative overflow-hidden min-h-screen bg-white dark:bg-slate-900 flex items-center">
     <style>
-        @media (max-width: 1023px) {
+        .login-responsive-shell {
+            background-color: #111827;
+        }
+
+        .login-responsive-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0 50% 0 0;
+            background-image:
+                linear-gradient(rgba(15, 23, 42, .5), rgba(15, 23, 42, .5)),
+                url("{{ asset('assets/img/login-bakery.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .login-responsive-container {
+            max-width: none;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-responsive-grid {
+            min-height: 100vh;
+            min-height: 100svh;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 0;
+        }
+
+        .login-responsive-introduction {
+            min-height: 0 !important;
+            padding: 3rem 4rem 3rem clamp(2rem, 10.4vw, 9.5rem);
+        }
+
+        .login-responsive-introduction h1 {
+            color: #f1f5f9;
+            font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+        }
+
+        .login-responsive-introduction p {
+            color: #e2e8f0;
+            font-size: clamp(1rem, 1.2vw, 1.1rem);
+            line-height: 1.65;
+        }
+
+        .login-responsive-introduction li {
+            color: #e2e8f0;
+            font-size: clamp(.9rem, 1vw, 1rem);
+            line-height: 1.5;
+        }
+
+        .login-responsive-form-wrapper {
+            justify-self: stretch;
+            min-height: 100svh;
+            padding: 3rem clamp(1.5rem, 5vw, 5rem);
+        }
+
+        .login-responsive-card {
+            width: min(100%, 34rem);
+            min-height: 24rem !important;
+            padding: 2.5rem;
+            background: rgba(30, 41, 59, .82);
+            border-color: rgba(148, 163, 184, .2);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
+        }
+
+        .login-responsive-card label,
+        .login-responsive-card > p {
+            color: #cbd5e1;
+        }
+
+        .login-responsive-card input:not([type="checkbox"]) {
+            color: #f1f5f9;
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        @media (max-width: 899px) {
             .login-responsive-shell {
                 align-items: flex-start;
             }
 
+            .login-responsive-shell::before {
+                display: none;
+            }
+
             .login-responsive-container {
-                padding-top: 2rem;
-                padding-bottom: 2rem;
+                max-width: 56rem;
+                min-height: 100vh;
+                min-height: 100svh;
+                padding: 2rem clamp(1rem, 4vw, 2rem);
             }
 
             .login-responsive-grid {
+                min-height: 0;
                 grid-template-columns: minmax(0, 1fr);
-                gap: 2rem;
+                gap: 1.5rem;
+            }
+
+            .login-responsive-introduction {
+                min-height: 0 !important;
+                padding: clamp(1.5rem, 5vw, 3rem);
+                border-radius: 1rem;
+                background-image:
+                    linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .68)),
+                    url("{{ asset('assets/img/login-bakery.png') }}");
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            .login-responsive-introduction h1 {
+                font-size: clamp(1.625rem, 3.8vw, 2.25rem);
+            }
+
+            .login-responsive-form-wrapper {
+                min-height: 0;
+                padding: 0;
+                justify-self: center;
+            }
+
+            .login-responsive-card {
+                width: min(100%, 40rem);
+                min-height: 0 !important;
+                padding: clamp(1.25rem, 4vw, 2.5rem);
             }
 
             .login-responsive-introduction,
             .login-responsive-form-wrapper {
                 grid-column: auto;
                 grid-row: auto;
-                min-height: 0 !important;
+            }
+
+            .login-responsive-options {
+                flex-direction: row;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .login-responsive-container {
+                padding: 1rem 0.75rem;
+            }
+
+            .login-responsive-introduction {
+                padding: 1.5rem;
             }
 
             .login-responsive-card {
-                min-height: 0 !important;
-                padding: 1.5rem;
+                padding: 1.25rem;
             }
 
             .login-responsive-options {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
+                gap: 0.5rem;
             }
         }
     </style>

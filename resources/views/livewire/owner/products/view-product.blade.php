@@ -156,7 +156,7 @@
             <form wire:submit.prevent="saveProduct" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Product Name</label>
-                    <input type="text" wire:model.live.debounce.500ms="name" maxlength="40" class="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500
+                    <input type="text" wire:model.live.debounce.500ms="name" maxlength="40" class="w-full px-4 py-2 border bg-white text-gray-900 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500
         @error('name') border-red-500 focus:ring-red-400 focus:border-red-400 @else border-gray-300 dark:border-slate-600 @enderror">
                     @error('name')
                     <p class="mt-1 text-xs text-red-600 dark:text-red-400 inline-flex items-center gap-1">
@@ -185,7 +185,7 @@
                         }
                         }
                         @endphp
-                        <input type="number" step="0.01" wire:model.live="price" class="w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500
+                        <input type="number" step="0.01" wire:model.live="price" class="w-full px-4 py-2 border bg-white text-gray-900 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500
             {{ $priceOutOfRange ? 'border-red-400 dark:border-red-700 focus:ring-red-400 focus:border-red-400' : 'border-gray-300 dark:border-slate-600' }}">
                         @if($priceOutOfRange)
                         <p class="mt-1 text-xs text-red-600 dark:text-red-400 inline-flex items-center gap-1">
@@ -207,7 +207,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Category</label>
                     <select wire:model="category_id"
                         style="appearance: auto; -webkit-appearance: auto; -moz-appearance: auto; background-image: none;"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white text-gray-900 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select category</option>
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -284,7 +284,7 @@
                                             @endif
                                         </label>
                                         <input type="number" wire:model.live="branch_stocks.{{ $branch->id }}"
-                                            class="py-2 px-3 w-full border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-800
+                                            class="py-2 px-3 w-full border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white text-gray-900 dark:bg-slate-800 dark:text-slate-100
                                                 {{ $deltaOutOfRange ? 'border-red-400 dark:border-red-700 focus:ring-red-400 focus:border-red-400' : '' }}" placeholder="{{ $editing ? '+2 or -3' : '0' }}">
 
                                         {{-- ✅ Show error in BOTH create and edit modes --}}
@@ -336,7 +336,7 @@
                                     </label>
                                     <input type="text" wire:model="branch_notes.{{ $branch->id }}"
                                         placeholder="e.g. freshly made"
-                                        class="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-800 dark:[color-scheme:dark]">
+                                        class="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white text-gray-900 dark:bg-slate-800 dark:text-slate-100 dark:[color-scheme:dark]">
                                 </div>
 
                                 @error("branch_stocks.{$branch->id}")
@@ -368,7 +368,7 @@
         <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Description</label>
             <textarea wire:model="description" rows="3"
-                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white text-gray-900 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
             @error('description')
             <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
             @enderror
@@ -389,7 +389,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Discount Type</label>
                     <select wire:model.live="discount_type"
                         style="appearance: auto; -webkit-appearance: auto; -moz-appearance: auto; background-image: none;"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white text-gray-900 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="none">No Discount</option>
                         <option value="percentage">Percentage (%)</option>
                         <option value="fixed">Fixed Amount (₱)</option>
@@ -401,7 +401,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Discount Value</label>
                     <input type="number" step="0.01" wire:model.live="discount_value"
-                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 bg-white text-gray-900 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         min="0" {{ $discount_type==='none' ? 'disabled' : '' }}>
                     @error('discount_value')
                     <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>

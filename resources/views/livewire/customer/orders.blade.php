@@ -174,7 +174,7 @@
                                         title="{{ $remaining }} edit(s) remaining">
                                         Edit Review
                                         <span
-                                            class="text-[10px] bg-amber-200 text-amber-800 dark:text-amber-200 px-1.5 py-0.5 rounded-full">{{
+                                            class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-100 px-1.5 py-0.5 rounded-full">{{
                                             $remaining }} left</span>
                                     </button>
                                     @else
@@ -1155,18 +1155,31 @@
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-slate-100 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
                     Skip
                 </button>
-                <button wire:click="submitReview"
-                    class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
-                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path
-                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
-                        </path>
-                    </svg>
-                    @if($selectedOrder->serviceReview)
-                    Update Review
-                    @else
-                    Submit Review
-                    @endif
+                <button wire:click="submitReview" wire:loading.attr="disabled" wire:target="submitReview"
+                    class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+                    <span wire:loading.remove wire:target="submitReview" class="inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                            </path>
+                        </svg>
+                        @if($selectedOrder->serviceReview)
+                        Update Review
+                        @else
+                        Submit Review
+                        @endif
+                    </span>
+                    <span wire:loading.inline-flex wire:target="submitReview"
+                        class="items-center gap-2 whitespace-nowrap">
+                        <svg class="animate-spin w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>{{ $selectedOrder->serviceReview ? 'Updating Review...' : 'Submitting Review...' }}</span>
+                    </span>
                 </button>
                 @endif
             </div>

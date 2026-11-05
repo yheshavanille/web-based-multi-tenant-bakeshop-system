@@ -102,7 +102,7 @@ Route::prefix('owner')
         Route::get('/shop/edit', EditShop::class)->name('livewire.owner.shop.edit-shop');
         Route::get('/branches', ManageBranches::class)->name('livewire.owner.branches.manage-branches');
         Route::get('/branches/cards', ManageBranchCards::class)->name('livewire.owner.branches.manage-cards');
-        Route::get('/branch-orders/{branchId}', BranchOrders::class)->name('livewire.owner.branches.branch-orders');
+        Route::get('/branches/orders', BranchOrders::class)->name('livewire.owner.branches.branch-orders');
         Route::get('/categories', ViewCategory::class)->name('livewire.owner.category.view-category');
         Route::get('/categories/create', CreateCategory::class)->name('livewire.owner.category.create-category');
         Route::get('/categories/edit/{categoryId}', EditCategory::class)->name('livewire.owner.category.edit-category');

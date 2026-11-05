@@ -1,29 +1,150 @@
 <div>
     <style>
-        @media (max-width: 1023px) {
+        .register-responsive-shell {
+            background-color: #111827;
+        }
+
+        .register-responsive-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0 50% 0 0;
+            background-image:
+                linear-gradient(rgba(15, 23, 42, .5), rgba(15, 23, 42, .5)),
+                url("{{ asset('assets/img/login-bakery.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .register-responsive-container {
+            max-width: none;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-responsive-grid {
+            min-height: 100vh;
+            min-height: 100svh;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 0;
+        }
+
+        .register-responsive-introduction {
+            min-height: 0 !important;
+            padding: 3rem 4rem 3rem clamp(2rem, 10.4vw, 9.5rem);
+        }
+
+        .register-responsive-introduction h1 {
+            color: #f1f5f9;
+            font-size: clamp(2rem, 4vw, 3.75rem);
+        }
+
+        .register-responsive-introduction p,
+        .register-responsive-introduction li {
+            color: #e2e8f0;
+        }
+
+        .register-responsive-introduction p {
+            text-align: justify;
+        }
+
+        .register-responsive-form-wrapper {
+            min-height: 100svh;
+            padding: 2rem clamp(1.5rem, 5vw, 5rem);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-responsive-card {
+            width: min(100%, 36rem);
+            padding: 2.5rem;
+            background: rgba(30, 41, 59, .9);
+            border-color: rgba(148, 163, 184, .2);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
+        }
+
+        .register-responsive-card label,
+        .register-responsive-card > p {
+            color: #cbd5e1;
+        }
+
+        .register-responsive-card input:not([type="checkbox"]) {
+            color: #f1f5f9;
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        @media (max-width: 899px) {
             .register-responsive-shell {
                 align-items: flex-start;
             }
 
+            .register-responsive-shell::before {
+                display: none;
+            }
+
             .register-responsive-container {
-                padding-top: 2rem;
-                padding-bottom: 2rem;
+                max-width: 56rem;
+                min-height: 100vh;
+                min-height: 100svh;
+                padding: 2rem clamp(1rem, 4vw, 2rem);
             }
 
             .register-responsive-grid {
+                min-height: 0;
                 grid-template-columns: minmax(0, 1fr);
-                gap: 2rem;
+                gap: 1.5rem;
+            }
+
+            .register-responsive-introduction {
+                min-height: 0 !important;
+                padding: clamp(1.5rem, 5vw, 3rem);
+                border-radius: 1rem;
+                background-image:
+                    linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .68)),
+                    url("{{ asset('assets/img/login-bakery.png') }}");
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            .register-responsive-introduction h1 {
+                font-size: clamp(1.75rem, 5vw, 2.75rem);
+            }
+
+            .register-responsive-form-wrapper {
+                min-height: 0;
+                padding: 0;
             }
 
             .register-responsive-introduction,
             .register-responsive-form-wrapper {
                 grid-column: auto;
                 grid-row: auto;
-                min-height: 0 !important;
             }
 
             .register-responsive-card {
+                width: min(100%, 40rem);
+                padding: clamp(1.25rem, 4vw, 2.5rem);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .register-responsive-container {
+                padding: 1rem 0.75rem;
+            }
+
+            .register-responsive-introduction {
                 padding: 1.5rem;
+            }
+
+            .register-responsive-card {
+                padding: 1.25rem;
             }
         }
     </style>

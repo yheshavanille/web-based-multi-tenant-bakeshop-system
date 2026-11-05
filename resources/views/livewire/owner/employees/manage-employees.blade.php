@@ -3,7 +3,8 @@
         <!-- Header with Back Button -->
         <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Manage Employees</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Manage Employees
+                </h1>
                 <p class="text-sm text-gray-500 dark:text-slate-400">View and manage your shop employees</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
@@ -47,7 +48,8 @@
         <div
             class="mb-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 rounded-lg flex items-center justify-between">
             <span>{{ session('message') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-green-700 dark:text-green-300 hover:text-green-900">
+            <button onclick="this.parentElement.remove()"
+                class="text-green-700 dark:text-green-300 hover:text-green-900">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                     </path>
@@ -57,7 +59,8 @@
         @endif
 
         @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg flex items-center justify-between">
+        <div
+            class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg flex items-center justify-between">
             <span>{{ session('error') }}</span>
             <button onclick="this.parentElement.remove()" class="text-red-700 dark:text-red-300 hover:text-red-900">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +76,8 @@
             <div class="relative flex-1">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -106,13 +110,15 @@
 
         <!-- Employee Form -->
         @if($showForm)
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">
                 {{ $editing ? 'Edit Employee' : 'Add New Employee' }}
             </h2>
             <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="md:col-span-2 pb-4 border-b border-gray-200 dark:border-slate-700">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-3">Profile Picture</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-3">Profile
+                        Picture</label>
                     <div class="flex items-center gap-6">
                         <div class="relative flex-shrink-0">
                             @if($temp_profile_picture_preview)
@@ -161,7 +167,8 @@
                                 </svg>
                                 New photo selected
                             </p>
-                            <p class="mt-0.5 text-xs text-amber-600 dark:text-amber-400">Click "{{ $editing ? 'Update Employee' : 'Save
+                            <p class="mt-0.5 text-xs text-amber-600 dark:text-amber-400">Click "{{ $editing ? 'Update
+                                Employee' : 'Save
                                 Employee' }}" to save</p>
                             @endif
                             @if($removeImage)
@@ -221,7 +228,8 @@
                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                         @endforeach
                     </select>
-                    @error('branch_id') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                    @error('branch_id') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 @if(!$editing)
@@ -246,10 +254,12 @@
                             </svg>
                         </button>
                     </div>
-                    @error('password') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                    @error('password') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm Password</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm
+                        Password</label>
                     <div class="relative" style="position: relative; height: 42px;" x-data="{ show: false }">
                         <input :type="show ? 'text' : 'password'" wire:model="password_confirmation"
                             class="block h-10 w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10"
@@ -294,14 +304,16 @@
                     </div>
 
                     @if($showResetPassword)
-                    <div class="mt-4 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <div
+                        class="mt-4 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-700">
                         <p class="text-xs text-gray-500 dark:text-slate-400 mb-3">
                             Set a new password for this employee. They will use it on their next login.
                             Leave these fields blank to keep the current password.
                         </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">New Password</label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">New
+                                    Password</label>
                                 <div class="relative" style="position: relative; height: 42px;"
                                     x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" wire:model="new_password"
@@ -324,11 +336,13 @@
                                         </svg>
                                     </button>
                                 </div>
-                                @error('new_password') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                                @error('new_password') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{
+                                    $message }}</p> @enderror
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm New Password</label>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm
+                                    New Password</label>
                                 <div class="relative" style="position: relative; height: 42px;"
                                     x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" wire:model="new_password_confirmation"
@@ -360,12 +374,12 @@
 
                 <div class="md:col-span-2 flex gap-3 pt-2">
                     <button type="submit" wire:loading.attr="disabled" wire:target="save"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+                        class="inline-flex items-center justify-center px-6 py-2 min-w-[190px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
                         <span wire:loading.remove wire:target="save">
                             {{ $editing ? 'Update Employee' : 'Save Employee' }}
                         </span>
-                        <span wire:loading wire:target="save"
-                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                        <span wire:loading.inline-flex wire:target="save"
+                            class="items-center gap-2 whitespace-nowrap">
                             <svg class="animate-spin w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                     stroke-width="4"></circle>
@@ -387,10 +401,12 @@
 
         <!-- RECENT EMPLOYEE ACTIVITIES -->
         @if(isset($recentEmployeeActivities) && $recentEmployeeActivities->count() > 0)
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5 mb-6">
             <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                    <h2 class="text-base font-semibold text-gray-800 dark:text-slate-100">Recent Employee Activities</h2>
+                    <h2 class="text-base font-semibold text-gray-800 dark:text-slate-100">Recent Employee Activities
+                    </h2>
                     <span class="text-xs text-gray-500 dark:text-slate-400">Last 5</span>
                 </div>
                 <a href="{{ route('livewire.owner.employee-activities') }}"
@@ -405,7 +421,8 @@
 
             <div class="space-y-2">
                 @foreach($recentEmployeeActivities as $activity)
-                <div class="flex items-center gap-3 p-2.5 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-100 dark:border-slate-700">
+                <div
+                    class="flex items-center gap-3 p-2.5 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-100 dark:border-slate-700">
                     @php
                     $pic = $activity->employee->user->profile_picture ?? null;
                     @endphp
@@ -421,7 +438,8 @@
                     <div class="flex-1 min-w-0">
                         <p class="text-xs text-gray-700 dark:text-slate-300 truncate">{{ $activity->description }}</p>
                     </div>
-                    <p class="text-xs text-gray-400 dark:text-slate-500 flex-shrink-0">{{ $activity->created_at->diffForHumans() }}</p>
+                    <p class="text-xs text-gray-400 dark:text-slate-500 flex-shrink-0">{{
+                        $activity->created_at->diffForHumans() }}</p>
                 </div>
                 @endforeach
             </div>
@@ -429,7 +447,8 @@
         @endif
 
         <!-- Employees Table -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             @if($employees->count() > 0)
             <div class="overflow-x-auto">
                 <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
@@ -468,9 +487,12 @@
                                 <span class="text-xs text-red-500 dark:text-red-400 ml-2">(Deleted)</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $employee->user->email ?? 'N/A' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $employee->user->phone ?? 'N/A' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $employee->branch->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $employee->user->email ?? 'N/A'
+                                }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $employee->user->phone ?? 'N/A'
+                                }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $employee->branch->name ?? 'N/A'
+                                }}</td>
                             <td class="px-4 py-3">
                                 <span
                                     class="px-2 py-1 text-xs rounded-full
@@ -500,7 +522,8 @@
                                     Restore
                                 </button>
                                 @elseif($isSuspendedByAdmin)
-                                <span class="text-xs text-red-500 dark:text-red-400 font-medium ml-2">Suspended by Admin</span>
+                                <span class="text-xs text-red-500 dark:text-red-400 font-medium ml-2">Suspended by
+                                    Admin</span>
                                 @else
                                 <button wire:click="edit({{ $employee->id }})"
                                     class="text-blue-600 dark:text-blue-400 hover:text-blue-800 text-xs ml-2">
@@ -524,8 +547,10 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500 dark:text-slate-400">
-                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div
+                    class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                         </path>
@@ -546,7 +571,8 @@
             class="relative z-10 w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
             <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-blue-50 dark:bg-blue-900/30 dark:bg-blue-900/30 flex-shrink-0">
+            <div
+                class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-blue-50 dark:bg-blue-900/30 dark:bg-blue-900/30 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div class="flex flex-wrap items-center gap-3">
                         @php
@@ -566,10 +592,12 @@
 
                         <div>
                             <h3 class="text-xl font-bold text-gray-800 dark:text-slate-100">{{ $modalName }}</h3>
-                            <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedEmployee->user->email ?? 'N/A' }}</p>
+                            <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedEmployee->user->email ??
+                                'N/A' }}</p>
                         </div>
                     </div>
-                    <button wire:click="closeDetailsModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition">
+                    <button wire:click="closeDetailsModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -585,24 +613,29 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Full Name</p>
-                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->user->name ?? 'N/A' }}</p>
+                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->user->name ??
+                            'N/A' }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Email</p>
-                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->user->email ?? 'N/A' }}</p>
+                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->user->email ??
+                            'N/A' }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Phone</p>
-                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->user->phone ?? 'N/A' }}</p>
+                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->user->phone ??
+                            'N/A' }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Role</p>
-                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ ucfirst(str_replace('_', ' ', $selectedEmployee->role))
+                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ ucfirst(str_replace('_', ' ',
+                            $selectedEmployee->role))
                             }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Branch</p>
-                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->branch->name ?? 'N/A' }}</p>
+                        <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedEmployee->branch->name ??
+                            'N/A' }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 col-span-2">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Status</p>
@@ -625,8 +658,10 @@
                 @if($moderationInfo['type'] === 'user_suspended')
                 <div class="bg-red-50 dark:bg-red-900/30 rounded-lg p-4 border-2 border-red-200 dark:border-red-800">
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div
+                            class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
                                 </path>
@@ -646,16 +681,20 @@
 
                     @if(!empty($moderationInfo['reason']))
                     <div class="mt-3 pt-3 border-t border-red-200 dark:border-red-800">
-                        <p class="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wider mb-1">Reason</p>
-                        <p class="text-sm text-gray-800 dark:text-slate-100 italic">"{{ $moderationInfo['reason'] }}"</p>
+                        <p class="text-xs font-bold text-red-700 dark:text-red-300 uppercase tracking-wider mb-1">Reason
+                        </p>
+                        <p class="text-sm text-gray-800 dark:text-slate-100 italic">"{{ $moderationInfo['reason'] }}"
+                        </p>
                     </div>
                     @endif
                 </div>
                 @elseif($moderationInfo['type'] === 'user_archived')
                 <div class="bg-red-50 dark:bg-red-900/30 rounded-lg p-4 border-2 border-red-200 dark:border-red-800">
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div
+                            class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                 </path>
@@ -684,15 +723,19 @@
                             </svg>
                             Reason
                         </p>
-                        <p class="text-sm text-gray-800 dark:text-slate-100 italic">"{{ $moderationInfo['reason'] }}"</p>
+                        <p class="text-sm text-gray-800 dark:text-slate-100 italic">"{{ $moderationInfo['reason'] }}"
+                        </p>
                     </div>
                     @endif
                 </div>
                 @elseif($moderationInfo['type'] === 'user_restored')
-                <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                <div
+                    class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 border border-green-200 dark:border-green-800">
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div
+                            class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -711,11 +754,13 @@
                 </div>
                 @endif
                 @elseif($selectedEmployee->deactivated_by === 'owner' && !$selectedEmployee->is_active)
-                <div class="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
+                <div
+                    class="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
                     <div class="flex items-start gap-3">
                         <div
                             class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                                 </path>
@@ -734,7 +779,8 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
+            <div
+                class="px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                 <button wire:click="closeDetailsModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
                     Close

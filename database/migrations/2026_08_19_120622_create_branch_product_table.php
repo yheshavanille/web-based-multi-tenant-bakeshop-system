@@ -6,20 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
-        Schema::create('branch_product', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('branch_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->integer('stock')->default(0);
-            $table->timestamps();
+        Schema::table('branch_product', function (Blueprint $table) {
             $table->unique(['branch_id', 'product_id']);
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('branch_product');
+        Schema::table('branch_product', function (Blueprint $table) {
+            $table->dropUnique(['branch_id', 'product_id']);
+        });
     }
 };

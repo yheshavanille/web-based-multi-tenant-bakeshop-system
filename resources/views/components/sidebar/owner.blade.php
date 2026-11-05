@@ -80,20 +80,7 @@ return request()->routeIs($routeName);
     </x-slot:icon>
 </x-sidebar.item>
 
-@php
-$firstBranch = auth()->user()->shop?->branches->first();
-@endphp
-@if($firstBranch)
-<x-sidebar.item :href="route('livewire.owner.branches.branch-orders', ['branchId' => $firstBranch->id])"
-    :active="$isActive('livewire.owner.branches.branch-orders')" label="Order History">
-    <x-slot:icon>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-    </x-slot:icon>
-</x-sidebar.item>
-@endif
+
 
 {{-- ============ SALES & REPORTS ============ --}}
 <x-sidebar.group label="Sales & Reports" />

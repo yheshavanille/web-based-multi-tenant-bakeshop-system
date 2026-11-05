@@ -1,7 +1,8 @@
 <div>
     <div class="max-w-4xl mx-auto">
         <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 mb-6 inline-flex items-center gap-2">
-            <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
                 </path>
@@ -10,13 +11,15 @@
         </h1>
 
         @if (session()->has('message'))
-        <div class="mb-4 p-3 bg-green-100 dark:bg-green-900/40 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg">
+        <div
+            class="mb-4 p-3 bg-green-100 dark:bg-green-900/40 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg">
             {{ session('message') }}
         </div>
         @endif
 
         @if (session()->has('error'))
-        <div class="mb-4 p-3 bg-red-100 dark:bg-red-900/40 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg">
+        <div
+            class="mb-4 p-3 bg-red-100 dark:bg-red-900/40 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg">
             {{ session('error') }}
         </div>
         @endif
@@ -26,7 +29,8 @@
         <div
             class="mb-4 p-3 bg-red-100 dark:bg-red-900/40 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg flex items-start justify-between gap-3">
             <span>{{ $stockWarning }}</span>
-            <button wire:click="dismissStockWarning" class="text-red-700 dark:text-red-300 hover:text-red-900 flex-shrink-0">
+            <button wire:click="dismissStockWarning"
+                class="text-red-700 dark:text-red-300 hover:text-red-900 flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
                     </path>
@@ -36,8 +40,10 @@
         @endif
 
         @if($cartItems->count() > 0)
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
-            <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div
+                class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
                 <label class="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" wire:model.live="selectAll"
                         class="w-4 h-4 text-amber-600 dark:text-amber-400 rounded border-gray-300 dark:border-slate-600 focus:ring-amber-500">
@@ -78,7 +84,8 @@
                         <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}"
                             class="w-full h-full object-cover">
                         @else
-                        <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
                             </path>
@@ -90,7 +97,8 @@
                     @else
                     <div
                         class="w-20 h-20 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                        <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
                             </path>
@@ -113,13 +121,18 @@
 
                         <div class="flex items-center gap-2 mt-1">
                             @if($isDiscounted)
-                            <span class="text-sm font-bold text-green-600 dark:text-green-400">₱{{ number_format($displayPrice, 2) }}</span>
-                            <span class="text-sm text-gray-400 dark:text-slate-500 line-through">₱{{ number_format($originalPrice, 2)
+                            <span class="text-sm font-bold text-green-600 dark:text-green-400">₱{{
+                                number_format($displayPrice, 2) }}</span>
+                            <span class="text-sm text-gray-400 dark:text-slate-500 line-through">₱{{
+                                number_format($originalPrice, 2)
                                 }}</span>
-                            <span class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full">{{ $discountLabel
+                            <span
+                                class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full">{{
+                                $discountLabel
                                 }}</span>
                             @else
-                            <span class="text-sm text-gray-500 dark:text-slate-400">₱{{ number_format($displayPrice, 2) }}</span>
+                            <span class="text-sm text-gray-500 dark:text-slate-400">₱{{ number_format($displayPrice, 2)
+                                }}</span>
                             @endif
                         </div>
 
@@ -151,7 +164,8 @@
                                 </path>
                             </svg>
                         </button>
-                        <span class="w-10 text-center font-medium text-gray-800 dark:text-slate-100">{{ $item->quantity }}</span>
+                        <span class="w-10 text-center font-medium text-gray-800 dark:text-slate-100">{{ $item->quantity
+                            }}</span>
                         <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
                             wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, *)"
                             class="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
@@ -195,13 +209,28 @@
                             class="px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition">
                             Clear Cart
                         </button>
-                        <button wire:click="checkoutSelected"
-                            class="inline-flex items-center gap-2 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
-                            Checkout Selected
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
+                        <button wire:click="checkoutSelected" wire:loading.attr="disabled"
+                            wire:target="checkoutSelected"
+                            class="inline-flex items-center justify-center gap-2 px-6 py-2 min-w-[190px] bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                            <span wire:loading.remove.inline-flex wire:target="checkoutSelected"
+                                class="inline-flex items-center gap-2 whitespace-nowrap">
+                                Checkout Selected
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </span>
+                            <span wire:loading.inline-flex wire:target="checkoutSelected"
+                                class="items-center gap-2 whitespace-nowrap">
+                                <svg class="animate-spin w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <span>Checking Out...</span>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -209,8 +238,10 @@
         </div>
         @else
         <div class="text-center py-12">
-            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                <svg class="w-12 h-12 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div
+                class="w-24 h-24 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                <svg class="w-12 h-12 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
                     </path>
