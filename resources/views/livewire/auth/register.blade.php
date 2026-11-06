@@ -1,16 +1,15 @@
 <div>
     <style>
         .register-responsive-shell {
-            background-color: #111827;
+            align-items: center;
         }
 
         .register-responsive-shell::before {
             content: "";
             position: absolute;
             inset: 0 50% 0 0;
-            background-image:
-                linear-gradient(rgba(15, 23, 42, .5), rgba(15, 23, 42, .5)),
-                url("{{ asset('assets/img/login-bakery.png') }}");
+            background-image: linear-gradient(rgba(15, 23, 42, .5), rgba(15, 23, 42, .5)),
+            url("{{ asset('assets/img/login-bakery.png') }}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -63,23 +62,39 @@
         .register-responsive-card {
             width: min(100%, 36rem);
             padding: 2.5rem;
-            background: rgba(30, 41, 59, .9);
-            border-color: rgba(148, 163, 184, .2);
+            background: rgba(255, 255, 255, .94);
+            border-color: rgba(148, 163, 184, .4);
             box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
         }
 
         .register-responsive-card label,
-        .register-responsive-card > p {
-            color: #cbd5e1;
+        .register-responsive-card>p {
+            color: #334155;
         }
 
         .register-responsive-card input:not([type="checkbox"]) {
+            color: #0f172a;
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .dark .register-responsive-card {
+            background: rgba(30, 41, 59, .92);
+            border-color: rgba(148, 163, 184, .2);
+        }
+
+        .dark .register-responsive-card label,
+        .dark .register-responsive-card>p {
+            color: #cbd5e1;
+        }
+
+        .dark .register-responsive-card input:not([type="checkbox"]) {
             color: #f1f5f9;
             background-color: #0f172a;
             border-color: #334155;
         }
 
-        @media (max-width: 899px) {
+        @media (max-width: 1023px) {
             .register-responsive-shell {
                 align-items: flex-start;
             }
@@ -105,9 +120,8 @@
                 min-height: 0 !important;
                 padding: clamp(1.5rem, 5vw, 3rem);
                 border-radius: 1rem;
-                background-image:
-                    linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .68)),
-                    url("{{ asset('assets/img/login-bakery.png') }}");
+                background-image: linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .68)),
+                url("{{ asset('assets/img/login-bakery.png') }}");
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -129,7 +143,7 @@
             }
 
             .register-responsive-card {
-                width: min(100%, 40rem);
+                width: min(100%, 48rem);
                 padding: clamp(1.25rem, 4vw, 2.5rem);
             }
         }
@@ -153,7 +167,8 @@
     <div wire:loading.flex wire:target="register"
         class="fixed inset-0 z-[9999] items-center justify-center bg-gray-900/60 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl px-8 py-6 max-w-sm mx-4 text-center">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+            <div
+                class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                 <svg class="animate-spin w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor"
@@ -162,10 +177,12 @@
                 </svg>
             </div>
             <h3 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-1">Sending verification code...</h3>
-            <p class="text-sm text-gray-500 dark:text-slate-400">This will only take a moment. Please don't close this page.</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400">This will only take a moment. Please don't close this
+                page.</p>
         </div>
     </div>
-    <div class="register-responsive-shell relative overflow-hidden min-h-screen bg-white dark:bg-slate-900 flex items-center">
+    <div
+        class="register-responsive-shell relative overflow-hidden min-h-screen bg-white dark:bg-slate-900 flex items-center">
         <div
             class="register-responsive-container max-w-7xl w-full mx-auto py-12 px-4 sm:px-6 md:py-20 lg:py-24 md:px-8">
             <div class="register-responsive-grid grid grid-cols-2 gap-12 lg:gap-16 items-stretch">
@@ -173,24 +190,31 @@
                 <!-- LEFT: Introduction -->
                 <div class="register-responsive-introduction col-start-1 row-start-1 flex flex-col justify-center"
                     style="min-height: 26rem;">
-                    <h1 class="text-5xl max-md:text-3xl text-gray-900 dark:text-slate-100 font-bold leading-tight md:text-6xl">
+                    <h1
+                        class="text-5xl max-md:text-3xl text-gray-900 dark:text-slate-100 font-bold leading-tight md:text-6xl">
                         Create your account
                     </h1>
-                    <p class="mt-5 text-lg max-md:text-base text-gray-600 dark:text-slate-300 leading-relaxed max-w-xl break-words md:text-xl">
+                    <p
+                        class="mt-5 text-lg max-md:text-base text-gray-600 dark:text-slate-300 leading-relaxed max-w-xl break-words md:text-xl">
                         Your all-in-one bakeshop management solution. Handle orders, track inventory, manage employees,
                         and gain real-time sales insights - all from a single platform. Built to help bakeshops in
                         Victorias City grow and serve customers better.
                     </p>
                     <ul class="mt-6 space-y-3 text-base text-gray-700 dark:text-slate-300 md:text-lg">
-                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> All-in-one
+                        <li class="flex items-center gap-3"><span
+                                class="text-green-600 dark:text-green-400">&#10003;</span> All-in-one
                             solution</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Orders,
+                        <li class="flex items-center gap-3"><span
+                                class="text-green-600 dark:text-green-400">&#10003;</span> Orders,
                             inventory, employees, sales analytics</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Real-time
+                        <li class="flex items-center gap-3"><span
+                                class="text-green-600 dark:text-green-400">&#10003;</span> Real-time
                             insights</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Local focus
+                        <li class="flex items-center gap-3"><span
+                                class="text-green-600 dark:text-green-400">&#10003;</span> Local focus
                             (Victorias City)</li>
-                        <li class="flex items-center gap-3"><span class="text-green-600 dark:text-green-400">&#10003;</span> Growth-oriented
+                        <li class="flex items-center gap-3"><span
+                                class="text-green-600 dark:text-green-400">&#10003;</span> Growth-oriented
                         </li>
                     </ul>
                 </div>
@@ -201,7 +225,9 @@
                         class="register-responsive-card bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-8 max-sm:p-5 md:p-10 shadow-sm">
                         <form wire:submit.prevent="register">
                             <div class="mb-4">
-                                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name</label>
+                                <label for="name"
+                                    class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full
+                                    Name</label>
                                 <input type="text" id="name" wire:model="name" maxlength="255" autocomplete="name"
                                     class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500 @error('name') border-red-500 @enderror"
                                     placeholder="Juan Dela Cruz">
@@ -211,7 +237,8 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email
+                                <label for="email"
+                                    class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email
                                     Address</label>
                                 <input type="email" id="email" wire:model="email"
                                     class="py-2.5 sm:py-3 px-4 block w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg sm:text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-amber-500 focus:ring-amber-500 @error('email') border-red-500 @enderror"
@@ -253,7 +280,8 @@
 
                             <div class="mb-4">
                                 <label for="password_confirmation"
-                                    class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm Password</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Confirm
+                                    Password</label>
                                 <div class="relative flex items-center" style="position: relative;"
                                     x-data="{ show: false }">
                                     <input :type="show ? 'text' : 'password'" id="password_confirmation"

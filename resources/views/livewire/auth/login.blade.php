@@ -1,16 +1,15 @@
 <div class="login-responsive-shell relative overflow-hidden min-h-screen bg-white dark:bg-slate-900 flex items-center">
     <style>
         .login-responsive-shell {
-            background-color: #111827;
+            align-items: center;
         }
 
         .login-responsive-shell::before {
             content: "";
             position: absolute;
             inset: 0 50% 0 0;
-            background-image:
-                linear-gradient(rgba(15, 23, 42, .5), rgba(15, 23, 42, .5)),
-                url("{{ asset('assets/img/login-bakery.png') }}");
+            background-image: linear-gradient(rgba(15, 23, 42, .5), rgba(15, 23, 42, .5)),
+            url("{{ asset('assets/img/login-bakery.png') }}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -39,7 +38,9 @@
 
         .login-responsive-introduction h1 {
             color: #f1f5f9;
-            font-size: clamp(1.875rem, 2.8vw, 2.5rem);
+            font-size: clamp(1.5rem, 2.2vw, 2rem);
+            line-height: 1.15;
+            text-align: left;
         }
 
         .login-responsive-introduction p {
@@ -64,23 +65,39 @@
             width: min(100%, 34rem);
             min-height: 24rem !important;
             padding: 2.5rem;
-            background: rgba(30, 41, 59, .82);
-            border-color: rgba(148, 163, 184, .2);
+            background: rgba(255, 255, 255, .94);
+            border-color: rgba(148, 163, 184, .4);
             box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
         }
 
         .login-responsive-card label,
-        .login-responsive-card > p {
-            color: #cbd5e1;
+        .login-responsive-card>p {
+            color: #334155;
         }
 
         .login-responsive-card input:not([type="checkbox"]) {
+            color: #0f172a;
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .dark .login-responsive-card {
+            background: rgba(30, 41, 59, .92);
+            border-color: rgba(148, 163, 184, .2);
+        }
+
+        .dark .login-responsive-card label,
+        .dark .login-responsive-card>p {
+            color: #cbd5e1;
+        }
+
+        .dark .login-responsive-card input:not([type="checkbox"]) {
             color: #f1f5f9;
             background-color: #0f172a;
             border-color: #334155;
         }
 
-        @media (max-width: 899px) {
+        @media (max-width: 1023px) {
             .login-responsive-shell {
                 align-items: flex-start;
             }
@@ -106,16 +123,15 @@
                 min-height: 0 !important;
                 padding: clamp(1.5rem, 5vw, 3rem);
                 border-radius: 1rem;
-                background-image:
-                    linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .68)),
-                    url("{{ asset('assets/img/login-bakery.png') }}");
+                background-image: linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .68)),
+                url("{{ asset('assets/img/login-bakery.png') }}");
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
             }
 
             .login-responsive-introduction h1 {
-                font-size: clamp(1.625rem, 3.8vw, 2.25rem);
+                font-size: clamp(1.5rem, 3.8vw, 1.875rem);
             }
 
             .login-responsive-form-wrapper {
@@ -125,7 +141,7 @@
             }
 
             .login-responsive-card {
-                width: min(100%, 40rem);
+                width: min(100%, 48rem);
                 min-height: 0 !important;
                 padding: clamp(1.25rem, 4vw, 2.5rem);
             }

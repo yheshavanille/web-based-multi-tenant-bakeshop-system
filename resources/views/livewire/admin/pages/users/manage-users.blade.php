@@ -18,13 +18,15 @@
         </div>
 
         @if (session()->has('message'))
-        <div class="mb-4 p-4 bg-green-50 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200 border border-green-200 text-green-700 dark:text-green-300 rounded-lg">
+        <div
+            class="mb-4 p-4 bg-green-50 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200 border border-green-200 text-green-700 dark:text-green-300 rounded-lg">
             {{ session('message') }}
         </div>
         @endif
 
         @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200 border border-red-200 text-red-700 dark:text-red-300 rounded-lg">
+        <div
+            class="mb-4 p-4 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200 border border-red-200 text-red-700 dark:text-red-300 rounded-lg">
             {{ session('error') }}
         </div>
         @endif
@@ -46,7 +48,8 @@
         </div>
 
         <!-- Filters -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 mb-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @if($activeTab !== 'permanently_deleted')
                 <div>
@@ -54,14 +57,21 @@
                     <div class="relative">
                         <select wire:model.live="roleFilter"
                             class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-700 cursor-pointer text-gray-900 dark:text-slate-100 dark:border-slate-600 dark:placeholder-slate-400">
-                            <option value="all" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">All Roles</option>
-                            <option value="customer" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Customer</option>
-                            <option value="owner" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Owner</option>
-                            <option value="employee" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Employee</option>
-                            <option value="super_admin" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Super Admin</option>
+                            <option value="all" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">All
+                                Roles</option>
+                            <option value="customer"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Customer</option>
+                            <option value="owner" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">
+                                Owner</option>
+                            <option value="employee"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Employee</option>
+                            <option value="super_admin"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Super Admin
+                            </option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -76,14 +86,22 @@
                     <div class="relative">
                         <select wire:model.live="statusFilter"
                             class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-700 cursor-pointer text-gray-900 dark:text-slate-100 dark:border-slate-600 dark:placeholder-slate-400">
-                            <option value="all" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">All Status</option>
-                            <option value="active" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Active</option>
-                            <option value="suspended" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Suspended</option>
-                            <option value="deactivated_by_owner" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Deactivated by Owner</option>
-                            <option value="suspended_by_admin" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Suspended by Super Admin</option>
+                            <option value="all" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">All
+                                Status</option>
+                            <option value="active" class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">
+                                Active</option>
+                            <option value="suspended"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Suspended</option>
+                            <option value="deactivated_by_owner"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Deactivated by
+                                Owner</option>
+                            <option value="suspended_by_admin"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Suspended by Super
+                                Admin</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -108,7 +126,8 @@
 
         <!-- Active / Soft Deleted Users Table -->
         @if($activeTab !== 'permanently_deleted')
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             @if($users->count() > 0)
             <div class="overflow-x-auto">
                 <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
@@ -119,7 +138,8 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Shop</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Role(s)</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Status</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Last Login</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Last Login
+                            </th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Joined</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Actions</th>
                         </tr>
@@ -167,7 +187,8 @@
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $user->email }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">
                                 @if($user->shop)
-                                <span class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $user->shop->shop_name }}</span>
+                                <span class="text-sm font-medium text-gray-800 dark:text-slate-100">{{
+                                    $user->shop->shop_name }}</span>
                                 @else
                                 <span class="text-xs text-gray-400 dark:text-slate-500">—</span>
                                 @endif
@@ -189,22 +210,26 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($user->trashed())
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400">
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400">
                                     Deleted
                                 </span>
                                 @elseif($employeeStatus)
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full
                                     @if(strpos($employeeStatus, 'Suspended by Super Admin') !== false) bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200
                                     @elseif(strpos($employeeStatus, 'Deleted by Employer') !== false) bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200
                                     @else bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200 @endif">
                                     {{ $employeeStatus }}
                                 </span>
                                 @elseif(isset($user->is_active) && $user->is_active)
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200">
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200">
                                     Active
                                 </span>
                                 @else
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200">
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200">
                                     Suspended
                                 </span>
                                 @endif
@@ -212,8 +237,10 @@
                             <td class="px-4 py-3">
                                 @if($user->last_login_at)
                                 <div>
-                                    <p class="text-xs text-gray-700 dark:text-slate-300">{{ $user->last_login_at->diffForHumans() }}</p>
-                                    <p class="text-[10px] text-gray-400 dark:text-slate-500">{{ $user->last_login_at->format('M d, Y h:i A')
+                                    <p class="text-xs text-gray-700 dark:text-slate-300">{{
+                                        $user->last_login_at->diffForHumans() }}</p>
+                                    <p class="text-[10px] text-gray-400 dark:text-slate-500">{{
+                                        $user->last_login_at->format('M d, Y h:i A')
                                         }}</p>
                                 </div>
                                 @else
@@ -275,7 +302,8 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500 dark:text-slate-400">
-                <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
@@ -288,7 +316,8 @@
 
         <!-- Permanently Deleted Users Table -->
         @if($activeTab === 'permanently_deleted')
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             @if($permanentlyDeletedUsers->count() > 0)
             <div class="overflow-x-auto">
                 <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
@@ -298,8 +327,10 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Email</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Shop</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Roles</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Deleted By</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Deleted At</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Deleted By
+                            </th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Deleted At
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
@@ -309,8 +340,10 @@
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $log->email }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $log->shop_name ?? '-' }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $log->roles ?? '-' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $log->deleted_by ?? 'Unknown' }}</td>
-                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $log->deleted_at->format('M d, Y h:i A') }}
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $log->deleted_by ?? 'Unknown' }}
+                            </td>
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $log->deleted_at->format('M d, Y h:i A') }}
                             </td>
                         </tr>
                         @endforeach
@@ -322,13 +355,15 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500 dark:text-slate-400">
-                <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                     </path>
                 </svg>
                 <p>No permanently deleted users found.</p>
-                <p class="text-sm text-gray-400 dark:text-slate-500">Users who are permanently deleted will appear here.</p>
+                <p class="text-sm text-gray-400 dark:text-slate-500">Users who are permanently deleted will appear here.
+                </p>
             </div>
             @endif
         </div>
@@ -357,7 +392,8 @@
                         @endif
 
                         <div class="flex-1 min-w-0">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 truncate">{{ $selectedUser->name }}</h3>
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 truncate">{{
+                                $selectedUser->name }}</h3>
                             <p class="text-sm text-gray-500 dark:text-slate-400 truncate">{{ $selectedUser->email }}</p>
                         </div>
 
@@ -383,7 +419,8 @@
                         </div>
                         <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                             <p class="text-xs text-gray-500 dark:text-slate-400">Phone</p>
-                            <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedUser->phone ?? 'N/A' }}</p>
+                            <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedUser->phone ?? 'N/A' }}
+                            </p>
                         </div>
                         <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                             <p class="text-xs text-gray-500 dark:text-slate-400">Status</p>
@@ -434,8 +471,10 @@
                         <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 sm:col-span-2">
                             <p class="text-xs text-gray-500 dark:text-slate-400">Shop</p>
                             @if($selectedUser->shop)
-                            <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedUser->shop->shop_name }}</p>
-                            <p class="text-xs text-gray-400 dark:text-slate-500">{{ $selectedUser->shop->address ?? 'No address' }}</p>
+                            <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedUser->shop->shop_name
+                                }}</p>
+                            <p class="text-xs text-gray-400 dark:text-slate-500">{{ $selectedUser->shop->address ?? 'No
+                                address' }}</p>
                             @else
                             <p class="text-sm text-gray-400 dark:text-slate-500">No shop assigned</p>
                             @endif
@@ -497,20 +536,24 @@
                             <p class="text-xs text-gray-500 dark:text-slate-400">Last Login</p>
                             @if($selectedUser->last_login_at)
                             <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
-                                <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $selectedUser->last_login_at->format('M
+                                <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{
+                                    $selectedUser->last_login_at->format('M
                                     d, Y h:i A') }}</p>
-                                <span class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full">
+                                <span
+                                    class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full">
                                     {{ $selectedUser->last_login_at->diffForHumans() }}
                                 </span>
                             </div>
                             @else
-                            <p class="text-sm text-gray-400 dark:text-slate-500 italic mt-1">This user has never logged in.</p>
+                            <p class="text-sm text-gray-400 dark:text-slate-500 italic mt-1">This user has never logged
+                                in.</p>
                             @endif
                         </div>
 
                         <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                             <p class="text-xs text-gray-500 dark:text-slate-400">Account Created</p>
-                            <p class="font-medium text-gray-800 dark:text-slate-100">{{ $selectedUser->created_at->format('M d, Y h:i A') }}
+                            <p class="font-medium text-gray-800 dark:text-slate-100">{{
+                                $selectedUser->created_at->format('M d, Y h:i A') }}
                             </p>
                         </div>
                         @if($selectedUser->trashed())
@@ -523,7 +566,8 @@
                     </div>
                 </div>
 
-                <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
+                <div
+                    class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                     <button wire:click="closeUserModal"
                         class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                         Close
@@ -538,8 +582,10 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeSuspendModal"></div>
 
-            <div class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-                <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
+            <div
+                class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+                <div
+                    class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
                     <h3 class="text-lg font-bold text-red-800 dark:text-red-200 inline-flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -565,17 +611,20 @@
                     @error('actionReason')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 text-right">{{ strlen($actionReason) }}/500</p>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 text-right">{{ strlen($actionReason) }}/500
+                    </p>
                 </div>
 
-                <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
+                <div
+                    class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
                     <button wire:click="closeSuspendModal"
                         class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                         Cancel
                     </button>
-                    <button wire:click="confirmSuspend" wire:loading.attr="disabled"
+                    <button wire:click="confirmSuspend" wire:loading.attr="disabled" wire:target="confirmSuspend"
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-60">
-                        Confirm Suspend
+                        <span wire:loading.remove wire:target="confirmSuspend">Confirm Suspend</span>
+                        <span wire:loading wire:target="confirmSuspend">Suspending</span>
                     </button>
                 </div>
             </div>
@@ -587,8 +636,10 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeArchiveModal"></div>
 
-            <div class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-                <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
+            <div
+                class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+                <div
+                    class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
                     <h3 class="text-lg font-bold text-red-800 dark:text-red-200 inline-flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -614,10 +665,12 @@
                     @error('actionReason')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 text-right">{{ strlen($actionReason) }}/500</p>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 text-right">{{ strlen($actionReason) }}/500
+                    </p>
                 </div>
 
-                <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
+                <div
+                    class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
                     <button wire:click="closeArchiveModal"
                         class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                         Cancel

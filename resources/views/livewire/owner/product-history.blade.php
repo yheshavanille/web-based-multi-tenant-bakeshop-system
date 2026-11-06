@@ -3,8 +3,10 @@
         <!-- Header -->
         <div class="flex flex-wrap gap-2 items-center justify-between mb-6">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Product Update History</h1>
-                <p class="text-sm text-gray-500 dark:text-slate-400">View recent product updates and full product edit history</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Product Update
+                    History</h1>
+                <p class="text-sm text-gray-500 dark:text-slate-400">View recent product updates and full product edit
+                    history</p>
             </div>
             <a href="{{ route('livewire.owner.dashboard') }}"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
@@ -27,15 +29,7 @@
                 </svg>
                 Product Updates
             </button>
-            <button wire:click="setTab('product-edits')"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium transition
-                    {{ $tab === 'product-edits' ? 'text-amber-600 dark:text-amber-400 border-b-2 border-amber-600' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                Product Edits
-            </button>
+
         </div>
 
         <!-- Filters -->
@@ -44,7 +38,8 @@
             <div class="relative flex-1">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -75,7 +70,8 @@
         </div>
 
         <!-- Table -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             @if($histories->count() > 0)
             <div class="overflow-x-auto">
                 <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
@@ -86,7 +82,8 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Field</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Old Value</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">New Value</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Updated By</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Updated By
+                            </th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Time</th>
                         </tr>
                     </thead>
@@ -98,10 +95,12 @@
                         $newClean = $this->cleanValue($history->field, $history->new_value);
                         @endphp
                         <tr>
-                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{ $history->product?->name ?? 'Product Deleted' }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{
+                                $history->product?->name ?? 'Product Deleted' }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300 text-xs">{{ $branchName }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">
-                                <span class="px-2 py-0.5 text-xs rounded-full
+                                <span
+                                    class="px-2 py-0.5 text-xs rounded-full
                                     {{ $history->field === 'created' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
                                     {{ $history->field === 'name' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
                                     {{ $history->field === 'price' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200' : '' }}
@@ -120,7 +119,8 @@
                                 @if($history->field === 'price')
                                 ₱{{ number_format((float) ($oldClean ?? 0), 2) }}
                                 @elseif($history->field === 'image_url')
-                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $oldClean ? 'Old image' : 'No image' }}</span>
+                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $oldClean ? 'Old image' : 'No
+                                    image' }}</span>
                                 @elseif($history->field === 'deleted')
                                 <span class="text-xs text-red-600 dark:text-red-400">{{ $oldClean }}</span>
                                 @elseif($history->field === 'created')
@@ -133,7 +133,8 @@
                                 @if($history->field === 'price')
                                 ₱{{ number_format((float) ($newClean ?? 0), 2) }}
                                 @elseif($history->field === 'image_url')
-                                <span class="text-xs text-green-600 dark:text-green-400">{{ $newClean ? 'New image' : 'Removed' }}</span>
+                                <span class="text-xs text-green-600 dark:text-green-400">{{ $newClean ? 'New image' :
+                                    'Removed' }}</span>
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-green-600 dark:text-green-400">Product created</span>
                                 @elseif($history->field === 'deleted')
@@ -144,8 +145,10 @@
                                 {{ $newClean ?? '-' }}
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System' }}</td>
-                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System'
+                                }}</td>
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -158,8 +161,10 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500 dark:text-slate-400">
-                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div
+                    class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                         </path>

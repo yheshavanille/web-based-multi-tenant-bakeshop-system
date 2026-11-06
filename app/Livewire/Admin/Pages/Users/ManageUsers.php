@@ -9,6 +9,7 @@ use App\Notifications\UserArchivedNotification;
 use App\Notifications\UserRestoredNotification;
 use App\Notifications\UserSuspendedNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -210,8 +211,15 @@ class ManageUsers extends Component
             $user->employee->save();
         }
 
-        //  Send notification with reason
-        Notification::send($user, new UserSuspendedNotification($user, $this->actionReason, Auth::user()->name));
+        //  Send notification with reason (wrapped to prevent SMTP errors from crashing the app)
+        try {
+            Notification::send($user, new UserSuspendedNotification($user, $this->actionReason, Auth::user()->name));
+        } catch (\Exception $e) {
+            Log::warning('Failed to send suspension email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         $userName = $user->name;
         $this->closeSuspendModal();
@@ -238,8 +246,15 @@ class ManageUsers extends Component
             return;
         }
 
-        //  Send notification BEFORE deleting
-        Notification::send($user, new UserArchivedNotification($user, $this->actionReason, Auth::user()->name));
+        //  Send notification BEFORE deleting (wrapped)
+        try {
+            Notification::send($user, new UserArchivedNotification($user, $this->actionReason, Auth::user()->name));
+        } catch (\Exception $e) {
+            Log::warning('Failed to send archive email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         //  Soft-delete the employee record (if any)
         $employee = Employee::where('user_id', $user->id)->first();
@@ -273,8 +288,15 @@ class ManageUsers extends Component
             ]);
         }
 
-        //  Notify user
-        Notification::send($user, new UserRestoredNotification($user));
+        //  Notify user (wrapped)
+        try {
+            Notification::send($user, new UserRestoredNotification($user));
+        } catch (\Exception $e) {
+            Log::warning('Failed to send restore email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         session()->flash('message', 'User record restored successfully. They have been notified.');
     }
@@ -328,8 +350,15 @@ class ManageUsers extends Component
             $user->employee->save();
         }
 
-        //  Notify user
-        Notification::send($user, new UserRestoredNotification($user));
+        //  Notify user (wrapped)
+        try {
+            Notification::send($user, new UserRestoredNotification($user));
+        } catch (\Exception $e) {
+            Log::warning('Failed to send activation email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         session()->flash('message', 'User activated successfully. They have been notified.');
     }
