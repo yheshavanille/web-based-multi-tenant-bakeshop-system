@@ -47,97 +47,85 @@ class Employee extends Model
         };
     }
 
-    /**
-     * Check if the associated user was deleted by Super Admin
-     */
     public function isUserDeletedBySuperAdmin()
     {
         return $this->user && $this->user->trashed();
     }
 
-    /**
-     * Check if the associated user is suspended
-     */
     public function isUserSuspended()
     {
         return $this->user && !$this->user->trashed() && !$this->user->is_active;
     }
 
-    /**
-     * Check if the associated user is missing
-     */
     public function isUserMissing()
     {
         return !$this->user;
     }
 
-    /**
-     * Get the appropriate status label for display
-     */
     public function getStatusLabel()
     {
+        // 1. Check hard blocks first
         if ($this->isUserMissing()) {
             return 'Account Missing';
         }
         if ($this->isUserDeletedBySuperAdmin()) {
             return 'Account Deleted by Super Admin';
         }
-        if ($this->isUserSuspended()) {
-            return 'Suspended by Admin';
-        }
         if ($this->trashed()) {
             return 'Deleted';
         }
-        // ✅ Check if deactivated by owner
-        if (!$this->is_active && $this->deactivated_by === 'owner') {
-            return 'Deactivated by Owner';
-        }
-        // ✅ Check if deactivated by super admin
+
+        // 2. Check who deactivated the account FIRST
         if (!$this->is_active && $this->deactivated_by === 'super_admin') {
             return 'Suspended by Super Admin';
         }
+        if (!$this->is_active && $this->deactivated_by === 'owner') {
+            return 'Deactivated by Owner';
+        }
+
+        // 3. Fallback to user suspension check
+        if ($this->isUserSuspended()) {
+            return 'Suspended by Admin';
+        }
+
         return $this->is_active ? 'Active' : 'Inactive';
     }
 
-    /**
-     * Get the status color for display
-     */
     public function getStatusColor()
     {
-        if ($this->isUserMissing() || $this->isUserDeletedBySuperAdmin() || $this->isUserSuspended()) {
+        if ($this->isUserMissing() || $this->isUserDeletedBySuperAdmin()) {
             return 'red';
         }
         if ($this->trashed()) {
+            return 'red';
+        }
+
+        // Check deactivated_by first
+        if (!$this->is_active && $this->deactivated_by === 'super_admin') {
             return 'red';
         }
         if (!$this->is_active && $this->deactivated_by === 'owner') {
             return 'yellow';
         }
-        if (!$this->is_active && $this->deactivated_by === 'super_admin') {
+
+        // Fallback
+        if ($this->isUserSuspended()) {
             return 'red';
         }
+
         return $this->is_active ? 'green' : 'red';
     }
 
-    /**
-     * Check if employee can be restored (only if user still exists and is not deleted)
-     */
     public function canBeRestored()
     {
         return $this->trashed() && $this->user && !$this->user->trashed();
     }
 
-    /**
-     * Check if employee can be edited
-     */
     public function canBeEdited()
     {
         return $this->user && !$this->user->trashed() && !$this->trashed();
     }
 
-    /**
-     * Check if employee actions are available
-     */
     public function hasAvailableActions()
     {
         return $this->user && !$this->user->trashed() && !$this->trashed();

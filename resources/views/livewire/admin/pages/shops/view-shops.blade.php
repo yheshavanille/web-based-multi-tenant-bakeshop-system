@@ -55,7 +55,8 @@
             <div class="relative">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -98,10 +99,12 @@
                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">
                     {{ $showDeleted ? 'Archived listings' : 'Active listings' }}
                 </p>
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ $shops->count() }} {{ $shops->count() === 1 ? 'bakeshop' :
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ $shops->count() }} {{ $shops->count() ===
+                    1 ? 'bakeshop' :
                     'bakeshops' }} shown</p>
             </div>
-            <span class="hidden text-xs font-medium text-slate-400 dark:text-slate-500 sm:block">Select a listing to view details</span>
+            <span class="hidden text-xs font-medium text-slate-400 dark:text-slate-500 sm:block">Select a listing to
+                view details</span>
         </div>
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -115,7 +118,8 @@
                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
                     @else
                     <div class="flex h-full flex-col items-center justify-center text-gray-400 dark:text-slate-500">
-                        <svg class="w-14 h-14 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-14 h-14 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                             </path>
@@ -136,11 +140,12 @@
 
                 <div class="flex flex-1 flex-col p-4 sm:p-5">
                     <div class="mb-4">
-                        <h2 class="truncate text-lg font-semibold text-slate-900 dark:text-slate-100">{{ $shop->shop_name ?: 'Unnamed
+                        <h2 class="truncate text-lg font-semibold text-slate-900 dark:text-slate-100">{{
+                            $shop->shop_name ?: 'Unnamed
                             bakeshop' }}</h2>
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400 inline-flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                                 </path>
@@ -152,12 +157,17 @@
                     </div>
 
                     <div class="mb-4 rounded-xl bg-slate-50 dark:bg-slate-900 p-3">
-                        <p class="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Owner</p>
-                        <p class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $shop->user?->name ?? 'N/A' }}</p>
-                        <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ $shop->user?->email ?? 'No email available' }}</p>
+                        <p
+                            class="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Owner</p>
+                        <p class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{{
+                            $shop->user?->name ?? 'N/A' }}</p>
+                        <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ $shop->user?->email ?? 'No
+                            email available' }}</p>
                     </div>
 
-                    <p class="mb-5 line-clamp-2 min-h-10 text-sm leading-5 text-slate-500 dark:text-slate-400">{{ $shop->description ?: 'No
+                    <p class="mb-5 line-clamp-2 min-h-10 text-sm leading-5 text-slate-500 dark:text-slate-400">{{
+                        $shop->description ?: 'No
                         description has been added for this listing.' }}</p>
 
                     <div class="mt-auto flex flex-col gap-2 border-t border-gray-100 dark:border-slate-700 pt-3">
@@ -210,8 +220,10 @@
             @empty
             <div
                 class="col-span-full rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-6 py-16 text-center shadow-sm">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-900/30">
-                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div
+                    class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-900/30">
+                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                         </path>
@@ -244,7 +256,8 @@
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDeleteModal"></div>
 
         <div class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-            <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
+            <div
+                class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200">
                 <h3 class="text-lg font-bold text-red-800 dark:text-red-200">Delete Shop</h3>
                 <p class="text-xs text-red-600 mt-0.5">The owner will be notified with your reason.</p>
             </div>
@@ -267,14 +280,16 @@
                 </p>
             </div>
 
-            <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
+            <div
+                class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
                 <button wire:click="closeDeleteModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Cancel
                 </button>
-                <button wire:click="delete" wire:loading.attr="disabled"
+                <button wire:click="delete" wire:loading.attr="disabled" wire:target="delete"
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-50">
-                    Delete Shop
+                    <span wire:loading.remove wire:target="delete">Delete Shop</span>
+                    <span wire:loading wire:target="delete">Deleting</span>
                 </button>
             </div>
         </div>

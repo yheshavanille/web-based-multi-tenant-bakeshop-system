@@ -35,9 +35,10 @@ class Dashboard extends Component
     {
         $this->employee = Auth::user()->employee;
 
-        if (!$this->employee || !$this->employee->shop || $this->employee->shop->trashed()) {
+        // ✅ Added the missing branch check here to prevent the null->id crash
+        if (!$this->employee || !$this->employee->shop || $this->employee->shop->trashed() || !$this->employee->branch) {
             Auth::logout();
-            session()->flash('error', 'Your shop is no longer active.');
+            session()->flash('error', 'Your shop or branch is no longer active.');
             return redirect()->route('livewire.auth.login');
         }
 
@@ -159,7 +160,7 @@ class Dashboard extends Component
         })->sortByDesc('orders_last_7_days');
     }
 
-    // ✅ UPDATED: Load BOTH manual + order movements for the branch
+    // ✅ Load BOTH manual + order movements for the branch
     public function loadStockHistories()
     {
         // Manual movements

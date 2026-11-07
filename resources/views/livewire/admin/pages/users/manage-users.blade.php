@@ -95,6 +95,9 @@
                             <option value="deactivated_by_owner"
                                 class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Deactivated by
                                 Owner</option>
+                            <option value="deleted_by_owner"
+                                class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Deleted by Owner
+                            </option>
                             <option value="suspended_by_admin"
                                 class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100">Suspended by Super
                                 Admin</option>
@@ -151,7 +154,7 @@
                         $employeeStatus = null;
                         if ($employee) {
                         if ($employee->trashed()) {
-                        $employeeStatus = 'Deleted by Employer';
+                        $employeeStatus = 'Deleted by Owner'; // ✅ Changed from Employer to Owner
                         } elseif (!$employee->is_active) {
                         if ($employee->deactivated_by === 'super_admin') {
                         $employeeStatus = 'Suspended by Super Admin';
@@ -189,6 +192,9 @@
                                 @if($user->shop)
                                 <span class="text-sm font-medium text-gray-800 dark:text-slate-100">{{
                                     $user->shop->shop_name }}</span>
+                                @elseif($employee && $employee->shop)
+                                <span class="text-sm font-medium text-gray-800 dark:text-slate-100">{{
+                                    $employee->shop->shop_name }}</span>
                                 @else
                                 <span class="text-xs text-gray-400 dark:text-slate-500">—</span>
                                 @endif
@@ -218,7 +224,8 @@
                                 <span
                                     class="px-2 py-1 text-xs font-medium rounded-full
                                     @if(strpos($employeeStatus, 'Suspended by Super Admin') !== false) bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200
-                                    @elseif(strpos($employeeStatus, 'Deleted by Employer') !== false) bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200
+                                    @elseif(strpos($employeeStatus, 'Deleted by Owner') !== false) bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200
+                                    @elseif(strpos($employeeStatus, 'Deactivated by Owner') !== false) bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200
                                     @else bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200 @endif">
                                     {{ $employeeStatus }}
                                 </span>
@@ -270,7 +277,6 @@
                                     </button>
                                     @elseif($user->id !== auth()->id())
                                     @if(isset($user->is_active) && $user->is_active)
-                                    {{-- opens reason modal --}}
                                     <button wire:click="openSuspendModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Suspend
@@ -282,7 +288,6 @@
                                     </button>
                                     @endif
 
-                                    {{-- opens archive reason modal --}}
                                     <button wire:click="openArchiveModal({{ $user->id }})"
                                         class="text-xs text-red-600 hover:text-red-800 font-medium">
                                         Archive
@@ -475,6 +480,13 @@
                                 }}</p>
                             <p class="text-xs text-gray-400 dark:text-slate-500">{{ $selectedUser->shop->address ?? 'No
                                 address' }}</p>
+                            @elseif($selectedUser->employee && $selectedUser->employee->shop)
+                            <p class="font-medium text-gray-800 dark:text-slate-100">{{
+                                $selectedUser->employee->shop->shop_name
+                                }}</p>
+                            <p class="text-xs text-gray-400 dark:text-slate-500">{{
+                                $selectedUser->employee->shop->address ?? 'No
+                                address' }}</p>
                             @else
                             <p class="text-sm text-gray-400 dark:text-slate-500">No shop assigned</p>
                             @endif
@@ -503,7 +515,8 @@
                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                             </path>
                                         </svg>
-                                        Deleted by Employer
+                                        Deleted by Owner
+                                        <!-- ✅ Changed from Employer to Owner -->
                                     </span>
                                     @elseif($selectedUser->employee->is_active)
                                     <span class="inline-flex items-center gap-1.5 text-sm font-medium text-green-600">
@@ -675,9 +688,10 @@
                         class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                         Cancel
                     </button>
-                    <button wire:click="confirmArchive" wire:loading.attr="disabled"
+                    <button wire:click="confirmArchive" wire:loading.attr="disabled" wire:target="confirmArchive"
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-60">
-                        Confirm Archive
+                        <span wire:loading.remove wire:target="confirmArchive">Confirm Archive</span>
+                        <span wire:loading wire:target="confirmArchive">Archiving</span>
                     </button>
                 </div>
             </div>

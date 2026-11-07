@@ -22,13 +22,13 @@ class User extends Authenticatable
         'is_active',
         'review_banned_at',
         'review_ban_reason',
-        'last_login_at', // ✅ NEW
+        'last_login_at',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'review_banned_at' => 'datetime',
-        'last_login_at' => 'datetime', // ✅ NEW
+        'last_login_at' => 'datetime',
     ];
 
     public function shop()
@@ -43,7 +43,8 @@ class User extends Authenticatable
 
     public function employee()
     {
-        return $this->hasOne(Employee::class);
+        // ✅ Added withTrashed() so Super Admin can see if the Owner deleted the employee
+        return $this->hasOne(Employee::class)->withTrashed();
     }
 
     public function isReviewBanned(): bool
@@ -51,7 +52,6 @@ class User extends Authenticatable
         return !is_null($this->review_banned_at);
     }
 
-    // ✅ NEW: helper for the "Last login" display
     public function getLastLoginLabelAttribute(): string
     {
         if (!$this->last_login_at) {

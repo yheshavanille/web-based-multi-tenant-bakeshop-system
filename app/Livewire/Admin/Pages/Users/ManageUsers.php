@@ -23,11 +23,9 @@ class ManageUsers extends Component
     public $search = '';
     public $activeTab = 'active';
 
-    //  User Details Modal
     public $showUserModal = false;
     public $selectedUser = null;
 
-    //  NEW: Suspend / Archive reason modals
     public $showSuspendModal = false;
     public $showArchiveModal = false;
     public $actionUserId = null;
@@ -78,13 +76,16 @@ class ManageUsers extends Component
                 $query->where('is_active', false);
             } elseif ($this->statusFilter === 'deactivated_by_owner') {
                 $query->whereHas('employee', function ($q) {
-                    $q->where('is_active', false)
-                        ->where('deactivated_by', 'owner');
+                    $q->where('deactivated_by', 'owner');
                 });
             } elseif ($this->statusFilter === 'suspended_by_admin') {
                 $query->whereHas('employee', function ($q) {
-                    $q->where('is_active', false)
-                        ->where('deactivated_by', 'super_admin');
+                    $q->where('deactivated_by', 'super_admin');
+                });
+            } elseif ($this->statusFilter === 'deleted_by_owner') {
+                // ✅ Added filter for deleted by owner
+                $query->whereHas('employee', function ($q) {
+                    $q->onlyTrashed();
                 });
             }
 
@@ -118,9 +119,12 @@ class ManageUsers extends Component
 
     public function viewUserDetails($userId)
     {
-        $this->selectedUser = User::with(['shop', 'employee.branch'])
+        $this->selectedUser = User::with(['shop', 'employee' => function ($q) {
+            $q->withTrashed()->with('branch');
+        }])
             ->withTrashed()
             ->findOrFail($userId);
+
         $this->showUserModal = true;
     }
 
@@ -130,7 +134,6 @@ class ManageUsers extends Component
         $this->selectedUser = null;
     }
 
-    //  NEW: Open the suspend reason modal
     public function openSuspendModal($userId)
     {
         $user = User::findOrFail($userId);
@@ -156,7 +159,6 @@ class ManageUsers extends Component
         $this->resetErrorBag();
     }
 
-    //  NEW: Open the archive reason modal
     public function openArchiveModal($userId)
     {
         $user = User::findOrFail($userId);
@@ -182,7 +184,6 @@ class ManageUsers extends Component
         $this->resetErrorBag();
     }
 
-    //  NEW: Confirm suspend with reason
     public function confirmSuspend()
     {
         $this->validate([
@@ -201,7 +202,6 @@ class ManageUsers extends Component
             return;
         }
 
-        //  Suspend the user
         $user->is_active = false;
         $user->save();
 
@@ -211,7 +211,6 @@ class ManageUsers extends Component
             $user->employee->save();
         }
 
-        //  Send notification with reason (wrapped to prevent SMTP errors from crashing the app)
         try {
             Notification::send($user, new UserSuspendedNotification($user, $this->actionReason, Auth::user()->name));
         } catch (\Exception $e) {
@@ -227,7 +226,6 @@ class ManageUsers extends Component
         session()->flash('message', "User \"{$userName}\" suspended successfully. They have been notified with the reason.");
     }
 
-    //  NEW: Confirm archive with reason
     public function confirmArchive()
     {
         $this->validate([
@@ -246,7 +244,6 @@ class ManageUsers extends Component
             return;
         }
 
-        //  Send notification BEFORE deleting (wrapped)
         try {
             Notification::send($user, new UserArchivedNotification($user, $this->actionReason, Auth::user()->name));
         } catch (\Exception $e) {
@@ -256,13 +253,11 @@ class ManageUsers extends Component
             ]);
         }
 
-        //  Soft-delete the employee record (if any)
         $employee = Employee::where('user_id', $user->id)->first();
         if ($employee) {
             $employee->delete();
         }
 
-        //  Soft-delete the user
         $user->delete();
 
         $userName = $user->name;
@@ -271,35 +266,34 @@ class ManageUsers extends Component
         session()->flash('message', "User \"{$userName}\" archived successfully. They have been notified with the reason.");
     }
 
-    //  Restore user + notify them
     public function restoreUser($userId)
-    {
-        $user = User::withTrashed()->findOrFail($userId);
-        $user->restore();
+{
+    $user = User::withTrashed()->findOrFail($userId);
+    $user->restore();
 
-        $user->update(['is_active' => true]);
+    $user->update(['is_active' => true]);
 
-        $employee = Employee::onlyTrashed()->where('user_id', $userId)->first();
-        if ($employee) {
-            $employee->restore();
-            $employee->update([
-                'is_active' => true,
-                'deactivated_by' => null,
-            ]);
-        }
-
-        //  Notify user (wrapped)
-        try {
-            Notification::send($user, new UserRestoredNotification($user));
-        } catch (\Exception $e) {
-            Log::warning('Failed to send restore email', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        session()->flash('message', 'User record restored successfully. They have been notified.');
+    // ✅ Use withTrashed() to find the employee record regardless of its state
+    $employee = Employee::withTrashed()->where('user_id', $userId)->first();
+    if ($employee) {
+        $employee->restore(); // Un-delete if it was soft-deleted
+        $employee->update([
+            'is_active' => true,
+            'deactivated_by' => null, // Remove any suspension flags
+        ]);
     }
+
+    try {
+        Notification::send($user, new UserRestoredNotification($user));
+    } catch (\Exception $e) {
+        Log::warning('Failed to send restore email', [
+            'user_id' => $user->id,
+            'error' => $e->getMessage(),
+        ]);
+    }
+
+    session()->flash('message', 'User record restored successfully. They have been notified.');
+}
 
     public function forceDeleteUser($userId)
     {
@@ -330,8 +324,6 @@ class ManageUsers extends Component
         session()->flash('message', 'User permanently deleted. Record saved to log.');
     }
 
-    //  REMOVED: direct toggleUserStatus (replaced by modal-driven suspend/activate)
-    // But keep an "activate" shortcut for suspended users
     public function activateUser($userId)
     {
         $user = User::findOrFail($userId);
@@ -350,7 +342,6 @@ class ManageUsers extends Component
             $user->employee->save();
         }
 
-        //  Notify user (wrapped)
         try {
             Notification::send($user, new UserRestoredNotification($user));
         } catch (\Exception $e) {

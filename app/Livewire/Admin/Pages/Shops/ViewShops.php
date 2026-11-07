@@ -6,6 +6,7 @@ use App\Models\Shop;
 use App\Notifications\ShopDeletedByAdminNotification;
 use App\Notifications\ShopRestoredByAdminNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Livewire\Component;
 
@@ -53,8 +54,6 @@ class ViewShops extends Component
     }
 
     //  UPDATED: Validate reason, pass it to the notification
-    // NOTE: The old delete(int $shopId) signature was replaced with delete() that
-    // reads $this->shopToDeleteId — the blade button was updated accordingly.
     public function delete()
     {
         $this->validate([
@@ -69,9 +68,17 @@ class ViewShops extends Component
         $shopName = $shop->shop_name;
         $user = $shop->user;
 
-        //  Notify owner BEFORE deleting — pass reason
+        //  Notify owner BEFORE deleting — pass reason (wrapped)
         if ($user) {
-            Notification::send($user, new ShopDeletedByAdminNotification($shop, $this->deleteReason));
+            try {
+                Notification::send($user, new ShopDeletedByAdminNotification($shop, $this->deleteReason));
+            } catch (\Exception $e) {
+                Log::warning('Failed to send shop deletion email', [
+                    'shop_id' => $shop->id,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         //  Remove owner role from the user when shop is deleted
@@ -99,9 +106,17 @@ class ViewShops extends Component
             $user->assignRole('owner');
         }
 
-        //  Notify owner about restoration
+        //  Notify owner about restoration (wrapped)
         if ($user) {
-            Notification::send($user, new ShopRestoredByAdminNotification($shop));
+            try {
+                Notification::send($user, new ShopRestoredByAdminNotification($shop));
+            } catch (\Exception $e) {
+                Log::warning('Failed to send shop restoration email', [
+                    'shop_id' => $shop->id,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         session()->flash('message', 'Shop "' . $shopName . '" restored successfully. Owner role restored.');
