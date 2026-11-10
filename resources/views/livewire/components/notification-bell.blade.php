@@ -1,5 +1,14 @@
-<div class="relative" x-data="{ open: false }" wire:poll.10s="loadNotifications">
-    <button @click="open = !open" @click.away="open = false"
+<div class="relative" x-data="{
+    open: false,
+    dropdownStyle() {
+        if (window.innerWidth >= 640) return '';
+
+        const top = this.$refs.trigger.getBoundingClientRect().bottom + 8;
+
+        return `position: fixed; top: ${top}px; right: 1rem; left: 1rem; width: auto; max-width: none; max-height: calc(100dvh - ${top}px - 1rem);`;
+    }
+}" wire:poll.10s="loadNotifications">
+    <button x-ref="trigger" @click="open = !open" @click.away="open = false"
         class="relative p-2 text-gray-600 dark:text-slate-300 hover:text-amber-600 transition">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -16,7 +25,8 @@
 
     <div x-show="open" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        class="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 py-1 z-50 max-h-96 overflow-y-auto">
+        :style="dropdownStyle()"
+        class="absolute right-0 mt-0 sm:mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 py-1 z-50 max-h-96 overflow-y-auto">
         <div class="px-4 py-2 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
             <span class="text-sm font-semibold text-gray-800 dark:text-slate-100 inline-flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
