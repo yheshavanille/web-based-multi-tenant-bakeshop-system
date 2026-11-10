@@ -3,7 +3,9 @@
     dropdownStyle() {
         if (window.innerWidth >= 640) return '';
 
-        const top = this.$refs.trigger.getBoundingClientRect().bottom + 8;
+        const triggerBottom = this.$refs.trigger.getBoundingClientRect().bottom;
+        const navbarBottom = this.$el.closest('nav')?.getBoundingClientRect().bottom ?? 0;
+        const top = Math.max(triggerBottom, navbarBottom) + 8;
 
         return `position: fixed; top: ${top}px; right: 1rem; left: 1rem; width: auto; max-width: none; max-height: min(24rem, calc(100dvh - ${top}px - 1rem));`;
     }
