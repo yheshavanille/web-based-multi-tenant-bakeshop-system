@@ -139,7 +139,7 @@
                                 <div>
                                     <div class="flex flex-wrap items-center justify-between gap-2 px-4 mb-4">
                                         <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Order Items</span>
-                                        <div class="w-full sm:w-[340px] flex justify-center">
+                                        <div class="w-full sm:w-[340px] flex justify-start sm:justify-center">
                                             <span class="text-sm font-semibold text-gray-700 dark:text-slate-300">Status</span>
                                         </div>
                                     </div>
@@ -200,7 +200,7 @@
                                                 @endif
                                             </div>
 
-                                            <div class="w-full sm:w-[340px] flex flex-wrap items-center justify-end gap-4">
+                                            <div class="w-full sm:w-[340px] flex flex-wrap items-center justify-start sm:justify-end gap-2 sm:gap-4">
                                                 <span
                                                     class="inline-flex items-center justify-center text-xs px-3 py-1 rounded-full whitespace-nowrap font-medium min-w-[110px]
                                                     {{ $item->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
