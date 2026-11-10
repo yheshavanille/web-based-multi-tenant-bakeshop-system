@@ -93,7 +93,7 @@
                                     </p>
                                     <p class="text-sm text-gray-500 dark:text-slate-400">{{ $product->category->name ?? 'Uncategorized' }}
                                     </p>
-                                    <div class="flex items-center gap-3 mt-1 text-sm">
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-sm">
                                         <span class="text-gray-600 dark:text-slate-300">Qty: {{ $item->quantity }}</span>
                                         <span class="text-gray-300 dark:text-slate-600">|</span>
                                         @if($isDiscounted)
