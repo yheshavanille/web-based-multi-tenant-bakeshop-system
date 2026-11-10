@@ -156,9 +156,10 @@
                             class="px-4 py-1.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-slate-300 rounded-lg transition text-xs font-medium">
                             Cancel
                         </a>
-                        <button type="submit"
+                        <button type="submit" wire:loading.attr="disabled" wire:target="save"
                             class="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition text-xs font-medium shadow-sm">
-                            Update Shop
+                            <span wire:loading.remove wire:target="save">Update Shop</span>
+                            <span wire:loading wire:target="save">Updating...</span>
                         </button>
                     </div>
                 </div>
