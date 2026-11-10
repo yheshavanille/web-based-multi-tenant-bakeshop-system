@@ -5,7 +5,7 @@
 
         const top = this.$refs.trigger.getBoundingClientRect().bottom + 8;
 
-        return `position: fixed; top: ${top}px; right: 1rem; left: 1rem; width: auto; max-width: none; max-height: calc(100dvh - ${top}px - 1rem);`;
+        return `position: fixed; top: ${top}px; right: 1rem; left: 1rem; width: auto; max-width: none; max-height: min(24rem, calc(100dvh - ${top}px - 1rem));`;
     }
 }" wire:poll.10s="loadNotifications">
     <button x-ref="trigger" @click="open = !open" @click.away="open = false"
