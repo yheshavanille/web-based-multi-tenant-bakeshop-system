@@ -29,7 +29,6 @@ class ViewProducts extends Component
     public $productReviews = [];
     public $averageRating = 0;
 
-    //  Flag to show login modal
     public $showLoginModal = false;
 
     public function mount($shopId, $branch = null)
@@ -87,7 +86,13 @@ class ViewProducts extends Component
                     ->where('stock', '>', 0);
             })
             ->with(['category', 'branches'])
-            ->withAvg('productReviews', 'rating');
+            // ✅ Only calculate average from visible/kept reviews
+            ->withAvg(['productReviews' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }], 'rating')
+            ->withCount(['productReviews' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }]);
 
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
@@ -145,7 +150,6 @@ class ViewProducts extends Component
             ->get();
     }
 
-    //  FIXED: Reload best sellers when category changes
     public function updatedSelectedCategory()
     {
         $this->loadProducts();
@@ -161,14 +165,11 @@ class ViewProducts extends Component
         return $pivot ? $pivot->pivot->stock : 0;
     }
 
-    //  Guest addToCart - shows login modal instead of adding to cart
     public function addToCart($productId)
     {
-        //  Show login modal for guests
         $this->showLoginModal = true;
     }
 
-    //  Close login modal
     public function closeLoginModal()
     {
         $this->showLoginModal = false;
@@ -178,11 +179,16 @@ class ViewProducts extends Component
     {
         $this->selectedProduct = Product::with([
             'productReviews' => function ($query) {
-                $query->with('customer')->latest();
+                // ✅ Only load visible/kept reviews in the modal
+                $query->whereIn('moderation_status', ['visible', 'kept'])
+                    ->with('customer')
+                    ->latest();
             }
         ])->findOrFail($productId);
 
         $this->productReviews = $this->selectedProduct->productReviews;
+
+        // ✅ Calculate average from the filtered reviews
         $this->averageRating = $this->selectedProduct->productReviews->avg('rating') ?? 0;
         $this->showReviewModal = true;
     }
@@ -201,12 +207,15 @@ class ViewProducts extends Component
     public function getShopRating()
     {
         return ServiceReview::where('shop_id', $this->shopId)
+            ->whereIn('moderation_status', ['visible', 'kept']) // ✅ Only count approved service reviews
             ->avg('rating') ?? 0;
     }
 
     public function getShopRatingCount()
     {
-        return ServiceReview::where('shop_id', $this->shopId)->count();
+        return ServiceReview::where('shop_id', $this->shopId)
+            ->whereIn('moderation_status', ['visible', 'kept']) // ✅ Only count approved service reviews
+            ->count();
     }
 
     public function render()

@@ -16,7 +16,7 @@
 
     <div x-show="open" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        class="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 py-1 z-50 max-h-96 overflow-y-auto">
+        class="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 py-1 z-50 max-h-96 overflow-y-auto">
         <div class="px-4 py-2 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
             <span class="text-sm font-semibold text-gray-800 dark:text-slate-100 inline-flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -14,9 +14,7 @@ class BrowseShops extends Component
     public $search = '';
     public $shops = [];
     public $categories = [];
-    public $products = [];   // ✅ NEW
-
-    // Store products per shop separately
+    public $products = [];
     public $shopProducts = [];
 
     public function mount()
@@ -33,11 +31,8 @@ class BrowseShops extends Component
     public function loadShops()
     {
         $query = Shop::with(['branches', 'user']);
-
-        // ✅ Product search query (new)
         $productQuery = Product::with(['shop', 'category', 'branches']);
 
-        // Apply search filter
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
 
@@ -47,7 +42,6 @@ class BrowseShops extends Component
                     ->orWhere('description', 'like', $searchTerm);
             });
 
-            // ✅ Product matches: name or description
             $productQuery->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', $searchTerm)
                     ->orWhere('description', 'like', $searchTerm);
@@ -67,7 +61,6 @@ class BrowseShops extends Component
 
         $this->shops = $query->get();
 
-        // Load products for each shop
         foreach ($this->shops as $shop) {
             $this->loadShopProducts($shop->id);
         }
@@ -80,23 +73,31 @@ class BrowseShops extends Component
             return;
         }
 
-        // Simple query - show ALL products with stock
+        // ✅ Filter the product reviews to only show approved ones
         $products = Product::where('shop_id', $shopId)
             ->whereHas('branches', function ($q) {
                 $q->where('stock', '>', 0);
             })
             ->with(['category', 'branches'])
-            ->withAvg('productReviews', 'rating')
-            ->withCount('productReviews')
+            ->withAvg(['productReviews' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }], 'rating')
+            ->withCount(['productReviews' => function ($q) {
+                $q->whereIn('moderation_status', ['visible', 'kept']);
+            }])
             ->limit(4)
             ->get();
 
-        // Store products
         $this->shopProducts[$shopId] = $products;
 
-        // Also store rating on the shop object for the view
-        $shop->rating = ServiceReview::where('shop_id', $shopId)->avg('rating') ?? 0;
-        $shop->rating_count = ServiceReview::where('shop_id', $shopId)->count();
+        // ✅ Filter the shop's service rating to only show approved ones
+        $shop->rating = ServiceReview::where('shop_id', $shopId)
+            ->whereIn('moderation_status', ['visible', 'kept'])
+            ->avg('rating') ?? 0;
+
+        $shop->rating_count = ServiceReview::where('shop_id', $shopId)
+            ->whereIn('moderation_status', ['visible', 'kept'])
+            ->count();
     }
 
     public function updatedSearch()

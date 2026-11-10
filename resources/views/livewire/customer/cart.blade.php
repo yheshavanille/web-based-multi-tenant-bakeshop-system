@@ -70,7 +70,7 @@
                 ]) . '#product-' . $product->id
                 : null;
                 @endphp
-                <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
+                <div class="grid grid-cols-[auto_4rem_minmax(0,1fr)] items-center gap-x-3 gap-y-3 p-3 sm:flex sm:flex-nowrap sm:gap-4 sm:p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition"
                     wire:key="cart-item-{{ $item->id }}">
                     <input type="checkbox" wire:model.live="selectedItems" value="{{ $item->id }}"
                         class="w-4 h-4 text-amber-600 dark:text-amber-400 rounded border-gray-300 dark:border-slate-600 focus:ring-amber-500">
@@ -78,7 +78,7 @@
                     {{-- Product image --}}
                     @if($productUrl)
                     <a href="{{ $productUrl }}" wire:navigate
-                        class="w-20 h-20 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-amber-400 transition"
+                        class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-amber-400 transition"
                         title="View {{ $product->name }}">
                         @if($product->image_url)
                         <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}"
@@ -96,7 +96,7 @@
                     </a>
                     @else
                     <div
-                        class="w-20 h-20 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                         <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -108,7 +108,7 @@
                     </div>
                     @endif
 
-                    <div class="flex-1 min-w-0 break-words">
+                    <div class="min-w-0 break-words sm:flex-1">
                         @if($productUrl)
                         <a href="{{ $productUrl }}" wire:navigate
                             class="font-semibold text-gray-800 dark:text-slate-100 hover:text-amber-600 dark:hover:text-amber-300 hover:underline transition"
@@ -119,7 +119,7 @@
                         <h3 class="font-semibold text-gray-800 dark:text-slate-100">Product Unavailable</h3>
                         @endif
 
-                        <div class="flex items-center gap-2 mt-1">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                             @if($isDiscounted)
                             <span class="text-sm font-bold text-green-600 dark:text-green-400">₱{{
                                 number_format($displayPrice, 2) }}</span>
@@ -155,47 +155,49 @@
                         @endif
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
-                            wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, *)"
-                            class="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4">
-                                </path>
-                            </svg>
-                        </button>
-                        <span class="w-10 text-center font-medium text-gray-800 dark:text-slate-100">{{ $item->quantity
-                            }}</span>
-                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
-                            wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, *)"
-                            class="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </button>
-                    </div>
+                    <div class="col-start-2 col-span-2 row-start-2 flex min-w-0 items-center justify-between gap-3 sm:contents">
+                        <div class="flex items-center gap-2">
+                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
+                                wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, *)"
+                                class="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4">
+                                    </path>
+                                </svg>
+                            </button>
+                            <span class="w-10 text-center font-medium text-gray-800 dark:text-slate-100">{{ $item->quantity
+                                }}</span>
+                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
+                                wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, *)"
+                                class="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </button>
+                        </div>
 
-                    <div class="text-right min-w-[80px]">
-                        <p class="font-semibold text-amber-600 dark:text-amber-400">
-                            ₱{{ number_format($displayPrice * $item->quantity, 2) }}
-                        </p>
-                        <button wire:click="removeFromCart({{ $item->id }})"
-                            class="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition inline-flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
-                            Remove
-                        </button>
+                        <div class="text-right min-w-[80px]">
+                            <p class="font-semibold text-amber-600 dark:text-amber-400">
+                                ₱{{ number_format($displayPrice * $item->quantity, 2) }}
+                            </p>
+                            <button wire:click="removeFromCart({{ $item->id }})"
+                                class="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition inline-flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                                Remove
+                            </button>
+                        </div>
                     </div>
                 </div>
                 @endforeach
             </div>
 
             <div class="bg-gray-50 dark:bg-slate-900 p-4 border-t border-gray-200 dark:border-slate-700">
-                <div class="flex flex-wrap justify-between items-center gap-3">
+                <div class="flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch sm:items-center gap-3">
                     <div>
                         <p class="text-sm text-gray-500 dark:text-slate-400">
                             {{ $this->selectedCount }} item(s) selected
@@ -204,14 +206,14 @@
                             ₱{{ number_format($this->selectedTotal, 2) }}
                         </p>
                     </div>
-                    <div class="flex flex-wrap gap-3">
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-3">
                         <button wire:click="clearCart"
-                            class="px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition">
+                            class="w-full sm:w-auto px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition">
                             Clear Cart
                         </button>
                         <button wire:click="checkoutSelected" wire:loading.attr="disabled"
                             wire:target="checkoutSelected"
-                            class="inline-flex items-center justify-center gap-2 px-6 py-2 min-w-[190px] bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2 min-w-[190px] bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
                             <span wire:loading.remove.inline-flex wire:target="checkoutSelected"
                                 class="inline-flex items-center gap-2 whitespace-nowrap">
                                 Checkout Selected
