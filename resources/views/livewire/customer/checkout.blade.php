@@ -177,7 +177,7 @@
                                         class="text-gray-400 dark:text-slate-500 font-normal normal-case">(Optional)</span>
                                 </label>
                                 <textarea wire:model.live.debounce.500ms="itemNotes.{{ $item->id }}" rows="2"
-                                    class="w-full px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm"
+                                    class="w-full px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white text-gray-900 dark:bg-slate-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500"
                                     placeholder="Any special requests for {{ $product->name ?? 'this item' }}?"></textarea>
                             </div>
                         </div>
