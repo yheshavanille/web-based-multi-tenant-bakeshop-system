@@ -322,12 +322,12 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($product->isDiscounted())
-                                <div>
-                                    <span class="text-xs text-gray-400 dark:text-slate-500 line-through">₱{{ number_format($product->price,
+                                <div class="flex flex-col items-start gap-1">
+                                    <span class="text-xs text-gray-400 dark:text-slate-500 line-through whitespace-nowrap">₱{{ number_format($product->price,
                                         2) }}</span>
-                                    <span class="text-sm font-bold text-green-600 ml-1">₱{{
+                                    <span class="text-sm font-bold text-green-600 whitespace-nowrap">₱{{
                                         number_format($product->getDiscountedPrice(), 2) }}</span>
-                                    <span class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-1.5 py-0.5 rounded-full ml-1">{{
+                                    <span class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-1.5 py-0.5 rounded-full whitespace-nowrap">{{
                                         $product->getDiscountLabel() }}</span>
                                 </div>
                                 @else

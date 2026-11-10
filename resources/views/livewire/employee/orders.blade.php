@@ -7,6 +7,7 @@
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100">
                     Orders Dashboard
                 </h1>
+                
 
                 <p class="text-sm text-gray-500 dark:text-slate-400 inline-flex flex-wrap items-center gap-1.5">
                     Manage orders for
