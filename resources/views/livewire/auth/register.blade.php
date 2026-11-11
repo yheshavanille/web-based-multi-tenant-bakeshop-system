@@ -214,7 +214,7 @@
                                 class="text-green-600 dark:text-green-400">&#10003;</span> Local focus
                             (Victorias City)</li>
                         <li class="flex items-center gap-3"><span
-                                class="text-green-600 dark:text-green-400">&#10003;</span> Growth-oriented
+                                class="text-green-600 dark:text-green-400">&#10003;</span> E-payment and Cash on Pickup
                         </li>
                     </ul>
                 </div>
