@@ -76,7 +76,6 @@ class OrderItemEmailNotification extends Notification
 
         if ($isReady) {
             $mail->line('Please bring your order number when you come to pick up your item.');
-            $mail->action('View My Orders', route('livewire.customer.orders'));
         } else {
             $mail->line('Thank you for choosing ' . $shopName . '!');
         }
