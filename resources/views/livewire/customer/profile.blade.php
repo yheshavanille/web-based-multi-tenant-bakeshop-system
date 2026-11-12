@@ -43,23 +43,25 @@
                         @endif
                     </div>
 
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Profile Picture</label>
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <label class="cursor-pointer">
-                                <span
-                                    class="px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition text-sm">
-                                    Choose Photo
-                                </span>
-                                <input type="file" wire:model="new_profile_picture" accept="image/*" class="hidden">
-                            </label>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-col items-start gap-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300">Profile Picture</label>
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <label class="cursor-pointer">
+                                    <span
+                                        class="inline-flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition text-sm">
+                                        Choose Photo
+                                    </span>
+                                    <input type="file" wire:model="new_profile_picture" accept="image/*" class="hidden">
+                                </label>
 
-                            @if($profile_picture)
-                            <button type="button" wire:click="removeProfilePicture"
-                                class="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:underline">
-                                Remove
-                            </button>
-                            @endif
+                                @if($profile_picture)
+                                <button type="button" wire:click="removeProfilePicture"
+                                    class="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:underline">
+                                    Remove
+                                </button>
+                                @endif
+                            </div>
                         </div>
                         @error('new_profile_picture')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
