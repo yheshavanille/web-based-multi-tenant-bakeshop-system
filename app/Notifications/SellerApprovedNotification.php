@@ -82,8 +82,7 @@ class SellerApprovedNotification extends Notification
                 ->line('"' . $this->customNote . '"');
         }
 
-        $mail->action('Go to Your Shop Dashboard', route('livewire.owner.dashboard'))
-            ->line('Thank you for joining our platform. We wish you success with your bakeshop!')
+        $mail->line('Thank you for joining our platform. We wish you success with your bakeshop!')
             ->salutation('— Web-based Multi-Tenant Bakeshop System');
 
         return $mail;

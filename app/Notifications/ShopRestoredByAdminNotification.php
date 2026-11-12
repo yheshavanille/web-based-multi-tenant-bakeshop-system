@@ -43,7 +43,7 @@ class ShopRestoredByAdminNotification extends Notification
             ->greeting('Good news, ' . ($notifiable->name ?? 'Shop Owner') . '!')
             ->line('Your shop **' . $this->shop->shop_name . '** has been restored by the Super Admin.')
             ->line('You can now log back in and manage your bakeshop as usual.')
-            ->action('Go to Your Shop Dashboard', route('livewire.owner.dashboard'))
+
             ->line('Welcome back, and we wish you continued success!')
             ->salutation('— Web-based Multi-Tenant Bakeshop System');
     }
