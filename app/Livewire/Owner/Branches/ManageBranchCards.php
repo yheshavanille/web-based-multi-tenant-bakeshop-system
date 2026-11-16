@@ -110,6 +110,8 @@ class ManageBranchCards extends Component
         $this->showDetailsModal = false;
         $this->selectedBranch = null;
         $this->branchStats = [];
+
+        $this->loadBranches();
     }
 
     private function calculateBranchStats($branchId)
