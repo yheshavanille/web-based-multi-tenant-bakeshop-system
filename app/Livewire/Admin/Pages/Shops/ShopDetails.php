@@ -189,7 +189,7 @@ class ShopDetails extends Component
         $this->showStockHistoryModal = true;
     }
 
-    #[Renderless]
+
     public function closeStockHistoryModal()
     {
         $this->showStockHistoryModal = false;
@@ -207,7 +207,7 @@ class ShopDetails extends Component
         $this->showProductHistoryModal = true;
     }
 
-    #[Renderless]
+
     public function closeProductHistoryModal()
     {
         $this->showProductHistoryModal = false;
@@ -256,7 +256,7 @@ class ShopDetails extends Component
         $this->showProductModal = true;
     }
 
-    #[Renderless]
+
     public function closeProductModal()
     {
         $this->showProductModal = false;
@@ -347,7 +347,7 @@ class ShopDetails extends Component
         $this->showAllOrdersModal = true;
     }
 
-    #[Renderless]
+
     public function closeAllOrdersModal()
     {
         $this->showAllOrdersModal = false;
@@ -392,7 +392,7 @@ class ShopDetails extends Component
         $this->showOrderDetailsModal = true;
     }
 
-    #[Renderless]
+
     public function closeOrderDetailsModal()
     {
         $this->showOrderDetailsModal = false;
