@@ -149,8 +149,12 @@ class ProductHistory extends Component
             ->flatMap(fn ($history) => [$history->old_value, $history->new_value])
             ->filter(fn ($id) => is_numeric($id))
             ->unique();
+        $shopId = Auth::user()->shop->id;
         $categoryNames = Category::withTrashed()
-            ->where('shop_id', Auth::user()->shop->id)
+            ->where(function ($query) use ($shopId) {
+                $query->whereNull('shop_id')
+                    ->orWhere('shop_id', $shopId);
+            })
             ->whereIn('id', $categoryIds)
             ->pluck('name', 'id');
 
