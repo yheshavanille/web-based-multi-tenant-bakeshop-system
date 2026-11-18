@@ -90,14 +90,14 @@
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($histories as $history)
                         @php
-                        $branchName = $history->product?->branches->first()?->name ?? 'N/A';
+                        $branchNames = $history->product?->branches->pluck('name')->implode(', ') ?: 'N/A';
                         $oldClean = $this->cleanValue($history->field, $history->old_value);
                         $newClean = $this->cleanValue($history->field, $history->new_value);
                         @endphp
                         <tr>
                             <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{
                                 $history->product?->name ?? 'Product Deleted' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300 text-xs">{{ $branchName }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300 text-xs">{{ $branchNames }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">
                                 <span
                                     class="px-2 py-0.5 text-xs rounded-full
