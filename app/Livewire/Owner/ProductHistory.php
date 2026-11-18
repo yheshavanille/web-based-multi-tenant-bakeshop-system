@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Owner;
 
+use App\Models\Category;
 use App\Models\ProductEditHistory;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -143,10 +144,20 @@ class ProductHistory extends Component
     {
         $perPage = $this->tab === 'product-updates' ? 10 : 20;
         $histories = $this->buildQuery()->paginate($perPage);
+        $categoryIds = $histories->getCollection()
+            ->where('field', 'category_id')
+            ->flatMap(fn ($history) => [$history->old_value, $history->new_value])
+            ->filter(fn ($id) => is_numeric($id))
+            ->unique();
+        $categoryNames = Category::withTrashed()
+            ->where('shop_id', Auth::user()->shop->id)
+            ->whereIn('id', $categoryIds)
+            ->pluck('name', 'id');
 
         return view('livewire.owner.product-history', [
             'histories' => $histories,
             'fieldOptions' => $this->fieldOptions,
+            'categoryNames' => $categoryNames,
         ])->layout('components.layouts.owner');
     }
 }

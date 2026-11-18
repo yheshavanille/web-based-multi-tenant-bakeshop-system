@@ -93,6 +93,12 @@
                         $branchNames = $history->product?->branches->pluck('name')->implode(', ') ?: 'N/A';
                         $oldClean = $this->cleanValue($history->field, $history->old_value);
                         $newClean = $this->cleanValue($history->field, $history->new_value);
+                        $oldDisplay = $history->field === 'category_id' && is_numeric($oldClean)
+                            ? $categoryNames->get((int) $oldClean, $oldClean)
+                            : $oldClean;
+                        $newDisplay = $history->field === 'category_id' && is_numeric($newClean)
+                            ? $categoryNames->get((int) $newClean, $newClean)
+                            : $newClean;
                         @endphp
                         <tr>
                             <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{
@@ -126,7 +132,7 @@
                                 @elseif($history->field === 'created')
                                 <span class="text-xs text-gray-400 dark:text-slate-500">—</span>
                                 @else
-                                {{ $oldClean ?? '-' }}
+                                {{ $oldDisplay ?? '-' }}
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-gray-700 dark:text-slate-300 text-sm">
@@ -142,7 +148,7 @@
                                 @elseif($history->field === 'restored')
                                 <span class="text-xs text-green-600 dark:text-green-400">{{ $newClean }}</span>
                                 @else
-                                {{ $newClean ?? '-' }}
+                                {{ $newDisplay ?? '-' }}
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System'
