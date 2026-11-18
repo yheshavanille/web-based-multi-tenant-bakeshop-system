@@ -79,8 +79,7 @@
                         <tr>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Product</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Branch</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300"
-                                style="text-align: left !important;">Field</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Field</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Old Value</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">New Value</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Updated By
@@ -99,8 +98,7 @@
                             <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{
                                 $history->product?->name ?? 'Product Deleted' }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300 text-xs">{{ $branchName }}</td>
-                            <td class="px-4 py-3 !text-left text-gray-600 dark:text-slate-300"
-                                style="text-align: left !important;">
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">
                                 <span
                                     class="px-2 py-0.5 text-xs rounded-full
                                     {{ $history->field === 'created' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
