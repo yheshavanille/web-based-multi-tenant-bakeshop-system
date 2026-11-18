@@ -61,9 +61,15 @@ class ProductHistory extends Component
     {
         $shop = Auth::user()->shop;
 
+        // ✅ FIXED: Added ->withTrashed() so history for deleted products is still visible
         $query = ProductEditHistory::whereHas('product', function ($q) use ($shop) {
-            $q->where('shop_id', $shop->id);
-        })->with(['product.branches', 'user']);
+            $q->withTrashed()->where('shop_id', $shop->id);
+        })->with([
+            'product' => function ($q) {
+                $q->withTrashed()->with('branches');
+            },
+            'user'
+        ]);
 
         // Tab filter
         if ($this->tab === 'product-updates') {
@@ -78,7 +84,7 @@ class ProductHistory extends Component
         if (!empty($this->search)) {
             $searchTerm = '%' . $this->search . '%';
             $query->whereHas('product', function ($q) use ($searchTerm) {
-                $q->where('name', 'like', $searchTerm);
+                $q->withTrashed()->where('name', 'like', $searchTerm);
             });
         }
 

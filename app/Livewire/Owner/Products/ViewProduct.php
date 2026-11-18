@@ -154,16 +154,38 @@ class ViewProduct extends Component
         }
     }
 
+    // ✅ UPDATED: Logs to ProductEditHistory before deleting
     public function delete(int $productId)
     {
         $product = Product::findOrFail($productId);
+
+        // ✅ Log to history BEFORE deleting
+        ProductEditHistory::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id(),
+            'field' => 'deleted',
+            'old_value' => 'Active product',
+            'new_value' => 'Moved to deleted records',
+        ]);
+
         $product->delete();
         session()->flash('message', 'Product moved to deleted records.');
     }
 
+    // ✅ UPDATED: Logs to ProductEditHistory before restoring
     public function restore(int $productId)
     {
         $product = Product::withTrashed()->findOrFail($productId);
+
+        // ✅ Log to history BEFORE restoring (product is still trashed at this moment)
+        ProductEditHistory::create([
+            'product_id' => $product->id,
+            'user_id' => Auth::id(),
+            'field' => 'restored',
+            'old_value' => 'Deleted product',
+            'new_value' => 'Restored to active',
+        ]);
+
         $product->restore();
         session()->flash('message', 'Product restored successfully.');
     }
