@@ -20,6 +20,7 @@ class SellerRegistration extends Component
     public $contact_number = '';
     public $shop_description = '';
     public $business_permit;
+    public $business_permit_expires_at = '';
     public $valid_id;
     public $step = 1;
 
@@ -29,6 +30,7 @@ class SellerRegistration extends Component
         'contact_number' => 'required|string|regex:/^09\d{9}$/|size:11',
         'shop_description' => 'nullable|string|max:500',
         'business_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        'business_permit_expires_at' => 'required|date|after_or_equal:today',
         'valid_id' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ];
 
@@ -123,6 +125,7 @@ class SellerRegistration extends Component
             'contact_number' => $this->contact_number,
             'shop_description' => $this->shop_description,
             'business_permit' => $permitPath,
+            'business_permit_expires_at' => $this->business_permit_expires_at,
             'valid_id_path' => $validIdPath,
             'status' => 'pending',
             'submitted_at' => now(),

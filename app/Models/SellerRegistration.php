@@ -13,6 +13,7 @@ class SellerRegistration extends Model
         'contact_number',
         'shop_description',
         'business_permit',
+        'business_permit_expires_at',
         'valid_id_path',
         'status',
         'rejection_reason',
@@ -23,6 +24,7 @@ class SellerRegistration extends Model
     protected $casts = [
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'business_permit_expires_at' => 'date',
     ];
 
     public function user()

@@ -36,6 +36,7 @@ class SellerApprovedNotification extends Notification
             $labels = [
                 'valid_id' => 'Valid Government ID',
                 'business_permit' => 'Business Permit',
+                'permit_expiry_date' => 'Business Permit Expiry Date',
                 'shop_name' => 'Shop Name',
                 'shop_address' => 'Shop Address',
                 'contact_number' => 'Contact Number',

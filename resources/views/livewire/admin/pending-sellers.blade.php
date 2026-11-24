@@ -248,6 +248,24 @@
                     @else
                     <p class="text-sm text-gray-400 dark:text-slate-500">No file uploaded</p>
                     @endif
+                    <p class="mt-2 text-sm text-gray-600 dark:text-slate-300">
+                        Applicant-stated expiry:
+                        <span class="font-medium text-gray-800 dark:text-slate-100">
+                            {{ $selectedApplication->business_permit_expires_at?->format('M d, Y') ?? 'Not provided' }}
+                        </span>
+                    </p>
+                    @if($selectedApplication->status === 'pending')
+                    <div class="mt-3">
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                            Verify expiry date from permit
+                        </label>
+                        <input type="date" wire:model="reviewExpiryDate" min="{{ today()->format('Y-m-d') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
+                        @error('reviewExpiryDate')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Valid Government ID -->
@@ -327,6 +345,17 @@
                                 View
                             </a>
                             @endif
+                        </label>
+
+                        <label
+                            class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2 transition dark:border-slate-700 dark:bg-slate-800 {{ $selectedApplication->status === 'pending' ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50' : 'cursor-default' }}">
+                            <input type="checkbox" wire:model.live="requirements.permit_expiry_date" {{
+                                $selectedApplication->status !== 'pending' ? 'disabled' : '' }}
+                            class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-slate-600 dark:text-amber-400 disabled:cursor-not-allowed disabled:opacity-60">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-700 dark:text-slate-300">Permit expiry date verified</p>
+                                <p class="text-xs text-gray-400 dark:text-slate-500">Confirm the verified date above matches the uploaded permit.</p>
+                            </div>
                         </label>
 
                         <label
