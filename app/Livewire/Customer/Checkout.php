@@ -212,8 +212,18 @@ class Checkout extends Component
 
     public function placeOrder()
     {
-        $this->validate([
+        $rules = [
             'payment_method' => 'required|in:paymongo,pickup_payment',
+        ];
+
+        foreach ($this->cartItems as $item) {
+            $rules["pickupTimes.{$item->id}"] = 'required|date|after:now';
+        }
+
+        $this->validate($rules, [
+            'pickupTimes.*.required' => 'Please select a pickup time.',
+            'pickupTimes.*.date' => 'Please select a valid pickup time.',
+            'pickupTimes.*.after' => 'Pickup time must be in the future.',
         ]);
 
         Log::info('Payment method detail:', [
@@ -241,13 +251,6 @@ class Checkout extends Component
                 }
             }
             $itemsByBranch[$branchId][] = $item;
-        }
-
-        foreach ($this->cartItems as $item) {
-            if (!isset($this->pickupTimes[$item->id]) || empty($this->pickupTimes[$item->id])) {
-                session()->flash('error', 'Please select a pickup time for: ' . $item->product->name);
-                return;
-            }
         }
 
         $this->isProcessing = true;
