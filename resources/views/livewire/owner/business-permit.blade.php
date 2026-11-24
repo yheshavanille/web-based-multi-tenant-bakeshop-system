@@ -101,6 +101,18 @@
                     <input id="permitFile" type="file" wire:model="permitFile" accept=".pdf,.jpg,.jpeg,.png"
                         class="block w-full rounded-lg border border-gray-300 bg-white text-sm text-gray-700 file:mr-4 file:border-0 file:bg-amber-50 file:px-4 file:py-2 file:font-medium file:text-amber-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:file:bg-amber-900/30 dark:file:text-amber-300">
                     <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">PDF, JPG, or PNG. Maximum size: 5 MB.</p>
+                    @if($permitFile)
+                    <div class="mt-3">
+                        @if(in_array(strtolower($permitFile->getClientOriginalExtension()), ['jpg', 'jpeg', 'png'], true))
+                        <img src="{{ $permitFile->temporaryUrl() }}" alt="Business permit preview"
+                            class="max-h-64 max-w-full rounded-lg border border-gray-200 object-contain dark:border-slate-600">
+                        @else
+                        <p class="text-sm text-green-700 dark:text-green-300">
+                            {{ $permitFile->getClientOriginalName() }} selected (PDF)
+                        </p>
+                        @endif
+                    </div>
+                    @endif
                     @error('permitFile')
                     <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
