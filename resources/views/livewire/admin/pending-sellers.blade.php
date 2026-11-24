@@ -249,7 +249,7 @@
                     <p class="text-sm text-gray-400 dark:text-slate-500">No file uploaded</p>
                     @endif
                     <p class="mt-2 text-sm text-gray-600 dark:text-slate-300">
-                        Applicant-stated expiry:
+                        Date provided by owner:
                         <span class="font-medium text-gray-800 dark:text-slate-100">
                             {{ $selectedApplication->business_permit_expires_at?->format('M d, Y') ?? 'Not provided' }}
                         </span>
@@ -257,14 +257,24 @@
                     @if($selectedApplication->status === 'pending')
                     <div class="mt-3">
                         <label class="mb-1 block text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-slate-400">
-                            Verify expiry date from permit
+                            Admin-verified expiry date
                         </label>
                         <input type="date" wire:model="reviewExpiryDate" min="{{ today()->format('Y-m-d') }}"
                             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
+                        <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">
+                            Confirm or correct the date after checking the uploaded permit.
+                        </p>
                         @error('reviewExpiryDate')
                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
+                    @elseif($selectedApplication->verified_business_permit_expires_at)
+                    <p class="mt-2 text-sm text-gray-600 dark:text-slate-300">
+                        Admin-verified expiry date:
+                        <span class="font-medium text-gray-800 dark:text-slate-100">
+                            {{ $selectedApplication->verified_business_permit_expires_at->format('M d, Y') }}
+                        </span>
+                    </p>
                     @endif
                 </div>
 

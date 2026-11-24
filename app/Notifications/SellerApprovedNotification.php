@@ -74,7 +74,8 @@ class SellerApprovedNotification extends Notification
             ->line('**Shop Details:**')
             ->line('🏪 Shop Name: ' . $this->application->shop_name)
             ->line('📍 Address: ' . ($this->application->shop_address ?? 'N/A'))
-            ->line('📞 Contact: ' . ($this->application->contact_number ?? 'N/A'));
+            ->line('📞 Contact: ' . ($this->application->contact_number ?? 'N/A'))
+            ->line('Business permit expiry date: ' . ($this->application->verified_business_permit_expires_at?->format('M d, Y') ?? 'N/A'));
 
         // ✅ Append the custom note if the Super Admin wrote one
         if (!empty($this->customNote)) {

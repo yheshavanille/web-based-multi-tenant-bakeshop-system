@@ -197,7 +197,7 @@ class PendingSellers extends Component
         ]);
 
         $application->update([
-            'business_permit_expires_at' => $this->reviewExpiryDate,
+            'verified_business_permit_expires_at' => $this->reviewExpiryDate,
             'status' => 'approved',
             'reviewed_at' => now(),
         ]);
