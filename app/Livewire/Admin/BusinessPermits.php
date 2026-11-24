@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Shop;
+use App\Notifications\BusinessPermitNotification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
@@ -61,10 +62,20 @@ class BusinessPermits extends Component
             'pending_business_permit_expires_at' => null,
             'business_permit_review_status' => 'approved',
             'business_permit_review_note' => null,
+            'business_permit_last_reminder_key' => null,
         ]);
 
         if ($previousPermitPath && $previousPermitPath !== $shop->business_permit_path) {
             Storage::disk('local')->delete($previousPermitPath);
+        }
+
+        $shop->refresh();
+        if ($shop->user) {
+            $shop->user->notify(new BusinessPermitNotification(
+                $shop,
+                'business_permit_approved',
+                "Your business permit for {$shop->shop_name} has been approved."
+            ));
         }
 
         $this->closeReview();
@@ -88,6 +99,15 @@ class BusinessPermits extends Component
             'business_permit_review_status' => 'rejected',
             'business_permit_review_note' => $this->rejectionNote,
         ]);
+
+        if ($shop->user) {
+            $shop->user->notify(new BusinessPermitNotification(
+                $shop,
+                'business_permit_rejected',
+                "Your business permit submission for {$shop->shop_name} was not approved.",
+                $this->rejectionNote
+            ));
+        }
 
         $this->closeReview();
         session()->flash('message', 'The permit was rejected. The owner can review the reason and submit a replacement.');

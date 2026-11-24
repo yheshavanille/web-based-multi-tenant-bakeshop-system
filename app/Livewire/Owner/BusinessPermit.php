@@ -3,7 +3,10 @@
 namespace App\Livewire\Owner;
 
 use App\Models\Shop;
+use App\Models\User;
+use App\Notifications\BusinessPermitNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -49,6 +52,18 @@ class BusinessPermit extends Component
         }
 
         $this->shop = $shop->refresh();
+        $superAdmins = User::role('super_admin')->get();
+        if ($superAdmins->isNotEmpty()) {
+            Notification::send(
+                $superAdmins,
+                new BusinessPermitNotification(
+                    $this->shop,
+                    'business_permit_submitted',
+                    "A business permit submission for {$this->shop->shop_name} is waiting for review."
+                )
+            );
+        }
+
         $this->reset('permitFile');
         session()->flash('message', 'Your permit renewal has been submitted for admin review.');
     }

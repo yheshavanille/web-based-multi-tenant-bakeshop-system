@@ -92,6 +92,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
+                @elseif(str_starts_with($notification->data['type'] ?? '', 'business_permit_'))
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9v10a2 2 0 01-2 2z"></path>
+                </svg>
                 @elseif($notification->data['type'] === 'shop_deleted_by_owner')
                 <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -289,6 +294,39 @@
                     class="block w-full text-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm">
                     Reapply →
                 </a>
+                @endif
+
+                @if(str_starts_with($selectedNotification->data['type'] ?? '', 'business_permit_'))
+                <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
+                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">Business Permit Update</p>
+                    <p class="mt-1 break-words text-sm text-gray-700 dark:text-slate-300">
+                        {{ $selectedNotification->data['message'] ?? 'There is an update about a business permit.' }}
+                    </p>
+                    @if(!empty($selectedNotification->data['shop_name']))
+                    <p class="mt-2 text-xs text-gray-600 dark:text-slate-400">
+                        Shop: {{ $selectedNotification->data['shop_name'] }}
+                    </p>
+                    @endif
+                    @if(!empty($selectedNotification->data['permit_expires_at']))
+                    <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">
+                        Expiry: {{ \Carbon\Carbon::parse($selectedNotification->data['permit_expires_at'])->format('M d, Y') }}
+                    </p>
+                    @endif
+                    @if(!empty($selectedNotification->data['submitted_expiry_date']))
+                    <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">
+                        Submitted expiry: {{ \Carbon\Carbon::parse($selectedNotification->data['submitted_expiry_date'])->format('M d, Y') }}
+                    </p>
+                    @endif
+                    @if(!empty($selectedNotification->data['review_note']))
+                    <p class="mt-2 break-words text-sm text-red-700 dark:text-red-300">
+                        Admin note: {{ $selectedNotification->data['review_note'] }}
+                    </p>
+                    @endif
+                    <a href="{{ $selectedNotification->data['url'] ?? route('livewire.owner.business-permit') }}"
+                        class="mt-3 block w-full rounded-lg bg-amber-600 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-amber-700">
+                        View Business Permit
+                    </a>
+                </div>
                 @endif
 
                 @if($selectedNotification->data['type'] === 'new_order')
