@@ -42,15 +42,20 @@
 
             <!-- Order Info -->
             <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
                     <div>
                         <p class="text-xs text-gray-500 dark:text-slate-400">Branch</p>
                         <p class="font-medium text-gray-800 dark:text-slate-100 text-sm">{{ $order->branch->name ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 dark:text-slate-400">Payment Method</p>
-                        <p class="font-medium text-gray-800 dark:text-slate-100 text-sm">{{ ucfirst(str_replace('_', ' ',
-                            $order->payment_method)) }}</p>
+                        <p class="font-medium text-gray-800 dark:text-slate-100 text-sm">{{ $order->payment_method_label }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Payment Status</p>
+                        <p class="font-medium text-gray-800 dark:text-slate-100 text-sm">
+                            {{ ucfirst(str_replace('_', ' ', $order->payment_status ?? 'pending')) }}
+                        </p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 dark:text-slate-400">Order Date</p>

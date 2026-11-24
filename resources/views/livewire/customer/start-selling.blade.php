@@ -85,7 +85,7 @@
                     </svg>
                 </div>
                 <p class="font-medium text-gray-800 dark:text-slate-100">Secure Payments</p>
-                <p class="text-sm text-gray-500 dark:text-slate-400">GCash, PayMaya, and Cash on Pickup</p>
+                <p class="text-sm text-gray-500 dark:text-slate-400">Pay as You Order via PayMongo</p>
             </div>
         </div>
 

@@ -256,21 +256,8 @@
                                         d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
                                     </path>
                                 </svg>
-                                PayMongo
-                            </label>
-
-                            <label
-                                class="flex items-center gap-2 p-2.5 border rounded-lg cursor-pointer transition text-sm text-gray-700 dark:text-slate-200
-                                {{ $payment_method === 'pickup_payment' ? 'border-amber-500 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/30' : 'border-gray-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-600' }}">
-                                <input type="radio" wire:model.live="payment_method" value="pickup_payment"
-                                    class="text-amber-600 dark:text-amber-400 focus:ring-amber-500">
-                                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
-                                    </path>
-                                </svg>
-                                Cash on Pickup
+                                <span>Pay as You Order</span>
+                                <span class="text-xs text-gray-500 dark:text-slate-400">via PayMongo</span>
                             </label>
                             @error('payment_method')
                             <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>

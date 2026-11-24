@@ -155,6 +155,7 @@ Route::prefix('employee')
 
 Route::get('/payment/success', function () {
     $pendingCartIds = session()->pull('pending_cart_clear', []);
+    $pendingOrderIds = session()->pull('pending_order_ids', []);
 
     if (!empty($pendingCartIds) && auth()->check()) {
         \App\Models\Cart::where('user_id', auth()->id())
@@ -165,12 +166,20 @@ Route::get('/payment/success', function () {
     session()->forget('checkout_items');
 
     session()->flash('order_success', 'Payment successful! Your order is now being prepared.');
+
+    if (!empty($pendingOrderIds)) {
+        return redirect()->route('livewire.customer.order-confirmation', [
+            'order' => implode(',', $pendingOrderIds),
+        ]);
+    }
+
     return redirect()->route('livewire.customer.orders');
 })->name('payment.success');
 
 Route::get('/payment/cancel', function () {
     session()->forget('checkout_items');
     session()->forget('pending_cart_clear');
+    session()->forget('pending_order_ids');
 
     session()->flash('error', 'Payment was cancelled. You can try again from your cart.');
     return redirect()->route('livewire.customer.cart');

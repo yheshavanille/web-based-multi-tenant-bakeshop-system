@@ -73,7 +73,7 @@ class OrderPlacedNotification extends Notification
         return match ($method) {
             'gcash' => 'GCash',
             'paymaya' => 'PayMaya',
-            'paymongo' => 'PayMongo',
+            'paymongo' => 'Pay as You Order',
             'pickup_payment' => 'Cash on Pickup',
             default => ucfirst(str_replace('_', ' ', $method)),
         };

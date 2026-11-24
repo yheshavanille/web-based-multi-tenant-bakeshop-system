@@ -325,7 +325,7 @@
                             $paymentMethodLabel = match($paymentMethod) {
                             'gcash' => 'GCash',
                             'paymaya' => 'PayMaya',
-                            'paymongo' => 'PayMongo',
+                            'paymongo' => 'Pay as You Order',
                             'pickup_payment' => 'Cash on Pickup',
                             default => ucfirst(str_replace('_', ' ', $paymentMethod)),
                             };
@@ -500,7 +500,7 @@
                             $paymentMethodLabel = match($paymentMethod) {
                             'gcash' => 'GCash',
                             'paymaya' => 'PayMaya',
-                            'paymongo' => 'PayMongo',
+                            'paymongo' => 'Pay as You Order',
                             'pickup_payment' => 'Cash on Pickup',
                             default => ucfirst(str_replace('_', ' ', $paymentMethod)),
                             };

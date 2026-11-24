@@ -43,7 +43,7 @@ class Order extends Model
     public function getPaymentMethodLabelAttribute()
     {
         if ($this->payment_method === 'paymongo') {
-            return 'PayMongo';
+            return 'Pay as You Order';
         }
         return ucfirst(str_replace('_', ' ', $this->payment_method));
     }

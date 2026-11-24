@@ -29,7 +29,7 @@ class Checkout extends Component
     public $branches = [];
     public $branchSelections = [];
     public $pickupTimes = [];
-    public $payment_method = 'pickup_payment';
+    public $payment_method = 'paymongo';
     public $payment_method_detail = 'gcash';
     public $isProcessing = false;
 
@@ -213,7 +213,7 @@ class Checkout extends Component
     public function placeOrder()
     {
         $rules = [
-            'payment_method' => 'required|in:paymongo,pickup_payment',
+            'payment_method' => 'required|in:paymongo',
         ];
 
         foreach ($this->cartItems as $item) {
@@ -370,6 +370,7 @@ class Checkout extends Component
             }
 
             session()->put('pending_cart_clear', $this->cartItems->pluck('id')->toArray());
+            session()->put('pending_order_ids', collect($createdOrders)->pluck('id')->all());
 
             foreach ($createdOrders as $order) {
                 $this->notifyOrderManagers($order);

@@ -715,9 +715,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 dark:text-slate-400">Payment Method</p>
-                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ ucfirst(str_replace('_', '
-                            ',
-                            $selectedOrder->payment_method)) }}</p>
+                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $selectedOrder->payment_method_label }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 dark:text-slate-400">Payment Status</p>
