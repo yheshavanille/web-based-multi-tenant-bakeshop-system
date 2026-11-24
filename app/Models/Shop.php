@@ -23,6 +23,7 @@ class Shop extends Model
         'pending_business_permit_expires_at',
         'business_permit_review_status',
         'business_permit_review_note',
+        'business_permit_last_reminder_key',
     ];
 
     protected $dates = ['deleted_at'];
