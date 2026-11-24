@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Admin\BusinessPermits;
 use App\Livewire\Admin\FlaggedReviews;
 use App\Livewire\Admin\Pages\Role\CreateRole;
 use App\Livewire\Admin\Pages\Role\EditRole;
@@ -26,6 +27,7 @@ use App\Livewire\Customer\PublicPages\CustomerTeams;
 use App\Livewire\Customer\ViewProducts;
 use App\Livewire\Employee\Products;
 use App\Livewire\Owner\Branches\BranchOrders;
+use App\Livewire\Owner\BusinessPermit;
 use App\Livewire\Owner\Branches\ManageBranchCards;
 use App\Livewire\Owner\Branches\ManageBranches;
 use App\Livewire\Owner\Category\CreateCategory;
@@ -46,6 +48,7 @@ use App\Livewire\Owner\Shop\EditShop;
 use App\Livewire\Owner\StockUpdateHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BusinessPermitDocumentController;
 
 // ✅ GUEST ROUTES (No auth required)
 Route::get('/', \App\Livewire\Guest\BrowseShops::class)->name('livewire.guest.browse-shops');
@@ -80,6 +83,9 @@ Route::prefix('admin')
         Route::get('/dashboard', AdminDashboard::class)->name('livewire.admin.admin-dashboard');
         Route::get('/shops', ViewShops::class)->name('livewire.admin.pages.shops.view-shops');
         Route::get('/shops/shopdetails/{shopId}', ShopDetails::class)->name('livewire.admin.pages.shops.shop-details');
+        Route::get('/business-permits', BusinessPermits::class)->name('livewire.admin.business-permits');
+        Route::get('/business-permits/{shopId}/document/{document}', [BusinessPermitDocumentController::class, 'admin'])
+            ->name('livewire.admin.business-permits.document');
         Route::get('/users', ManageUsers::class)->name('livewire.admin.pages.users.manage-users');
         Route::get('/pending-sellers', \App\Livewire\Admin\PendingSellers::class)->name('livewire.admin.pending-sellers');
         Route::get('/employee-activities', \App\Livewire\Admin\EmployeeActivities::class)->name('livewire.admin.employee-activities');
@@ -100,6 +106,9 @@ Route::prefix('owner')
         Route::get('/products/create', CreateProduct::class)->name('livewire.owner.products.create-product');
         Route::get('/products/edit/{productId}', EditProduct::class)->name('livewire.owner.products.edit-product');
         Route::get('/shop/edit', EditShop::class)->name('livewire.owner.shop.edit-shop');
+        Route::get('/business-permit', BusinessPermit::class)->name('livewire.owner.business-permit');
+        Route::get('/business-permit/document/{document}', [BusinessPermitDocumentController::class, 'owner'])
+            ->name('livewire.owner.business-permit.document');
         Route::get('/branches', ManageBranches::class)->name('livewire.owner.branches.manage-branches');
         Route::get('/branches/cards', ManageBranchCards::class)->name('livewire.owner.branches.manage-cards');
         Route::get('/branches/orders', BranchOrders::class)->name('livewire.owner.branches.branch-orders');

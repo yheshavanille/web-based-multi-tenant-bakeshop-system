@@ -1,6 +1,7 @@
 @php
 $isActive = fn($routeName) => request()->routeIs($routeName);
 $pendingSellerCount = \App\Models\SellerRegistration::where('status', 'pending')->count();
+$pendingPermitCount = \App\Models\Shop::where('business_permit_review_status', 'pending_review')->count();
 $flaggedCount = \App\Models\ServiceReview::where('moderation_status', 'pending_review')->count()
 + \App\Models\ProductReview::where('moderation_status', 'pending_review')->count();
 @endphp
@@ -53,6 +54,18 @@ $flaggedCount = \App\Models\ServiceReview::where('moderation_status', 'pending_r
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+        </svg>
+    </x-slot:icon>
+</x-sidebar.item>
+
+<x-sidebar.item :href="route('livewire.admin.business-permits')"
+    :active="$isActive('livewire.admin.business-permits*')"
+    :badge="$pendingPermitCount > 0 ? $pendingPermitCount : null" label="Business Permits">
+    <x-slot:icon>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9v10a2 2 0 01-2 2z">
             </path>
         </svg>
     </x-slot:icon>

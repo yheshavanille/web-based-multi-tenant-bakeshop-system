@@ -17,9 +17,37 @@ class Shop extends Model
         'user_id',
         'opening_time',
         'closing_time',
+        'business_permit_path',
+        'business_permit_expires_at',
+        'pending_business_permit_path',
+        'pending_business_permit_expires_at',
+        'business_permit_review_status',
+        'business_permit_review_note',
     ];
 
     protected $dates = ['deleted_at'];
+
+    protected $casts = [
+        'business_permit_expires_at' => 'date',
+        'pending_business_permit_expires_at' => 'date',
+    ];
+
+    public function getPermitValidityStatusAttribute(): string
+    {
+        if (!$this->business_permit_path || !$this->business_permit_expires_at) {
+            return 'not_submitted';
+        }
+
+        if ($this->business_permit_expires_at->lt(today())) {
+            return 'expired';
+        }
+
+        if ($this->business_permit_expires_at->lte(today()->addDays(30))) {
+            return 'expiring_soon';
+        }
+
+        return 'valid';
+    }
 
     public function user()
     {
