@@ -86,11 +86,12 @@
         <!-- Shop Info with Rating -->
         <div
             class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
-            <div class="flex flex-wrap items-center gap-4">
+            <div class="flex flex-col items-stretch gap-4 sm:flex-row">
                 <div
-                    class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200 dark:border-slate-700">
+                    class="h-48 w-full flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-amber-100 dark:border-slate-700 dark:bg-amber-900/40 sm:min-h-40 sm:w-1/4">
                     @if($shop->shop_image)
-                    <img src="{{ asset($shop->shop_image) }}" class="w-full h-full object-cover">
+                    <img src="{{ asset($shop->shop_image) }}" alt="{{ $shop->shop_name }}"
+                        class="h-full w-full object-cover">
                     @else
                     <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -100,7 +101,7 @@
                     </svg>
                     @endif
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                     <h1 class="text-xl sm:text-2xl break-words font-bold text-gray-800 dark:text-slate-100">{{
                         $shop->shop_name }}</h1>
                     <p class="text-sm text-gray-500 dark:text-slate-400 inline-flex items-center gap-1">

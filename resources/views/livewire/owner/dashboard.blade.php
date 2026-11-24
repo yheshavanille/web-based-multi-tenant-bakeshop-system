@@ -2,12 +2,12 @@
     <!-- Welcome Section with Shop Image -->
     <div
         class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
-        <div class="flex items-center gap-4">
+        <div class="flex flex-col items-stretch gap-4 sm:flex-row">
             @php
             $shop = auth()->user()->shop;
             @endphp
             <div
-                class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 dark:border-slate-700">
+                class="h-48 w-full flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700 sm:min-h-40 sm:w-1/4">
                 @if($shop && $shop->shop_image)
                 <img src="{{ asset($shop->shop_image) }}" alt="{{ $shop->shop_name }}"
                     class="w-full h-full object-cover">
@@ -22,7 +22,7 @@
                 </div>
                 @endif
             </div>
-            <div>
+            <div class="min-w-0 flex-1">
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">Welcome back, {{
                     auth()->user()->name }}!</h1>
                 <p class="text-gray-500 dark:text-slate-400">Manage your bakeshop and track performance.</p>
