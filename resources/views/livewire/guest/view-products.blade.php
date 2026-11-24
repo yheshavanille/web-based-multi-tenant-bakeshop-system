@@ -56,7 +56,8 @@
             <div class="relative">
                 <div class="absolute left-0 top-0 z-10 flex h-full w-10 items-center justify-center pointer-events-none"
                     style="position: absolute;">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -83,14 +84,16 @@
         </div>
 
         <!-- Shop Info with Rating -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex flex-wrap items-center gap-4">
                 <div
                     class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200 dark:border-slate-700">
                     @if($shop->shop_image)
                     <img src="{{ asset($shop->shop_image) }}" class="w-full h-full object-cover">
                     @else
-                    <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                         </path>
@@ -98,7 +101,8 @@
                     @endif
                 </div>
                 <div class="min-w-0">
-                    <h1 class="text-xl sm:text-2xl break-words font-bold text-gray-800 dark:text-slate-100">{{ $shop->shop_name }}</h1>
+                    <h1 class="text-xl sm:text-2xl break-words font-bold text-gray-800 dark:text-slate-100">{{
+                        $shop->shop_name }}</h1>
                     <p class="text-sm text-gray-500 dark:text-slate-400 inline-flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -116,6 +120,18 @@
                         </svg>
                         {{ $shop->user->name ?? 'N/A' }}
                     </p>
+
+                    {{-- ✅ NEW: Store Hours --}}
+                    <p
+                        class="text-sm text-amber-600 dark:text-amber-400 inline-flex items-center gap-1 mt-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Store Hours: {{ \Carbon\Carbon::parse($shop->opening_time)->format('g:i A') }} - {{
+                        \Carbon\Carbon::parse($shop->closing_time)->format('g:i A') }}
+                    </p>
+
                     @if($shopRatingCount > 0)
                     <div class="flex items-center gap-2 mt-1">
                         <svg class="w-4 h-4 text-amber-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
@@ -123,7 +139,8 @@
                                 d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
                             </path>
                         </svg>
-                        <span class="font-semibold text-gray-800 dark:text-slate-100 text-sm">{{ number_format($shopRating, 1) }}</span>
+                        <span class="font-semibold text-gray-800 dark:text-slate-100 text-sm">{{
+                            number_format($shopRating, 1) }}</span>
                         <span class="text-sm text-gray-500 dark:text-slate-400">({{ $shopRatingCount }} reviews)</span>
                     </div>
                     @else
@@ -135,7 +152,8 @@
 
         <!-- Best Sellers Section -->
         @if($bestSellers->count() > 0 && $selectedBranchId)
-        <div class="bg-amber-50 dark:bg-slate-800 rounded-2xl shadow-sm border border-amber-200 dark:border-amber-800 p-4 sm:p-5 mb-6">
+        <div
+            class="bg-amber-50 dark:bg-slate-800 rounded-2xl shadow-sm border border-amber-200 dark:border-amber-800 p-4 sm:p-5 mb-6">
             <div class="flex items-center gap-2 mb-4">
                 <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z">
@@ -155,9 +173,9 @@
                         <img src="{{ asset($item->product->image_url) }}" alt="{{ $item->product->name }}"
                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                         @else
-                        <div
-                            class="w-full h-full flex items-center justify-center bg-amber-50 dark:bg-slate-800">
-                            <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-full h-full flex items-center justify-center bg-amber-50 dark:bg-slate-800">
+                            <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
                                 </path>
@@ -168,11 +186,13 @@
                         @endif
                     </div>
                     <div class="p-3">
-                        <p class="font-semibold text-gray-800 dark:text-slate-100 text-sm truncate">{{ $item->product?->name ?? 'Product
+                        <p class="font-semibold text-gray-800 dark:text-slate-100 text-sm truncate">{{
+                            $item->product?->name ?? 'Product
                             Unavailable' }}</p>
                         <div class="flex items-center justify-between mt-1">
                             <span class="text-xs text-gray-500 dark:text-slate-400">{{ $item->total_sold }} sold</span>
-                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400">₱{{ number_format($item->total_revenue, 2)
+                            <span class="text-xs font-bold text-amber-600 dark:text-amber-400">₱{{
+                                number_format($item->total_revenue, 2)
                                 }}</span>
                         </div>
                     </div>
@@ -185,7 +205,8 @@
         <!-- Branch Cards -->
         <div class="mb-6">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4 inline-flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -200,11 +221,13 @@
                     class="block w-full text-left bg-white dark:bg-slate-800 rounded-2xl shadow-sm border {{ $selectedBranchId == $branch->id ? 'border-amber-500 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/30' : 'border-gray-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-600' }} p-5 transition hover:shadow-md">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
-                            <h3 class="font-semibold text-gray-800 dark:text-slate-100 break-words">{{ $branch->name }}</h3>
+                            <h3 class="font-semibold text-gray-800 dark:text-slate-100 break-words">{{ $branch->name }}
+                            </h3>
                             <p class="text-sm text-gray-500 dark:text-slate-400 break-words">{{ $branch->address }}</p>
                         </div>
                         @if($selectedBranchId == $branch->id)
-                        <span class="inline-flex items-center gap-1 text-amber-500 dark:text-amber-400 text-sm font-medium">
+                        <span
+                            class="inline-flex items-center gap-1 text-amber-500 dark:text-amber-400 text-sm font-medium">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -229,7 +252,8 @@
                 @endforeach
             </div>
             @else
-            <div class="text-center py-8 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700">
+            <div
+                class="text-center py-8 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700">
                 <p>No branches available for this shop.</p>
             </div>
             @endif
@@ -237,11 +261,13 @@
 
         <!-- Products Section -->
         @if($selectedBranchId)
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
@@ -260,9 +286,11 @@
                 <div>
                     <select wire:model.live="selectedCategory"
                         class="w-full sm:w-48 px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm appearance-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right:10px_center] bg-no-repeat pr-10">
-                        <option value="all" class="bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100">All Categories</option>
+                        <option value="all" class="bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100">All
+                            Categories</option>
                         @foreach($categories as $category)
-                        <option value="{{ $category->id }}" class="bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100">
+                        <option value="{{ $category->id }}"
+                            class="bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100">
                             {{ $category->name }}
                         </option>
                         @endforeach
@@ -283,19 +311,24 @@
                     <img src="{{ asset($product->image_url) }}" class="w-full h-40 object-cover rounded-lg mb-3">
                     @endif
 
-                    <h3 class="font-semibold text-gray-800 dark:text-slate-100 text-base sm:text-lg break-words">{{ $product->name }}</h3>
-                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ $product->category->name ?? 'No Category' }}</p>
+                    <h3 class="font-semibold text-gray-800 dark:text-slate-100 text-base sm:text-lg break-words">{{
+                        $product->name }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ $product->category->name ?? 'No Category' }}
+                    </p>
 
                     @if($product->isDiscounted())
                     <div class="mt-1">
-                        <span class="text-sm text-gray-400 dark:text-slate-500 line-through">₱{{ number_format($product->price, 2) }}</span>
+                        <span class="text-sm text-gray-400 dark:text-slate-500 line-through">₱{{
+                            number_format($product->price, 2) }}</span>
                         <span class="text-lg font-bold text-green-600 dark:text-green-400 ml-2">₱{{
                             number_format($product->getDiscountedPrice(), 2) }}</span>
-                        <span class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full ml-2">{{
+                        <span
+                            class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full ml-2">{{
                             $product->getDiscountLabel() }}</span>
                     </div>
                     @else
-                    <p class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">₱{{ number_format($product->price, 2) }}</p>
+                    <p class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-1">₱{{
+                        number_format($product->price, 2) }}</p>
                     @endif
 
                     <div class="flex items-center gap-1 mt-1">
@@ -307,14 +340,16 @@
                         </svg>
                         <span class="text-sm font-medium text-gray-700 dark:text-slate-300">{{
                             number_format($product->product_reviews_avg_rating, 1) }}</span>
-                        <span class="text-xs text-gray-400 dark:text-slate-500">({{ $product->productReviews->count() }} reviews)</span>
+                        <span class="text-xs text-gray-400 dark:text-slate-500">({{ $product->productReviews->count() }}
+                            reviews)</span>
                         @else
                         <span class="text-xs text-gray-400 dark:text-slate-500">No ratings yet</span>
                         @endif
                     </div>
 
                     <div class="mt-2">
-                        @if($stock <= 0) <p class="inline-flex items-center gap-1 text-xs text-red-500 dark:text-red-400 font-medium">
+                        @if($stock <= 0) <p
+                            class="inline-flex items-center gap-1 text-xs text-red-500 dark:text-red-400 font-medium">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
@@ -363,7 +398,8 @@
                         </div>
                     </div>
 
-                    <p class="text-sm text-gray-600 dark:text-slate-300 line-clamp-2 break-words mt-2 flex-1">{{ $product->description }}</p>
+                    <p class="text-sm text-gray-600 dark:text-slate-300 line-clamp-2 break-words mt-2 flex-1">{{
+                        $product->description }}</p>
 
                     <div class="mt-auto pt-3">
                         @if($stock > 0)
@@ -387,7 +423,8 @@
                 @empty
                 <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-8 text-gray-500 dark:text-slate-400">
                     @if(!empty($search))
-                    <p>No products found matching "<span class="font-medium text-amber-600 dark:text-amber-400">{{ $search }}</span>"</p>
+                    <p>No products found matching "<span class="font-medium text-amber-600 dark:text-amber-400">{{
+                            $search }}</span>"</p>
                     <p class="text-xs text-gray-400 dark:text-slate-500">Try adjusting your search.</p>
                     @else
                     <p>No products available at this branch.</p>
@@ -397,7 +434,8 @@
             </div>
         </div>
         @else
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-8 text-center text-gray-500 dark:text-slate-400">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-8 text-center text-gray-500 dark:text-slate-400">
             <p class="text-base sm:text-lg">Please select a branch to view products.</p>
         </div>
         @endif
@@ -412,13 +450,16 @@
             style="max-height: 90vh;">
 
             <!-- Modal Header -->
-            <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100">Product Details</h3>
-                        <p class="text-sm text-gray-500 dark:text-slate-400 break-words">{{ $selectedProduct->name }}</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400 break-words">{{ $selectedProduct->name }}
+                        </p>
                     </div>
-                    <button wire:click="closeReviewModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition">
+                    <button wire:click="closeReviewModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -438,20 +479,25 @@
                 @endif
 
                 <div>
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">{{ $selectedProduct->name }}</h2>
-                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedProduct->category->name ?? 'No Category' }}</p>
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">{{
+                        $selectedProduct->name }}</h2>
+                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedProduct->category->name ?? 'No
+                        Category' }}</p>
 
                     @if($selectedProduct->isDiscounted())
                     <div>
-                        <span class="text-sm text-gray-400 dark:text-slate-500 line-through">₱{{ number_format($selectedProduct->price, 2)
+                        <span class="text-sm text-gray-400 dark:text-slate-500 line-through">₱{{
+                            number_format($selectedProduct->price, 2)
                             }}</span>
                         <span class="text-2xl font-bold text-green-600 dark:text-green-400 ml-2">₱{{
                             number_format($selectedProduct->getDiscountedPrice(), 2) }}</span>
-                        <span class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full ml-2">{{
+                        <span
+                            class="text-xs bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-2 py-0.5 rounded-full ml-2">{{
                             $selectedProduct->getDiscountLabel() }}</span>
                     </div>
                     @else
-                    <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2">₱{{ number_format($selectedProduct->price, 2) }}
+                    <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-2">₱{{
+                        number_format($selectedProduct->price, 2) }}
                     </p>
                     @endif
 
@@ -462,8 +508,10 @@
                                 d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
                             </path>
                         </svg>
-                        <span class="font-semibold text-gray-800 dark:text-slate-100 text-lg">{{ number_format($averageRating, 1) }}</span>
-                        <span class="text-sm text-gray-500 dark:text-slate-400">({{ $selectedProduct->productReviews->count() }}
+                        <span class="font-semibold text-gray-800 dark:text-slate-100 text-lg">{{
+                            number_format($averageRating, 1) }}</span>
+                        <span class="text-sm text-gray-500 dark:text-slate-400">({{
+                            $selectedProduct->productReviews->count() }}
                             reviews)</span>
                         @else
                         <span class="text-sm text-gray-400 dark:text-slate-500">No ratings yet</span>
@@ -474,7 +522,8 @@
                 <!-- Total Sold -->
                 <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
@@ -499,21 +548,26 @@
                 <!-- Description -->
                 @if($selectedProduct->description)
                 <div class="border-t border-gray-100 dark:border-slate-700 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h4
+                        class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 10h16M4 14h10M4 18h10"></path>
                         </svg>
                         Description
                     </h4>
-                    <p class="text-sm text-gray-600 dark:text-slate-300 break-words">{{ $selectedProduct->description }}</p>
+                    <p class="text-sm text-gray-600 dark:text-slate-300 break-words">{{ $selectedProduct->description }}
+                    </p>
                 </div>
                 @endif
 
                 <!-- Stock -->
                 <div class="border-t border-gray-100 dark:border-slate-700 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h4
+                        class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
@@ -524,7 +578,8 @@
                     @endphp
                     <div class="flex items-center gap-2">
                         @if($stock > 0)
-                        <span class="inline-flex items-center gap-1 text-sm text-green-600 dark:text-green-400 font-medium">
+                        <span
+                            class="inline-flex items-center gap-1 text-sm text-green-600 dark:text-green-400 font-medium">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -567,15 +622,18 @@
                 <!-- Reviews Section -->
                 <div class="border-t border-gray-100 dark:border-slate-700 pt-4">
                     <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 inline-flex items-center gap-2">
-                            <svg class="w-4 h-4 text-amber-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+                        <h4
+                            class="text-sm font-semibold text-gray-700 dark:text-slate-300 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-500 dark:text-amber-400" fill="currentColor"
+                                viewBox="0 0 24 24">
                                 <path
                                     d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.98 10.1c-.784-.57-.381-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
                                 </path>
                             </svg>
                             Customer Reviews
                         </h4>
-                        <span class="text-xs text-gray-500 dark:text-slate-400">{{ $selectedProduct->productReviews->count() }}
+                        <span class="text-xs text-gray-500 dark:text-slate-400">{{
+                            $selectedProduct->productReviews->count() }}
                             reviews</span>
                     </div>
 
@@ -585,7 +643,8 @@
                         <div class="border-b border-gray-100 dark:border-slate-700 pb-3 last:border-0">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="font-semibold text-gray-800 dark:text-slate-100 text-sm">{{ $review->customer->name ??
+                                    <p class="font-semibold text-gray-800 dark:text-slate-100 text-sm">{{
+                                        $review->customer->name ??
                                         'Anonymous' }}</p>
                                     <div class="flex items-center gap-0.5 text-amber-500 dark:text-amber-400">
                                         @for($i = 0; $i < $review->rating; $i++)
@@ -597,10 +656,12 @@
                                             @endfor
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $review->created_at->diffForHumans() }}</span>
+                                <span class="text-xs text-gray-400 dark:text-slate-500">{{
+                                    $review->created_at->diffForHumans() }}</span>
                             </div>
                             @if($review->review)
-                            <p class="text-sm text-gray-600 dark:text-slate-300 mt-1 break-words">{{ $review->review }}</p>
+                            <p class="text-sm text-gray-600 dark:text-slate-300 mt-1 break-words">{{ $review->review }}
+                            </p>
                             @endif
                         </div>
                         @endforeach
@@ -616,7 +677,8 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex flex-wrap justify-end gap-3">
+            <div
+                class="px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex flex-wrap justify-end gap-3">
                 @if($stock > 0)
                 <button wire:click="addToCart({{ $selectedProduct->id }})" wire:click.stop
                     class="inline-flex items-center gap-2 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium">
@@ -647,14 +709,16 @@
             <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
                             </path>
                         </svg>
                         Login Required
                     </h3>
-                    <button wire:click="closeLoginModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition">
+                    <button wire:click="closeLoginModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-200 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -664,8 +728,10 @@
             </div>
 
             <div class="px-4 sm:px-6 py-6 text-center">
-                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                    <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div
+                    class="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A1.545 1.545 0 013 15.546V18a1 1 0 001 1h16a1 1 0 001-1v-2.454z">
                         </path>
@@ -673,7 +739,8 @@
                             d="M4.5 10.5v3M8 8v3M12 6v3M16 8v3M19.5 10.5v3"></path>
                     </svg>
                 </div>
-                <h4 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-2">Please Login to Add Items to Your Cart</h4>
+                <h4 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-2">Please Login to Add Items to
+                    Your Cart</h4>
                 <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">
                     You need to be logged in to order from our bakeshops.
                 </p>

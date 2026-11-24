@@ -4,8 +4,10 @@
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
-                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h1
+                    class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
                         </path>
@@ -25,7 +27,8 @@
         </div>
 
         <!-- Shop Info Card -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden mb-6">
             <div class="flex flex-col md:flex-row">
                 <div class="md:w-1/3 h-64 md:h-auto bg-gray-100 dark:bg-slate-800 overflow-hidden">
                     @if($shop->shop_image)
@@ -33,7 +36,8 @@
                     @else
                     <div
                         class="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 bg-amber-50 dark:bg-slate-800">
-                        <svg class="w-16 h-16 text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-16 h-16 text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                             </path>
@@ -43,10 +47,12 @@
                     @endif
                 </div>
                 <div class="flex-1 p-4 sm:p-6">
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">{{ $shop->shop_name }}</h2>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 inline-flex flex-wrap items-center gap-1 break-words">
-                        <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 flex-shrink-0" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 break-words">{{
+                        $shop->shop_name }}</h2>
+                    <p
+                        class="text-sm text-gray-500 dark:text-slate-400 mt-1 inline-flex flex-wrap items-center gap-1 break-words">
+                        <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 flex-shrink-0" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                             </path>
@@ -55,15 +61,31 @@
                         </svg>
                         {{ $shop->address ?? 'Address not provided' }}
                     </p>
-                    <p class="text-sm text-gray-600 dark:text-slate-300 mt-3 break-words">{{ $shop->description ?? 'No description available.' }}</p>
-                    <div class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+
+                    {{-- ✅ NEW: Store Hours --}}
+                    <p
+                        class="text-sm text-amber-600 dark:text-amber-400 mt-1 inline-flex flex-wrap items-center gap-1 font-medium break-words">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Store Hours: {{ \Carbon\Carbon::parse($shop->opening_time)->format('g:i A') }} - {{
+                        \Carbon\Carbon::parse($shop->closing_time)->format('g:i A') }}
+                    </p>
+
+                    <p class="text-sm text-gray-600 dark:text-slate-300 mt-3 break-words">{{ $shop->description ?? 'No
+                        description available.' }}</p>
+                    <div
+                        class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                         <div>
                             <span class="text-gray-500 dark:text-slate-400">Owner:</span>
-                            <span class="font-medium text-gray-800 dark:text-slate-100">{{ $shop->user->name ?? 'N/A' }}</span>
+                            <span class="font-medium text-gray-800 dark:text-slate-100">{{ $shop->user->name ?? 'N/A'
+                                }}</span>
                         </div>
                         <div>
                             <span class="text-gray-500 dark:text-slate-400">Email:</span>
-                            <span class="font-medium text-gray-800 dark:text-slate-100">{{ $shop->user->email ?? 'N/A' }}</span>
+                            <span class="font-medium text-gray-800 dark:text-slate-100">{{ $shop->user->email ?? 'N/A'
+                                }}</span>
                         </div>
                         <div>
                             <span class="text-gray-500 dark:text-slate-400">Branches:</span>
@@ -80,22 +102,27 @@
 
         <!-- Analytics Banners -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-green-50 dark:bg-green-900/30 rounded-xl shadow-sm border border-green-200 dark:border-green-800 p-4 sm:p-5">
+            <div
+                class="bg-green-50 dark:bg-green-900/30 rounded-xl shadow-sm border border-green-200 dark:border-green-800 p-4 sm:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Sales</p>
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Sales
+                    </p>
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                         </path>
                     </svg>
                 </div>
-                <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2">₱{{ number_format($totalSales, 2) }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2">₱{{
+                    number_format($totalSales, 2) }}</p>
                 <p class="text-xs text-green-600 mt-1">From completed orders</p>
             </div>
 
-            <div class="bg-blue-50 dark:bg-blue-900/30 rounded-xl shadow-sm border border-blue-200 dark:border-blue-800 p-4 sm:p-5">
+            <div
+                class="bg-blue-50 dark:bg-blue-900/30 rounded-xl shadow-sm border border-blue-200 dark:border-blue-800 p-4 sm:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Orders</p>
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total
+                        Orders</p>
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
@@ -106,10 +133,13 @@
                 <p class="text-xs text-blue-600 mt-1">Completed orders</p>
             </div>
 
-            <div class="bg-amber-50 dark:bg-amber-900/30 rounded-xl shadow-sm border border-amber-200 dark:border-amber-800 p-4 sm:p-5">
+            <div
+                class="bg-amber-50 dark:bg-amber-900/30 rounded-xl shadow-sm border border-amber-200 dark:border-amber-800 p-4 sm:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Products</p>
-                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total
+                        Products</p>
+                    <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
@@ -121,28 +151,33 @@
             <div
                 class="bg-purple-50 dark:bg-purple-900/30 rounded-xl shadow-sm border border-purple-200 dark:border-purple-800 p-4 sm:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total Employees</p>
+                    <p class="text-sm text-gray-600 dark:text-slate-300 font-medium uppercase tracking-wide">Total
+                        Employees</p>
                     <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                         </path>
                     </svg>
                 </div>
-                <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2">{{ $totalEmployees }}</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100 mt-2">{{ $totalEmployees }}
+                </p>
                 <p class="text-xs text-purple-600 mt-1">Active employees</p>
             </div>
         </div>
 
         <!-- ✅ Best Selling Products -->
         @if(isset($bestSellers) && $bestSellers->count() > 0)
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex flex-wrap items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z">
                     </path>
                 </svg>
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100">Best Selling Products</h3>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100">Best Selling Products
+                </h3>
                 <span class="text-xs text-gray-500 dark:text-slate-400 ml-auto">Top 5 products</span>
             </div>
             <div class="overflow-x-auto">
@@ -151,7 +186,8 @@
                         <tr>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">#</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Product</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Total Sold</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Total Sold
+                            </th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Revenue</th>
                         </tr>
                     </thead>
@@ -165,8 +201,8 @@
                                     <img src="{{ asset($item->product->image_url) }}"
                                         class="w-8 h-8 rounded-lg object-cover">
                                     @else
-                                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A2.704 2.704 0 003 15.546V6a2 2 0 012-2h14a2 2 0 012 2v9.546z">
                                         </path>
@@ -190,10 +226,12 @@
         @endif
 
         <!-- Recent Orders -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                    <h3
+                        class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
                         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
@@ -227,9 +265,12 @@
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($recentOrders as $order)
                         <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
-                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">#{{ $order->order_number }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->customer->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->branch->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">#{{ $order->order_number
+                                }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->customer->name ?? 'N/A'
+                                }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->branch->name ?? 'N/A' }}
+                            </td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->item_count }} items</td>
                             <td class="px-4 py-3 font-semibold text-green-600">₱{{
                                 number_format($order->display_total ?? $order->total_amount, 2) }}</td>
@@ -246,7 +287,8 @@
                                 </svg>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $order->updated_at->diffForHumans() }}</td>
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $order->updated_at->diffForHumans() }}</td>
                             <td class="px-4 py-3">
                                 <button wire:click="viewOrderDetails({{ $order->id }})"
                                     class="text-xs text-blue-600 hover:text-blue-800 font-medium transition">
@@ -264,10 +306,12 @@
         </div>
 
         <!-- ✅ RECENT EMPLOYEE ACTIVITIES -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                    <h3
+                        class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
                         <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
@@ -275,7 +319,8 @@
                         </svg>
                         Recent Employee Activities
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-slate-400">Last 5 activities from this shop's employees</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400">Last 5 activities from this shop's employees
+                    </p>
                 </div>
                 <a href="{{ route('livewire.admin.employee-activities', ['shop' => $shop->id]) }}"
                     class="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition">
@@ -291,7 +336,8 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Employee</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Branch</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Action</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Description</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Description
+                            </th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">When</th>
                         </tr>
                     </thead>
@@ -332,7 +378,8 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $activity->description }}</td>
-                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $activity->created_at->diffForHumans() }}
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $activity->created_at->diffForHumans() }}
                             </td>
                         </tr>
                         @endforeach
@@ -341,7 +388,8 @@
             </div>
             @else
             <div class="text-center py-8 text-gray-500 dark:text-slate-400">
-                <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-slate-500 mb-2" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                     </path>
@@ -353,15 +401,18 @@
 
         <!-- ✅ RECENT PRODUCT UPDATES -->
         @if(isset($productEditHistories) && $productEditHistories->count() > 0)
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div class="flex flex-wrap items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                         </path>
                     </svg>
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100">Recent Product Updates</h3>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100">Recent Product
+                        Updates</h3>
                     <span class="text-sm text-gray-500 dark:text-slate-400">Last 10 updates</span>
                 </div>
                 <button wire:click="viewAllProductHistory"
@@ -377,16 +428,19 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Field</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Old Value</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">New Value</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Updated By</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Updated By
+                            </th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Time</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($productEditHistories as $history)
                         <tr>
-                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{ $history->product?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{
+                                $history->product?->name ?? 'N/A' }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">
-                                <span class="px-2 py-0.5 text-xs rounded-full
+                                <span
+                                    class="px-2 py-0.5 text-xs rounded-full
                                     {{ $history->field === 'created' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
                                     {{ $history->field === 'name' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
                                     {{ $history->field === 'price' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200' : '' }}
@@ -402,7 +456,8 @@
                                 @if($history->field === 'price')
                                 ₱{{ number_format($history->old_value ?? 0, 2) }}
                                 @elseif($history->field === 'image_url')
-                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $history->old_value ? 'Old image' : 'No image'
+                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $history->old_value ? 'Old
+                                    image' : 'No image'
                                     }}</span>
                                 @elseif($history->field === 'deleted')
                                 <span class="text-xs text-red-600">{{ $history->old_value }}</span>
@@ -426,8 +481,10 @@
                                 {{ $history->new_value ?? '-' }}
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System' }}</td>
-                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System'
+                                }}</td>
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -438,7 +495,8 @@
 
         <!-- ✅ RECENT STOCK UPDATES -->
         @if(isset($stockHistories) && $stockHistories->count() > 0)
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mb-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -446,7 +504,8 @@
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
                         </path>
                     </svg>
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100">Recent Stock Updates</h3>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100">Recent Stock
+                        Updates</h3>
                     <span class="text-sm text-gray-500 dark:text-slate-400">Last 10 updates</span>
                 </div>
                 <button wire:click="viewAllStockHistory"
@@ -462,7 +521,8 @@
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Branch</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Old</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">New</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Changed By</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Changed By
+                            </th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Notes</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Time</th>
                         </tr>
@@ -470,8 +530,10 @@
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($stockHistories as $history)
                         <tr>
-                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{ $history->product?->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->branch?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">{{
+                                $history->product?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->branch?->name ?? 'N/A'
+                                }}</td>
                             <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->old_stock }}</td>
                             <td class="px-4 py-3">
                                 <span
@@ -482,9 +544,11 @@
                                     {{ $history->new_stock }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System' }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System'
+                                }}</td>
                             <td class="px-4 py-3 text-gray-500 dark:text-slate-400">{{ $history->notes ?? '-' }}</td>
-                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                            <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -494,11 +558,14 @@
         @endif
 
         <!-- Products Section -->
-        <div id="products" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
+        <div id="products"
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h3
+                        class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
@@ -512,9 +579,11 @@
                         <div class="relative">
                             <select wire:model.live="selectedBranch"
                                 class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 dark:placeholder-slate-400 cursor-pointer">
-                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="all">All Branches</option>
+                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    value="all">All Branches</option>
                                 @foreach($branches as $branch)
-                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    value="{{ $branch->id }}">{{ $branch->name }}</option>
                                 @endforeach
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -531,9 +600,11 @@
                         <div class="relative">
                             <select wire:model.live="selectedCategory"
                                 class="appearance-none w-full px-3 py-2 pr-9 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 dark:placeholder-slate-400 cursor-pointer">
-                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="all">All Categories</option>
+                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    value="all">All Categories</option>
                                 @foreach($categories as $category)
-                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100" value="{{ $category->id }}">{{ $category->name }}</option>
+                                <option class="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100"
+                                    value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -551,12 +622,14 @@
             @if($products->count() > 0)
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 @foreach($products as $product)
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition">
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden hover:shadow-md transition">
                     <div class="h-40 bg-gray-100 dark:bg-slate-800 overflow-hidden">
                         @if($product->image_url)
                         <img src="{{ asset($product->image_url) }}" class="w-full h-full object-cover">
                         @else
-                        <div class="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-slate-500">
+                        <div
+                            class="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-slate-500">
                             <svg class="w-12 h-12 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A2.704 2.704 0 003 15.546V6a2 2 0 012-2h14a2 2 0 012 2v9.546z">
@@ -569,17 +642,22 @@
                         @endif
                     </div>
                     <div class="p-4">
-                        <h4 class="font-semibold text-gray-800 dark:text-slate-100 text-sm truncate">{{ $product->name }}</h4>
-                        <p class="text-xs text-gray-500 dark:text-slate-400">{{ $product->category->name ?? 'Uncategorized' }}</p>
+                        <h4 class="font-semibold text-gray-800 dark:text-slate-100 text-sm truncate">{{ $product->name
+                            }}</h4>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">{{ $product->category->name ??
+                            'Uncategorized' }}</p>
                         <p class="text-base sm:text-lg font-bold mt-1">
                             @if($product->isDiscounted())
                             <span class="text-red-600">₱{{ number_format($product->getDiscountedPrice(), 2) }}</span>
-                            <span class="text-sm text-gray-400 dark:text-slate-500 line-through ml-2">₱{{ number_format($product->price, 2)
+                            <span class="text-sm text-gray-400 dark:text-slate-500 line-through ml-2">₱{{
+                                number_format($product->price, 2)
                                 }}</span>
-                            <span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full ml-1">{{
+                            <span
+                                class="text-xs bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full ml-1">{{
                                 $product->getDiscountLabel() }}</span>
                             @else
-                            <span class="text-amber-600 dark:text-amber-400">₱{{ number_format($product->price, 2) }}</span>
+                            <span class="text-amber-600 dark:text-amber-400">₱{{ number_format($product->price, 2)
+                                }}</span>
                             @endif
                         </p>
 
@@ -596,20 +674,22 @@
                             <span class="text-xs font-semibold text-green-600">{{ $product->total_sold ?? 0 }}</span>
                             <span class="text-xs text-gray-300 dark:text-slate-500">|</span>
                             <span class="text-xs text-gray-500 dark:text-slate-400 inline-flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                     </path>
                                 </svg>
                                 Revenue:
                             </span>
-                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">₱{{ number_format($product->total_revenue
+                            <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">₱{{
+                                number_format($product->total_revenue
                                 ?? 0, 2) }}</span>
                         </div>
 
                         <div class="mt-2 flex flex-wrap items-center gap-2">
-                            <span class="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full
+                            <span
+                                class="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full
                                 {{ $product->current_stock > 10 ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
                                 {{ $product->current_stock <= 10 && $product->current_stock > 0 ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
                                 {{ $product->current_stock <= 0 ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}">
@@ -632,13 +712,15 @@
 
                         <div class="mt-2 flex flex-wrap gap-1">
                             @foreach($product->branches as $branch)
-                            <span class="text-xs px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 rounded-full">
+                            <span
+                                class="text-xs px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 rounded-full">
                                 {{ $branch->name }}
                             </span>
                             @endforeach
                         </div>
                         @if($product->description)
-                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-2 line-clamp-2">{{ $product->description }}</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-2 line-clamp-2">{{ $product->description
+                            }}</p>
                         @endif
 
                         <button wire:click="viewProductDetails({{ $product->id }})"
@@ -656,7 +738,8 @@
             </div>
             @else
             <div class="text-center py-12 text-gray-500 dark:text-slate-400">
-                <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-slate-500 mb-3" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
                     </path>
@@ -668,10 +751,12 @@
         </div>
 
         <!-- Employees Section -->
-        <div id="employees" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mt-6">
+        <div id="employees"
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-4 sm:p-6 mt-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                    <h3
+                        class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
                         <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
@@ -679,17 +764,21 @@
                         </svg>
                         Employees
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ $employees->count() }} employees assigned</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ $employees->count() }} employees assigned
+                    </p>
                 </div>
             </div>
 
             @if($employees->count() > 0)
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 @foreach($employees as $employee)
-                <div class="border border-gray-100 dark:border-slate-700 rounded-lg p-3 bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
-                    <p class="font-medium text-gray-800 dark:text-slate-100 text-sm">{{ $employee->user?->name ?? 'Deleted user' }}</p>
+                <div
+                    class="border border-gray-100 dark:border-slate-700 rounded-lg p-3 bg-gray-50 dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 transition">
+                    <p class="font-medium text-gray-800 dark:text-slate-100 text-sm">{{ $employee->user?->name ??
+                        'Deleted user' }}</p>
                     <p class="text-xs text-gray-500 dark:text-slate-400">{{ $employee->user?->email ?? 'No email' }}</p>
-                    <p class="text-xs font-medium text-amber-600 dark:text-amber-400 mt-1">{{ $employee->role_label }}</p>
+                    <p class="text-xs font-medium text-amber-600 dark:text-amber-400 mt-1">{{ $employee->role_label }}
+                    </p>
                 </div>
                 @endforeach
             </div>
@@ -710,10 +799,12 @@
         <div class="relative w-full max-w-5xl overflow-hidden text-left transition-all transform bg-white dark:bg-slate-800 rounded-2xl shadow-2xl flex flex-col"
             style="max-height: 90vh;">
 
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                        <h3
+                            class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
@@ -721,9 +812,11 @@
                             </svg>
                             All Orders
                         </h3>
-                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $this->allOrders->total() }} orders found</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $this->allOrders->total() }} orders
+                            found</p>
                     </div>
-                    <button wire:click="closeAllOrdersModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600">
+                    <button wire:click="closeAllOrdersModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -738,23 +831,33 @@
                     <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
                         <thead class="bg-gray-50 dark:bg-slate-900 sticky top-0">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Order #</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Customer</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Branch</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Order #
+                                </th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Customer
+                                </th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Branch
+                                </th>
                                 <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Items</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Amount</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Status</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Amount
+                                </th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Status
+                                </th>
                                 <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Date</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Action</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-slate-300">Action
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                             @foreach($this->allOrders as $order)
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
-                                <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">#{{ $order->order_number }}</td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->customer->name ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->branch->name ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->item_count }} items</td>
+                                <td class="px-4 py-3 font-medium text-gray-800 dark:text-slate-100">#{{
+                                    $order->order_number }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->customer->name ??
+                                    'N/A' }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->branch->name ?? 'N/A'
+                                    }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-slate-300">{{ $order->item_count }} items
+                                </td>
                                 <td class="px-4 py-3 font-semibold text-green-600">₱{{
                                     number_format($order->display_total ?? $order->total_amount, 2) }}</td>
                                 <td class="px-4 py-3">
@@ -770,7 +873,8 @@
                                     </svg>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{ $order->created_at->format('M d, Y h:i
+                                <td class="px-4 py-3 text-gray-400 dark:text-slate-500 text-xs">{{
+                                    $order->created_at->format('M d, Y h:i
                                     A') }}</td>
                                 <td class="px-4 py-3">
                                     <button wire:click="viewOrderDetails({{ $order->id }})"
@@ -794,7 +898,8 @@
                 @endif
             </div>
 
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0">
                 <button wire:click="closeAllOrdersModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Close
@@ -818,10 +923,12 @@
         <div class="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 92vh;">
 
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                        <h3
+                            class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
@@ -850,12 +957,14 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Order Date</p>
-                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $selectedOrder->created_at->format('M d, Y h:i
+                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{
+                            $selectedOrder->created_at->format('M d, Y h:i
                             A') }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Status</p>
-                        <span class="text-sm font-medium px-2 py-0.5 rounded-full
+                        <span
+                            class="text-sm font-medium px-2 py-0.5 rounded-full
                             {{ $selectedOrder->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
                             {{ $selectedOrder->status === 'preparing' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
                             {{ $selectedOrder->status === 'ready_for_pickup' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
@@ -867,11 +976,13 @@
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Payment Method</p>
-                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{ $selectedOrder->payment_method_label }}</p>
+                        <p class="text-sm font-medium text-gray-800 dark:text-slate-100">{{
+                            $selectedOrder->payment_method_label }}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3">
                         <p class="text-xs text-gray-500 dark:text-slate-400">Payment Status</p>
-                        <span class="text-sm font-medium px-2 py-0.5 rounded-full
+                        <span
+                            class="text-sm font-medium px-2 py-0.5 rounded-full
                             {{ $selectedOrder->payment_status === 'paid' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
                             {{ $selectedOrder->payment_status === 'partially_paid' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
                             {{ $selectedOrder->payment_status === 'refunded' ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200' : '' }}
@@ -883,7 +994,8 @@
                 </div>
 
                 @if($selectedOrder->status === 'cancelled')
-                <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
+                <div
+                    class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
                     <svg class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -912,8 +1024,10 @@
                 @endif
 
                 <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 inline-flex flex-wrap items-center gap-2">
-                        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h4
+                        class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 inline-flex flex-wrap items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
@@ -923,25 +1037,35 @@
                         <table class="w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm">
                             <thead class="bg-gray-50 dark:bg-slate-900">
                                 <tr>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Product</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Qty</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Price</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Subtotal</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Status</th>
-                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Notes</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">
+                                        Product</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Qty
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Price
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">
+                                        Subtotal</th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Status
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Notes
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                                 @foreach($selectedOrder->items as $item)
                                 <tr>
-                                    <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100">{{ $item->product->name ?? 'N/A' }}
+                                    <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100">{{
+                                        $item->product->name ?? 'N/A' }}
                                     </td>
                                     <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $item->quantity }}</td>
-                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300">₱{{ number_format($item->price, 2) }}</td>
-                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300">₱{{ number_format($item->price *
+                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300">₱{{
+                                        number_format($item->price, 2) }}</td>
+                                    <td class="px-4 py-2 text-gray-600 dark:text-slate-300">₱{{
+                                        number_format($item->price *
                                         $item->quantity, 2) }}</td>
                                     <td class="px-4 py-2">
-                                        <span class="text-xs px-2 py-0.5 rounded-full
+                                        <span
+                                            class="text-xs px-2 py-0.5 rounded-full
                                             {{ $item->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200' : '' }}
                                             {{ $item->status === 'preparing' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
                                             {{ $item->status === 'ready_for_pickup' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
@@ -972,8 +1096,8 @@
                                     <td colspan="6" class="px-4 pt-3 pb-1">
                                         <div
                                             class="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider inline-flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-slate-400" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4">
                                                 </path>
@@ -983,17 +1107,22 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Subtotal:</td>
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Subtotal:
+                                    </td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['original_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT
+                                        (12%):</td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['original_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-gray-800 dark:text-slate-100">
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm font-semibold text-gray-800 dark:text-slate-100">
                                         Original Total:</td>
                                     <td colspan="2" class="px-4 py-1 font-bold text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['original_total'], 2) }}</td>
@@ -1001,7 +1130,8 @@
 
                                 @if($b['amount_charged'] > 0)
                                 <tr>
-                                    <td colspan="6" class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
+                                    <td colspan="6"
+                                        class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
                                         <div
                                             class="text-xs font-semibold text-green-600 uppercase tracking-wider inline-flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor"
@@ -1015,7 +1145,8 @@
                                 </tr>
                                 @foreach($b['charged_items'] as $item)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">
+                                    <td colspan="4"
+                                        class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">
                                         • {{ $item['name'] }} ({{ $item['quantity'] }}x)
                                     </td>
                                     <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600 dark:text-slate-300">
@@ -1024,18 +1155,23 @@
                                 </tr>
                                 @endforeach
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Completed Items:
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Completed
+                                        Items:
                                     </td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['charged_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT
+                                        (12%):</td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['charged_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-green-700 dark:text-green-300">
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm font-semibold text-green-700 dark:text-green-300">
                                         Amount Charged:</td>
                                     <td colspan="2" class="px-4 py-1 font-bold text-green-600">₱{{
                                         number_format($b['amount_charged'], 2) }}</td>
@@ -1044,7 +1180,8 @@
 
                                 @if($b['amount_not_charged'] > 0)
                                 <tr>
-                                    <td colspan="6" class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
+                                    <td colspan="6"
+                                        class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
                                         <div
                                             class="text-xs font-semibold text-red-600 uppercase tracking-wider inline-flex items-center gap-1.5">
                                             <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor"
@@ -1059,7 +1196,8 @@
                                 </tr>
                                 @foreach($b['not_charged_items'] as $item)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">
+                                    <td colspan="4"
+                                        class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">
                                         • {{ $item['name'] }} ({{ $item['quantity'] }}x)
                                     </td>
                                     <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600 dark:text-slate-300">
@@ -1068,18 +1206,22 @@
                                 </tr>
                                 @endforeach
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">No Show /
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">No Show /
                                         Cancelled:</td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['not_charged_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT
+                                        (12%):</td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['not_charged_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-red-700 dark:text-red-300">
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm font-semibold text-red-700 dark:text-red-300">
                                         Amount Not Charged:</td>
                                     <td colspan="2" class="px-4 py-1 font-bold text-red-600">₱{{
                                         number_format($b['amount_not_charged'], 2) }}</td>
@@ -1088,11 +1230,12 @@
 
                                 @if($b['amount_outstanding'] > 0)
                                 <tr>
-                                    <td colspan="6" class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
+                                    <td colspan="6"
+                                        class="px-4 pt-3 pb-1 border-t border-gray-200 dark:border-slate-700">
                                         <div
                                             class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider inline-flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
@@ -1102,7 +1245,8 @@
                                 </tr>
                                 @foreach($b['outstanding_items'] as $item)
                                 <tr>
-                                    <td colspan="4" class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">
+                                    <td colspan="4"
+                                        class="px-4 py-0.5 text-right text-xs text-gray-500 dark:text-slate-400">
                                         • {{ $item['name'] }} ({{ $item['quantity'] }}x)
                                     </td>
                                     <td colspan="2" class="px-4 py-0.5 text-xs text-gray-600 dark:text-slate-300">
@@ -1111,18 +1255,22 @@
                                 </tr>
                                 @endforeach
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Pending +
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">Pending +
                                         Preparing + Ready:</td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['outstanding_subtotal'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT (12%):</td>
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm text-gray-600 dark:text-slate-300">VAT
+                                        (12%):</td>
                                     <td colspan="2" class="px-4 py-1 font-medium text-gray-800 dark:text-slate-100">₱{{
                                         number_format($b['outstanding_vat'], 2) }}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="px-4 py-1 text-right text-sm font-semibold text-amber-700 dark:text-amber-300">
+                                    <td colspan="4"
+                                        class="px-4 py-1 text-right text-sm font-semibold text-amber-700 dark:text-amber-300">
                                         Amount Outstanding:</td>
                                     <td colspan="2" class="px-4 py-1 font-bold text-amber-600 dark:text-amber-400">₱{{
                                         number_format($b['amount_outstanding'], 2) }}</td>
@@ -1135,7 +1283,8 @@
 
                 @if($selectedOrder->pickup_time)
                 <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex flex-wrap items-center gap-2">
+                    <h4
+                        class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2 inline-flex flex-wrap items-center gap-2">
                         <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -1159,7 +1308,8 @@
 
             </div>
 
-            <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
+            <div
+                class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                 <button @click="$dispatch('close-order-details')" type="button"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Close
@@ -1177,20 +1327,25 @@
 
         <div
             class="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
-                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h3
+                            class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                 </path>
                             </svg>
                             All Product Updates
                         </h3>
-                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $allProductHistories->count() }} total updates</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $allProductHistories->count() }} total
+                            updates</p>
                     </div>
-                    <button wire:click="closeProductHistoryModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition">
+                    <button wire:click="closeProductHistoryModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -1207,16 +1362,19 @@
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Field</th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Old Value</th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">New Value</th>
-                            <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Updated By</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Updated By
+                            </th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Time</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($allProductHistories as $history)
                         <tr>
-                            <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100">{{ $history->product?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100">{{
+                                $history->product?->name ?? 'N/A' }}</td>
                             <td class="px-4 py-2">
-                                <span class="px-2 py-0.5 text-xs rounded-full
+                                <span
+                                    class="px-2 py-0.5 text-xs rounded-full
                                     {{ $history->field === 'created' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : '' }}
                                     {{ $history->field === 'name' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200' : '' }}
                                     {{ $history->field === 'price' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200' : '' }}
@@ -1232,7 +1390,8 @@
                                 @if($history->field === 'price')
                                 ₱{{ number_format($history->old_value ?? 0, 2) }}
                                 @elseif($history->field === 'image_url')
-                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $history->old_value ? 'Old image' : 'No image'
+                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $history->old_value ? 'Old
+                                    image' : 'No image'
                                     }}</span>
                                 @elseif($history->field === 'deleted')
                                 <span class="text-xs text-red-600">{{ $history->old_value }}</span>
@@ -1258,15 +1417,18 @@
                                 {{ $history->new_value ?? '-' }}
                                 @endif
                             </td>
-                            <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System' }}</td>
-                            <td class="px-4 py-2 text-gray-400 dark:text-slate-500 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                            <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System'
+                                }}</td>
+                            <td class="px-4 py-2 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
+            <div
+                class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                 <button wire:click="closeProductHistoryModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Close
@@ -1283,19 +1445,23 @@
 
         <div
             class="relative z-10 w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                        <h3
+                            class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                             </svg>
                             All Stock Updates
                         </h3>
-                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $allStockHistories->count() }} total updates</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $allStockHistories->count() }} total
+                            updates</p>
                     </div>
-                    <button wire:click="closeStockHistoryModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition">
+                    <button wire:click="closeStockHistoryModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -1312,7 +1478,8 @@
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Branch</th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Old Stock</th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">New Stock</th>
-                            <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Changed By</th>
+                            <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Changed By
+                            </th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Notes</th>
                             <th class="px-4 py-2 text-left font-medium text-gray-700 dark:text-slate-300">Time</th>
                         </tr>
@@ -1320,8 +1487,10 @@
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         @foreach($allStockHistories as $history)
                         <tr>
-                            <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100">{{ $history->product?->name ?? 'N/A' }}</td>
-                            <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->branch?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-2 font-medium text-gray-800 dark:text-slate-100">{{
+                                $history->product?->name ?? 'N/A' }}</td>
+                            <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->branch?->name ?? 'N/A'
+                                }}</td>
                             <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->old_stock }}</td>
                             <td class="px-4 py-2">
                                 <span
@@ -1332,16 +1501,19 @@
                                     {{ $history->new_stock }}
                                 </span>
                             </td>
-                            <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System' }}</td>
+                            <td class="px-4 py-2 text-gray-600 dark:text-slate-300">{{ $history->user?->name ?? 'System'
+                                }}</td>
                             <td class="px-4 py-2 text-gray-500 dark:text-slate-400">{{ $history->notes ?? '-' }}</td>
-                            <td class="px-4 py-2 text-gray-400 dark:text-slate-500 text-xs">{{ $history->created_at->diffForHumans() }}</td>
+                            <td class="px-4 py-2 text-gray-400 dark:text-slate-500 text-xs">{{
+                                $history->created_at->diffForHumans() }}</td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <div class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
+            <div
+                class="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                 <button wire:click="closeStockHistoryModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Close
@@ -1359,10 +1531,12 @@
         <div class="relative z-10 w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style="max-height: 90vh;">
 
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-slate-700 bg-amber-50 dark:bg-slate-800 flex-shrink-0">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A2.704 2.704 0 003 15.546V6a2 2 0 012-2h14a2 2 0 012 2v9.546z">
                             </path>
@@ -1370,9 +1544,10 @@
                                 d="M3 10h18M7 3v4M17 3v4"></path>
                         </svg>
                         <div>
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
-                                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <h3
+                                class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100 inline-flex flex-wrap items-center gap-2">
+                                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
@@ -1381,7 +1556,8 @@
                             <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedProduct->name }}</p>
                         </div>
                     </div>
-                    <button wire:click="closeProductModal" class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition">
+                    <button wire:click="closeProductModal"
+                        class="text-gray-400 dark:text-slate-500 hover:text-gray-600 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -1412,47 +1588,59 @@
                         @endif
                     </div>
                     <div class="space-y-2">
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100">{{ $selectedProduct->name }}</h2>
-                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedProduct->category->name ?? 'Uncategorized' }}</p>
+                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-slate-100">{{
+                            $selectedProduct->name }}</h2>
+                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ $selectedProduct->category->name ??
+                            'Uncategorized' }}</p>
                         <p class="text-xl sm:text-2xl font-bold">
                             @if($selectedProduct->isDiscounted())
                             <span class="text-red-600">₱{{ number_format($selectedProduct->getDiscountedPrice(), 2)
                                 }}</span>
                             <span class="text-sm text-gray-400 dark:text-slate-500 line-through ml-2">₱{{
                                 number_format($selectedProduct->price, 2) }}</span>
-                            <span class="text-xs bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full ml-1">{{
+                            <span
+                                class="text-xs bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full ml-1">{{
                                 $selectedProduct->getDiscountLabel() }}</span>
                             @else
-                            <span class="text-amber-600 dark:text-amber-400">₱{{ number_format($selectedProduct->price, 2) }}</span>
+                            <span class="text-amber-600 dark:text-amber-400">₱{{ number_format($selectedProduct->price,
+                                2) }}</span>
                             @endif
                         </p>
                         @php
                         $totalStock = $selectedProduct->branches->sum('pivot.stock');
                         @endphp
                         <p class="text-sm text-gray-600 dark:text-slate-300 inline-flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                             </svg>
                             Stock: <span class="font-medium">{{ $totalStock }}</span> units available
                         </p>
                         @if($selectedProduct->description)
-                        <p class="text-sm text-gray-600 dark:text-slate-300 mt-2 border-t border-gray-100 dark:border-slate-700 pt-2">{{
+                        <p
+                            class="text-sm text-gray-600 dark:text-slate-300 mt-2 border-t border-gray-100 dark:border-slate-700 pt-2">
+                            {{
                             $selectedProduct->description }}</p>
                         @endif
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800 text-center">
+                    <div
+                        class="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800 text-center">
                         <p class="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider">Total Sold</p>
-                        <p class="text-xl sm:text-2xl font-bold text-blue-600">{{ $productAnalytics['total_sold'] ?? 0 }}</p>
+                        <p class="text-xl sm:text-2xl font-bold text-blue-600">{{ $productAnalytics['total_sold'] ?? 0
+                            }}</p>
                     </div>
-                    <div class="bg-green-50 dark:bg-green-900/30 rounded-xl p-4 border border-green-200 dark:border-green-800 text-center">
+                    <div
+                        class="bg-green-50 dark:bg-green-900/30 rounded-xl p-4 border border-green-200 dark:border-green-800 text-center">
                         <p class="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider">Total Orders</p>
-                        <p class="text-xl sm:text-2xl font-bold text-green-600">{{ $productAnalytics['total_orders'] ?? 0 }}</p>
+                        <p class="text-xl sm:text-2xl font-bold text-green-600">{{ $productAnalytics['total_orders'] ??
+                            0 }}</p>
                     </div>
-                    <div class="bg-amber-50 dark:bg-amber-900/30 rounded-xl p-4 border border-amber-200 dark:border-amber-800 text-center">
+                    <div
+                        class="bg-amber-50 dark:bg-amber-900/30 rounded-xl p-4 border border-amber-200 dark:border-amber-800 text-center">
                         <p class="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider">Total Revenue</p>
                         <p class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">₱{{
                             number_format($productAnalytics['total_revenue'] ?? 0, 2) }}</p>
@@ -1460,7 +1648,8 @@
                 </div>
 
                 <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
-                    <h4 class="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 inline-flex flex-wrap items-center gap-2">
+                    <h4
+                        class="text-sm font-semibold text-gray-800 dark:text-slate-100 mb-3 inline-flex flex-wrap items-center gap-2">
                         <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -1472,22 +1661,26 @@
                     </h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         @forelse($selectedProduct->branches as $branch)
-                        <div class="border border-gray-100 dark:border-slate-700 rounded-lg p-3 bg-gray-50 dark:bg-slate-900 flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-700 dark:text-slate-300">{{ $branch->name }}</span>
+                        <div
+                            class="border border-gray-100 dark:border-slate-700 rounded-lg p-3 bg-gray-50 dark:bg-slate-900 flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700 dark:text-slate-300">{{ $branch->name
+                                }}</span>
                             <span
                                 class="text-sm font-semibold {{ $branch->pivot->stock > 5 ? 'text-green-600' : ($branch->pivot->stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
                                 {{ $branch->pivot->stock }}
                             </span>
                         </div>
                         @empty
-                        <p class="text-sm text-gray-500 dark:text-slate-400 col-span-1 sm:col-span-2">No branches assigned.</p>
+                        <p class="text-sm text-gray-500 dark:text-slate-400 col-span-1 sm:col-span-2">No branches
+                            assigned.</p>
                         @endforelse
                     </div>
                 </div>
 
                 <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
                     <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                        <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 inline-flex flex-wrap items-center gap-2">
+                        <h4
+                            class="text-sm font-semibold text-gray-700 dark:text-slate-300 inline-flex flex-wrap items-center gap-2">
                             <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
@@ -1495,7 +1688,8 @@
                             </svg>
                             Customer Reviews
                         </h4>
-                        <span class="text-xs text-gray-500 dark:text-slate-400">{{ $selectedProduct->productReviews->count() }}
+                        <span class="text-xs text-gray-500 dark:text-slate-400">{{
+                            $selectedProduct->productReviews->count() }}
                             reviews</span>
                     </div>
 
@@ -1505,7 +1699,8 @@
                         <div class="border-b border-gray-100 dark:border-slate-700 pb-3 last:border-0">
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <div>
-                                    <p class="font-semibold text-gray-800 dark:text-slate-100 text-sm">{{ $review->customer->name ??
+                                    <p class="font-semibold text-gray-800 dark:text-slate-100 text-sm">{{
+                                        $review->customer->name ??
                                         'Anonymous' }}</p>
                                     <div class="flex items-center gap-0.5 text-amber-500 text-sm">
                                         @for($i = 0; $i < $review->rating; $i++)
@@ -1517,7 +1712,8 @@
                                             @endfor
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-400 dark:text-slate-500">{{ $review->created_at->diffForHumans() }}</span>
+                                <span class="text-xs text-gray-400 dark:text-slate-500">{{
+                                    $review->created_at->diffForHumans() }}</span>
                             </div>
                             @if($review->review)
                             <p class="text-sm text-gray-600 dark:text-slate-300 mt-1">{{ $review->review }}</p>
@@ -1534,7 +1730,8 @@
 
             </div>
 
-            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
+            <div
+                class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex-shrink-0 flex justify-end">
                 <button wire:click="closeProductModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition text-sm font-medium">
                     Close

@@ -15,6 +15,8 @@ class Shop extends Model
         'description',
         'address',
         'user_id',
+        'opening_time',
+        'closing_time',
     ];
 
     protected $dates = ['deleted_at'];

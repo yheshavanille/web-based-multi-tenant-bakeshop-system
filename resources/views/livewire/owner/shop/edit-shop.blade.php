@@ -21,7 +21,8 @@
         @if(session()->has('message'))
         <div
             class="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm inline-flex items-center gap-2 w-full">
-            <svg class="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
@@ -30,7 +31,8 @@
         @endif
 
         <!-- Main Card -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             <form wire:submit.prevent="save" class="p-5">
 
                 <!-- Shop Image Upload -->
@@ -68,13 +70,13 @@
                         @else
                         <div
                             class="w-48 h-48 mx-auto bg-gray-100 dark:bg-slate-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 flex flex-col items-center justify-center">
-                            <svg class="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                 </path>
                             </svg>
                             <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">No image uploaded</p>
-
                         </div>
                         @endif
                     </div>
@@ -140,6 +142,40 @@
                     @enderror
                 </div>
 
+                <hr class="border-gray-200 dark:border-slate-700 my-4">
+
+                <!-- ✅ NEW: Store Hours -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                        Store Hours
+                    </label>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">Let customers know when they can pick up
+                        their orders.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Opening
+                                Time</label>
+                            <input type="time" wire:model="opening_time"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('opening_time') border-red-500 @enderror">
+                            @error('opening_time')
+                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1">Closing
+                                Time</label>
+                            <input type="time" wire:model="closing_time"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('closing_time') border-red-500 @enderror">
+                            @error('closing_time')
+                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200 dark:border-slate-700 my-4">
+
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
                     <button type="button" wire:click="openDeleteModal"
@@ -170,15 +206,16 @@
         <!-- Danger Zone Notice -->
         <div class="mt-3 p-2.5 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800">
             <div class="flex items-start gap-2">
-                <svg class="w-4 h-4 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                     </path>
                 </svg>
                 <div>
                     <p class="text-xs font-medium text-red-800 dark:text-red-200">Danger Zone</p>
-                    <p class="text-xs text-red-600 dark:text-red-400">Deleting your shop will hide all your products, orders, and data.
+                    <p class="text-xs text-red-600 dark:text-red-400">Deleting your shop will hide all your products,
+                        orders, and data.
                         Contact support to restore.</p>
                 </div>
             </div>
@@ -194,7 +231,8 @@
         <div class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30">
                 <h3 class="text-lg font-bold text-red-800 dark:text-red-200">Delete Shop</h3>
-                <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">This will hide your shop and its data from the platform.</p>
+                <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">This will hide your shop and its data from the
+                    platform.</p>
             </div>
 
             <div class="px-6 py-4">
@@ -215,7 +253,8 @@
                 </p>
             </div>
 
-            <div class="px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
+            <div
+                class="px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
                 <button wire:click="closeDeleteModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
                     Cancel

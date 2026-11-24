@@ -18,7 +18,11 @@ class EditShop extends Component
     public $address;
     public $description;
 
-    // ✅ NEW: Delete reason modal state
+    // ✅ NEW: Store Hours
+    public $opening_time;
+    public $closing_time;
+
+    // ✅ Delete reason modal state
     public $showDeleteModal = false;
     public $deleteReason = '';
 
@@ -51,6 +55,10 @@ class EditShop extends Component
         $this->shop_image = $this->shop->shop_image;
         $this->address = $this->shop->address;
         $this->description = $this->shop->description;
+
+        // ✅ Load Store Hours (fallback to defaults if null)
+        $this->opening_time = $this->shop->opening_time ?? '08:00';
+        $this->closing_time = $this->shop->closing_time ?? '22:00';
     }
 
     public function save()
@@ -60,6 +68,11 @@ class EditShop extends Component
             'image' => 'nullable|image|max:2048',
             'address' => 'required|string|max:255',
             'description' => 'nullable|string',
+            // ✅ Validate Store Hours
+            'opening_time' => 'required',
+            'closing_time' => 'required|after:opening_time',
+        ], [
+            'closing_time.after' => 'The closing time must be after the opening time.',
         ]);
 
         $imagePath = $this->shop_image;
@@ -80,6 +93,8 @@ class EditShop extends Component
             'shop_image' => $imagePath,
             'address' => $this->address,
             'description' => $this->description,
+            'opening_time' => $this->opening_time, // ✅ Save
+            'closing_time' => $this->closing_time, // ✅ Save
         ]);
 
         session()->flash('message', 'Shop updated successfully!');
@@ -87,7 +102,6 @@ class EditShop extends Component
         return redirect()->route('livewire.owner.dashboard');
     }
 
-    // ✅ NEW: Open the delete confirmation modal
     public function openDeleteModal()
     {
         $this->deleteReason = '';
@@ -95,7 +109,6 @@ class EditShop extends Component
         $this->resetErrorBag();
     }
 
-    // ✅ NEW: Close the modal
     public function closeDeleteModal()
     {
         $this->showDeleteModal = false;
@@ -103,7 +116,6 @@ class EditShop extends Component
         $this->resetErrorBag();
     }
 
-    // ✅ UPDATED: Validate reason, pass it to the notification
     public function deleteShop()
     {
         $this->validate([
@@ -117,7 +129,6 @@ class EditShop extends Component
         $shop = Auth::user()->shop;
         $shopName = $shop->shop_name;
 
-        // ✅ Notify all super admins BEFORE deleting — pass reason
         $superAdmins = \App\Models\User::role('super_admin')->get();
         if ($superAdmins->count() > 0) {
             \Illuminate\Support\Facades\Notification::send(
