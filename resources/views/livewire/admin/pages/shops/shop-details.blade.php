@@ -72,9 +72,15 @@
                         Store Hours: {{ \Carbon\Carbon::parse($shop->opening_time)->format('g:i A') }} - {{
                         \Carbon\Carbon::parse($shop->closing_time)->format('g:i A') }}
                     </p>
-
-                    <p class="text-sm text-gray-600 dark:text-slate-300 mt-3 break-words">{{ $shop->description ?? 'No
-                        description available.' }}</p>
+                    @if($shop->description)
+                    <p class="text-sm text-gray-600 dark:text-slate-300 mt-3 break-words max-w-2xl">
+                        {{ $shop->description }}
+                    </p>
+                    @else
+                    <p class="text-sm text-gray-600 dark:text-slate-300 mt-3 break-words">
+                        No description available.
+                    </p>
+                    @endif
                     <div
                         class="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                         <div>

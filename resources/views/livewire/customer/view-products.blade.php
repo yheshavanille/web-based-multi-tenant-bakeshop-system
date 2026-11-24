@@ -126,6 +126,12 @@
                         Store Hours: {{ \Carbon\Carbon::parse($shop->opening_time)->format('g:i A') }} - {{
                         \Carbon\Carbon::parse($shop->closing_time)->format('g:i A') }}
                     </p>
+                    {{-- ✅ NEW: Shop Description --}}
+                    @if($shop->description)
+                    <p class="text-sm text-gray-600 dark:text-slate-300 mt-2 break-words max-w-2xl">
+                        {{ $shop->description }}
+                    </p>
+                    @endif
 
                     @if($shopRatingCount > 0)
                     <div class="flex items-center gap-2 mt-1">

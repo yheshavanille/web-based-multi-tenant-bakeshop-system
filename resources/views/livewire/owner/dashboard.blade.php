@@ -38,6 +38,12 @@
                     \Carbon\Carbon::parse($shop->closing_time)->format('g:i A') }}
                 </p>
                 @endif
+                {{-- ✅ NEW: Shop Description --}}
+                @if($shop && $shop->description)
+                <p class="text-sm text-gray-600 dark:text-slate-300 mt-2 break-words max-w-xl">
+                    {{ $shop->description }}
+                </p>
+                @endif
 
                 @if($shopRatingCount > 0)
                 <div class="flex items-center gap-2 mt-1">
