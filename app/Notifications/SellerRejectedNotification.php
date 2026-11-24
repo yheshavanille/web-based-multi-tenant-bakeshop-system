@@ -91,7 +91,7 @@ class SellerRejectedNotification extends Notification
 
         $mail->line('---')
             ->line('You are welcome to review our requirements and reapply whenever you are ready.')
-            ->action('Reapply as a Seller', route('livewire.customer.start-selling'))
+
             ->line('If you believe this was a mistake, please contact our support team.')
             ->salutation('— Web-based Multi-Tenant Bakeshop System');
 

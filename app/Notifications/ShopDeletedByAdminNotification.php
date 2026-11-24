@@ -57,7 +57,7 @@ class ShopDeletedByAdminNotification extends Notification
 
         $mail->line('---')
             ->line('If you believe this was a mistake or would like to reopen your shop in the future, you can reapply as a seller.')
-            ->action('Reapply as a Seller', route('livewire.customer.start-selling'))
+
             ->line('If you need clarification, please contact our support team.')
             ->salutation('— Web-based Multi-Tenant Bakeshop System');
 
