@@ -521,7 +521,7 @@ class Orders extends Component
     {
         $this->selectedOrderDetails = Order::where('customer_id', Auth::id())
             ->where('id', $orderId)
-            ->with(['items.product', 'shop', 'branch'])
+            ->with(['items.product', 'shop', 'branch', 'customer'])
             ->first();
 
         if (!$this->selectedOrderDetails) {
