@@ -731,6 +731,30 @@
                     </div>
                 </div>
 
+                <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Customer Information</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 min-w-0">
+                            <p class="text-xs text-gray-500 dark:text-slate-400">Name</p>
+                            <p class="text-sm text-gray-800 dark:text-slate-100 break-words">
+                                {{ $selectedOrder->customer?->name ?? 'Not provided' }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 min-w-0">
+                            <p class="text-xs text-gray-500 dark:text-slate-400">Email</p>
+                            <p class="text-sm text-gray-800 dark:text-slate-100 break-words">
+                                {{ $selectedOrder->customer?->email ?? 'Not provided' }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 min-w-0">
+                            <p class="text-xs text-gray-500 dark:text-slate-400">Phone</p>
+                            <p class="text-sm text-gray-800 dark:text-slate-100 break-words">
+                                {{ $selectedOrder->customer?->phone ?? 'Not provided' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- ✅ Cancellation reason banner --}}
                 @if($selectedOrder->status === 'cancelled')
                 <div
