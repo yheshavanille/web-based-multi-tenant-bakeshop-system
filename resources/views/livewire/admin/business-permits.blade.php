@@ -46,12 +46,6 @@
                             'expired' => 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
                             'not_submitted' => 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300',
                         ];
-                        $validityLabels = [
-                            'valid' => 'Valid',
-                            'expiring_soon' => 'Expiring soon',
-                            'expired' => 'Expired',
-                            'not_submitted' => 'Not submitted',
-                        ];
                         @endphp
                         <tr class="align-top hover:bg-gray-50 dark:hover:bg-slate-700/40">
                             <td class="px-4 py-4">
@@ -62,7 +56,7 @@
                             </td>
                             <td class="px-4 py-4">
                                 <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $validityStyles[$shop->permit_validity_status] }}">
-                                    {{ $validityLabels[$shop->permit_validity_status] }}
+                                    {{ $shop->permit_validity_label }}
                                 </span>
                                 @if($shop->business_permit_path)
                                 <a href="{{ route('livewire.admin.business-permits.document', ['shopId' => $shop->id, 'document' => 'current']) }}"

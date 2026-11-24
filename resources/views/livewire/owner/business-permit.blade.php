@@ -22,16 +22,10 @@
                 'expired' => 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
                 'not_submitted' => 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300',
             ];
-            $validityLabels = [
-                'valid' => 'Valid',
-                'expiring_soon' => 'Expiring within 30 days',
-                'expired' => 'Expired',
-                'not_submitted' => 'No approved permit',
-            ];
             @endphp
             <div class="mt-3 flex flex-wrap items-center gap-3">
                 <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $validityStyles[$shop->permit_validity_status] }}">
-                    {{ $validityLabels[$shop->permit_validity_status] }}
+                    {{ $shop->permit_validity_label }}
                 </span>
                 @if($shop->business_permit_expires_at)
                 <span class="text-sm text-gray-600 dark:text-slate-300">

@@ -49,6 +49,25 @@ class Shop extends Model
         return 'valid';
     }
 
+    public function getPermitValidityLabelAttribute(): string
+    {
+        if ($this->permit_validity_status !== 'expiring_soon') {
+            return match ($this->permit_validity_status) {
+                'valid' => 'Valid',
+                'expired' => 'Expired',
+                default => 'No approved permit',
+            };
+        }
+
+        $daysRemaining = (int) today()->diffInDays($this->business_permit_expires_at, false);
+
+        return match ($daysRemaining) {
+            0 => 'Expires today',
+            1 => 'Expires tomorrow',
+            default => "Expires in {$daysRemaining} days",
+        };
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

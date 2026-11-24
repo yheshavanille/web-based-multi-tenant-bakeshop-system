@@ -33,6 +33,19 @@ class ShopPermitValidityStatusTest extends TestCase
             'business_permit_expires_at' => '2026-12-10',
         ]);
         $this->assertSame('expiring_soon', $expiringPermit->permit_validity_status);
+        $this->assertSame('Expires in 16 days', $expiringPermit->permit_validity_label);
+
+        $tomorrowPermit = new Shop([
+            'business_permit_path' => 'business-permits/current.pdf',
+            'business_permit_expires_at' => '2026-11-25',
+        ]);
+        $this->assertSame('Expires tomorrow', $tomorrowPermit->permit_validity_label);
+
+        $todayPermit = new Shop([
+            'business_permit_path' => 'business-permits/current.pdf',
+            'business_permit_expires_at' => '2026-11-24',
+        ]);
+        $this->assertSame('Expires today', $todayPermit->permit_validity_label);
 
         $expiredPermit = new Shop([
             'business_permit_path' => 'business-permits/current.pdf',
