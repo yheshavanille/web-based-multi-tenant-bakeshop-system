@@ -138,7 +138,7 @@
                     </div>
                     @if($isDeleted)
                     <span
-                        class="absolute right-4 top-4 rounded-full bg-rose-600 px-3 py-1 text-xs font-bold text-white shadow-sm">Archivedd</span>
+                        class="absolute right-4 top-4 rounded-full bg-rose-600 px-3 py-1 text-xs font-bold text-white shadow-sm">Archived</span>
                     @else
                     <span
                         class="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm">Active</span>
