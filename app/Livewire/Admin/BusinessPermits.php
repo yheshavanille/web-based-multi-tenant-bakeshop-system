@@ -12,7 +12,6 @@ class BusinessPermits extends Component
     public string $search = '';
     public bool $showReviewModal = false;
     public ?int $selectedShopId = null;
-    public string $reviewExpiryDate = '';
     public string $rejectionNote = '';
 
     public function openReview(int $shopId): void
@@ -25,7 +24,6 @@ class BusinessPermits extends Component
         );
 
         $this->selectedShopId = $shop->id;
-        $this->reviewExpiryDate = $shop->pending_business_permit_expires_at?->format('Y-m-d') ?? '';
         $this->rejectionNote = '';
         $this->resetErrorBag();
         $this->showReviewModal = true;
@@ -35,17 +33,12 @@ class BusinessPermits extends Component
     {
         $this->showReviewModal = false;
         $this->selectedShopId = null;
-        $this->reviewExpiryDate = '';
         $this->rejectionNote = '';
         $this->resetErrorBag();
     }
 
     public function approve(): void
     {
-        $this->validate([
-            'reviewExpiryDate' => 'required|date|after_or_equal:today',
-        ]);
-
         $shop = Shop::findOrFail($this->selectedShopId);
         abort_unless(
             $shop->pending_business_permit_path
@@ -54,10 +47,14 @@ class BusinessPermits extends Component
         );
 
         $previousPermitPath = $shop->business_permit_path;
+        $permitExpiryDate = Shop::nextBusinessPermitExpiryDate(
+            now(),
+            $shop->business_permit_expires_at
+        );
 
         $shop->update([
             'business_permit_path' => $shop->pending_business_permit_path,
-            'business_permit_expires_at' => $this->reviewExpiryDate,
+            'business_permit_expires_at' => $permitExpiryDate,
             'pending_business_permit_path' => null,
             'pending_business_permit_expires_at' => null,
             'business_permit_review_status' => 'approved',

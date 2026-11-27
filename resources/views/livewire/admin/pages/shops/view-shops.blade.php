@@ -93,6 +93,11 @@
             {{ session('message') }}
         </div>
         @endif
+        @if (session()->has('error'))
+        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 shadow-sm dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+            {{ session('error') }}
+        </div>
+        @endif
 
         <div class="mb-5 flex flex-wrap items-center justify-between gap-3 pb-3">
             <div>
@@ -169,6 +174,40 @@
                     <p class="mb-5 line-clamp-2 min-h-10 text-sm leading-5 text-slate-500 dark:text-slate-400">{{
                         $shop->description ?: 'No
                         description has been added for this listing.' }}</p>
+
+                    @if(!$isDeleted && $shop->closure_request_status === 'pending')
+                    <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
+                        <p class="text-xs font-semibold text-amber-800 dark:text-amber-200">Closure request pending</p>
+                        @if($shop->closure_requested_at)
+                        <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                            Submitted {{ $shop->closure_requested_at->diffForHumans() }}
+                        </p>
+                        @endif
+                        @if($shop->closure_request_reason)
+                        <p class="mt-2 break-words text-xs text-slate-700 dark:text-slate-300">
+                            {{ $shop->closure_request_reason }}
+                        </p>
+                        @endif
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button wire:click="approveClosureRequest({{ $shop->id }})"
+                                onclick="confirm('Approve this closure request and archive the shop?') || event.stopImmediatePropagation()"
+                                class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700">
+                                Approve Closure
+                            </button>
+                            <button wire:click="openClosureReviewModal({{ $shop->id }})"
+                                class="rounded-lg bg-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
+                                Reject Request
+                            </button>
+                        </div>
+                    </div>
+                    @elseif(!$isDeleted && $shop->closure_request_status === 'rejected')
+                    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/30">
+                        <p class="text-xs font-semibold text-red-800 dark:text-red-200">Previous closure request rejected</p>
+                        @if($shop->closure_review_note)
+                        <p class="mt-1 break-words text-xs text-red-700 dark:text-red-300">{{ $shop->closure_review_note }}</p>
+                        @endif
+                    </div>
+                    @endif
 
                     <div class="mt-auto flex flex-col gap-2 border-t border-gray-100 dark:border-slate-700 pt-3">
                         @if($isDeleted)
@@ -249,6 +288,39 @@
             @endforelse
         </div>
     </div>
+
+    @if($showClosureReviewModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeClosureReviewModal"></div>
+        <div class="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+            <div class="border-b border-gray-200 bg-amber-50 px-4 py-4 dark:border-slate-700 dark:bg-amber-900/30 sm:px-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-slate-100">Reject Closure Request</h3>
+                <p class="mt-1 text-xs text-gray-600 dark:text-slate-300">Give the owner a reason for the decision.</p>
+            </div>
+            <div class="px-4 py-4 sm:px-6">
+                <label for="closureReviewNote" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                    Admin note
+                </label>
+                <textarea id="closureReviewNote" wire:model="closureReviewNote" rows="4" maxlength="500"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 @error('closureReviewNote') border-red-500 @enderror"
+                    placeholder="Explain why this request cannot be approved."></textarea>
+                @error('closureReviewNote')
+                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900 sm:px-6">
+                <button wire:click="closeClosureReviewModal"
+                    class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
+                    Cancel
+                </button>
+                <button wire:click="rejectClosureRequest" wire:loading.attr="disabled"
+                    class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50">
+                    Reject Request
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- DELETE REASON MODAL (SUPER ADMIN) --}}
     @if($showDeleteModal)

@@ -17,19 +17,16 @@ class BusinessPermit extends Component
 
     public Shop $shop;
     public $permitFile;
-    public string $permitExpiryDate = '';
 
     public function mount(): void
     {
         $this->shop = Shop::where('user_id', auth()->id())->firstOrFail();
-        $this->permitExpiryDate = $this->shop->pending_business_permit_expires_at?->format('Y-m-d') ?? '';
     }
 
     public function submitRenewal(): void
     {
         $this->validate([
             'permitFile' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'permitExpiryDate' => 'required|date|after_or_equal:today',
         ]);
 
         $shop = Shop::where('user_id', Auth::id())->firstOrFail();
@@ -42,7 +39,7 @@ class BusinessPermit extends Component
 
         $shop->update([
             'pending_business_permit_path' => $path,
-            'pending_business_permit_expires_at' => $this->permitExpiryDate,
+            'pending_business_permit_expires_at' => null,
             'business_permit_review_status' => 'pending_review',
             'business_permit_review_note' => null,
         ]);

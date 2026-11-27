@@ -53,4 +53,42 @@ class ShopPermitValidityStatusTest extends TestCase
         ]);
         $this->assertSame('expired', $expiredPermit->permit_validity_status);
     }
+
+    public function test_initial_permit_expiry_uses_the_next_february_28_after_approval(): void
+    {
+        $this->assertSame(
+            '2026-02-28',
+            Shop::nextBusinessPermitExpiryDate(Carbon::parse('2025-07-26'))
+        );
+        $this->assertSame(
+            '2026-02-28',
+            Shop::nextBusinessPermitExpiryDate(Carbon::parse('2026-02-27'))
+        );
+        $this->assertSame(
+            '2027-02-28',
+            Shop::nextBusinessPermitExpiryDate(Carbon::parse('2026-02-28'))
+        );
+    }
+
+    public function test_renewal_expiry_preserves_the_current_expiry_cycle_when_approved_early(): void
+    {
+        $this->assertSame(
+            '2027-02-28',
+            Shop::nextBusinessPermitExpiryDate(
+                Carbon::parse('2025-12-01'),
+                Carbon::parse('2026-02-28')
+            )
+        );
+    }
+
+    public function test_late_renewal_expiry_uses_the_next_february_28_after_approval(): void
+    {
+        $this->assertSame(
+            '2028-02-28',
+            Shop::nextBusinessPermitExpiryDate(
+                Carbon::parse('2027-03-01'),
+                Carbon::parse('2026-02-28')
+            )
+        );
+    }
 }

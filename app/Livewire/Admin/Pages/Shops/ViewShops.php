@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Pages\Shops;
 
 use App\Models\Shop;
+use App\Notifications\ShopClosureNotification;
 use App\Notifications\ShopDeletedByAdminNotification;
 use App\Notifications\ShopRestoredByAdminNotification;
 use Illuminate\Support\Facades\Notification;
@@ -19,6 +20,9 @@ class ViewShops extends Component
     public $showDeleteModal = false;
     public $shopToDeleteId = null;
     public $deleteReason = '';
+    public bool $showClosureReviewModal = false;
+    public ?int $closureShopId = null;
+    public string $closureReviewNote = '';
 
     public function toggleDeleted()
     {
@@ -51,6 +55,86 @@ class ViewShops extends Component
         $this->shopToDeleteId = null;
         $this->deleteReason = '';
         $this->resetErrorBag();
+    }
+
+    public function openClosureReviewModal(int $shopId): void
+    {
+        $shop = Shop::findOrFail($shopId);
+        abort_unless($shop->closure_request_status === 'pending', 404);
+
+        $this->closureShopId = $shop->id;
+        $this->closureReviewNote = '';
+        $this->showClosureReviewModal = true;
+        $this->resetErrorBag();
+    }
+
+    public function closeClosureReviewModal(): void
+    {
+        $this->showClosureReviewModal = false;
+        $this->closureShopId = null;
+        $this->closureReviewNote = '';
+        $this->resetErrorBag();
+    }
+
+    public function approveClosureRequest(int $shopId): void
+    {
+        $shop = Shop::with('user')->findOrFail($shopId);
+        abort_unless($shop->closure_request_status === 'pending', 404);
+
+        if ($shop->hasUnresolvedOrders()) {
+            session()->flash('error', 'This shop has unresolved orders or payments. Resolve them before approving closure.');
+            return;
+        }
+
+        $shop->update([
+            'closure_request_status' => 'approved',
+            'closure_reviewed_at' => now(),
+            'closure_review_note' => null,
+        ]);
+        $shop->delete();
+
+        $owner = $shop->user;
+        if ($owner && $owner->hasRole('owner')) {
+            $owner->removeRole('owner');
+        }
+
+        if ($owner) {
+            $owner->notify(new ShopClosureNotification(
+                $shop,
+                'shop_closure_approved',
+                "The closure request for {$shop->shop_name} was approved. The shop has been closed."
+            ));
+        }
+
+        session()->flash('message', 'Closure request approved. The shop was archived.');
+    }
+
+    public function rejectClosureRequest(): void
+    {
+        $this->validate([
+            'closureReviewNote' => 'required|string|min:5|max:500',
+        ]);
+
+        $shop = Shop::with('user')->findOrFail($this->closureShopId);
+        abort_unless($shop->closure_request_status === 'pending', 404);
+
+        $shop->update([
+            'closure_request_status' => 'rejected',
+            'closure_reviewed_at' => now(),
+            'closure_review_note' => $this->closureReviewNote,
+        ]);
+
+        if ($shop->user) {
+            $shop->user->notify(new ShopClosureNotification(
+                $shop,
+                'shop_closure_rejected',
+                "The closure request for {$shop->shop_name} was not approved.",
+                $this->closureReviewNote
+            ));
+        }
+
+        $this->closeClosureReviewModal();
+        session()->flash('message', 'Closure request rejected. The owner was notified.');
     }
 
     //  UPDATED: Validate reason, pass it to the notification
@@ -100,6 +184,13 @@ class ViewShops extends Component
         $user = $shop->user;
 
         $shop->restore();
+        $shop->update([
+            'closure_request_status' => null,
+            'closure_request_reason' => null,
+            'closure_requested_at' => null,
+            'closure_reviewed_at' => null,
+            'closure_review_note' => null,
+        ]);
 
         //  Restore owner role when shop is restored
         if ($user && !$user->hasRole('owner')) {

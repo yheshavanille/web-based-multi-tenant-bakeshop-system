@@ -3,7 +3,10 @@
 namespace App\Livewire\Owner\Shop;
 
 use App\Models\Shop;
+use App\Models\User;
+use App\Notifications\ShopClosureNotification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -22,9 +25,8 @@ class EditShop extends Component
     public $opening_time;
     public $closing_time;
 
-    // ✅ Delete reason modal state
-    public $showDeleteModal = false;
-    public $deleteReason = '';
+    public bool $showClosureRequestModal = false;
+    public string $closureReason = '';
 
     public function updatedImage()
     {
@@ -102,48 +104,76 @@ class EditShop extends Component
         return redirect()->route('livewire.owner.dashboard');
     }
 
-    public function openDeleteModal()
+    public function openClosureRequestModal(): void
     {
-        $this->deleteReason = '';
-        $this->showDeleteModal = true;
+        if ($this->shop->closure_request_status === 'pending') {
+            session()->flash('error', 'Your shop closure request is already waiting for admin review.');
+            return;
+        }
+
+        if ($this->shop->hasUnresolvedOrders()) {
+            session()->flash('error', 'Resolve all pending, preparing, ready for pickup, partially completed, and unpaid or partially paid orders before requesting shop closure.');
+            return;
+        }
+
+        $this->closureReason = '';
+        $this->showClosureRequestModal = true;
         $this->resetErrorBag();
     }
 
-    public function closeDeleteModal()
+    public function closeClosureRequestModal(): void
     {
-        $this->showDeleteModal = false;
-        $this->deleteReason = '';
+        $this->showClosureRequestModal = false;
+        $this->closureReason = '';
         $this->resetErrorBag();
     }
 
-    public function deleteShop()
+    public function requestShopClosure(): void
     {
         $this->validate([
-            'deleteReason' => 'required|string|min:10|max:500',
+            'closureReason' => 'required|string|min:10|max:500',
         ], [
-            'deleteReason.required' => 'Please tell us why you are deleting your shop.',
-            'deleteReason.min' => 'Please provide at least 10 characters.',
-            'deleteReason.max' => 'Reason is too long (max 500 characters).',
+            'closureReason.required' => 'Please tell us why you are requesting shop closure.',
+            'closureReason.min' => 'Please provide at least 10 characters.',
+            'closureReason.max' => 'Reason is too long (max 500 characters).',
         ]);
 
-        $shop = Auth::user()->shop;
-        $shopName = $shop->shop_name;
+        $shop = Shop::where('user_id', Auth::id())->firstOrFail();
 
-        $superAdmins = \App\Models\User::role('super_admin')->get();
-        if ($superAdmins->count() > 0) {
-            \Illuminate\Support\Facades\Notification::send(
+        if ($shop->closure_request_status === 'pending') {
+            session()->flash('error', 'Your shop closure request is already waiting for admin review.');
+            $this->closeClosureRequestModal();
+            return;
+        }
+
+        if ($shop->hasUnresolvedOrders()) {
+            session()->flash('error', 'Resolve all pending, preparing, ready for pickup, partially completed, and unpaid or partially paid orders before requesting shop closure.');
+            return;
+        }
+
+        $shop->update([
+            'closure_request_status' => 'pending',
+            'closure_request_reason' => $this->closureReason,
+            'closure_requested_at' => now(),
+            'closure_reviewed_at' => null,
+            'closure_review_note' => null,
+        ]);
+
+        $this->shop = $shop->refresh();
+        $superAdmins = User::role('super_admin')->get();
+        if ($superAdmins->isNotEmpty()) {
+            Notification::send(
                 $superAdmins,
-                new \App\Notifications\ShopDeletedByOwnerNotification($shop, $this->deleteReason)
+                new ShopClosureNotification(
+                    $shop,
+                    'shop_closure_requested',
+                    "The owner of {$shop->shop_name} has requested shop closure."
+                )
             );
         }
 
-        $shop->delete();
-
-        $this->showDeleteModal = false;
-        $this->deleteReason = '';
-
-        session()->flash('message', 'Shop "' . $shopName . '" has been deleted.');
-        return redirect()->route('livewire.customer.dashboard');
+        $this->closeClosureRequestModal();
+        session()->flash('message', 'Your shop closure request has been submitted for admin review.');
     }
 
     public function render()

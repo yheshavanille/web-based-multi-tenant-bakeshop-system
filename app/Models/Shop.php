@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Shop extends Model
 {
@@ -24,6 +26,11 @@ class Shop extends Model
         'business_permit_review_status',
         'business_permit_review_note',
         'business_permit_last_reminder_key',
+        'closure_request_status',
+        'closure_request_reason',
+        'closure_requested_at',
+        'closure_reviewed_at',
+        'closure_review_note',
     ];
 
     protected $dates = ['deleted_at'];
@@ -31,7 +38,24 @@ class Shop extends Model
     protected $casts = [
         'business_permit_expires_at' => 'date',
         'pending_business_permit_expires_at' => 'date',
+        'closure_requested_at' => 'datetime',
+        'closure_reviewed_at' => 'datetime',
     ];
+
+    public static function nextBusinessPermitExpiryDate(
+        ?Carbon $approvalDate = null,
+        ?Carbon $currentExpiryDate = null
+    ): string {
+        $approvalDate = ($approvalDate ?? today())->copy()->startOfDay();
+        $referenceDate = $currentExpiryDate && $currentExpiryDate->greaterThan($approvalDate)
+            ? $currentExpiryDate->copy()->startOfDay()
+            : $approvalDate;
+        $expiryYear = $referenceDate->format('m-d') < '02-28'
+            ? $referenceDate->year
+            : $referenceDate->year + 1;
+
+        return sprintf('%04d-02-28', $expiryYear);
+    }
 
     public function getPermitValidityStatusAttribute(): string
     {
@@ -93,6 +117,27 @@ class Shop extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function unresolvedOrders(): HasMany
+    {
+        return $this->orders()
+            ->where(function ($query) {
+                $query->whereNull('is_parent_order')
+                    ->orWhere('is_parent_order', false);
+            })
+            ->where(function ($query) {
+                $query->whereIn('status', ['pending', 'preparing', 'ready_for_pickup', 'partially_completed'])
+                    ->orWhere(function ($paymentQuery) {
+                        $paymentQuery->whereIn('payment_status', ['pending', 'partially_paid'])
+                            ->whereNotIn('status', ['cancelled', 'no_show']);
+                    });
+            });
+    }
+
+    public function hasUnresolvedOrders(): bool
+    {
+        return $this->unresolvedOrders()->exists();
     }
 
     // public function scopeGetData($data)

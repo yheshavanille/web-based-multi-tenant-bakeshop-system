@@ -36,7 +36,6 @@ class SellerApprovedNotification extends Notification
             $labels = [
                 'valid_id' => 'Valid Government ID',
                 'business_permit' => 'Business Permit',
-                'permit_expiry_date' => 'Business Permit Expiry Date',
                 'shop_name' => 'Shop Name',
                 'shop_address' => 'Shop Address',
                 'contact_number' => 'Contact Number',
@@ -75,7 +74,7 @@ class SellerApprovedNotification extends Notification
             ->line('🏪 Shop Name: ' . $this->application->shop_name)
             ->line('📍 Address: ' . ($this->application->shop_address ?? 'N/A'))
             ->line('📞 Contact: ' . ($this->application->contact_number ?? 'N/A'))
-            ->line('Business permit expiry date: ' . ($this->application->verified_business_permit_expires_at?->format('M d, Y') ?? 'N/A'));
+            ->line('System-calculated business permit expiry date: ' . ($this->application->verified_business_permit_expires_at?->format('M d, Y') ?? 'N/A'));
 
         // ✅ Append the custom note if the Super Admin wrote one
         if (!empty($this->customNote)) {

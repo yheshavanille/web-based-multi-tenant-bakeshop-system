@@ -72,11 +72,9 @@
                     class="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400">
                     View submitted permit
                 </a>
-                @if($shop->pending_business_permit_expires_at)
                 <span class="text-gray-600 dark:text-slate-300">
-                    Submitted expiry date: {{ $shop->pending_business_permit_expires_at->format('M d, Y') }}
+                    A new expiry date will be assigned after approval based on the February 28 annual renewal cycle.
                 </span>
-                @endif
             </div>
             @endif
 
@@ -90,7 +88,7 @@
         <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6">
             <h2 class="text-base font-semibold text-gray-800 dark:text-slate-100">Submit a Permit or Renewal</h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
-                Enter the expiry date printed on the document. An admin will verify it before the permit becomes active.
+                Upload your current business permit. The expiry date will be assigned after admin approval based on the February 28 annual renewal cycle.
             </p>
 
             <form wire:submit.prevent="submitRenewal" class="mt-5 space-y-4">
@@ -114,18 +112,6 @@
                     </div>
                     @endif
                     @error('permitFile')
-                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="permitExpiryDate" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                        Permit expiry date
-                    </label>
-                    <input id="permitExpiryDate" type="date" wire:model="permitExpiryDate"
-                        min="{{ today()->format('Y-m-d') }}"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 sm:max-w-xs">
-                    @error('permitExpiryDate')
                     <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>

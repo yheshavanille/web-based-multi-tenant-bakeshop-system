@@ -23,12 +23,10 @@ class PendingSellers extends Component
     public $statusFilter = 'all';
 
     public $custom_note = '';
-    public string $reviewExpiryDate = '';
 
     public $requirements = [
         'valid_id' => false,
         'business_permit' => false,
-        'permit_expiry_date' => false,
         'shop_name' => false,
         'shop_address' => false,
         'contact_number' => false,
@@ -92,7 +90,6 @@ class PendingSellers extends Component
 
         $this->requirements['valid_id'] = !empty($this->selectedApplication->valid_id_path);
         $this->requirements['business_permit'] = !empty($this->selectedApplication->business_permit);
-        $this->requirements['permit_expiry_date'] = false;
         $this->requirements['shop_name'] = !empty($this->selectedApplication->shop_name);
         $this->requirements['shop_address'] = !empty($this->selectedApplication->shop_address);
         $this->requirements['contact_number'] = !empty($this->selectedApplication->contact_number);
@@ -101,7 +98,6 @@ class PendingSellers extends Component
         $this->rejecting = false;
         $this->rejection_reason = '';
         $this->custom_note = '';
-        $this->reviewExpiryDate = $this->selectedApplication->business_permit_expires_at?->format('Y-m-d') ?? '';
     }
 
 
@@ -111,7 +107,6 @@ class PendingSellers extends Component
         $this->selectedApplication = null;
         $this->rejecting = false;
         $this->custom_note = '';
-        $this->reviewExpiryDate = '';
     }
 
     public function startReject()
@@ -142,10 +137,6 @@ class PendingSellers extends Component
             $this->loadApplications();
             return;
         }
-
-        $this->validate([
-            'reviewExpiryDate' => 'required|date|after_or_equal:today',
-        ]);
 
         //  GUARD 2: Require all checklist items ticked
         $allChecked = true;
@@ -179,6 +170,7 @@ class PendingSellers extends Component
             throw new \RuntimeException('The submitted business permit file could not be found.');
         }
 
+        $permitExpiryDate = Shop::nextBusinessPermitExpiryDate();
         $permitExtension = pathinfo($application->business_permit, PATHINFO_EXTENSION);
         $permitPath = 'business-permits/' . Str::uuid() . '.' . $permitExtension;
         if (!Storage::disk('local')->put($permitPath, Storage::disk('public')->get($application->business_permit))) {
@@ -192,12 +184,12 @@ class PendingSellers extends Component
             'description' => $application->shop_description,
             'user_id' => $user->id,
             'business_permit_path' => $permitPath,
-            'business_permit_expires_at' => $this->reviewExpiryDate,
+            'business_permit_expires_at' => $permitExpiryDate,
             'business_permit_review_status' => 'approved',
         ]);
 
         $application->update([
-            'verified_business_permit_expires_at' => $this->reviewExpiryDate,
+            'verified_business_permit_expires_at' => $permitExpiryDate,
             'status' => 'approved',
             'reviewed_at' => now(),
         ]);

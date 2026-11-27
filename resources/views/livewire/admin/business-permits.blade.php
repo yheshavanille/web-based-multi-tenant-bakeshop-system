@@ -88,7 +88,7 @@
                                     View submitted document
                                 </a>
                                 <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">
-                                    Submitted expiry: {{ $shop->pending_business_permit_expires_at?->format('M d, Y') ?? 'Not provided' }}
+                                    Expiry will be assigned after approval based on the February 28 annual renewal cycle.
                                 </p>
                                 @endif
                             </td>
@@ -140,16 +140,8 @@
                 Open submitted permit
             </a>
 
-            <div class="mt-4">
-                <label for="reviewExpiryDate" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                    Verify or correct expiry date
-                </label>
-                <input id="reviewExpiryDate" type="date" wire:model="reviewExpiryDate"
-                    min="{{ today()->format('Y-m-d') }}"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
-                @error('reviewExpiryDate')
-                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
+            <div class="mt-4 rounded-lg bg-gray-50 p-3 text-sm text-gray-600 dark:bg-slate-900 dark:text-slate-300">
+                Approving assigns the next February 28 expiry date automatically. Early renewals retain the current permit's renewal cycle.
             </div>
 
             <div class="mt-4">

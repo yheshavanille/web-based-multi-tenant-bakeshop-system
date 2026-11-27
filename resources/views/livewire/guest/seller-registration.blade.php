@@ -169,17 +169,9 @@
                     </div>
                     @endif
                     <div class="mt-4">
-                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                            Business Permit Expiry Date
-                        </label>
-                        <input type="date" wire:model="business_permit_expires_at" min="{{ today()->format('Y-m-d') }}"
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
-                        <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">
-                            Enter the expiry date shown on your uploaded permit. An admin will verify it before approval.
+                        <p class="text-sm text-gray-600 dark:text-slate-300">
+                            The system assigns the permit expiry date after approval based on the February 28 annual renewal cycle.
                         </p>
-                        @error('business_permit_expires_at')
-                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 

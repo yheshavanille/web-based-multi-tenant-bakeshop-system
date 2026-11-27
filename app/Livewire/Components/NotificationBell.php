@@ -100,6 +100,8 @@ class NotificationBell extends Component
                 'seller_rejected',
                 'shop_deleted_by_admin',
                 'shop_restored_by_admin',
+                'shop_closure_approved',
+                'shop_closure_rejected',
                 'password_changed',
                 'review_ban_lifted',   //  NEW
             ]);
@@ -133,6 +135,9 @@ class NotificationBell extends Component
                 'seller_approved',
                 'seller_rejected',
                 'shop_restored_by_admin',
+                'shop_closure_requested',
+                'shop_closure_approved',
+                'shop_closure_rejected',
                 'low_stock',
                 'stock_review_needed',
                 'business_permit_approved',

@@ -32,7 +32,6 @@ class BusinessPermitNotification extends Notification
             'shop_id' => $this->shop->id,
             'shop_name' => $this->shop->shop_name,
             'permit_expires_at' => $this->shop->business_permit_expires_at?->format('Y-m-d'),
-            'submitted_expiry_date' => $this->shop->pending_business_permit_expires_at?->format('Y-m-d'),
             'review_note' => $this->reviewNote,
             'message' => $this->message,
             'url' => $isAdminNotification
@@ -55,8 +54,8 @@ class BusinessPermitNotification extends Notification
             $mail->line('Current permit expiry date: ' . $this->shop->business_permit_expires_at->format('M d, Y'));
         }
 
-        if ($this->shop->pending_business_permit_expires_at) {
-            $mail->line('Submitted permit expiry date: ' . $this->shop->pending_business_permit_expires_at->format('M d, Y'));
+        if ($this->type === 'business_permit_submitted') {
+            $mail->line('A new expiry date will be assigned after approval based on the February 28 annual renewal cycle.');
         }
 
         if ($this->reviewNote) {

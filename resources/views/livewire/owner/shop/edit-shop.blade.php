@@ -30,6 +30,31 @@
         </div>
         @endif
 
+        @if(session()->has('error'))
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+            {{ session('error') }}
+        </div>
+        @endif
+
+        @if($shop->closure_request_status === 'pending')
+        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+            Your shop closure request is waiting for admin review.
+            @if($shop->closure_requested_at)
+            <span class="block mt-1 text-xs">{{ $shop->closure_requested_at->format('M d, Y h:i A') }}</span>
+            @endif
+            @if($shop->closure_request_reason)
+            <span class="block mt-2 break-words">Reason: {{ $shop->closure_request_reason }}</span>
+            @endif
+        </div>
+        @elseif($shop->closure_request_status === 'rejected')
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+            <p class="font-semibold">Your shop closure request was not approved.</p>
+            @if($shop->closure_review_note)
+            <p class="mt-1 break-words">Admin note: {{ $shop->closure_review_note }}</p>
+            @endif
+        </div>
+        @endif
+
         <!-- Main Card -->
         <div
             class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
@@ -178,15 +203,21 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                    <button type="button" wire:click="openDeleteModal"
+                    @if($shop->closure_request_status === 'pending')
+                    <span class="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                        Closure Request Pending
+                    </span>
+                    @else
+                    <button type="button" wire:click="openClosureRequestModal"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition text-xs font-medium">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                             </path>
                         </svg>
-                        Delete Shop
+                        Request Shop Closure
                     </button>
+                    @endif
                     <div class="flex gap-2">
                         <a href="{{ route('livewire.owner.dashboard') }}"
                             class="px-4 py-1.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-slate-300 rounded-lg transition text-xs font-medium">
@@ -214,54 +245,53 @@
                 </svg>
                 <div>
                     <p class="text-xs font-medium text-red-800 dark:text-red-200">Danger Zone</p>
-                    <p class="text-xs text-red-600 dark:text-red-400">Deleting your shop will hide all your products,
-                        orders, and data.
-                        Contact support to restore.</p>
+                    <p class="text-xs text-red-600 dark:text-red-400">
+                        Shop closure requires admin approval. You must resolve all open orders and outstanding payments first.
+                    </p>
                 </div>
             </div>
         </div>
 
     </div>
 
-    {{-- DELETE REASON MODAL --}}
-    @if($showDeleteModal)
+    {{-- SHOP CLOSURE REQUEST MODAL --}}
+    @if($showClosureRequestModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeDeleteModal"></div>
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeClosureRequestModal"></div>
 
         <div class="relative z-10 w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/30">
-                <h3 class="text-lg font-bold text-red-800 dark:text-red-200">Delete Shop</h3>
-                <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">This will hide your shop and its data from the
-                    platform.</p>
+                <h3 class="text-lg font-bold text-red-800 dark:text-red-200">Request Shop Closure</h3>
+                <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">Your shop remains active unless an admin approves the request.</p>
             </div>
 
             <div class="px-6 py-4">
                 <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
-                    Reason for deletion <span class="text-red-500 dark:text-red-400">*</span>
+                    Reason for closure <span class="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">
-                    This will be sent to the Super Admin so they understand why you're leaving.
+                    All open orders and outstanding payments must be resolved before approval.
                 </p>
-                <textarea wire:model="deleteReason" rows="4" maxlength="500"
-                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('deleteReason') border-red-500 @enderror"
+                <textarea wire:model="closureReason" rows="4" maxlength="500"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 rounded-lg focus:ring-amber-500 focus:border-amber-500 text-sm @error('closureReason') border-red-500 @enderror"
                     placeholder="e.g. Closing the business, relocating, switching platforms..."></textarea>
-                @error('deleteReason')
+                @error('closureReason')
                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
                 <p class="mt-1 text-xs text-gray-400 dark:text-slate-500 text-right">
-                    {{ strlen($deleteReason) }}/500
+                    {{ strlen($closureReason) }}/500
                 </p>
             </div>
 
             <div
                 class="px-6 py-3 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 flex justify-end gap-2">
-                <button wire:click="closeDeleteModal"
+                <button wire:click="closeClosureRequestModal"
                     class="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-500 transition text-sm font-medium">
                     Cancel
                 </button>
-                <button wire:click="deleteShop" wire:loading.attr="disabled"
+                <button wire:click="requestShopClosure" wire:loading.attr="disabled"
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium shadow-sm disabled:opacity-50">
-                    Delete Shop
+                    Submit Request
                 </button>
             </div>
         </div>
