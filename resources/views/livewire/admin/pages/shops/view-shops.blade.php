@@ -10,7 +10,8 @@
                     @endif
                 </h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
-                    {{ $showDeleted ? 'View and restore archived bakeshops.' : 'View bakeshops, products, and employees.'
+                    {{ $showDeleted ? 'View and restore archived bakeshops.' : 'View bakeshops, products, and
+                    employees.'
                     }}
                 </p>
             </div>
@@ -94,7 +95,8 @@
         </div>
         @endif
         @if (session()->has('error'))
-        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 shadow-sm dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+        <div
+            class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 shadow-sm dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
             {{ session('error') }}
         </div>
         @endif
@@ -136,7 +138,7 @@
                     </div>
                     @if($isDeleted)
                     <span
-                        class="absolute right-4 top-4 rounded-full bg-rose-600 px-3 py-1 text-xs font-bold text-white shadow-sm">Deleted</span>
+                        class="absolute right-4 top-4 rounded-full bg-rose-600 px-3 py-1 text-xs font-bold text-white shadow-sm">Archivedd</span>
                     @else
                     <span
                         class="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm">Active</span>
@@ -176,7 +178,8 @@
                         description has been added for this listing.' }}</p>
 
                     @if(!$isDeleted && $shop->closure_request_status === 'pending')
-                    <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
+                    <div
+                        class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/30">
                         <p class="text-xs font-semibold text-amber-800 dark:text-amber-200">Closure request pending</p>
                         @if($shop->closure_requested_at)
                         <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
@@ -201,10 +204,13 @@
                         </div>
                     </div>
                     @elseif(!$isDeleted && $shop->closure_request_status === 'rejected')
-                    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/30">
-                        <p class="text-xs font-semibold text-red-800 dark:text-red-200">Previous closure request rejected</p>
+                    <div
+                        class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/30">
+                        <p class="text-xs font-semibold text-red-800 dark:text-red-200">Previous closure request
+                            rejected</p>
                         @if($shop->closure_review_note)
-                        <p class="mt-1 break-words text-xs text-red-700 dark:text-red-300">{{ $shop->closure_review_note }}</p>
+                        <p class="mt-1 break-words text-xs text-red-700 dark:text-red-300">{{ $shop->closure_review_note
+                            }}</p>
                         @endif
                     </div>
                     @endif
@@ -293,7 +299,8 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" wire:click="closeClosureReviewModal"></div>
         <div class="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
-            <div class="border-b border-gray-200 bg-amber-50 px-4 py-4 dark:border-slate-700 dark:bg-amber-900/30 sm:px-6">
+            <div
+                class="border-b border-gray-200 bg-amber-50 px-4 py-4 dark:border-slate-700 dark:bg-amber-900/30 sm:px-6">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-slate-100">Reject Closure Request</h3>
                 <p class="mt-1 text-xs text-gray-600 dark:text-slate-300">Give the owner a reason for the decision.</p>
             </div>
@@ -308,7 +315,8 @@
                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
             </div>
-            <div class="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900 sm:px-6">
+            <div
+                class="flex justify-end gap-2 border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900 sm:px-6">
                 <button wire:click="closeClosureReviewModal"
                     class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
                     Cancel
