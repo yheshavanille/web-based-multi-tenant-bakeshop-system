@@ -4,13 +4,13 @@
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-slate-100">
                     @if($showDeleted)
-                    Deleted Bakeshops
+                    Archived Bakeshops
                     @else
                     View Bakeshops
                     @endif
                 </h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
-                    {{ $showDeleted ? 'View and restore deleted bakeshops.' : 'View bakeshops, products, and employees.'
+                    {{ $showDeleted ? 'View and restore archived bakeshops.' : 'View bakeshops, products, and employees.'
                     }}
                 </p>
             </div>
