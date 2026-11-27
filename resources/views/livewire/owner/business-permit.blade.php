@@ -12,6 +12,11 @@
             {{ session('message') }}
         </div>
         @endif
+        @if (session()->has('error'))
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+            {{ session('error') }}
+        </div>
+        @endif
 
         <div class="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6">
             <h2 class="text-base font-semibold text-gray-800 dark:text-slate-100">Current Approved Permit</h2>
@@ -88,9 +93,18 @@
         <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6">
             <h2 class="text-base font-semibold text-gray-800 dark:text-slate-100">Submit a Permit or Renewal</h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
-                Upload your current business permit. The expiry date will be assigned after admin approval based on the February 28 annual renewal cycle.
+                Upload your current business permit. Renewals can be submitted during the 30 days before expiry. The expiry date will be assigned after admin approval based on the February 28 annual renewal cycle.
             </p>
 
+            @if($shop->business_permit_review_status === 'pending_review')
+            <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+                Your latest permit submission is waiting for admin review. You can submit another permit after it has been reviewed.
+            </div>
+            @elseif(!$shop->canSubmitBusinessPermit())
+            <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+                You can submit your renewal starting {{ $shop->permit_renewal_available_date->format('M d, Y') }}, 30 days before your current permit expires.
+            </div>
+            @else
             <form wire:submit.prevent="submitRenewal" class="mt-5 space-y-4">
                 <div>
                     <label for="permitFile" class="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
@@ -125,6 +139,7 @@
                     Submit for Review
                 </button>
             </form>
+            @endif
         </div>
     </div>
 </div>

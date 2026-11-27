@@ -91,4 +91,42 @@ class ShopPermitValidityStatusTest extends TestCase
             )
         );
     }
+
+    public function test_permit_renewal_is_available_only_within_30_days_of_expiry_unless_rejected(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-27'));
+
+        $permitOutsideRenewalWindow = new Shop([
+            'business_permit_path' => 'business-permits/current.pdf',
+            'business_permit_expires_at' => '2027-01-01',
+            'business_permit_review_status' => 'approved',
+        ]);
+        $this->assertFalse($permitOutsideRenewalWindow->canSubmitBusinessPermit());
+        $this->assertSame(
+            '2026-12-02',
+            $permitOutsideRenewalWindow->permit_renewal_available_date->toDateString()
+        );
+
+        $permitInRenewalWindow = new Shop([
+            'business_permit_path' => 'business-permits/current.pdf',
+            'business_permit_expires_at' => '2026-12-27',
+            'business_permit_review_status' => 'approved',
+        ]);
+        $this->assertTrue($permitInRenewalWindow->canSubmitBusinessPermit());
+
+        $rejectedPermit = new Shop([
+            'business_permit_path' => 'business-permits/current.pdf',
+            'business_permit_expires_at' => '2027-01-01',
+            'business_permit_review_status' => 'rejected',
+        ]);
+        $this->assertTrue($rejectedPermit->canSubmitBusinessPermit());
+
+        $pendingPermit = new Shop([
+            'business_permit_review_status' => 'pending_review',
+        ]);
+        $this->assertFalse($pendingPermit->canSubmitBusinessPermit());
+
+        $shopWithoutPermit = new Shop();
+        $this->assertTrue($shopWithoutPermit->canSubmitBusinessPermit());
+    }
 }

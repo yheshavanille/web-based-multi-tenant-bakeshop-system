@@ -93,6 +93,36 @@ class Shop extends Model
         };
     }
 
+    public function canSubmitBusinessPermit(): bool
+    {
+        if ($this->business_permit_review_status === 'pending_review') {
+            return false;
+        }
+
+        if ($this->business_permit_review_status === 'rejected') {
+            return true;
+        }
+
+        if (!$this->business_permit_path || !$this->business_permit_expires_at) {
+            return true;
+        }
+
+        return $this->business_permit_expires_at->lte(today()->addDays(30));
+    }
+
+    public function getPermitRenewalAvailableDateAttribute(): ?Carbon
+    {
+        if (!$this->business_permit_path
+            || !$this->business_permit_expires_at
+            || $this->business_permit_review_status === 'rejected') {
+            return null;
+        }
+
+        $availableDate = $this->business_permit_expires_at->copy()->subDays(30);
+
+        return $availableDate->gt(today()) ? $availableDate : null;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

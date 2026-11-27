@@ -25,11 +25,25 @@ class BusinessPermit extends Component
 
     public function submitRenewal(): void
     {
+        $shop = Shop::where('user_id', Auth::id())->firstOrFail();
+
+        if (!$shop->canSubmitBusinessPermit()) {
+            if ($shop->business_permit_review_status === 'pending_review') {
+                session()->flash('error', 'Your latest permit submission is already waiting for admin review.');
+            } else {
+                session()->flash(
+                    'error',
+                    'You can submit a renewal starting ' . $shop->permit_renewal_available_date->format('M d, Y') . '.'
+                );
+            }
+
+            return;
+        }
+
         $this->validate([
             'permitFile' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
-        $shop = Shop::where('user_id', Auth::id())->firstOrFail();
         $path = $this->permitFile->store('business-permits', 'local');
         if (!$path) {
             throw new \RuntimeException('The business permit could not be stored.');
